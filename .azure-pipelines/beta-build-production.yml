@@ -4,7 +4,7 @@
 # https://aka.ms/yaml
 
 trigger:
-  - beta
+  - main
 
 pool:
   vmImage: ubuntu-latest
@@ -18,10 +18,12 @@ steps:
     SourceFolder: '$(System.DefaultWorkingDirectory)'
     Contents: |
      **/*
-     !spec/
-     !.azure-pipelines/
-     !scripts/
-     !.github/
+     !spec/**
+     !.azure-pipelines/**
+     !scripts/**
+     !.github/**
+     !.git/**
+     !.vscode/**
     TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
 - task: PublishBuildArtifacts@1
