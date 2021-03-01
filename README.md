@@ -33,12 +33,13 @@ const client = Client.initWithMiddleware({
 const response = await client.api("/me").get();
 const user = response as User;
 ```
+
 ### Example of creating a object
 ```typescript
 // Create the message object
 
 // Note that all the properties must follow the interface definitions.
-// For example, this will not compile if you try to type "xml" instead of "html" for contentType. 
+// For example, this will not compile if you try to type "xml" instead of "html" for contentType.
 
 let mail:MicrosoftGraph.Message = {
     subject: "Microsoft Graph TypeScript Sample",
@@ -63,7 +64,6 @@ Any TypeScript project can consume these types when using at least TypeScript 2.
 ## Questions and comments
 
 We'd love to get your feedback about the TypeScript definitions project. You can send your questions and suggestions to us in the [Issues](https://github.com/microsoftgraph/msgraph-beta-typescript-typings/issues) section of this repository.
-
 
 ## Contributing
 Please see the [contributing guidelines](CONTRIBUTING.md).

@@ -17,7 +17,6 @@ steps:
      **/*
      !spec/**
      !.azure-pipelines/**
-     !scripts/**
      !.github/**
      !.git/**
      !.vscode/**
