@@ -1,7 +1,4 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
+# Production build pipeline preparing for npm publish
 
 trigger:
   - main
@@ -24,7 +21,8 @@ steps:
      !.github/**
      !.git/**
      !.vscode/**
+     !typings-demo.gif
     TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
 - task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: drop' 
+  displayName: 'Publish Artifact: drop'
