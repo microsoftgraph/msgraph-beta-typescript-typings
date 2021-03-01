@@ -12,7 +12,7 @@ name: "create pull request"
 on:
   push:
     branches:
-      - "pipelinebuild/beta/*"
+      - "beta/pipelinebuild/*"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -40,7 +40,7 @@ jobs:
         REVIEWERS: peombwa,ddyett,MIchaelMainer,baywet,zengin
         ASSIGNEDTO: nikithauc
         LABELS: generated
-        BASE: beta
+        BASE: main
       run: |
         curl -fsSL https://github.com/github/hub/raw/master/script/get | bash -s 2.14.1
         bin/hub pull-request -b "$BASE" -h "$GITHUB_REF" -m "$MESSAGE_TITLE" -m "$MESSAGE_BODY" -r "$REVIEWERS" -a "$ASSIGNEDTO" -l "$LABELS"
