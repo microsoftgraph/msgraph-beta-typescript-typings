@@ -1,8 +1,8 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 
-# This action will automatically create a pull request against master if the pushed branch
-# has a branch path spec like pipelinebuild/beta/*. Configure this action by updating the
+# This action will automatically create a pull request against main if the pushed branch
+# has a branch path spec like beta/pipelinebuild/*. Configure this action by updating the
 # environment variable values[0]. 
 
 name: "create pull request"
@@ -12,7 +12,7 @@ name: "create pull request"
 on:
   push:
     branches:
-      - "pipelinebuild/beta/*"
+      - "beta/pipelinebuild/*"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -36,11 +36,11 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         MESSAGE_TITLE: Generated beta typings using Typewriter
-        MESSAGE_BODY: "This pull request was automatically created by the GitHub Action, **${{github.workflow}}**. \n\n The commit hash is _${{github.sha}}_. \n\n **Important** Check for unexpected deletions or changes in this PR. \n\n cc: @darrelmiller"
+        MESSAGE_BODY: "This pull request was automatically created by the GitHub Action, **${{github.workflow}}**. \n\n The commit hash is _${{github.sha}}_. \n\n **Important** Check for unexpected deletions or changes in this PR."
         REVIEWERS: peombwa,ddyett,MIchaelMainer,baywet,zengin
         ASSIGNEDTO: nikithauc
         LABELS: generated
-        BASE: beta
+        BASE: main
       run: |
         curl -fsSL https://github.com/github/hub/raw/master/script/get | bash -s 2.14.1
         bin/hub pull-request -b "$BASE" -h "$GITHUB_REF" -m "$MESSAGE_TITLE" -m "$MESSAGE_BODY" -r "$REVIEWERS" -a "$ASSIGNEDTO" -l "$LABELS"
