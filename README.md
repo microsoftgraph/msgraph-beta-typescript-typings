@@ -1,7 +1,7 @@
-[![npm version badge](https://img.shields.io/npm/v/@microsoft/microsoft-graph-types.svg)](https://www.npmjs.com/package/@microsoft/microsoft-graph-types)
+# Microsoft Graph TypeScript Types Beta
+The Microsoft Graph TypeScript definitions enable editors to provide intellisense on Microsoft Graph /beta endpoint objects including users, messages, and groups.
 
-# Microsoft Graph TypeScript Types
-The Microsoft Graph TypeScript definitions enable editors to provide intellisense on Microsoft Graph objects including users, messages, and groups.
+> **_NOTE:_**  APIs under the /beta version in Microsoft Graph are subject to change.
 
 ## Installation
 
@@ -10,53 +10,38 @@ We recommend including the .d.ts file by downloading this package through [npm](
 ```bash
 
 # Install types and save in package.json as a development dependency
-npm install @microsoft/microsoft-graph-types --save-dev
+npm install @microsoft/microsoft-graph-types-beta --save-dev
 
 ```
 
-
-![GIF showing intellisense and autocompletion for Microsoft Graph entities in Visual Studio Code ](https://github.com/microsoftgraph/msgraph-typescript-typings/raw/master/typings-demo.gif)
 ## Examples
-The following examples assume that you have a valid access token. We used [isomorphic-fetch](https://www.npmjs.com/package/isomorphic-fetch) to perform requests, but you can use [our JavaScript client library](https://github.com/microsoftgraph/msgraph-sdk-javascript) or other libraries as well.
-```typescript
-import * as MicrosoftGraph from "@microsoft/microsoft-graph-types"
+The following examples assume that you have a valid access token. The following example uses [isomorphic-fetch](https://www.npmjs.com/package/isomorphic-fetch) and  [Microsoft Graph JavaScript client library](https://github.com/microsoftgraph/msgraph-sdk-javascript) -
 
-import * from 'isomorphic-fetch';
-const accessToken:string = "";
-```
-### List my recent messages
 ```typescript
-let url = "https://graph.microsoft.com/v1.0/me/messages";
-let request = new Request(url, {
-    method: "GET",
-    headers: new Headers({
-        "Authorization": "Bearer " + accessToken
-    })
+import { User } from "@microsoft/microsoft-graph-types-beta";
+
+import { Client } from "@microsoft/microsoft-graph-client";
+
+import 'isomorphic-fetch';
+
+const client = Client.initWithMiddleware({
+	debugLogging: true,
+	middleware,
+	defaultVersion: 'beta',
 });
 
-fetch(request)
-.then((response) => {
-    response.json().then((res) => {
-        let messages:[MicrosoftGraph.Message] = res.value;
-        for (let msg of messages) { //iterate through the recent messages
-            console.log(msg.subject);
-            console.log(msg.toRecipients[0].emailAddress.address);
-        }
-    });
-
-})
-.catch((error) => {
-    console.error(error);
-});
+const response = await client.api("/me").get();
+const user = response as User;
 ```
-### Send an email as the logged in user
+
+### Example of creating an object
 ```typescript
 // Create the message object
 
 // Note that all the properties must follow the interface definitions.
-// For example, this will not compile if you try to type "xml" instead of "html" for contentType. 
+// For example, this will not compile if you try to type "xml" instead of "html" for contentType.
 
-let mail:MicrosoftGraph.Message = {
+let mail:MicrosoftGraphBeta.Message = {
     subject: "Microsoft Graph TypeScript Sample",
     toRecipients: [{
         emailAddress: {
@@ -68,55 +53,32 @@ let mail:MicrosoftGraph.Message = {
         contentType: "html"
     }
 }
-// send the email by sending a POST request to the Microsoft Graph
-let url = "https://graph.microsoft.com/v1.0/users/me/sendMail";
-let request = new Request(
-            url, {
-                method: "POST",
-                body: JSON.stringify({
-                    message: mail
-                }),
-                headers: new Headers({
-                    "Authorization": "Bearer " + accessToken,
-                    'Content-Type': 'application/json'
-                })
-            }
-        );
-        
-fetch(request)
-.then((response) => {
-    if(response.ok === true) {
-        console.log("Mail sent successfully..!!");
-    }
-})
-.catch((err) => {
-    console.error(err);
-});
-
 ```
-## Microsoft Graph beta support
-If you want to test the Microsoft Graph beta endpoints, you can use those types simultaneously with the v1.0 types.
 
-Update your package.json file with the following:
-
-```javascript
+## Example of using v1 types and beta types together
+```json
   "devDependencies": {
     // import published v1.0 types with a version from NPM
     "@microsoft/microsoft-graph-types": "^0.4.0",
-
-    // import beta types from the beta branch on the GitHub repo
-    "@microsoft/microsoft-graph-types-beta": "microsoftgraph/msgraph-typescript-typings#beta"
+    // import beta types with a version from NPM
+    "@microsoft/microsoft-graph-types-beta": "^0.1.0-preview"
   }
 }
 ```
 
-Import the beta types from `@microsoft/microsoft-graph-types-beta`
 ```typescript
-// import individual entities
-import {User as BetaUser} from "@microsoft/microsoft-graph-types-beta"
+import * as MicrosoftGraph from "@microsoft/microsoft-graph-types"
 
-// or import everything under MicrosoftGraphBeta
 import * as MicrosoftGraphBeta from "@microsoft/microsoft-graph-types-beta"
+
+const v1User: MicrosoftGraph.User = {
+	givenName: "V1 User"
+}
+
+const betaUser: MicrosoftGraphBeta.User = {
+	givenName: "Beta User"
+}
+
 ```
 
 ## Supported editors
@@ -127,8 +89,7 @@ Any TypeScript project can consume these types when using at least TypeScript 2.
 
 ## Questions and comments
 
-We'd love to get your feedback about the TypeScript definitions project. You can send your questions and suggestions to us in the [Issues](https://github.com/microsoftgraph/msgraph-typescript-typings/issues) section of this repository.
-
+We'd love to get your feedback about the TypeScript definitions project. You can send your questions and suggestions to us in the [Issues](https://github.com/microsoftgraph/msgraph-beta-typescript-typings/issues) section of this repository.
 
 ## Contributing
 Please see the [contributing guidelines](CONTRIBUTING.md).
@@ -138,8 +99,9 @@ Please see the [contributing guidelines](CONTRIBUTING.md).
 * [Microsoft Graph](https://graph.microsoft.io)
 * [Office Dev Center](http://dev.office.com/)
 * [Microsoft Graph JavaScript Client Library](https://github.com/microsoftgraph/msgraph-sdk-javascript)
+* [Use the Microsoft Graph SDKs with the beta API](https://docs.microsoft.com/en-us/graph/sdks/use-beta?tabs=CS)
 
 ## Copyright
-Copyright (c) 2017 Microsoft. All rights reserved.
+Copyright (c) 2021 Microsoft. All rights reserved.
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
