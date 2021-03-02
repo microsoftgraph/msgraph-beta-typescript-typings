@@ -14,7 +14,6 @@ npm install @microsoft/microsoft-graph-types-beta --save-dev
 
 ```
 
-![GIF showing intellisense and autocompletion for Microsoft Graph entities in Visual Studio Code ](https://github.com/microsoftgraph/msgraph-beta-typescript-typings/blob/main/typings-demo.gif)
 ## Examples
 The following examples assume that you have a valid access token. The following example uses [isomorphic-fetch](https://www.npmjs.com/package/isomorphic-fetch) and  [Microsoft Graph JavaScript client library](https://github.com/microsoftgraph/msgraph-sdk-javascript) -
 
@@ -28,20 +27,21 @@ import 'isomorphic-fetch';
 const client = Client.initWithMiddleware({
 		debugLogging: true,
 		middleware,
+        defaultVersion: 'beta',
 	});
 
 const response = await client.api("/me").get();
 const user = response as User;
 ```
 
-### Example of creating a object
+### Example of creating an object
 ```typescript
 // Create the message object
 
 // Note that all the properties must follow the interface definitions.
 // For example, this will not compile if you try to type "xml" instead of "html" for contentType.
 
-let mail:MicrosoftGraph.Message = {
+let mail:MicrosoftGraphBeta.Message = {
     subject: "Microsoft Graph TypeScript Sample",
     toRecipients: [{
         emailAddress: {
@@ -53,6 +53,32 @@ let mail:MicrosoftGraph.Message = {
         contentType: "html"
     }
 }
+```
+
+## Example of using v1 types and beta types together
+```json
+  "devDependencies": {
+    // import published v1.0 types with a version from NPM
+    "@microsoft/microsoft-graph-types": "^0.4.0",
+    // import beta types with a version from NPM
+    "@microsoft/microsoft-graph-types-beta": "^0.1.0-preview"
+  }
+}
+```
+
+```typescript
+import * as MicrosoftGraph from "@microsoft/microsoft-graph-types"
+
+import * as MicrosoftGraphBeta from "@microsoft/microsoft-graph-types-beta"
+
+const v1User: MicrosoftGraph.User = {
+	givenName: "V1 User"
+}
+
+const betaUser: MicrosoftGraphBeta.User = {
+	givenName: "Beta User"
+}
+
 ```
 
 ## Supported editors
@@ -76,6 +102,6 @@ Please see the [contributing guidelines](CONTRIBUTING.md).
 * [Use the Microsoft Graph SDKs with the beta API](https://docs.microsoft.com/en-us/graph/sdks/use-beta?tabs=CS)
 
 ## Copyright
-Copyright (c) 2017 Microsoft. All rights reserved.
+Copyright (c) 2021 Microsoft. All rights reserved.
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
