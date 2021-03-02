@@ -4,3 +4,5 @@ spec/
 .github/
 node_modules/
 scripts/**
+typings-demo.gif
+.git/
