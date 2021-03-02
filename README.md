@@ -25,10 +25,10 @@ import { Client } from "@microsoft/microsoft-graph-client";
 import 'isomorphic-fetch';
 
 const client = Client.initWithMiddleware({
-		debugLogging: true,
-		middleware,
-        defaultVersion: 'beta',
-	});
+	debugLogging: true,
+	middleware,
+	defaultVersion: 'beta',
+});
 
 const response = await client.api("/me").get();
 const user = response as User;
