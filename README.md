@@ -1,3 +1,5 @@
+[![npm version](https://badge.fury.io/js/%40microsoft%2Fmicrosoft-graph-types-beta.svg)](https://badge.fury.io/js/%40microsoft%2Fmicrosoft-graph-types-beta)
+
 # Microsoft Graph TypeScript Types Beta
 The Microsoft Graph TypeScript definitions enable editors to provide intellisense on Microsoft Graph /beta endpoint objects including users, messages, and groups.
 
@@ -25,9 +27,8 @@ import { Client } from "@microsoft/microsoft-graph-client";
 import 'isomorphic-fetch';
 
 const client = Client.initWithMiddleware({
-	debugLogging: true,
-	middleware,
 	defaultVersion: 'beta',
+	...
 });
 
 const response = await client.api("/me").get();
