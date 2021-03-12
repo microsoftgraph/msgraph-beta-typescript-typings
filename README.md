@@ -1,4 +1,4 @@
-[![npm version](https://badge.fury.io/js/%40microsoft%2Fmicrosoft-graph-types-beta.svg)](https://badge.fury.io/js/%40microsoft%2Fmicrosoft-graph-types-beta)
+[![npm version badge](https://img.shields.io/npm/v/@microsoft/microsoft-graph-types-beta?color=blue)](https://www.npmjs.com/package/@microsoft/microsoft-graph-types-beta)
 
 # Microsoft Graph TypeScript Types Beta
 The Microsoft Graph TypeScript definitions enable editors to provide intellisense on Microsoft Graph /beta endpoint objects including users, messages, and groups.
