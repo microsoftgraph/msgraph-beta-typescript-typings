@@ -1,10 +1,11 @@
-// Project: https://github.com/microsoftgraph/msgraph-beta-typescript-typings
+// Project: https://github.com/microsoftgraph/msgraph-typescript-typings
 // Definitions by: Microsoft Graph Team <https://github.com/microsoftgraph>
 //                 Michael Mainer <https://github.com/MIchaelMainer>
 //                 Peter Ombwa <https://github.com/peombwa>
 //                 Mustafa Zengin <https://github.com/zengin>
 //                 DeVere Dyett <https://github.com/ddyett>
 //                 Nikitha Udaykumar Chettiar <https://github.com/nikithauc>
+// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 2.1
 
 export as namespace microsoftgraphbeta;
@@ -167,6 +168,7 @@ export type UsageAuthMethod =
     | "appPassword"
     | "unknownFutureValue";
 export type AnalyticsActivityType = "Email" | "Meeting" | "Focus" | "Chat" | "Call";
+export type AdvancedConfigState = "default" | "enabled" | "disabled" | "unknownFutureValue";
 export type AuthenticationMethodState = "enabled" | "disabled";
 export type AuthenticationMethodTargetType = "user" | "group" | "unknownFutureValue";
 export type AuthenticatorAppContextType = "location" | "app" | "unknownFutureValue";
@@ -633,6 +635,14 @@ export type SynchronizationSecret =
     | "TestReferences";
 export type SynchronizationStatusCode = "NotConfigured" | "NotRun" | "Active" | "Paused" | "Quarantine";
 export type SynchronizationTaskExecutionResult = "Succeeded" | "Failed" | "EntryLevelErrors";
+export type AccessReviewHistoryDecisionFilter =
+    | "approve"
+    | "deny"
+    | "notReviewed"
+    | "dontKnow"
+    | "notNotified"
+    | "unknownFutureValue";
+export type AccessReviewHistoryStatus = "done" | "inprogress" | "error" | "requested" | "unknownFutureValue";
 export type ApprovalFilterByCurrentUserOptions = "target" | "createdBy" | "approver" | "unknownFutureValue";
 export type ConsentRequestFilterByCurrentUserOptions = "reviewer" | "unknownFutureValue";
 export type AgreementAcceptanceState = "accepted" | "declined" | "unknownFutureValue";
@@ -3279,7 +3289,11 @@ export type WorkforceIntegrationSupportedEntities =
     | "openShift"
     | "openShiftRequest"
     | "offerShiftRequest"
-    | "unknownFutureValue";
+    | "unknownFutureValue"
+    | "timeCard"
+    | "timeOffReason"
+    | "timeOff"
+    | "timeOffRequest";
 export type MailDestinationRoutingReason =
     | "none"
     | "mailFlowRule"
@@ -5193,7 +5207,7 @@ export interface AppConsentRequest extends Entity {
     // The identifier of the application. Required. Supports $filter (eq only) and $orderby.
     appId?: string;
     /**
-     * The consent type of the request. Possible values are: Static and Dynamic. These represent static and dynamic
+     * The consent type of the request. Possible values are: Static and Dynamic. These represent static and dynamic
      * permissions, respectively, requested in the consent workflow. Supports $filter (eq only) and $orderby. Required.
      */
     consentType?: NullableOption<string>;
@@ -5939,7 +5953,7 @@ export interface Device extends DirectoryObject {
     // Device is online or offline. Only returned if user signs in with a Microsoft account as part of Project Rome.
     status?: NullableOption<string>;
     usageRights?: NullableOption<UsageRight[]>;
-    // Groups that this group is a member of. HTTP Methods: GET (supported for all groups). Read-only. Nullable.
+    // Groups that this device is a member of. HTTP Methods: GET (supported for all groups). Read-only. Nullable.
     memberOf?: NullableOption<DirectoryObject[]>;
     /**
      * The user that cloud joined the device or registered their personal device. The registered owner is set at the time of
@@ -6672,6 +6686,7 @@ export interface AuthenticationMethodsPolicy extends Entity {
     lastModifiedDateTime?: NullableOption<string>;
     policyVersion?: NullableOption<string>;
     reconfirmationInDays?: NullableOption<number>;
+    registrationEnforcement?: NullableOption<RegistrationEnforcement>;
     authenticationMethodConfigurations?: NullableOption<AuthenticationMethodConfiguration[]>;
 }
 export interface AuthenticationMethodTarget extends Entity {
@@ -6730,7 +6745,6 @@ export interface PolicyRoot {
     claimsMappingPolicies?: NullableOption<ClaimsMappingPolicy[]>;
     homeRealmDiscoveryPolicies?: NullableOption<HomeRealmDiscoveryPolicy[]>;
     permissionGrantPolicies?: NullableOption<PermissionGrantPolicy[]>;
-    privateLinkResourcePolicies?: NullableOption<PrivateLinkResourcePolicy[]>;
     tokenIssuancePolicies?: NullableOption<TokenIssuancePolicy[]>;
     tokenLifetimePolicies?: NullableOption<TokenLifetimePolicy[]>;
     featureRolloutPolicies?: NullableOption<FeatureRolloutPolicy[]>;
@@ -6805,12 +6819,6 @@ export interface PermissionGrantPolicy extends PolicyBase {
     excludes?: NullableOption<PermissionGrantConditionSet[]>;
     // Condition sets which are included in this permission grant policy. Automatically expanded on GET.
     includes?: NullableOption<PermissionGrantConditionSet[]>;
-}
-export interface PrivateLinkResourcePolicy extends Entity {
-    allowedTenantIds?: string[];
-    displayName?: string;
-    externalPrivateLinkId?: string;
-    privateEndpointConnections?: NullableOption<PrivateEndpointConnection[]>;
 }
 export interface FeatureRolloutPolicy extends Entity {
     // A description for this feature rollout policy.
@@ -7227,7 +7235,7 @@ export interface CloudPcDeviceImage extends Entity {
     status?: NullableOption<CloudPcDeviceImageStatus>;
     /**
      * The details of the image's status, which indicates why the upload failed, if applicable. Possible values are:
-     * internalServerError, sourceImageNotFound.
+     * internalServerError, sourceImageNotFound, osVersionNotSupported, and sourceImageInvalid.
      */
     statusDetails?: NullableOption<CloudPcDeviceImageStatusDetails>;
     // The image version. For example: 0.0.1, 1.5.13.
@@ -7824,7 +7832,7 @@ export interface ChromeOSOnboardingSettings extends Entity {
     lastDirectorySyncDateTime?: NullableOption<string>;
     // The ChromebookTenant's LastModifiedDateTime
     lastModifiedDateTime?: string;
-    // The ChromebookTenant's OnboardingStatus
+    // The ChromebookTenant's OnboardingStatus. Possible values are: unknown, inprogress, onboarded, failed.
     onboardingStatus?: OnboardingStatus;
     // The ChromebookTenant's OwnerUserPrincipalName
     ownerUserPrincipalName?: NullableOption<string>;
@@ -8631,7 +8639,7 @@ export interface ComanagementEligibleDevice extends Entity {
     /**
      * DeviceType. Possible values are: desktop, windowsRT, winMO6, nokia, windowsPhone, mac, winCE, winEmbedded, iPhone,
      * iPad, iPod, android, iSocConsumer, unix, macMDM, holoLens, surfaceHub, androidForWork, androidEnterprise, windows10x,
-     * androidnGMS, linux, blackberry, palm, unknown, cloudPC.
+     * androidnGMS, chromeOS, linux, blackberry, palm, unknown, cloudPC.
      */
     deviceType?: DeviceType;
     // EntitySource
@@ -10833,11 +10841,13 @@ export interface DataClassificationService extends Entity {
     sensitivityLabels?: NullableOption<SensitivityLabel[]>;
     exactMatchUploadAgents?: NullableOption<ExactMatchUploadAgent[]>;
 }
-export interface ExactMatchDataStore extends Entity {
+export interface ExactMatchDataStoreBase extends Entity {
     columns?: NullableOption<ExactDataMatchStoreColumn[]>;
     dataLastUpdatedDateTime?: NullableOption<string>;
     description?: NullableOption<string>;
     displayName?: NullableOption<string>;
+}
+export interface ExactMatchDataStore extends ExactMatchDataStoreBase {
     sessions?: NullableOption<ExactMatchSession[]>;
 }
 export interface FileClassificationRequest extends Entity {
@@ -11333,10 +11343,6 @@ export interface PermissionGrantConditionSet extends Entity {
      * resource application or API. Default is any.
      */
     resourceApplication?: NullableOption<string>;
-}
-export interface PrivateEndpointConnection extends Entity {
-    externalPrivateEndpointId?: string;
-    privateLinkIds?: number[];
 }
 export interface RbacApplication extends Entity {
     resourceNamespaces?: NullableOption<UnifiedRbacResourceNamespace[]>;
@@ -12043,22 +12049,24 @@ export interface ExactMatchJobBase extends Entity {
     lastUpdatedDateTime?: NullableOption<string>;
     startDateTime?: NullableOption<string>;
 }
-export interface ExactMatchSession extends ExactMatchJobBase {
-    checksum?: NullableOption<string>;
-    datastoreId?: NullableOption<string>;
-    dataUploadURI?: NullableOption<string>;
-    fields?: NullableOption<string[]>;
-    fileName?: NullableOption<string>;
+export interface ExactMatchSessionBase extends ExactMatchJobBase {
+    dataStoreId?: NullableOption<string>;
     processingCompletionDateTime?: NullableOption<string>;
     remainingBlockCount?: NullableOption<number>;
     remainingJobCount?: NullableOption<number>;
-    rowsPerBlock?: NullableOption<number>;
-    salt?: NullableOption<string>;
     state?: NullableOption<string>;
     totalBlockCount?: NullableOption<number>;
     totalJobCount?: NullableOption<number>;
-    uploadAgentId?: NullableOption<string>;
     uploadCompletionDateTime?: NullableOption<string>;
+}
+export interface ExactMatchSession extends ExactMatchSessionBase {
+    checksum?: NullableOption<string>;
+    dataUploadURI?: NullableOption<string>;
+    fields?: NullableOption<string[]>;
+    fileName?: NullableOption<string>;
+    rowsPerBlock?: NullableOption<number>;
+    salt?: NullableOption<string>;
+    uploadAgentId?: NullableOption<string>;
     uploadAgent?: NullableOption<ExactMatchUploadAgent>;
 }
 export interface ExactMatchLookupJob extends ExactMatchJobBase {
@@ -13579,6 +13587,18 @@ export interface AccessReviewReviewer extends Entity {
     displayName?: NullableOption<string>;
     userPrincipalName?: NullableOption<string>;
 }
+export interface AccessReviewHistoryDefinition extends Entity {
+    createdBy?: UserIdentity;
+    createdDateTime?: string;
+    decisions?: NullableOption<AccessReviewHistoryDecisionFilter[]>;
+    displayName?: string;
+    downloadUri?: NullableOption<string>;
+    fulfilledDateTime?: NullableOption<string>;
+    reviewHistoryPeriodEndDateTime?: string;
+    reviewHistoryPeriodStartDateTime?: string;
+    scopes?: AccessReviewScope[];
+    status?: NullableOption<AccessReviewHistoryStatus>;
+}
 export interface AccessReviewInstanceDecisionItem extends Entity {
     // The identifier of the accessReviewInstance parent.
     accessReviewId?: string;
@@ -13672,6 +13692,7 @@ export interface AccessReviewScheduleDefinition extends Entity {
 }
 export interface AccessReviewSet extends Entity {
     definitions?: NullableOption<AccessReviewScheduleDefinition[]>;
+    historyDefinitions?: NullableOption<AccessReviewHistoryDefinition[]>;
 }
 export interface AppConsentApprovalRoute extends Entity {
     appConsentRequests?: NullableOption<AppConsentRequest[]>;
@@ -21708,7 +21729,7 @@ export interface Windows10GeneralConfiguration extends DeviceConfiguration {
     appManagementMSIAllowUserControlOverInstall?: boolean;
     // This policy setting directs Windows Installer to use elevated permissions when it installs any program on the system.
     appManagementMSIAlwaysInstallWithElevatedPrivileges?: boolean;
-    // List of semi-colon delimited Package Family Names of Windows apps. Listed Windows apps are to be launched after logon.
+    // List of semi-colon delimited Package Family Names of Windows apps. Listed Windows apps are to be launched after logon.​
     appManagementPackageFamilyNamesToLaunchAfterLogOn?: NullableOption<string[]>;
     /**
      * Indicates whether apps from AppX packages signed with a trusted certificate can be side loaded. Possible values are:
@@ -22245,7 +22266,7 @@ export interface Windows10GeneralConfiguration extends DeviceConfiguration {
     privacyBlockInputPersonalization?: boolean;
     // Blocks the shared experiences/discovery of recently used resources in task switcher etc.
     privacyBlockPublishUserActivities?: boolean;
-    // This policy prevents the privacy experience from launching during user logon for new and upgraded users.
+    // This policy prevents the privacy experience from launching during user logon for new and upgraded users.​
     privacyDisableLaunchExperience?: boolean;
     // Indicates whether or not to Block the user from reset protection mode.
     resetProtectionModeBlocked?: boolean;
@@ -22995,7 +23016,7 @@ export interface WindowsDeliveryOptimizationConfiguration extends DeviceConfigur
     cacheServerBackgroundDownloadFallbackToHttpDelayInSeconds?: number;
     /**
      * Specifies number of seconds to delay a fall back from cache servers to an HTTP source for a foreground download. Valid
-     * values 0 to 2592000.
+     * values 0 to 2592000.​
      */
     cacheServerForegroundDownloadFallbackToHttpDelayInSeconds?: number;
     // Specifies cache servers host names.
@@ -23589,8 +23610,8 @@ export interface WindowsWifiEnterpriseEAPConfiguration extends WindowsWifiConfig
     // Specify trusted server certificate names.
     trustedServerCertificateNames?: NullableOption<string[]>;
     /**
-     * Specifiy whether to change the virtual LAN used by the device based on the user's credentials. Cannot be used when
-     * NetworkSingleSignOnType is set to Disabled.
+     * Specifiy whether to change the virtual LAN used by the device based on the user’s credentials. Cannot be used when
+     * NetworkSingleSignOnType is set to ​Disabled.
      */
     userBasedVirtualLan?: NullableOption<boolean>;
     // Specify identity certificate for client authentication.
@@ -28745,7 +28766,7 @@ export interface ChatMessage extends Entity {
     locale?: string;
     // List of entities mentioned in the chat message. Currently supports user, bot, team, channel.
     mentions?: NullableOption<ChatMessageMention[]>;
-    // The type of chat message. The possible values are: message.
+    // The type of chat message. The possible value is: message.
     messageType?: ChatMessageType;
     // Defines the properties of a policy violation set by a data loss prevention (DLP) application.
     policyViolation?: NullableOption<ChatMessagePolicyViolation>;
@@ -28765,7 +28786,7 @@ export interface ChatMessage extends Entity {
     summary?: NullableOption<string>;
     // Read-only. Link to the message in Microsoft Teams.
     webUrl?: NullableOption<string>;
-    // Content in a message hosted by Microsoft Teams e.g. images, code snippets etc.
+    // Content in a message hosted by Microsoft Teams e.g., images, code snippets etc.
     hostedContents?: NullableOption<ChatMessageHostedContent[]>;
     // Replies for a specified message.
     replies?: NullableOption<ChatMessage[]>;
@@ -28793,6 +28814,12 @@ export interface TeamworkHostedContent extends Entity {
 // tslint:disable-next-line: no-empty-interface
 export interface ChatMessageHostedContent extends TeamworkHostedContent {}
 export interface TeamsAppDefinition extends Entity {
+    /**
+     * A collection of scopes where the Teams app can be installed. Possible values are:team — Indicates that the Teams app
+     * can be installed within a team and is authorized to access that team's data. groupChat — Indicates that the Teams app
+     * can be installed within a group chat and is authorized to access that group chat's data. personal — Indicates that the
+     * Teams app can be installed in the personal scope of a user and is authorized to access that user's data.
+     */
     allowedInstallationScopes?: NullableOption<TeamsAppInstallationScopes>;
     // The WebApplicationInfo.id from the Teams App manifest.
     azureADAppId?: NullableOption<string>;
@@ -28814,11 +28841,17 @@ export interface TeamsAppDefinition extends Entity {
     teamsAppId?: NullableOption<string>;
     // The version number of the application.
     version?: NullableOption<string>;
-    // The details of the bot specified in the Teams App manifest.
+    // The details of the bot specified in the Teams app manifest.
     bot?: NullableOption<TeamworkBot>;
+    colorIcon?: NullableOption<TeamsAppIcon>;
+    outlineIcon?: NullableOption<TeamsAppIcon>;
 }
 // tslint:disable-next-line: no-empty-interface
 export interface TeamworkBot extends Entity {}
+export interface TeamsAppIcon extends Entity {
+    webUrl?: NullableOption<string>;
+    hostedContent?: NullableOption<TeamworkHostedContent>;
+}
 export interface Teamwork extends Entity {
     workforceIntegrations?: NullableOption<WorkforceIntegration[]>;
 }
@@ -29744,7 +29777,7 @@ export interface AppRole {
      * Specifies the value to include in the roles claim in ID tokens and access tokens authenticating an assigned user or
      * service principal. Must not exceed 120 characters in length. Allowed characters are : ! # $ % &amp; ' ( ) * + , - . / :
      * ; = ? @ [ ] ^ + _ { } ~, as well as characters in the ranges 0-9, A-Z and a-z. Any other character, including the space
-     * character, are not allowed.
+     * character, are not allowed. May not begin with ..
      */
     value?: NullableOption<string>;
 }
@@ -29992,13 +30025,28 @@ export interface PermissionScope {
     /**
      * Specifies the value to include in the scp (scope) claim in access tokens. Must not exceed 120 characters in length.
      * Allowed characters are : ! # $ % &amp; ' ( ) * + , - . / : ; = ? @ [ ] ^ + _ { } ~, as well as characters in the ranges
-     * 0-9, A-Z and a-z. Any other character, including the space character, are not allowed.
+     * 0-9, A-Z and a-z. Any other character, including the space character, are not allowed. May not begin with ..
      */
     value?: NullableOption<string>;
 }
 export interface SamlSingleSignOnSettings {
     // The relative URI the service provider would redirect to after completion of the single sign-on flow.
     relayState?: NullableOption<string>;
+}
+export interface AuthenticationMethodsRegistrationCampaign {
+    excludeTargets?: ExcludeTarget[];
+    includeTargets?: AuthenticationMethodsRegistrationCampaignIncludeTarget[];
+    snoozeDurationInDays?: number;
+    state?: AdvancedConfigState;
+}
+export interface ExcludeTarget {
+    id?: string;
+    targetType?: AuthenticationMethodTargetType;
+}
+export interface AuthenticationMethodsRegistrationCampaignIncludeTarget {
+    id?: string;
+    targetedAuthenticationMethod?: NullableOption<string>;
+    targetType?: AuthenticationMethodTargetType;
 }
 export interface Fido2KeyRestrictions {
     // A collection of Authenticator Attestation GUIDs. AADGUIDs define key types and manufacturers.
@@ -30007,6 +30055,9 @@ export interface Fido2KeyRestrictions {
     enforcementType?: NullableOption<Fido2RestrictionEnforcementType>;
     // Determines if the configured key enforcement is enabled.
     isEnforced?: NullableOption<boolean>;
+}
+export interface RegistrationEnforcement {
+    authenticationMethodsRegistrationCampaign?: NullableOption<AuthenticationMethodsRegistrationCampaign>;
 }
 export interface BookingReminder {
     // The message in the reminder.
