@@ -1,10 +1,11 @@
-// Project: https://github.com/microsoftgraph/msgraph-beta-typescript-typings
+// Project: https://github.com/microsoftgraph/msgraph-typescript-typings
 // Definitions by: Microsoft Graph Team <https://github.com/microsoftgraph>
 //                 Michael Mainer <https://github.com/MIchaelMainer>
 //                 Peter Ombwa <https://github.com/peombwa>
 //                 Mustafa Zengin <https://github.com/zengin>
 //                 DeVere Dyett <https://github.com/ddyett>
 //                 Nikitha Udaykumar Chettiar <https://github.com/nikithauc>
+// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 2.1
 
 export as namespace microsoftgraphbeta;
@@ -652,6 +653,9 @@ export type AccessReviewHistoryDecisionFilter =
     | "notNotified"
     | "unknownFutureValue";
 export type AccessReviewHistoryStatus = "done" | "inprogress" | "error" | "requested" | "unknownFutureValue";
+export type AccessReviewInstanceDecisionItemFilterByCurrentUserOptions = "reviewer" | "unknownFutureValue";
+export type AccessReviewInstanceFilterByCurrentUserOptions = "reviewer" | "unknownFutureValue";
+export type AccessReviewScheduleDefinitionFilterByCurrentUserOptions = "reviewer" | "unknownFutureValue";
 export type ApprovalFilterByCurrentUserOptions = "target" | "createdBy" | "approver" | "unknownFutureValue";
 export type ConsentRequestFilterByCurrentUserOptions = "reviewer" | "unknownFutureValue";
 export type AgreementAcceptanceState = "accepted" | "declined" | "unknownFutureValue";
@@ -2092,6 +2096,15 @@ export type DeviceManagementConfigurationStringFormat =
     | "dateTime"
     | "surfaceHub";
 export type DeviceManagementConfigurationTechnologies = "none" | "mdm" | "windows10XManagement" | "configManager";
+export type DeviceManagementConfigurationTemplateFamily =
+    | "none"
+    | "endpointSecurityAntivirus"
+    | "endpointSecurityDiskEncryption"
+    | "endpointSecurityFirewall"
+    | "endpointSecurityEndpointDectionAndResponse"
+    | "endpointSecurityAttackSurfaceReduction"
+    | "endpointSecurityAccountProtection"
+    | "endpointSecurityApplicationControl";
 export type DeviceManagementConfigurationWindowsSkus =
     | "unknown"
     | "windowsHome"
@@ -2108,6 +2121,13 @@ export type DeviceManagementConfigurationWindowsSkus =
     | "holographicForBusiness"
     | "windowsMultiSession"
     | "surfaceHub";
+export type DeviceManagementTemplateLifecycleState =
+    | "invalid"
+    | "draft"
+    | "active"
+    | "superseded"
+    | "deprecated"
+    | "retired";
 export type CompanyPortalAction = "unknown" | "remove" | "reset";
 export type DeviceManagementExchangeAccessLevel = "none" | "allow" | "block" | "quarantine";
 export type DeviceManagementExchangeAccessRuleType = "family" | "model";
@@ -2179,7 +2199,6 @@ export type SecurityBaselinePolicySourceType = "deviceConfiguration" | "deviceIn
 export type AdminConsentState = "notConfigured" | "granted" | "notGranted";
 export type AppLogDecryptionAlgorithm = "aes256";
 export type AppLogUploadState = "pending" | "completed" | "failed";
-export type AzureAdRegisteredState = "no" | "yes" | "unknown";
 export type ChassisType =
     | "unknown"
     | "desktop"
@@ -2370,7 +2389,8 @@ export type RemoteAction =
     | "rotateBitLockerKeys"
     | "rotateFileVaultKey"
     | "getFileVaultKey"
-    | "setDeviceName";
+    | "setDeviceName"
+    | "activateDeviceEsim";
 export type RunState = "unknown" | "success" | "fail" | "scriptError" | "pending" | "notApplicable";
 export type UserExperienceAnalyticsHealthState = "unknown" | "insufficientData" | "needsAttention" | "meetingGoals";
 export type UserExperienceAnalyticsInsightSeverity = "none" | "informational" | "warning" | "error";
@@ -2797,20 +2817,20 @@ export type SkillProficiencyLevel =
     | "expert"
     | "unknownFutureValue";
 export type TranslationBehavior = "Ask" | "Yes" | "No";
-export type RoleAssignmentRequestFilterByCurrentUserOptions =
-    | "principal"
-    | "createdBy"
-    | "approver"
-    | "unknownFutureValue";
 export type RoleAssignmentScheduleFilterByCurrentUserOptions = "principal" | "unknownFutureValue";
 export type RoleAssignmentScheduleInstanceFilterByCurrentUserOptions = "principal" | "unknownFutureValue";
-export type RoleEligibilityRequestFilterByCurrentUserOptions =
+export type RoleAssignmentScheduleRequestFilterByCurrentUserOptions =
     | "principal"
     | "createdBy"
     | "approver"
     | "unknownFutureValue";
 export type RoleEligibilityScheduleFilterByCurrentUserOptions = "principal" | "unknownFutureValue";
 export type RoleEligibilityScheduleInstanceFilterByCurrentUserOptions = "principal" | "unknownFutureValue";
+export type RoleEligibilityScheduleRequestFilterByCurrentUserOptions =
+    | "principal"
+    | "createdBy"
+    | "approver"
+    | "unknownFutureValue";
 export type ApprovalState = "pending" | "approved" | "denied" | "aborted" | "canceled";
 export type RoleSummaryStatus = "ok" | "bad";
 export type SetupStatus =
@@ -4851,6 +4871,7 @@ export interface Group extends DirectoryObject {
      * mail-enabled security groups), DELETE (supported for Microsoft 365 groups and security groups). Nullable.
      */
     owners?: NullableOption<DirectoryObject[]>;
+    // The permission that has been granted for a group to a specific application.
     permissionGrants?: NullableOption<ResourceSpecificPermissionGrant[]>;
     // Read-only. Nullable.
     settings?: NullableOption<DirectorySetting[]>;
@@ -5184,7 +5205,7 @@ export interface AppConsentRequest extends Entity {
     // The identifier of the application. Required. Supports $filter (eq only) and $orderby.
     appId?: string;
     /**
-     * The consent type of the request. Possible values are: Static and Dynamic. These represent static and dynamic
+     * The consent type of the request. Possible values are: Static and Dynamic. These represent static and dynamic
      * permissions, respectively, requested in the consent workflow. Supports $filter (eq only) and $orderby. Required.
      */
     consentType?: NullableOption<string>;
@@ -5967,7 +5988,6 @@ export interface OnlineMeeting extends Entity {
     // Settings related to a live event
     broadcastSettings?: NullableOption<BroadcastMeetingSettings>;
     canceledDateTime?: NullableOption<string>;
-    // The list of meeting capabilities. Possible values are: questionAndAnswer,unknownFutureValue.
     capabilities?: NullableOption<MeetingCapabilities[]>;
     // The chat information associated with this online meeting.
     chatInfo?: NullableOption<ChatInfo>;
@@ -6766,6 +6786,10 @@ export interface AuthenticationFlowsPolicy extends Entity {
 export interface B2cAuthenticationMethodsPolicy extends Entity {
     // The tenant admin can configure local accounts using email if the email and password authentication method is enabled.
     isEmailPasswordAuthenticationEnabled?: boolean;
+    /**
+     * The tenant admin can configure local accounts using phone number if the phone number and one-time password
+     * authentication method is enabled.
+     */
     isPhoneOneTimePasswordAuthenticationEnabled?: boolean;
     /**
      * The tenant admin can configure local accounts using username if the username and password authentication method is
@@ -7443,6 +7467,10 @@ export interface DeviceManagement extends Entity {
     configurationPolicies?: NullableOption<DeviceManagementConfigurationPolicy[]>;
     // List of all ConfigurationSettings
     configurationSettings?: NullableOption<DeviceManagementConfigurationSettingDefinition[]>;
+    // List of all reusable settings that can be referred in a policy
+    reusablePolicySettings?: NullableOption<DeviceManagementReusablePolicySetting[]>;
+    // List of all reusable settings
+    reusableSettings?: NullableOption<DeviceManagementConfigurationSettingDefinition[]>;
     // The list of Compliance Management Partners configured by the tenant.
     complianceManagementPartners?: NullableOption<ComplianceManagementPartner[]>;
     /**
@@ -7524,6 +7552,8 @@ export interface DeviceManagement extends Entity {
     userExperienceAnalyticsDeviceMetricHistory?: NullableOption<UserExperienceAnalyticsMetricHistory[]>;
     // User experience analytics device performance
     userExperienceAnalyticsDevicePerformance?: NullableOption<UserExperienceAnalyticsDevicePerformance[]>;
+    // User experience analytics device scores
+    userExperienceAnalyticsDeviceScores?: NullableOption<UserExperienceAnalyticsDeviceScores[]>;
     // User experience analytics device Startup History
     userExperienceAnalyticsDeviceStartupHistory?: NullableOption<UserExperienceAnalyticsDeviceStartupHistory[]>;
     // User experience analytics device Startup Processes
@@ -7548,6 +7578,8 @@ export interface DeviceManagement extends Entity {
     userExperienceAnalyticsResourcePerformance?: NullableOption<UserExperienceAnalyticsResourcePerformance[]>;
     // User experience analytics device Startup Score History
     userExperienceAnalyticsScoreHistory?: NullableOption<UserExperienceAnalyticsScoreHistory[]>;
+    // User experience analytics work from anywhere metrics.
+    userExperienceAnalyticsWorkFromAnywhereMetrics?: NullableOption<UserExperienceAnalyticsWorkFromAnywhereMetric[]>;
     // The list of affected malware in the tenant.
     windowsMalwareInformation?: NullableOption<WindowsMalwareInformation[]>;
     // Collection of Derived credential settings associated with account.
@@ -8312,6 +8344,8 @@ export interface DeviceManagementConfigurationPolicy extends Entity {
     settingCount?: number;
     // Technologies for this policy. Possible values are: none, mdm, windows10XManagement, configManager.
     technologies?: DeviceManagementConfigurationTechnologies;
+    // Template reference information
+    templateReference?: NullableOption<DeviceManagementConfigurationPolicyTemplateReference>;
     // Policy assignments
     assignments?: NullableOption<DeviceManagementConfigurationPolicyAssignment[]>;
     // Policy settings
@@ -8342,6 +8376,8 @@ export interface DeviceManagementConfigurationSettingDefinition extends Entity {
     occurrence?: NullableOption<DeviceManagementConfigurationSettingOccurrence>;
     // Offset CSP Path from Base
     offsetUri?: NullableOption<string>;
+    // List of referred setting information.
+    referredSettingInformationList?: NullableOption<DeviceManagementConfigurationReferredSettingInformation[]>;
     // Root setting definition if the setting is a child setting.
     rootDefinitionId?: NullableOption<string>;
     // Setting type, for example, configuration and compliance. Possible values are: none, configuration.
@@ -8355,6 +8391,29 @@ export interface DeviceManagementConfigurationSettingDefinition extends Entity {
     version?: NullableOption<string>;
     // Setting visibility scope to UX. Possible values are: none, settingsCatalog, template.
     visibility?: DeviceManagementConfigurationSettingVisibility;
+}
+export interface DeviceManagementReusablePolicySetting extends Entity {
+    // reusable setting creation date and time. This property is read-only.
+    createdDateTime?: string;
+    // reusable setting description supplied by user.
+    description?: NullableOption<string>;
+    // reusable setting display name supplied by user.
+    displayName?: string;
+    // date and time when reusable setting was last modified. This property is read-only.
+    lastModifiedDateTime?: string;
+    /**
+     * count of configuration policies referencing the current reusable setting. Valid values 0 to 2147483647. This property
+     * is read-only.
+     */
+    referencingConfigurationPolicyCount?: number;
+    // setting definition id associated with this reusable setting.
+    settingDefinitionId?: NullableOption<string>;
+    // reusable setting configuration instance
+    settingInstance?: NullableOption<DeviceManagementConfigurationSettingInstance>;
+    // version number for reusable setting. Valid values 0 to 2147483647. This property is read-only.
+    version?: number;
+    // configuration policies referencing the current reusable setting
+    referencingConfigurationPolicies?: NullableOption<DeviceManagementConfigurationPolicy[]>;
 }
 export interface ComplianceManagementPartner extends Entity {
     // User groups which enroll Android devices through partner.
@@ -9127,6 +9186,26 @@ export interface UserExperienceAnalyticsDevicePerformance extends Entity {
     // Number of Restarts in the last 14 days. Valid values 0 to 9999999
     restartCount?: number;
 }
+export interface UserExperienceAnalyticsDeviceScores extends Entity {
+    /**
+     * The user experience analytics device app reliability score. Valid values -1.79769313486232E+308 to
+     * 1.79769313486232E+308
+     */
+    appReliabilityScore?: number;
+    // The user experience analytics device name.
+    deviceName?: NullableOption<string>;
+    // The user experience analytics device score. Valid values -1.79769313486232E+308 to 1.79769313486232E+308
+    endpointAnalyticsScore?: number;
+    // The user experience analytics device manufacturer.
+    manufacturer?: NullableOption<string>;
+    // The user experience analytics device model.
+    model?: NullableOption<string>;
+    /**
+     * The user experience analytics device startup performance score. Valid values -1.79769313486232E+308 to
+     * 1.79769313486232E+308
+     */
+    startupPerformanceScore?: number;
+}
 export interface UserExperienceAnalyticsDeviceStartupHistory extends Entity {
     // The user experience analytics device core boot time in milliseconds.
     coreBootTimeInMs?: number;
@@ -9218,7 +9297,7 @@ export interface UserExperienceAnalyticsNotAutopilotReadyDevice extends Entity {
     // The intune device's azure Ad joinType.
     azureAdJoinType?: NullableOption<string>;
     // The intune device's azureAdRegistered.
-    azureAdRegistered?: AzureAdRegisteredState;
+    azureAdRegistered?: NullableOption<boolean>;
     // The intune device's name.
     deviceName?: NullableOption<string>;
     // The intune device's managed by.
@@ -9295,6 +9374,10 @@ export interface UserExperienceAnalyticsResourcePerformance extends Entity {
 export interface UserExperienceAnalyticsScoreHistory extends Entity {
     // The user experience analytics device startup date time.
     startupDateTime?: string;
+}
+export interface UserExperienceAnalyticsWorkFromAnywhereMetric extends Entity {
+    // The work from anywhere metric devices.
+    metricDevices?: NullableOption<UserExperienceAnalyticsWorkFromAnywhereDevice[]>;
 }
 export interface WindowsMalwareInformation extends Entity {
     // Information URL to learn more about the malware
@@ -9783,6 +9866,16 @@ export interface MicrosoftTunnelSite extends Entity {
     publicAddress?: NullableOption<string>;
     // List of Scope Tags for this Entity instance.
     roleScopeTagIds?: NullableOption<string[]>;
+    // The site's automatic upgrade setting. True for automatic upgrades, false for manual control
+    upgradeAutomatically?: boolean;
+    // True if an upgrade is available
+    upgradeAvailable?: boolean;
+    // The site's upgrade window end time of day
+    upgradeWindowEndTime?: NullableOption<string>;
+    // The site's upgrade window start time of day
+    upgradeWindowStartTime?: NullableOption<string>;
+    // The site's timezone represented as a minute offset from UTC
+    upgradeWindowUtcOffsetInMinutes?: NullableOption<number>;
     // The MicrosoftTunnelConfiguration that has been applied to this MicrosoftTunnelSite
     microsoftTunnelConfiguration?: NullableOption<MicrosoftTunnelConfiguration>;
     // A list of MicrosoftTunnelServers that are registered to this MicrosoftTunnelSite
@@ -10038,6 +10131,8 @@ export interface WindowsFeatureUpdateProfile extends Entity {
     description?: NullableOption<string>;
     // The display name of the profile.
     displayName?: string;
+    // The last supported date for a feature update
+    endOfSupportDate?: NullableOption<string>;
     /**
      * The feature update version that will be deployed to the devices targeted by this profile. The version could be any
      * supported version for example 1709, 1803 or 1809 and so on.
@@ -10075,6 +10170,8 @@ export interface WindowsQualityUpdateProfile extends Entity {
 export interface WindowsUpdateCatalogItem extends Entity {
     // The display name for the catalog item.
     displayName?: string;
+    // The last supported date for a catalog item
+    endOfSupportDate?: NullableOption<string>;
     // The date the catalog item was released
     releaseDateTime?: string;
 }
@@ -10279,11 +10376,11 @@ export interface RbacApplication extends Entity {
     roleAssignments?: NullableOption<UnifiedRoleAssignment[]>;
     roleDefinitions?: NullableOption<UnifiedRoleDefinition[]>;
     roleAssignmentApprovals?: NullableOption<Approval[]>;
-    roleAssignmentRequests?: NullableOption<UnifiedRoleAssignmentRequest[]>;
     roleAssignmentScheduleInstances?: NullableOption<UnifiedRoleAssignmentScheduleInstance[]>;
+    roleAssignmentScheduleRequests?: NullableOption<UnifiedRoleAssignmentScheduleRequest[]>;
     roleAssignmentSchedules?: NullableOption<UnifiedRoleAssignmentSchedule[]>;
-    roleEligibilityRequests?: NullableOption<UnifiedRoleEligibilityRequest[]>;
     roleEligibilityScheduleInstances?: NullableOption<UnifiedRoleEligibilityScheduleInstance[]>;
+    roleEligibilityScheduleRequests?: NullableOption<UnifiedRoleEligibilityScheduleRequest[]>;
     roleEligibilitySchedules?: NullableOption<UnifiedRoleEligibilitySchedule[]>;
 }
 export interface UnifiedRbacResourceAction extends Entity {
@@ -11557,32 +11654,6 @@ export interface UnifiedRoleAssignment extends Entity {
     principal?: NullableOption<DirectoryObject>;
     roleDefinition?: NullableOption<UnifiedRoleDefinition>;
 }
-export interface Request extends Entity {
-    approvalId?: NullableOption<string>;
-    completedDateTime?: NullableOption<string>;
-    createdBy?: NullableOption<IdentitySet>;
-    createdDateTime?: NullableOption<string>;
-    customData?: NullableOption<string>;
-    status?: string;
-}
-export interface UnifiedRoleAssignmentRequest extends Request {
-    action?: NullableOption<string>;
-    appScopeId?: NullableOption<string>;
-    directoryScopeId?: NullableOption<string>;
-    isValidationOnly?: NullableOption<boolean>;
-    justification?: NullableOption<string>;
-    principalId?: NullableOption<string>;
-    roleDefinitionId?: NullableOption<string>;
-    scheduleInfo?: NullableOption<RequestSchedule>;
-    targetScheduleId?: NullableOption<string>;
-    ticketInfo?: NullableOption<TicketInfo>;
-    activatedUsing?: NullableOption<UnifiedRoleEligibilitySchedule>;
-    appScope?: NullableOption<AppScope>;
-    directoryScope?: NullableOption<DirectoryObject>;
-    principal?: NullableOption<DirectoryObject>;
-    roleDefinition?: NullableOption<UnifiedRoleDefinition>;
-    targetSchedule?: NullableOption<UnifiedRoleAssignmentSchedule>;
-}
 export interface UnifiedRoleScheduleInstanceBase extends Entity {
     appScopeId?: NullableOption<string>;
     directoryScopeId?: NullableOption<string>;
@@ -11601,6 +11672,32 @@ export interface UnifiedRoleAssignmentScheduleInstance extends UnifiedRoleSchedu
     roleAssignmentScheduleId?: NullableOption<string>;
     startDateTime?: NullableOption<string>;
     activatedUsing?: NullableOption<UnifiedRoleEligibilityScheduleInstance>;
+}
+export interface Request extends Entity {
+    approvalId?: NullableOption<string>;
+    completedDateTime?: NullableOption<string>;
+    createdBy?: NullableOption<IdentitySet>;
+    createdDateTime?: NullableOption<string>;
+    customData?: NullableOption<string>;
+    status?: string;
+}
+export interface UnifiedRoleAssignmentScheduleRequest extends Request {
+    action?: NullableOption<string>;
+    appScopeId?: NullableOption<string>;
+    directoryScopeId?: NullableOption<string>;
+    isValidationOnly?: NullableOption<boolean>;
+    justification?: NullableOption<string>;
+    principalId?: NullableOption<string>;
+    roleDefinitionId?: NullableOption<string>;
+    scheduleInfo?: NullableOption<RequestSchedule>;
+    targetScheduleId?: NullableOption<string>;
+    ticketInfo?: NullableOption<TicketInfo>;
+    activatedUsing?: NullableOption<UnifiedRoleEligibilitySchedule>;
+    appScope?: NullableOption<AppScope>;
+    directoryScope?: NullableOption<DirectoryObject>;
+    principal?: NullableOption<DirectoryObject>;
+    roleDefinition?: NullableOption<UnifiedRoleDefinition>;
+    targetSchedule?: NullableOption<UnifiedRoleAssignmentSchedule>;
 }
 export interface UnifiedRoleScheduleBase extends Entity {
     appScopeId?: NullableOption<string>;
@@ -11622,7 +11719,13 @@ export interface UnifiedRoleAssignmentSchedule extends UnifiedRoleScheduleBase {
     scheduleInfo?: NullableOption<RequestSchedule>;
     activatedUsing?: NullableOption<UnifiedRoleEligibilitySchedule>;
 }
-export interface UnifiedRoleEligibilityRequest extends Request {
+export interface UnifiedRoleEligibilityScheduleInstance extends UnifiedRoleScheduleInstanceBase {
+    endDateTime?: NullableOption<string>;
+    memberType?: NullableOption<string>;
+    roleEligibilityScheduleId?: NullableOption<string>;
+    startDateTime?: NullableOption<string>;
+}
+export interface UnifiedRoleEligibilityScheduleRequest extends Request {
     action?: NullableOption<string>;
     appScopeId?: NullableOption<string>;
     directoryScopeId?: NullableOption<string>;
@@ -11638,12 +11741,6 @@ export interface UnifiedRoleEligibilityRequest extends Request {
     principal?: NullableOption<DirectoryObject>;
     roleDefinition?: NullableOption<UnifiedRoleDefinition>;
     targetSchedule?: NullableOption<UnifiedRoleEligibilitySchedule>;
-}
-export interface UnifiedRoleEligibilityScheduleInstance extends UnifiedRoleScheduleInstanceBase {
-    endDateTime?: NullableOption<string>;
-    memberType?: NullableOption<string>;
-    roleEligibilityScheduleId?: NullableOption<string>;
-    startDateTime?: NullableOption<string>;
 }
 export interface UnifiedRoleEligibilitySchedule extends UnifiedRoleScheduleBase {
     memberType?: NullableOption<string>;
@@ -13744,6 +13841,7 @@ export interface AccessReviewScheduleDefinition extends Entity {
     descriptionForReviewers?: NullableOption<string>;
     // Name of access review series. Required on create.
     displayName?: NullableOption<string>;
+    fallbackReviewers?: NullableOption<AccessReviewReviewerScope[]>;
     /**
      * In the case of a review of guest users across all Microsoft 365 groups, this determines the scope of which groups will
      * be reviewed. Each group will become a unique accessReviewInstance of the access review series. For supported scopes,
@@ -18939,6 +19037,10 @@ export interface AppleVpnConfiguration extends DeviceConfiguration {
     customKeyValueData?: NullableOption<KeyValuePair[]>;
     // Toggle to prevent user from disabling automatic VPN in the Settings app
     disableOnDemandUserOverride?: NullableOption<boolean>;
+    // Whether to disconnect after on-demand connection idles
+    disconnectOnIdle?: NullableOption<boolean>;
+    // The length of time in seconds to wait before disconnecting an on-demand connection. Valid values 0 to 65535
+    disconnectOnIdleTimerInSeconds?: NullableOption<number>;
     /**
      * Setting this to true creates Per-App VPN payload which can later be associated with Apps that can trigger this VPN
      * conneciton on the end user's iOS device.
@@ -19724,6 +19826,11 @@ export interface IosGeneralDeviceConfiguration extends DeviceConfiguration {
      * elements.
      */
     networkUsageRules?: NullableOption<IosNetworkUsageRule[]>;
+    /**
+     * Disable NFC to prevent devices from pairing with other NFC-enabled devices. Available for iOS/iPadOS devices running
+     * 14.2 and later.
+     */
+    nfcBlocked?: boolean;
     // Indicates whether or not to allow notifications settings modification (iOS 9.3 and later).
     notificationsBlockSettingsModification?: boolean;
     // Block modification of registered Touch ID fingerprints when in supervised mode.
@@ -20019,6 +20126,11 @@ export interface MacOSCertificateProfileBase extends DeviceConfiguration {
     subjectNameFormat?: AppleSubjectNameFormat;
 }
 export interface MacOSCompliancePolicy extends DeviceCompliancePolicy {
+    /**
+     * MDATP Require Mobile Threat Protection minimum risk level to report noncompliance. Possible values are: unavailable,
+     * secured, low, medium, high, notSet.
+     */
+    advancedThreatProtectionRequiredSecurityLevel?: DeviceThreatProtectionLevel;
     // Require that devices have enabled device threat protection.
     deviceThreatProtectionEnabled?: boolean;
     /**
@@ -20905,8 +21017,18 @@ export interface Windows10DeviceFirmwareConfigurationInterface extends DeviceCon
      * disabled.
      */
     radios?: Enablement;
+    /**
+     * Defines whether a user is allowed to enable Simultaneous MultiThreading. Possible values are: notConfigured, enabled,
+     * disabled.
+     */
+    simultaneousMultiThreading?: Enablement;
     // Defines whether CPU and IO virtualization is enabled. Possible values are: notConfigured, enabled, disabled.
     virtualizationOfCpuAndIO?: Enablement;
+    /**
+     * Defines whether a user is allowed to enable Windows Platform Binary Table. Possible values are: notConfigured, enabled,
+     * disabled.
+     */
+    windowsPlatformBinaryTable?: Enablement;
 }
 export interface Windows10EasEmailProfileConfiguration extends EasEmailProfileConfigurationBase {
     // Account name.
@@ -21770,7 +21892,7 @@ export interface Windows10GeneralConfiguration extends DeviceConfiguration {
     appManagementMSIAllowUserControlOverInstall?: boolean;
     // This policy setting directs Windows Installer to use elevated permissions when it installs any program on the system.
     appManagementMSIAlwaysInstallWithElevatedPrivileges?: boolean;
-    // List of semi-colon delimited Package Family Names of Windows apps. Listed Windows apps are to be launched after logon.
+    // List of semi-colon delimited Package Family Names of Windows apps. Listed Windows apps are to be launched after logon.​
     appManagementPackageFamilyNamesToLaunchAfterLogOn?: NullableOption<string[]>;
     /**
      * Indicates whether apps from AppX packages signed with a trusted certificate can be side loaded. Possible values are:
@@ -21835,7 +21957,7 @@ export interface Windows10GeneralConfiguration extends DeviceConfiguration {
      * This policy setting allows you to block direct memory access (DMA) for all hot pluggable PCI downstream ports until a
      * user logs into Windows.
      */
-    dataProtectionBlockDirectMemoryAccess?: boolean;
+    dataProtectionBlockDirectMemoryAccess?: NullableOption<boolean>;
     // Whether or not to block end user access to Defender.
     defenderBlockEndUserAccess?: boolean;
     // Allows or disallows Windows Defender On Access Protection functionality.
@@ -22307,7 +22429,7 @@ export interface Windows10GeneralConfiguration extends DeviceConfiguration {
     privacyBlockInputPersonalization?: boolean;
     // Blocks the shared experiences/discovery of recently used resources in task switcher etc.
     privacyBlockPublishUserActivities?: boolean;
-    // This policy prevents the privacy experience from launching during user logon for new and upgraded users.
+    // This policy prevents the privacy experience from launching during user logon for new and upgraded users.​
     privacyDisableLaunchExperience?: boolean;
     // Indicates whether or not to Block the user from reset protection mode.
     resetProtectionModeBlocked?: boolean;
@@ -23054,7 +23176,7 @@ export interface WindowsDeliveryOptimizationConfiguration extends DeviceConfigur
     cacheServerBackgroundDownloadFallbackToHttpDelayInSeconds?: number;
     /**
      * Specifies number of seconds to delay a fall back from cache servers to an HTTP source for a foreground download. Valid
-     * values 0 to 2592000.
+     * values 0 to 2592000.​
      */
     cacheServerForegroundDownloadFallbackToHttpDelayInSeconds?: number;
     // Specifies cache servers host names.
@@ -23648,7 +23770,7 @@ export interface WindowsWifiEnterpriseEAPConfiguration extends WindowsWifiConfig
     trustedServerCertificateNames?: NullableOption<string[]>;
     /**
      * Specifiy whether to change the virtual LAN used by the device based on the user’s credentials. Cannot be used when
-     * NetworkSingleSignOnType is set to Disabled.
+     * NetworkSingleSignOnType is set to ​Disabled.
      */
     userBasedVirtualLan?: NullableOption<boolean>;
     // Specify identity certificate for client authentication.
@@ -23677,6 +23799,38 @@ export interface DeviceManagementConfigurationPolicyAssignment extends Entity {
 export interface DeviceManagementConfigurationSetting extends Entity {
     // Setting Instance
     settingInstance?: DeviceManagementConfigurationSettingInstance;
+    // List of related Setting Definitions
+    settingDefinitions?: NullableOption<DeviceManagementConfigurationSettingDefinition[]>;
+}
+export interface DeviceManagementConfigurationPolicyTemplate extends Entity {
+    // Allow unmanaged setting templates
+    allowUnmanagedSettings?: boolean;
+    // Template base identifier
+    baseId?: NullableOption<string>;
+    // Template description
+    description?: NullableOption<string>;
+    // Template display name
+    displayName?: NullableOption<string>;
+    // Description of template version
+    displayVersion?: NullableOption<string>;
+    // Indicate current lifecycle state of template
+    lifecycleState?: DeviceManagementTemplateLifecycleState;
+    // Platforms for this template
+    platforms?: DeviceManagementConfigurationPlatforms;
+    // Number of setting templates. Valid values 0 to 2147483647. This property is read-only.
+    settingTemplateCount?: number;
+    // Technologies for this template
+    technologies?: DeviceManagementConfigurationTechnologies;
+    // TemplateFamily for this template
+    templateFamily?: DeviceManagementConfigurationTemplateFamily;
+    // Template version. Valid values 1 to 2147483647. This property is read-only.
+    version?: number;
+    // Setting templates
+    settingTemplates?: NullableOption<DeviceManagementConfigurationSettingTemplate[]>;
+}
+export interface DeviceManagementConfigurationSettingTemplate extends Entity {
+    // Setting Instance Template
+    settingInstanceTemplate?: DeviceManagementConfigurationSettingInstanceTemplate;
     // List of related Setting Definitions
     settingDefinitions?: NullableOption<DeviceManagementConfigurationSettingDefinition[]>;
 }
@@ -24117,6 +24271,30 @@ export interface UserExperienceAnalyticsMetric extends Entity {
     unit?: NullableOption<string>;
     // The value of the user experience analytics metric.
     value?: number;
+}
+export interface UserExperienceAnalyticsWorkFromAnywhereDevice extends Entity {
+    // The user experience analytics work from anywhere intune device's autopilotProfileAssigned.
+    autoPilotProfileAssigned?: NullableOption<boolean>;
+    // The user experience work from anywhere intune device's autopilotRegistered.
+    autoPilotRegistered?: NullableOption<boolean>;
+    // The user experience work from anywhere azure Ad device Id.
+    azureAdDeviceId?: NullableOption<string>;
+    // The user experience work from anywhere device's azure Ad joinType.
+    azureAdJoinType?: NullableOption<string>;
+    // The user experience work from anywhere device's azureAdRegistered.
+    azureAdRegistered?: NullableOption<boolean>;
+    // The work from anywhere device's name.
+    deviceName?: NullableOption<string>;
+    // The user experience work from anywhere management agent of the device.
+    managedBy?: NullableOption<string>;
+    // The user experience work from anywhere device's manufacturer.
+    manufacturer?: NullableOption<string>;
+    // The user experience work from anywhere device's model.
+    model?: NullableOption<string>;
+    // The user experience work from anywhere device's ownership.
+    ownership?: NullableOption<string>;
+    // The user experience work from anywhere device's serial number.
+    serialNumber?: NullableOption<string>;
 }
 export interface WindowsDeviceMalwareState extends Entity {
     // Information URL to learn more about the malware
@@ -24774,10 +24952,14 @@ export interface WindowsInformationProtectionAppLockerFile extends Entity {
     version?: NullableOption<string>;
 }
 export interface MicrosoftTunnelServer extends Entity {
+    // The digest of the current agent image running on this server
+    agentImageDigest?: NullableOption<string>;
     // The MicrosoftTunnelServer's display name
     displayName?: NullableOption<string>;
     // When the MicrosoftTunnelServer last checked in
     lastCheckinDateTime?: string;
+    // The digest of the current server image running on this server
+    serverImageDigest?: NullableOption<string>;
     /**
      * The MicrosoftTunnelServer's health status. Possible values are: unknown, healthy, unhealthy, warning, offline,
      * upgradeInProgress, upgradeFailed.
@@ -27610,6 +27792,7 @@ export interface UnifiedRoleManagementPolicyExpirationRule extends UnifiedRoleMa
     maximumDuration?: NullableOption<string>;
 }
 export interface UnifiedRoleManagementPolicyNotificationRule extends UnifiedRoleManagementPolicyRule {
+    isDefaultRecipientsEnabled?: NullableOption<boolean>;
     notificationLevel?: NullableOption<string>;
     notificationRecipients?: NullableOption<string[]>;
     notificationType?: NullableOption<string>;
@@ -30829,14 +31012,12 @@ export interface DetectedSensitiveContent extends DetectedSensitiveContentBase {
     scope?: NullableOption<SensitiveTypeScope>;
     sensitiveTypeSource?: NullableOption<SensitiveTypeSource>;
 }
-export interface SensitiveContentLocationBase {
+export interface SensitiveContentLocation {
+    confidence?: NullableOption<number>;
     evidences?: NullableOption<SensitiveContentEvidence[]>;
     idMatch?: NullableOption<string>;
     length?: NullableOption<number>;
     offset?: NullableOption<number>;
-}
-export interface SensitiveContentLocation extends SensitiveContentLocationBase {
-    confidence?: NullableOption<number>;
 }
 export interface DetectedSensitiveContentWrapper {
     classification?: NullableOption<DetectedSensitiveContent[]>;
@@ -31572,10 +31753,8 @@ export interface ExactMatchClassificationResult {
     errors?: NullableOption<ClassificationError[]>;
 }
 export interface ExactMatchDetectedSensitiveContent extends DetectedSensitiveContentBase {
-    matches?: NullableOption<ExactMatchSensitiveContentLocation[]>;
+    matches?: NullableOption<SensitiveContentLocation[]>;
 }
-// tslint:disable-next-line: no-empty-interface
-export interface ExactMatchSensitiveContentLocation extends SensitiveContentLocationBase {}
 export interface WorkbookFilterCriteria {
     color?: NullableOption<string>;
     criterion1?: NullableOption<string>;
@@ -34515,6 +34694,8 @@ export interface MacOSMinimumOperatingSystem {
     v10_8?: boolean;
     // Mac OS 10.9 or later.
     v10_9?: boolean;
+    // Mac OS 11.0 or later.
+    v11_0?: boolean;
 }
 export interface MacOsVppAppAssignmentSettings extends MobileAppAssignmentSettings {
     // Whether or not to uninstall the app when device is removed from Intune.
@@ -34855,6 +35036,8 @@ export interface WindowsMinimumOperatingSystem {
     v10_1909?: boolean;
     // Windows 10 2004 or later.
     v10_2004?: boolean;
+    // Windows 10 2H20 or later.
+    v10_2H20?: boolean;
     // Windows version 8.0 or later.
     v8_0?: boolean;
     // Windows version 8.1 or later.
@@ -35170,6 +35353,8 @@ export interface HardwareInformation {
      * notLicensed, notConfigured, doesNotMeetHardwareRequirements, other.
      */
     deviceGuardVirtualizationBasedSecurityState?: DeviceGuardVirtualizationBasedSecurityState;
+    // eSIM identifier
+    esimIdentifier?: NullableOption<string>;
     // Free storage space of the device.
     freeStorageSpace?: number;
     // IMEI
@@ -36559,6 +36744,8 @@ export interface OmaSetting {
     isEncrypted?: boolean;
     // OMA.
     omaUri?: string;
+    // ReferenceId for looking up secret for decryption. This property is read-only.
+    secretReferenceValueId?: NullableOption<string>;
 }
 export interface OmaSettingBase64 extends OmaSetting {
     // File name associated with the Value property (.cer | .crt | .p7b | .bin).
@@ -37222,9 +37409,55 @@ export interface DeviceManagementConfigurationChoiceSettingValue extends DeviceM
     // Choice setting value: an OptionDefinition ItemId.
     value?: NullableOption<string>;
 }
+export interface DeviceManagementConfigurationSettingInstanceTemplate {
+    // Indicates if a policy must specify this setting.
+    isRequired?: boolean;
+    // Setting Definition Id
+    settingDefinitionId?: string;
+    // Setting Instance Template Id
+    settingInstanceTemplateId?: string;
+}
+export interface DeviceManagementConfigurationChoiceSettingCollectionInstanceTemplate extends DeviceManagementConfigurationSettingInstanceTemplate {
+    // Linked policy may append values which are not present in the template.
+    allowUnmanagedValues?: boolean;
+    // Choice Setting Collection Value Template
+    choiceSettingCollectionValueTemplate?: DeviceManagementConfigurationChoiceSettingValueTemplate[];
+}
+export interface DeviceManagementConfigurationChoiceSettingValueTemplate {
+    // Choice Setting Value Default Template.
+    defaultValue?: NullableOption<DeviceManagementConfigurationChoiceSettingValueDefaultTemplate>;
+    // Recommended definition override.
+    recommendedValueDefinition?: NullableOption<DeviceManagementConfigurationChoiceSettingValueDefinitionTemplate>;
+    // Required definition override.
+    requiredValueDefinition?: NullableOption<DeviceManagementConfigurationChoiceSettingValueDefinitionTemplate>;
+    // Setting Value Template Id
+    settingValueTemplateId?: string;
+}
 export interface DeviceManagementConfigurationChoiceSettingInstance extends DeviceManagementConfigurationSettingInstance {
     // Choice setting value
     choiceSettingValue?: DeviceManagementConfigurationChoiceSettingValue;
+}
+export interface DeviceManagementConfigurationChoiceSettingInstanceTemplate extends DeviceManagementConfigurationSettingInstanceTemplate {
+    // Choice Setting Value Template
+    choiceSettingValueTemplate?: DeviceManagementConfigurationChoiceSettingValueTemplate;
+}
+// tslint:disable-next-line: no-empty-interface
+export interface DeviceManagementConfigurationChoiceSettingValueDefaultTemplate {}
+export interface DeviceManagementConfigurationChoiceSettingValueConstantDefaultTemplate extends DeviceManagementConfigurationChoiceSettingValueDefaultTemplate {
+    // Option Children
+    children?: NullableOption<DeviceManagementConfigurationSettingInstanceTemplate[]>;
+    // Default Constant Value
+    settingDefinitionOptionId?: NullableOption<string>;
+}
+export interface DeviceManagementConfigurationChoiceSettingValueDefinitionTemplate {
+    // Choice Setting Allowed Options
+    allowedOptions?: DeviceManagementConfigurationOptionDefinitionTemplate[];
+}
+export interface DeviceManagementConfigurationOptionDefinitionTemplate {
+    // Option Children
+    children?: NullableOption<DeviceManagementConfigurationSettingInstanceTemplate[]>;
+    // Option ItemId
+    itemId?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationDependentOn {
     // Identifier of parent setting/ parent setting option dependent on
@@ -37240,9 +37473,25 @@ export interface DeviceManagementConfigurationGroupSettingValue extends DeviceMa
     // Collection of child setting instances contained within this GroupSetting
     children?: NullableOption<DeviceManagementConfigurationSettingInstance[]>;
 }
+export interface DeviceManagementConfigurationGroupSettingCollectionInstanceTemplate extends DeviceManagementConfigurationSettingInstanceTemplate {
+    // Linked policy may append values which are not present in the template.
+    allowUnmanagedValues?: boolean;
+    // Group Setting Collection Value Template
+    groupSettingCollectionValueTemplate?: DeviceManagementConfigurationGroupSettingValueTemplate[];
+}
+export interface DeviceManagementConfigurationGroupSettingValueTemplate {
+    // Group setting value children
+    children?: DeviceManagementConfigurationSettingInstanceTemplate[];
+    // Setting Value Template Id
+    settingValueTemplateId?: string;
+}
 export interface DeviceManagementConfigurationGroupSettingInstance extends DeviceManagementConfigurationSettingInstance {
     // GroupSetting value
     groupSettingValue?: DeviceManagementConfigurationGroupSettingValue;
+}
+export interface DeviceManagementConfigurationGroupSettingInstanceTemplate extends DeviceManagementConfigurationSettingInstanceTemplate {
+    // Group Setting Value Template
+    groupSettingValueTemplate?: DeviceManagementConfigurationGroupSettingValueTemplate;
 }
 // tslint:disable-next-line: no-empty-interface
 export interface DeviceManagementConfigurationSimpleSettingValue extends DeviceManagementConfigurationSettingValue {}
@@ -37282,6 +37531,33 @@ export interface DeviceManagementConfigurationSettingDependedOnBy {
     // Value that determines if the child setting is required based on the parent setting's selection
     required?: NullableOption<boolean>;
 }
+export interface DeviceManagementConfigurationPolicyTemplateReference {
+    // Template Display Name of the referenced template. This property is read-only.
+    templateDisplayName?: NullableOption<string>;
+    // Template Display Version of the referenced Template. This property is read-only.
+    templateDisplayVersion?: NullableOption<string>;
+    /**
+     * Template Family of the referenced Template. This property is read-only. Possible values are: none,
+     * endpointSecurityAntivirus, endpointSecurityDiskEncryption, endpointSecurityFirewall,
+     * endpointSecurityEndpointDectionAndResponse, endpointSecurityAttackSurfaceReduction, endpointSecurityAccountProtection,
+     * endpointSecurityApplicationControl.
+     */
+    templateFamily?: DeviceManagementConfigurationTemplateFamily;
+    // Template id
+    templateId?: NullableOption<string>;
+}
+export interface DeviceManagementConfigurationStringSettingValue extends DeviceManagementConfigurationSimpleSettingValue {
+    // Value of the string setting.
+    value?: NullableOption<string>;
+}
+export interface DeviceManagementConfigurationReferenceSettingValue extends DeviceManagementConfigurationStringSettingValue {
+    // A note that admin can use to put some contextual information
+    note?: NullableOption<string>;
+}
+export interface DeviceManagementConfigurationReferredSettingInformation {
+    // Setting definition id that is being referred to a setting. Applicable for reusable setting
+    settingDefinitionId?: NullableOption<string>;
+}
 export interface DeviceManagementConfigurationSettingApplicability {
     // description of the setting
     description?: NullableOption<string>;
@@ -37309,13 +37585,23 @@ export interface DeviceManagementConfigurationSimpleSettingCollectionInstance ex
     // Simple setting collection instance value
     simpleSettingCollectionValue?: DeviceManagementConfigurationSimpleSettingValue[];
 }
+export interface DeviceManagementConfigurationSimpleSettingCollectionInstanceTemplate extends DeviceManagementConfigurationSettingInstanceTemplate {
+    // Linked policy may append values which are not present in the template.
+    allowUnmanagedValues?: boolean;
+    // Simple Setting Collection Value Template
+    simpleSettingCollectionValueTemplate?: DeviceManagementConfigurationSimpleSettingValueTemplate[];
+}
+export interface DeviceManagementConfigurationSimpleSettingValueTemplate {
+    // Setting Value Template Id
+    settingValueTemplateId?: string;
+}
 export interface DeviceManagementConfigurationSimpleSettingInstance extends DeviceManagementConfigurationSettingInstance {
     // Simple setting instance value
     simpleSettingValue?: DeviceManagementConfigurationSimpleSettingValue;
 }
-export interface DeviceManagementConfigurationStringSettingValue extends DeviceManagementConfigurationSimpleSettingValue {
-    // Value of the string setting.
-    value?: NullableOption<string>;
+export interface DeviceManagementConfigurationSimpleSettingInstanceTemplate extends DeviceManagementConfigurationSettingInstanceTemplate {
+    // Simple Setting Value Template
+    simpleSettingValueTemplate?: DeviceManagementConfigurationSimpleSettingValueTemplate;
 }
 export interface DeviceManagementConfigurationStringSettingValueDefinition extends DeviceManagementConfigurationSettingValueDefinition {
     /**
@@ -37728,6 +38014,8 @@ export interface DeviceOperatingSystemSummary {
     aospUserAssociatedCount?: number;
     // Number of AOSP userless Android devices. Valid values 0 to 2147483647
     aospUserlessCount?: number;
+    // Number of Chrome OS devices. Valid values 0 to 2147483647
+    chromeOSCount?: number;
     // Number of ConfigMgr managed devices.
     configMgrDeviceCount?: number;
     // Number of iOS device count.
@@ -39242,11 +39530,11 @@ export interface PrinterCapabilities {
     // The media (i.e., paper) colors supported by the printer.
     mediaColors?: NullableOption<string[]>;
     /**
-     * The media sizes supported by the printer. Supports standard size names for ISO and ANSI media sizes, along with any
-     * custom sizes supported by the associated printer.
+     * The media sizes supported by the printer. Supports standard size names for ISO and ANSI media sizes. Valid values are
+     * in the following table.
      */
     mediaSizes?: NullableOption<string[]>;
-    // The media types supported by the printer. Valid values are described in the following table.
+    // The media types supported by the printer.
     mediaTypes?: NullableOption<string[]>;
     // The presentation directions supported by the printer. Supported values are described in the following table.
     multipageLayouts?: NullableOption<PrintMultipageLayout[]>;
@@ -39308,11 +39596,11 @@ export interface PrinterDefaults {
     // The default media (such as paper) color to print the document on.
     mediaColor?: NullableOption<string>;
     /**
-     * The default media size to use. Supports standard size names for ISO and ANSI media sizes, along with any custom sizes
-     * supported by the associated printer.
+     * The default media size to use. Supports standard size names for ISO and ANSI media sizes. Valid values are listed in
+     * the printerCapabilities topic.
      */
     mediaSize?: NullableOption<string>;
-    // The default media (such as paper) type to print the document on. Valid values are described in the following table.
+    // The default media (such as paper) type to print the document on.
     mediaType?: NullableOption<string>;
     /**
      * The default direction to lay out pages when multiple pages are being printed per sheet. Valid values are described in
@@ -39447,11 +39735,11 @@ export interface PrintJobConfiguration {
     // The margin settings to use when printing.
     margin?: NullableOption<PrintMargin>;
     /**
-     * The media sizeto use when printing. Supports standard size names for ISO and ANSI media sizes, along with any custom
-     * sizes supported by the associated printer.
+     * The media size to use when printing. Supports standard size names for ISO and ANSI media sizes. Valid values listed in
+     * the printerCapabilities topic.
      */
     mediaSize?: NullableOption<string>;
-    // The default media (such as paper) type to print the document on. Valid values are described in the following table.
+    // The default media (such as paper) type to print the document on.
     mediaType?: NullableOption<string>;
     /**
      * The direction to lay out pages when multiple pages are being printed per sheet. Valid values are described in the
@@ -40041,8 +40329,10 @@ export interface AudioConferencing {
     dialinUrl?: NullableOption<string>;
     // The toll-free number that connects to the Audio Conference Provider.
     tollFreeNumber?: NullableOption<string>;
+    tollFreeNumbers?: NullableOption<string[]>;
     // The toll number that connects to the Audio Conference Provider.
     tollNumber?: NullableOption<string>;
+    tollNumbers?: NullableOption<string[]>;
 }
 export interface BroadcastMeetingSettings {
     // Defines who can join the live event. Possible values are listed in the following table.
@@ -40173,11 +40463,11 @@ export interface MeetingParticipantInfo {
     upn?: NullableOption<string>;
 }
 export interface MeetingParticipants {
+    // Information of the meeting attendees.
     attendees?: NullableOption<MeetingParticipantInfo[]>;
-    // For broadcast meeting only.
     contributors?: NullableOption<MeetingParticipantInfo[]>;
+    // Information of the meeting organizer.
     organizer?: NullableOption<MeetingParticipantInfo>;
-    // For broadcast meeting only.
     producers?: NullableOption<MeetingParticipantInfo[]>;
 }
 export interface OrganizerMeetingInfo extends MeetingInfo {
