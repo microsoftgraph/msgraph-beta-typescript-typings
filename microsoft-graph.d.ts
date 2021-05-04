@@ -1,10 +1,11 @@
-// Project: https://github.com/microsoftgraph/msgraph-beta-typescript-typings
+// Project: https://github.com/microsoftgraph/msgraph-typescript-typings
 // Definitions by: Microsoft Graph Team <https://github.com/microsoftgraph>
 //                 Michael Mainer <https://github.com/MIchaelMainer>
 //                 Peter Ombwa <https://github.com/peombwa>
 //                 Mustafa Zengin <https://github.com/zengin>
 //                 DeVere Dyett <https://github.com/ddyett>
 //                 Nikitha Udaykumar Chettiar <https://github.com/nikithauc>
+// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 2.1
 
 export as namespace microsoftgraphbeta;
@@ -54,15 +55,54 @@ export type ConditionalAccessConditions =
     | "userRisk"
     | "time"
     | "deviceState"
-    | "client";
+    | "client"
+    | "ipAddressSeenByAzureAD"
+    | "ipAddressSeenByResourceProvider"
+    | "unknownFutureValue";
+export type ConditionalAccessRule =
+    | "allApps"
+    | "firstPartyApps"
+    | "office365"
+    | "appId"
+    | "acr"
+    | "appFilter"
+    | "allUsers"
+    | "guest"
+    | "groupId"
+    | "roleId"
+    | "userId"
+    | "allDevicePlatforms"
+    | "devicePlatform"
+    | "allLocations"
+    | "insideCorpnet"
+    | "allTrustedLocations"
+    | "locationId"
+    | "allDevices"
+    | "deviceFilter"
+    | "deviceState"
+    | "unknownFutureValue";
 export type ConditionalAccessStatus = "success" | "failure" | "notApplied" | "unknownFutureValue";
+export type ExpirationRequirement =
+    | "rememberMultifactorAuthenticationOnTrustedDevices"
+    | "tenantTokenLifetimePolicy"
+    | "audienceTokenLifetimePolicy"
+    | "signInFrequencyPeriodicReauthentication"
+    | "ngcMfa"
+    | "signInFrequencyEveryTime"
+    | "unknownFutureValue";
 export type FeatureType = "registration" | "reset" | "unknownFutureValue";
 export type GroupType = "unifiedGroups" | "azureAD" | "unknownFutureValue";
 export type IncludedUserRoles = "all" | "privilegedAdmin" | "admin" | "user" | "unknownFutureValue";
 export type IncludedUserTypes = "all" | "member" | "guest" | "unknownFutureValue";
 export type InitiatorType = "user" | "application" | "system" | "unknownFutureValue";
 export type MigrationStatus = "ready" | "needsReview" | "additionalStepsRequired" | "unknownFutureValue";
-export type NetworkType = "intranet" | "extranet" | "namedNetwork" | "trusted" | "unknownFutureValue";
+export type NetworkType =
+    | "intranet"
+    | "extranet"
+    | "namedNetwork"
+    | "trusted"
+    | "unknownFutureValue"
+    | "trustedNamedLocation";
 export type OperationResult = "success" | "failure" | "timeout" | "unknownFutureValue";
 export type ProvisioningAction =
     | "other"
@@ -212,6 +252,7 @@ export type LocationType =
     | "postalAddress";
 export type LocationUniqueIdType = "unknown" | "locationStore" | "directory" | "private" | "bing";
 export type PhysicalAddressType = "unknown" | "home" | "business" | "other";
+export type ActionState = "none" | "pending" | "canceled" | "active" | "done" | "failed" | "notSupported";
 export type CloudPcDeviceImageStatus = "pending" | "ready" | "failed";
 export type CloudPcDeviceImageStatusDetails =
     | "internalServerError"
@@ -226,19 +267,29 @@ export type CloudPcOnPremisesConnectionHealthCheckErrorType =
     | "adJoinCheckOrganizationalUnitNotFound"
     | "adJoinCheckOrganizationalUnitIncorrectFormat"
     | "adJoinCheckComputerObjectAlreadyExists"
+    | "adJoinCheckAccessDenied"
     | "adJoinCheckUnknownError"
-    | "endpointConnectivityCheckUrlNotWhitelisted"
+    | "endpointConnectivityCheckCloudPcUrlNotAllowListed"
+    | "endpointConnectivityCheckWVDUrlNotAllowListed"
+    | "endpointConnectivityCheckIntuneUrlNotAllowListed"
     | "endpointConnectivityCheckUnknownError"
     | "aadConnectivityCheckUnknownError"
     | "resourceAvailabilityCheckNoSubnetIP"
     | "resourceAvailabilityCheckSubscriptionDisabled"
+    | "resourceAvailabilityCheckUnsupportedVNetRegion"
     | "resourceAvailabilityCheckUnknownError"
     | "permissionCheckNoSubscriptionReaderRole"
     | "permissionCheckNoResourceGroupOwnerRole"
     | "permissionCheckNoVNetContributorRole"
     | "permissionCheckUnknownError"
     | "internalServerUnknownError";
-export type CloudPcOnPremisesConnectionStatus = "pending" | "running" | "passed" | "failed" | "unknownFutureValue";
+export type CloudPcOnPremisesConnectionStatus =
+    | "pending"
+    | "running"
+    | "passed"
+    | "failed"
+    | "warning"
+    | "unknownFutureValue";
 export type CloudPcProvisioningPolicyImageType = "gallery" | "custom";
 export type CloudPcStatus =
     | "notProvisioned"
@@ -755,7 +806,6 @@ export type AndroidManagedStoreAppConfigurationSchemaItemDataType =
     | "bundle"
     | "bundleArray"
     | "hidden";
-export type ActionState = "none" | "pending" | "canceled" | "active" | "done" | "failed" | "notSupported";
 export type AndroidPermissionActionType = "prompt" | "autoGrant" | "autoDeny";
 export type AndroidProfileApplicability = "default" | "androidWorkProfile" | "androidDeviceOwner";
 export type CertificateStatus = "notProvisioned" | "provisioned";
@@ -3784,7 +3834,7 @@ export interface User extends DirectoryObject {
      * $filter.
      */
     country?: NullableOption<string>;
-    // The created date of the user object.
+    // The created date of the user object. Supports $filter with the eq, lt, and ge operators.
     createdDateTime?: NullableOption<string>;
     /**
      * Indicates whether the user account was created as a regular school or work account (null), an external account
@@ -3857,8 +3907,9 @@ export interface User extends DirectoryObject {
     // State of license assignments for this user. Read-only.
     licenseAssignmentStates?: NullableOption<LicenseAssignmentState[]>;
     /**
-     * The SMTP address for the user, for example, 'jeff@contoso.onmicrosoft.com'. Returned by default. Supports $filter and
-     * endsWith.
+     * The SMTP address for the user, for example, 'jeff@contoso.onmicrosoft.com'.NOTE: While this property can contain accent
+     * characters, using them can cause access issues with other Microsoft applications for the user. Returned by default.
+     * Supports $filter and endsWith.
      */
     mail?: NullableOption<string>;
     /**
@@ -3929,8 +3980,9 @@ export interface User extends DirectoryObject {
      */
     onPremisesUserPrincipalName?: NullableOption<string>;
     /**
-     * A list of additional email addresses for the user; for example: ['bob@contoso.com', 'Robert@fabrikam.com']. Supports
-     * $filter.
+     * A list of additional email addresses for the user; for example: ['bob@contoso.com', 'Robert@fabrikam.com']. NOTE: While
+     * this property can contain accent characters, they can cause access issues to first-party applications for the user.
+     * Supports $filter.
      */
     otherMails?: string[];
     /**
@@ -4000,8 +4052,9 @@ export interface User extends DirectoryObject {
      * The user principal name (UPN) of the user. The UPN is an Internet-style login name for the user based on the Internet
      * standard RFC 822. By convention, this should map to the user's email name. The general format is alias@domain, where
      * domain must be present in the tenant's collection of verified domains. This property is required when a user is
-     * created. The verified domains for the tenant can be accessed from the verifiedDomains property of organization.
-     * Returned by default. Supports $filter, $orderby, and endsWith.
+     * created. The verified domains for the tenant can be accessed from the verifiedDomains property of organization.NOTE:
+     * While this property can contain accent characters, they can cause access issues to first-party applications for the
+     * user. Returned by default. Supports $filter, $orderby, and endsWith.
      */
     userPrincipalName?: NullableOption<string>;
     /**
@@ -4627,7 +4680,7 @@ export interface InferenceClassification extends Entity {
 }
 export interface Group extends DirectoryObject {
     /**
-     * The list of sensitivity label pairs (label ID, label name) associated with an Microsoft 365 group. Returned only on
+     * The list of sensitivity label pairs (label ID, label name) associated with a Microsoft 365 group. Returned only on
      * $select. Read-only.
      */
     assignedLabels?: NullableOption<AssignedLabel[]>;
@@ -4753,7 +4806,7 @@ export interface Group extends DirectoryObject {
     // The preferred data location for the group. For more information, see OneDrive Online Multi-Geo. Returned by default.
     preferredDataLocation?: NullableOption<string>;
     /**
-     * The preferred language for an Microsoft 365 group. Should follow ISO 639-1 Code; for example 'en-US'. Returned by
+     * The preferred language for a Microsoft 365 group. Should follow ISO 639-1 Code; for example 'en-US'. Returned by
      * default.
      */
     preferredLanguage?: NullableOption<string>;
@@ -4786,7 +4839,7 @@ export interface Group extends DirectoryObject {
     // Security identifier of the group, used in Windows scenarios. Returned by default.
     securityIdentifier?: NullableOption<string>;
     /**
-     * Specifies an Microsoft 365 group's color theme. Possible values are Teal, Purple, Green, Blue, Pink, Orange or Red.
+     * Specifies a Microsoft 365 group's color theme. Possible values are Teal, Purple, Green, Blue, Pink, Orange or Red.
      * Returned by default.
      */
     theme?: NullableOption<string>;
@@ -5204,7 +5257,7 @@ export interface AppConsentRequest extends Entity {
     // The identifier of the application. Required. Supports $filter (eq only) and $orderby.
     appId?: string;
     /**
-     * The consent type of the request. Possible values are: Static and Dynamic. These represent static and dynamic
+     * The consent type of the request. Possible values are: Static and Dynamic. These represent static and dynamic
      * permissions, respectively, requested in the consent workflow. Supports $filter (eq only) and $orderby. Required.
      */
     consentType?: NullableOption<string>;
@@ -5305,6 +5358,7 @@ export interface DeviceEnrollmentConfiguration extends Entity {
     assignments?: NullableOption<EnrollmentConfigurationAssignment[]>;
 }
 export interface ManagedDevice extends Entity {
+    cloudPcRemoteActionResults?: NullableOption<CloudPcRemoteActionResult[]>;
     // Whether the device is Azure Active Directory registered. This property is read-only.
     aadRegistered?: NullableOption<boolean>;
     // Code that allows the Activation Lock on a device to be bypassed.
@@ -5504,10 +5558,10 @@ export interface ManagedDevice extends Entity {
     windowsActiveMalwareCount?: number;
     // Count of remediated malware for this windows device. This property is read-only.
     windowsRemediatedMalwareCount?: number;
-    // Device compliance policy states for this device.
-    deviceCompliancePolicyStates?: NullableOption<DeviceCompliancePolicyState[]>;
     // Managed device mobile app configuration states for this device.
     assignmentFilterEvaluationStatusDetails?: NullableOption<AssignmentFilterEvaluationStatusDetails[]>;
+    // Device compliance policy states for this device.
+    deviceCompliancePolicyStates?: NullableOption<DeviceCompliancePolicyState[]>;
     // Device configuration states for this device.
     deviceConfigurationStates?: NullableOption<DeviceConfigurationState[]>;
     // Managed device mobile app configuration states for this device.
@@ -6764,6 +6818,7 @@ export interface PolicyRoot {
     tokenIssuancePolicies?: NullableOption<TokenIssuancePolicy[]>;
     tokenLifetimePolicies?: NullableOption<TokenLifetimePolicy[]>;
     featureRolloutPolicies?: NullableOption<FeatureRolloutPolicy[]>;
+    accessReviewPolicy?: NullableOption<AccessReviewPolicy>;
     adminConsentRequestPolicy?: NullableOption<AdminConsentRequestPolicy>;
     directoryRoleAccessReviewPolicy?: NullableOption<DirectoryRoleAccessReviewPolicy>;
     conditionalAccessPolicies?: NullableOption<ConditionalAccessPolicy[]>;
@@ -6812,8 +6867,8 @@ export interface AuthorizationPolicy extends PolicyBase {
      */
     allowInvitesFrom?: NullableOption<AllowInvitesFrom>;
     /**
-     * To disable the use of MSOL PowerShell set this property to true. Setting to true will also disable user-based access to
-     * the legacy service endpoint used by MSOL PowerShell. This does not affect Azure AD Connect or Microsoft Graph.
+     * To disable the use of MSOL PowerShell set this property to true. This will also disable user-based access to the legacy
+     * service endpoint used by MSOL PowerShell. This does not affect Azure AD Connect or Microsoft Graph.
      */
     blockMsolPowerShell?: NullableOption<boolean>;
     // Specifies certain customizable permissions for default user role.
@@ -6821,10 +6876,9 @@ export interface AuthorizationPolicy extends PolicyBase {
     // List of features enabled for private preview on the tenant.
     enabledPreviewFeatures?: NullableOption<string[]>;
     /**
-     * Represents role templateId for the role that should be granted to guest user. Refer to List unifiedRoleDefinitions to
-     * find the list of available role templates. Currently following roles are supported: User
-     * (a0b1b346-4d3e-4e8b-98f8-753987be4970), Guest User (10dae51f-b6af-4016-8d66-8c2a99b929b3), and Restricted Guest User
-     * (2af84b1e-32c8-42b7-82bc-daa82404023b).
+     * Represents role templateId for the role that should be granted to guest user. Currently following roles are supported:
+     * User (a0b1b346-4d3e-4e8b-98f8-753987be4970), Guest User (10dae51f-b6af-4016-8d66-8c2a99b929b3), and Restricted Guest
+     * User (2af84b1e-32c8-42b7-82bc-daa82404023b).
      */
     guestUserRoleId?: NullableOption<string>;
     /**
@@ -6853,6 +6907,14 @@ export interface FeatureRolloutPolicy extends Entity {
     isEnabled?: boolean;
     // Nullable. Specifies a list of directoryObjects that feature is enabled for.
     appliesTo?: NullableOption<DirectoryObject[]>;
+}
+export interface AccessReviewPolicy extends Entity {
+    // Description for this policy. Read-only.
+    description?: NullableOption<string>;
+    // Display name for this policy. Read-only.
+    displayName?: string;
+    // If true, group owners can create and manage access reviews on groups they own.
+    isGroupOwnerManagementEnabled?: boolean;
 }
 export interface AdminConsentRequestPolicy extends Entity {
     // Specifies whether the admin consent request feature is enabled or disabled. Required.
@@ -10296,6 +10358,148 @@ export interface UserPFXCertificate extends Entity {
     // User Principal Name of the PFX certificate.
     userPrincipalName?: NullableOption<string>;
 }
+export interface AssignmentFilterEvaluationStatusDetails extends Entity {
+    // PayloadId on which filter has been applied.
+    payloadId?: NullableOption<string>;
+}
+export interface DeviceCompliancePolicyState extends Entity {
+    // The name of the policy for this policyBase
+    displayName?: NullableOption<string>;
+    // Platform type that the policy applies to
+    platformType?: PolicyPlatformType;
+    // Count of how many setting a policy holds
+    settingCount?: number;
+    settingStates?: NullableOption<DeviceCompliancePolicySettingState[]>;
+    // The compliance state of the policy
+    state?: ComplianceStatus;
+    // User unique identifier, must be Guid
+    userId?: NullableOption<string>;
+    // User Principal Name
+    userPrincipalName?: NullableOption<string>;
+    // The version of the policy
+    version?: number;
+}
+export interface DeviceConfigurationState extends Entity {
+    // The name of the policy for this policyBase
+    displayName?: NullableOption<string>;
+    // Platform type that the policy applies to
+    platformType?: PolicyPlatformType;
+    // Count of how many setting a policy holds
+    settingCount?: number;
+    settingStates?: NullableOption<DeviceConfigurationSettingState[]>;
+    // The compliance state of the policy
+    state?: ComplianceStatus;
+    // User unique identifier, must be Guid
+    userId?: NullableOption<string>;
+    // User Principal Name
+    userPrincipalName?: NullableOption<string>;
+    // The version of the policy
+    version?: number;
+}
+export interface ManagedDeviceMobileAppConfigurationState extends Entity {
+    // The name of the policy for this policyBase
+    displayName?: NullableOption<string>;
+    // Platform type that the policy applies to
+    platformType?: PolicyPlatformType;
+    // Count of how many setting a policy holds
+    settingCount?: number;
+    settingStates?: NullableOption<ManagedDeviceMobileAppConfigurationSettingState[]>;
+    // The compliance state of the policy
+    state?: ComplianceStatus;
+    // User unique identifier, must be Guid
+    userId?: NullableOption<string>;
+    // User Principal Name
+    userPrincipalName?: NullableOption<string>;
+    // The version of the policy
+    version?: number;
+}
+export interface SecurityBaselineState extends Entity {
+    // The display name of the security baseline
+    displayName?: string;
+    // The security baseline template id
+    securityBaselineTemplateId?: NullableOption<string>;
+    // Security baseline compliance state
+    state?: SecurityBaselineComplianceState;
+    // User Principal Name
+    userPrincipalName?: NullableOption<string>;
+    // The security baseline state for different settings for a device
+    settingStates?: NullableOption<SecurityBaselineSettingState[]>;
+}
+export interface DeviceLogCollectionResponse extends Entity {
+    // The error code, if any. Valid values -9.22337203685478E+18 to 9.22337203685478E+18
+    errorCode?: number;
+    // The DateTime of the expiration of the logs
+    expirationDateTimeUTC?: NullableOption<string>;
+    // The UPN for who initiated the request
+    initiatedByUserPrincipalName?: NullableOption<string>;
+    // The device Id
+    managedDeviceId?: string;
+    // The DateTime the request was received
+    receivedDateTimeUTC?: NullableOption<string>;
+    // The DateTime of the request
+    requestedDateTimeUTC?: NullableOption<string>;
+    // The size of the logs. Valid values -1.79769313486232E+308 to 1.79769313486232E+308
+    size?: number;
+    // The status of the log collection request
+    status?: NullableOption<string>;
+}
+export interface WindowsProtectionState extends Entity {
+    // Current anti malware version
+    antiMalwareVersion?: NullableOption<string>;
+    /**
+     * Computer's state (like clean or pending full scan or pending reboot etc). Possible values are: clean, fullScanPending,
+     * rebootPending, manualStepsPending, offlineScanPending, critical.
+     */
+    deviceState?: NullableOption<WindowsDeviceHealthState>;
+    // Current endpoint protection engine's version
+    engineVersion?: NullableOption<string>;
+    // Full scan overdue or not?
+    fullScanOverdue?: NullableOption<boolean>;
+    // Full scan required or not?
+    fullScanRequired?: NullableOption<boolean>;
+    // Indicates whether the device is a virtual machine.
+    isVirtualMachine?: NullableOption<boolean>;
+    // Last quick scan datetime
+    lastFullScanDateTime?: NullableOption<string>;
+    // Last full scan signature version
+    lastFullScanSignatureVersion?: NullableOption<string>;
+    // Last quick scan datetime
+    lastQuickScanDateTime?: NullableOption<string>;
+    // Last quick scan signature version
+    lastQuickScanSignatureVersion?: NullableOption<string>;
+    // Last device health status reported time
+    lastReportedDateTime?: NullableOption<string>;
+    // Anti malware is enabled or not
+    malwareProtectionEnabled?: NullableOption<boolean>;
+    // Network inspection system enabled or not?
+    networkInspectionSystemEnabled?: NullableOption<boolean>;
+    /**
+     * Product Status of Windows Defender Antivirus. Possible values are: noStatus, serviceNotRunning,
+     * serviceStartedWithoutMalwareProtection, pendingFullScanDueToThreatAction, pendingRebootDueToThreatAction,
+     * pendingManualStepsDueToThreatAction, avSignaturesOutOfDate, asSignaturesOutOfDate,
+     * noQuickScanHappenedForSpecifiedPeriod, noFullScanHappenedForSpecifiedPeriod, systemInitiatedScanInProgress,
+     * systemInitiatedCleanInProgress, samplesPendingSubmission, productRunningInEvaluationMode,
+     * productRunningInNonGenuineMode, productExpired, offlineScanRequired, serviceShutdownAsPartOfSystemShutdown,
+     * threatRemediationFailedCritically, threatRemediationFailedNonCritically, noStatusFlagsSet, platformOutOfDate,
+     * platformUpdateInProgress, platformAboutToBeOutdated, signatureOrPlatformEndOfLifeIsPastOrIsImpending,
+     * windowsSModeSignaturesInUseOnNonWin10SInstall.
+     */
+    productStatus?: NullableOption<WindowsDefenderProductStatus>;
+    // Quick scan overdue or not?
+    quickScanOverdue?: NullableOption<boolean>;
+    // Real time protection is enabled or not?
+    realTimeProtectionEnabled?: NullableOption<boolean>;
+    // Reboot required or not?
+    rebootRequired?: NullableOption<boolean>;
+    // Signature out of date or not?
+    signatureUpdateOverdue?: NullableOption<boolean>;
+    // Current malware definitions version
+    signatureVersion?: NullableOption<string>;
+    // Indicates whether the Windows Defender tamper protection feature is enabled.
+    tamperProtectionEnabled?: NullableOption<boolean>;
+    // Device malware list
+    detectedMalwareState?: NullableOption<WindowsDeviceMalwareState[]>;
+}
 export interface RbacApplicationMultiple extends Entity {
     resourceNamespaces?: NullableOption<UnifiedRbacResourceNamespace[]>;
     roleAssignments?: NullableOption<UnifiedRoleAssignmentMultiple[]>;
@@ -11835,8 +12039,12 @@ export interface EducationAssignment extends Entity {
      * published.
      */
     notificationChannelUrl?: NullableOption<string>;
+    // Folder URL where all the file resources for this assignment are stored.
+    resourcesFolderUrl?: NullableOption<string>;
     // Status of the Assignment. You can not PATCH this value. Possible values are: draft, scheduled, published, assigned.
     status?: NullableOption<EducationAssignmentStatus>;
+    // The deep link URL for the given assignment.
+    webUrl?: NullableOption<string>;
     // When set, enables users to easily find assignments of a given type. Read-only. Nullable.
     categories?: NullableOption<EducationCategory[]>;
     // Learning objects that are associated with this assignment. Only teachers can modify this list. Nullable.
@@ -11888,12 +12096,7 @@ export interface EducationRubric extends Entity {
 export interface EducationSubmission extends Entity {
     // Who this submission is assigned to.
     recipient?: NullableOption<EducationSubmissionRecipient>;
-    // User who moved the status of this submission to released.
     releasedBy?: NullableOption<IdentitySet>;
-    /**
-     * Moment in time when the submission was released. The Timestamp type represents date and time information using ISO 8601
-     * format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z
-     */
     releasedDateTime?: NullableOption<string>;
     // Folder where all file resources for this submission need to be stored.
     resourcesFolderUrl?: NullableOption<string>;
@@ -13872,6 +14075,7 @@ export interface AccessReviewScheduleDefinition extends Entity {
 export interface AccessReviewSet extends Entity {
     definitions?: NullableOption<AccessReviewScheduleDefinition[]>;
     historyDefinitions?: NullableOption<AccessReviewHistoryDefinition[]>;
+    policy?: NullableOption<AccessReviewPolicy>;
 }
 export interface AppConsentApprovalRoute extends Entity {
     appConsentRequests?: NullableOption<AppConsentRequest[]>;
@@ -16623,10 +16827,6 @@ export interface ManagedAppPolicyDeploymentSummary extends Entity {
     // Version of the entity.
     version?: NullableOption<string>;
 }
-export interface AssignmentFilterEvaluationStatusDetails extends Entity {
-    // PayloadId on which filter has been applied.
-    payloadId?: NullableOption<string>;
-}
 export interface DeviceCompliancePolicyAssignment extends Entity {
     /**
      * The assignment source for the device compliance policy, direct or parcel/policySet. Possible values are: direct,
@@ -16919,144 +17119,6 @@ export interface IosLobAppProvisioningConfigurationPolicySetItem extends PolicyS
 export interface ManagedAppProtectionPolicySetItem extends PolicySetItem {
     // TargetedAppManagementLevels of the ManagedAppPolicySetItem.
     targetedAppManagementLevels?: NullableOption<string>;
-}
-export interface DeviceCompliancePolicyState extends Entity {
-    // The name of the policy for this policyBase
-    displayName?: NullableOption<string>;
-    // Platform type that the policy applies to
-    platformType?: PolicyPlatformType;
-    // Count of how many setting a policy holds
-    settingCount?: number;
-    settingStates?: NullableOption<DeviceCompliancePolicySettingState[]>;
-    // The compliance state of the policy
-    state?: ComplianceStatus;
-    // User unique identifier, must be Guid
-    userId?: NullableOption<string>;
-    // User Principal Name
-    userPrincipalName?: NullableOption<string>;
-    // The version of the policy
-    version?: number;
-}
-export interface DeviceConfigurationState extends Entity {
-    // The name of the policy for this policyBase
-    displayName?: NullableOption<string>;
-    // Platform type that the policy applies to
-    platformType?: PolicyPlatformType;
-    // Count of how many setting a policy holds
-    settingCount?: number;
-    settingStates?: NullableOption<DeviceConfigurationSettingState[]>;
-    // The compliance state of the policy
-    state?: ComplianceStatus;
-    // User unique identifier, must be Guid
-    userId?: NullableOption<string>;
-    // User Principal Name
-    userPrincipalName?: NullableOption<string>;
-    // The version of the policy
-    version?: number;
-}
-export interface ManagedDeviceMobileAppConfigurationState extends Entity {
-    // The name of the policy for this policyBase
-    displayName?: NullableOption<string>;
-    // Platform type that the policy applies to
-    platformType?: PolicyPlatformType;
-    // Count of how many setting a policy holds
-    settingCount?: number;
-    settingStates?: NullableOption<ManagedDeviceMobileAppConfigurationSettingState[]>;
-    // The compliance state of the policy
-    state?: ComplianceStatus;
-    // User unique identifier, must be Guid
-    userId?: NullableOption<string>;
-    // User Principal Name
-    userPrincipalName?: NullableOption<string>;
-    // The version of the policy
-    version?: number;
-}
-export interface SecurityBaselineState extends Entity {
-    // The display name of the security baseline
-    displayName?: string;
-    // The security baseline template id
-    securityBaselineTemplateId?: NullableOption<string>;
-    // Security baseline compliance state
-    state?: SecurityBaselineComplianceState;
-    // User Principal Name
-    userPrincipalName?: NullableOption<string>;
-    // The security baseline state for different settings for a device
-    settingStates?: NullableOption<SecurityBaselineSettingState[]>;
-}
-export interface DeviceLogCollectionResponse extends Entity {
-    // The error code, if any. Valid values -9.22337203685478E+18 to 9.22337203685478E+18
-    errorCode?: number;
-    // The DateTime of the expiration of the logs
-    expirationDateTimeUTC?: NullableOption<string>;
-    // The UPN for who initiated the request
-    initiatedByUserPrincipalName?: NullableOption<string>;
-    // The device Id
-    managedDeviceId?: string;
-    // The DateTime the request was received
-    receivedDateTimeUTC?: NullableOption<string>;
-    // The DateTime of the request
-    requestedDateTimeUTC?: NullableOption<string>;
-    // The size of the logs. Valid values -1.79769313486232E+308 to 1.79769313486232E+308
-    size?: number;
-    // The status of the log collection request
-    status?: NullableOption<string>;
-}
-export interface WindowsProtectionState extends Entity {
-    // Current anti malware version
-    antiMalwareVersion?: NullableOption<string>;
-    /**
-     * Computer's state (like clean or pending full scan or pending reboot etc). Possible values are: clean, fullScanPending,
-     * rebootPending, manualStepsPending, offlineScanPending, critical.
-     */
-    deviceState?: NullableOption<WindowsDeviceHealthState>;
-    // Current endpoint protection engine's version
-    engineVersion?: NullableOption<string>;
-    // Full scan overdue or not?
-    fullScanOverdue?: NullableOption<boolean>;
-    // Full scan required or not?
-    fullScanRequired?: NullableOption<boolean>;
-    // Indicates whether the device is a virtual machine.
-    isVirtualMachine?: NullableOption<boolean>;
-    // Last quick scan datetime
-    lastFullScanDateTime?: NullableOption<string>;
-    // Last full scan signature version
-    lastFullScanSignatureVersion?: NullableOption<string>;
-    // Last quick scan datetime
-    lastQuickScanDateTime?: NullableOption<string>;
-    // Last quick scan signature version
-    lastQuickScanSignatureVersion?: NullableOption<string>;
-    // Last device health status reported time
-    lastReportedDateTime?: NullableOption<string>;
-    // Anti malware is enabled or not
-    malwareProtectionEnabled?: NullableOption<boolean>;
-    // Network inspection system enabled or not?
-    networkInspectionSystemEnabled?: NullableOption<boolean>;
-    /**
-     * Product Status of Windows Defender Antivirus. Possible values are: noStatus, serviceNotRunning,
-     * serviceStartedWithoutMalwareProtection, pendingFullScanDueToThreatAction, pendingRebootDueToThreatAction,
-     * pendingManualStepsDueToThreatAction, avSignaturesOutOfDate, asSignaturesOutOfDate,
-     * noQuickScanHappenedForSpecifiedPeriod, noFullScanHappenedForSpecifiedPeriod, systemInitiatedScanInProgress,
-     * systemInitiatedCleanInProgress, samplesPendingSubmission, productRunningInEvaluationMode,
-     * productRunningInNonGenuineMode, productExpired, offlineScanRequired, serviceShutdownAsPartOfSystemShutdown,
-     * threatRemediationFailedCritically, threatRemediationFailedNonCritically, noStatusFlagsSet, platformOutOfDate,
-     * platformUpdateInProgress, platformAboutToBeOutdated, signatureOrPlatformEndOfLifeIsPastOrIsImpending,
-     * windowsSModeSignaturesInUseOnNonWin10SInstall.
-     */
-    productStatus?: NullableOption<WindowsDefenderProductStatus>;
-    // Quick scan overdue or not?
-    quickScanOverdue?: NullableOption<boolean>;
-    // Real time protection is enabled or not?
-    realTimeProtectionEnabled?: NullableOption<boolean>;
-    // Reboot required or not?
-    rebootRequired?: NullableOption<boolean>;
-    // Signature out of date or not?
-    signatureUpdateOverdue?: NullableOption<boolean>;
-    // Current malware definitions version
-    signatureVersion?: NullableOption<string>;
-    // Indicates whether the Windows Defender tamper protection feature is enabled.
-    tamperProtectionEnabled?: NullableOption<boolean>;
-    // Device malware list
-    detectedMalwareState?: NullableOption<WindowsDeviceMalwareState[]>;
 }
 // tslint:disable-next-line: no-empty-interface
 export interface ManagedDeviceMobileAppConfigurationPolicySetItem extends PolicySetItem {}
@@ -21891,7 +21953,7 @@ export interface Windows10GeneralConfiguration extends DeviceConfiguration {
     appManagementMSIAllowUserControlOverInstall?: boolean;
     // This policy setting directs Windows Installer to use elevated permissions when it installs any program on the system.
     appManagementMSIAlwaysInstallWithElevatedPrivileges?: boolean;
-    // List of semi-colon delimited Package Family Names of Windows apps. Listed Windows apps are to be launched after logon.
+    // List of semi-colon delimited Package Family Names of Windows apps. Listed Windows apps are to be launched after logon.​
     appManagementPackageFamilyNamesToLaunchAfterLogOn?: NullableOption<string[]>;
     /**
      * Indicates whether apps from AppX packages signed with a trusted certificate can be side loaded. Possible values are:
@@ -22428,7 +22490,7 @@ export interface Windows10GeneralConfiguration extends DeviceConfiguration {
     privacyBlockInputPersonalization?: boolean;
     // Blocks the shared experiences/discovery of recently used resources in task switcher etc.
     privacyBlockPublishUserActivities?: boolean;
-    // This policy prevents the privacy experience from launching during user logon for new and upgraded users.
+    // This policy prevents the privacy experience from launching during user logon for new and upgraded users.​
     privacyDisableLaunchExperience?: boolean;
     // Indicates whether or not to Block the user from reset protection mode.
     resetProtectionModeBlocked?: boolean;
@@ -23175,7 +23237,7 @@ export interface WindowsDeliveryOptimizationConfiguration extends DeviceConfigur
     cacheServerBackgroundDownloadFallbackToHttpDelayInSeconds?: number;
     /**
      * Specifies number of seconds to delay a fall back from cache servers to an HTTP source for a foreground download. Valid
-     * values 0 to 2592000.
+     * values 0 to 2592000.​
      */
     cacheServerForegroundDownloadFallbackToHttpDelayInSeconds?: number;
     // Specifies cache servers host names.
@@ -23769,7 +23831,7 @@ export interface WindowsWifiEnterpriseEAPConfiguration extends WindowsWifiConfig
     trustedServerCertificateNames?: NullableOption<string[]>;
     /**
      * Specifiy whether to change the virtual LAN used by the device based on the user’s credentials. Cannot be used when
-     * NetworkSingleSignOnType is set to Disabled.
+     * NetworkSingleSignOnType is set to ​Disabled.
      */
     userBasedVirtualLan?: NullableOption<boolean>;
     // Specify identity certificate for client authentication.
@@ -29416,14 +29478,20 @@ export interface AppliedConditionalAccessPolicy {
     enforcedGrantControls?: NullableOption<string[]>;
     // Refers to the session controls enforced by the conditional access policy (example: 'Require app enforced controls').
     enforcedSessionControls?: NullableOption<string[]>;
+    excludeRulesSatisfied?: NullableOption<ConditionalAccessRuleSatisfied[]>;
     // An identifier of the conditional access policy.
     id?: NullableOption<string>;
+    includeRulesSatisfied?: NullableOption<ConditionalAccessRuleSatisfied[]>;
     /**
      * Indicates the result of the CA policy that was triggered. Possible values are: success, failure, notApplied (Policy
      * isn't applied because policy conditions were not met),notEnabled (This is due to the policy in disabled state),
      * unknown, unknownFutureValue.
      */
     result?: NullableOption<AppliedConditionalAccessPolicyResult>;
+}
+export interface ConditionalAccessRuleSatisfied {
+    conditionalAccessCondition?: NullableOption<ConditionalAccessConditions>;
+    ruleSatisfied?: NullableOption<ConditionalAccessRule>;
 }
 export interface AuditActivityInitiator {
     /**
@@ -29604,6 +29672,10 @@ export interface ProvisioningStep {
 export interface ProvisioningSystem extends Identity {
     details?: NullableOption<DetailsInfo>;
 }
+export interface SessionLifetimePolicy {
+    detail?: NullableOption<string>;
+    expirationRequirement?: NullableOption<ExpirationRequirement>;
+}
 export interface SignInActivity {
     /**
      * The last interactive sign-in date for a specific user. You can use this field to calculate the last time a user signed
@@ -29770,9 +29842,9 @@ export interface ObjectIdentity {
     /**
      * Specifies the unique identifier assigned to the user by the issuer. The combination of issuer and issuerAssignedId must
      * be unique within the organization. Represents the sign-in name for the user, when signInType is set to emailAddress or
-     * userName (also known as local accounts).When signInType is set to: emailAddress, (or starts with emailAddress like
-     * emailAddress1) issuerAssignedId must be a valid email addressuserName, issuerAssignedId must be a valid local part of
-     * an email addressSupports $filter. 512 character limit.
+     * userName (also known as local accounts).When signInType is set to: emailAddress, (or a custom string that starts with
+     * emailAddress like emailAddress1) issuerAssignedId must be a valid email addressuserName, issuerAssignedId must be a
+     * valid local part of an email addressSupports $filter. 100 character limit.
      */
     issuerAssignedId?: NullableOption<string>;
     /**
@@ -30472,11 +30544,14 @@ export interface CloudPcOnPremisesConnectionStatusDetails {
      */
     startDateTime?: string;
 }
-export interface CloudPcSourceDeviceImage {
-    // The display name for the source image.
-    displayName?: NullableOption<string>;
-    // The ID of the source image.
-    id?: NullableOption<string>;
+export interface CloudPcRemoteActionResult {
+    actionName?: NullableOption<string>;
+    actionState?: NullableOption<ActionState>;
+    cloudPcId?: NullableOption<string>;
+    lastUpdatedDateTime?: NullableOption<string>;
+    managedDeviceId?: NullableOption<string>;
+    startDateTime?: NullableOption<string>;
+    statusDetails?: NullableOption<CloudPcStatusDetails>;
 }
 export interface CloudPcStatusDetails {
     // Any additional information about the cloud PC status.
@@ -30485,6 +30560,12 @@ export interface CloudPcStatusDetails {
     code?: NullableOption<string>;
     // The status message.
     message?: NullableOption<string>;
+}
+export interface CloudPcSourceDeviceImage {
+    // The display name for the source image.
+    displayName?: NullableOption<string>;
+    // The ID of the source image.
+    id?: NullableOption<string>;
 }
 export interface UnifiedRolePermission {
     // Set of tasks that can be performed on a resource.
@@ -30650,6 +30731,213 @@ export interface WindowsMalwareOverview {
     totalDistinctMalwareCount?: number;
     // Count of all malware detections across all devices. Valid values -2147483648 to 2147483647
     totalMalwareCount?: number;
+}
+export interface ChromeOSDeviceProperty {
+    // Name of the property
+    name?: NullableOption<string>;
+    // Whether this property is updatable
+    updatable?: boolean;
+    // Value of the property
+    value?: NullableOption<string>;
+    // Type of the value
+    valueType?: NullableOption<string>;
+}
+export interface ConfigurationManagerClientEnabledFeatures {
+    // Whether compliance policy is managed by Intune
+    compliancePolicy?: boolean;
+    // Whether device configuration is managed by Intune
+    deviceConfiguration?: boolean;
+    // Whether Endpoint Protection is managed by Intune
+    endpointProtection?: boolean;
+    // Whether inventory is managed by Intune
+    inventory?: boolean;
+    // Whether modern application is managed by Intune
+    modernApps?: boolean;
+    // Whether Office application is managed by Intune
+    officeApps?: boolean;
+    // Whether resource access is managed by Intune
+    resourceAccess?: boolean;
+    // Whether Windows Update for Business is managed by Intune
+    windowsUpdateForBusiness?: boolean;
+}
+export interface ConfigurationManagerClientHealthState {
+    // Error code for failed state.
+    errorCode?: number;
+    // Datetime for last sync with configuration manager management point.
+    lastSyncDateTime?: string;
+    /**
+     * Current configuration manager client state. Possible values are: unknown, installed, healthy, installFailed,
+     * updateFailed, communicationError.
+     */
+    state?: ConfigurationManagerClientState;
+}
+export interface ConfigurationManagerClientInformation {
+    // Configuration Manager Client Id from SCCM
+    clientIdentifier?: NullableOption<string>;
+    // Configuration Manager Client blocked status from SCCM
+    isBlocked?: boolean;
+}
+export interface DeviceActionResult {
+    // Action name
+    actionName?: NullableOption<string>;
+    // State of the action. Possible values are: none, pending, canceled, active, done, failed, notSupported.
+    actionState?: ActionState;
+    // Time the action state was last updated
+    lastUpdatedDateTime?: string;
+    // Time the action was initiated
+    startDateTime?: string;
+}
+export interface DeviceHealthAttestationState {
+    /**
+     * TWhen an Attestation Identity Key (AIK) is present on a device, it indicates that the device has an endorsement key
+     * (EK) certificate.
+     */
+    attestationIdentityKey?: NullableOption<string>;
+    // On or Off of BitLocker Drive Encryption
+    bitLockerStatus?: NullableOption<string>;
+    // The security version number of the Boot Application
+    bootAppSecurityVersion?: NullableOption<string>;
+    // When bootDebugging is enabled, the device is used in development and testing
+    bootDebugging?: NullableOption<string>;
+    // The security version number of the Boot Application
+    bootManagerSecurityVersion?: NullableOption<string>;
+    // The version of the Boot Manager
+    bootManagerVersion?: NullableOption<string>;
+    // The Boot Revision List that was loaded during initial boot on the attested device
+    bootRevisionListInfo?: NullableOption<string>;
+    // When code integrity is enabled, code execution is restricted to integrity verified code
+    codeIntegrity?: NullableOption<string>;
+    // The version of the Boot Manager
+    codeIntegrityCheckVersion?: NullableOption<string>;
+    // The Code Integrity policy that is controlling the security of the boot environment
+    codeIntegrityPolicy?: NullableOption<string>;
+    // The DHA report version. (Namespace version)
+    contentNamespaceUrl?: NullableOption<string>;
+    // The HealthAttestation state schema version
+    contentVersion?: NullableOption<string>;
+    // DEP Policy defines a set of hardware and software technologies that perform additional checks on memory
+    dataExcutionPolicy?: NullableOption<string>;
+    // The DHA report version. (Namespace version)
+    deviceHealthAttestationStatus?: NullableOption<string>;
+    // ELAM provides protection for the computers in your network when they start up
+    earlyLaunchAntiMalwareDriverProtection?: NullableOption<string>;
+    // This attribute indicates if DHA is supported for the device
+    healthAttestationSupportedStatus?: NullableOption<string>;
+    // This attribute appears if DHA-Service detects an integrity issue
+    healthStatusMismatchInfo?: NullableOption<string>;
+    // The DateTime when device was evaluated or issued to MDM
+    issuedDateTime?: string;
+    // The Timestamp of the last update.
+    lastUpdateDateTime?: NullableOption<string>;
+    // When operatingSystemKernelDebugging is enabled, the device is used in development and testing
+    operatingSystemKernelDebugging?: NullableOption<string>;
+    // The Operating System Revision List that was loaded during initial boot on the attested device
+    operatingSystemRevListInfo?: NullableOption<string>;
+    // The measurement that is captured in PCR[0]
+    pcr0?: NullableOption<string>;
+    // Informational attribute that identifies the HASH algorithm that was used by TPM
+    pcrHashAlgorithm?: NullableOption<string>;
+    // The number of times a PC device has hibernated or resumed
+    resetCount?: number;
+    // The number of times a PC device has rebooted
+    restartCount?: number;
+    // Safe mode is a troubleshooting option for Windows that starts your computer in a limited state
+    safeMode?: NullableOption<string>;
+    // When Secure Boot is enabled, the core components must have the correct cryptographic signatures
+    secureBoot?: NullableOption<string>;
+    // Fingerprint of the Custom Secure Boot Configuration Policy
+    secureBootConfigurationPolicyFingerPrint?: NullableOption<string>;
+    // When test signing is allowed, the device does not enforce signature validation during boot
+    testSigning?: NullableOption<string>;
+    // The security version number of the Boot Application
+    tpmVersion?: NullableOption<string>;
+    // VSM is a container that protects high value assets from a compromised kernel
+    virtualSecureMode?: NullableOption<string>;
+    // Operating system running with limited services that is used to prepare a computer for Windows
+    windowsPE?: NullableOption<string>;
+}
+export interface HardwareInformation {
+    // The number of charge cycles the device’s current battery has gone through. Valid values 0 to 2147483647
+    batteryChargeCycles?: number;
+    // The device’s current battery’s health percentage. Valid values 0 to 100
+    batteryHealthPercentage?: number;
+    // The serial number of the device’s current battery
+    batterySerialNumber?: NullableOption<string>;
+    // Cellular technology of the device
+    cellularTechnology?: NullableOption<string>;
+    /**
+     * Returns the fully qualified domain name of the device (if any). If the device is not domain-joined, it returns an empty
+     * string.
+     */
+    deviceFullQualifiedDomainName?: NullableOption<string>;
+    /**
+     * Local System Authority (LSA) credential guard status. . Possible values are: running, rebootRequired, notLicensed,
+     * notConfigured, virtualizationBasedSecurityNotRunning.
+     */
+    deviceGuardLocalSystemAuthorityCredentialGuardState?: DeviceGuardLocalSystemAuthorityCredentialGuardState;
+    /**
+     * Virtualization-based security hardware requirement status. Possible values are: meetHardwareRequirements,
+     * secureBootRequired, dmaProtectionRequired, hyperVNotSupportedForGuestVM, hyperVNotAvailable.
+     */
+    deviceGuardVirtualizationBasedSecurityHardwareRequirementState?: DeviceGuardVirtualizationBasedSecurityHardwareRequirementState;
+    /**
+     * Virtualization-based security status. . Possible values are: running, rebootRequired, require64BitArchitecture,
+     * notLicensed, notConfigured, doesNotMeetHardwareRequirements, other.
+     */
+    deviceGuardVirtualizationBasedSecurityState?: DeviceGuardVirtualizationBasedSecurityState;
+    // eSIM identifier
+    esimIdentifier?: NullableOption<string>;
+    // Free storage space of the device.
+    freeStorageSpace?: number;
+    // IMEI
+    imei?: NullableOption<string>;
+    // IPAddressV4
+    ipAddressV4?: NullableOption<string>;
+    // Encryption status of the device
+    isEncrypted?: boolean;
+    // Shared iPad
+    isSharedDevice?: boolean;
+    // Supervised mode of the device
+    isSupervised?: boolean;
+    // Manufacturer of the device
+    manufacturer?: NullableOption<string>;
+    // MEID
+    meid?: NullableOption<string>;
+    // Model of the device
+    model?: NullableOption<string>;
+    // String that specifies the OS edition.
+    operatingSystemEdition?: NullableOption<string>;
+    // Operating system language of the device
+    operatingSystemLanguage?: NullableOption<string>;
+    /**
+     * Int that specifies the Windows Operating System ProductType. More details here
+     * https://go.microsoft.com/fwlink/?linkid=2126950. Valid values 0 to 2147483647
+     */
+    operatingSystemProductType?: number;
+    // Operating System Build Number on Android device
+    osBuildNumber?: NullableOption<string>;
+    // Phone number of the device
+    phoneNumber?: NullableOption<string>;
+    // Serial number.
+    serialNumber?: NullableOption<string>;
+    // All users on the shared Apple device
+    sharedDeviceCachedUsers?: NullableOption<SharedAppleDeviceUser[]>;
+    // SubnetAddress
+    subnetAddress?: NullableOption<string>;
+    // Subscriber carrier of the device
+    subscriberCarrier?: NullableOption<string>;
+    // Total storage space of the device.
+    totalStorageSpace?: number;
+    // String that specifies the specification version.
+    tpmSpecificationVersion?: NullableOption<string>;
+    // WiFi MAC address of the device
+    wifiMac?: NullableOption<string>;
+}
+export interface LoggedOnUser {
+    // Date time when user logs on
+    lastLogOnDateTime?: string;
+    // User id
+    userId?: NullableOption<string>;
 }
 export interface AlternativeSecurityId {
     // For internal use only
@@ -35199,213 +35487,6 @@ export interface DeviceManagementApplicabilityRuleOsVersion {
     // Applicability Rule type. Possible values are: include, exclude.
     ruleType?: DeviceManagementApplicabilityRuleType;
 }
-export interface ChromeOSDeviceProperty {
-    // Name of the property
-    name?: NullableOption<string>;
-    // Whether this property is updatable
-    updatable?: boolean;
-    // Value of the property
-    value?: NullableOption<string>;
-    // Type of the value
-    valueType?: NullableOption<string>;
-}
-export interface ConfigurationManagerClientEnabledFeatures {
-    // Whether compliance policy is managed by Intune
-    compliancePolicy?: boolean;
-    // Whether device configuration is managed by Intune
-    deviceConfiguration?: boolean;
-    // Whether Endpoint Protection is managed by Intune
-    endpointProtection?: boolean;
-    // Whether inventory is managed by Intune
-    inventory?: boolean;
-    // Whether modern application is managed by Intune
-    modernApps?: boolean;
-    // Whether Office application is managed by Intune
-    officeApps?: boolean;
-    // Whether resource access is managed by Intune
-    resourceAccess?: boolean;
-    // Whether Windows Update for Business is managed by Intune
-    windowsUpdateForBusiness?: boolean;
-}
-export interface ConfigurationManagerClientHealthState {
-    // Error code for failed state.
-    errorCode?: number;
-    // Datetime for last sync with configuration manager management point.
-    lastSyncDateTime?: string;
-    /**
-     * Current configuration manager client state. Possible values are: unknown, installed, healthy, installFailed,
-     * updateFailed, communicationError.
-     */
-    state?: ConfigurationManagerClientState;
-}
-export interface ConfigurationManagerClientInformation {
-    // Configuration Manager Client Id from SCCM
-    clientIdentifier?: NullableOption<string>;
-    // Configuration Manager Client blocked status from SCCM
-    isBlocked?: boolean;
-}
-export interface DeviceActionResult {
-    // Action name
-    actionName?: NullableOption<string>;
-    // State of the action. Possible values are: none, pending, canceled, active, done, failed, notSupported.
-    actionState?: ActionState;
-    // Time the action state was last updated
-    lastUpdatedDateTime?: string;
-    // Time the action was initiated
-    startDateTime?: string;
-}
-export interface DeviceHealthAttestationState {
-    /**
-     * TWhen an Attestation Identity Key (AIK) is present on a device, it indicates that the device has an endorsement key
-     * (EK) certificate.
-     */
-    attestationIdentityKey?: NullableOption<string>;
-    // On or Off of BitLocker Drive Encryption
-    bitLockerStatus?: NullableOption<string>;
-    // The security version number of the Boot Application
-    bootAppSecurityVersion?: NullableOption<string>;
-    // When bootDebugging is enabled, the device is used in development and testing
-    bootDebugging?: NullableOption<string>;
-    // The security version number of the Boot Application
-    bootManagerSecurityVersion?: NullableOption<string>;
-    // The version of the Boot Manager
-    bootManagerVersion?: NullableOption<string>;
-    // The Boot Revision List that was loaded during initial boot on the attested device
-    bootRevisionListInfo?: NullableOption<string>;
-    // When code integrity is enabled, code execution is restricted to integrity verified code
-    codeIntegrity?: NullableOption<string>;
-    // The version of the Boot Manager
-    codeIntegrityCheckVersion?: NullableOption<string>;
-    // The Code Integrity policy that is controlling the security of the boot environment
-    codeIntegrityPolicy?: NullableOption<string>;
-    // The DHA report version. (Namespace version)
-    contentNamespaceUrl?: NullableOption<string>;
-    // The HealthAttestation state schema version
-    contentVersion?: NullableOption<string>;
-    // DEP Policy defines a set of hardware and software technologies that perform additional checks on memory
-    dataExcutionPolicy?: NullableOption<string>;
-    // The DHA report version. (Namespace version)
-    deviceHealthAttestationStatus?: NullableOption<string>;
-    // ELAM provides protection for the computers in your network when they start up
-    earlyLaunchAntiMalwareDriverProtection?: NullableOption<string>;
-    // This attribute indicates if DHA is supported for the device
-    healthAttestationSupportedStatus?: NullableOption<string>;
-    // This attribute appears if DHA-Service detects an integrity issue
-    healthStatusMismatchInfo?: NullableOption<string>;
-    // The DateTime when device was evaluated or issued to MDM
-    issuedDateTime?: string;
-    // The Timestamp of the last update.
-    lastUpdateDateTime?: NullableOption<string>;
-    // When operatingSystemKernelDebugging is enabled, the device is used in development and testing
-    operatingSystemKernelDebugging?: NullableOption<string>;
-    // The Operating System Revision List that was loaded during initial boot on the attested device
-    operatingSystemRevListInfo?: NullableOption<string>;
-    // The measurement that is captured in PCR[0]
-    pcr0?: NullableOption<string>;
-    // Informational attribute that identifies the HASH algorithm that was used by TPM
-    pcrHashAlgorithm?: NullableOption<string>;
-    // The number of times a PC device has hibernated or resumed
-    resetCount?: number;
-    // The number of times a PC device has rebooted
-    restartCount?: number;
-    // Safe mode is a troubleshooting option for Windows that starts your computer in a limited state
-    safeMode?: NullableOption<string>;
-    // When Secure Boot is enabled, the core components must have the correct cryptographic signatures
-    secureBoot?: NullableOption<string>;
-    // Fingerprint of the Custom Secure Boot Configuration Policy
-    secureBootConfigurationPolicyFingerPrint?: NullableOption<string>;
-    // When test signing is allowed, the device does not enforce signature validation during boot
-    testSigning?: NullableOption<string>;
-    // The security version number of the Boot Application
-    tpmVersion?: NullableOption<string>;
-    // VSM is a container that protects high value assets from a compromised kernel
-    virtualSecureMode?: NullableOption<string>;
-    // Operating system running with limited services that is used to prepare a computer for Windows
-    windowsPE?: NullableOption<string>;
-}
-export interface HardwareInformation {
-    // The number of charge cycles the device’s current battery has gone through. Valid values 0 to 2147483647
-    batteryChargeCycles?: number;
-    // The device’s current battery’s health percentage. Valid values 0 to 100
-    batteryHealthPercentage?: number;
-    // The serial number of the device’s current battery
-    batterySerialNumber?: NullableOption<string>;
-    // Cellular technology of the device
-    cellularTechnology?: NullableOption<string>;
-    /**
-     * Returns the fully qualified domain name of the device (if any). If the device is not domain-joined, it returns an empty
-     * string.
-     */
-    deviceFullQualifiedDomainName?: NullableOption<string>;
-    /**
-     * Local System Authority (LSA) credential guard status. . Possible values are: running, rebootRequired, notLicensed,
-     * notConfigured, virtualizationBasedSecurityNotRunning.
-     */
-    deviceGuardLocalSystemAuthorityCredentialGuardState?: DeviceGuardLocalSystemAuthorityCredentialGuardState;
-    /**
-     * Virtualization-based security hardware requirement status. Possible values are: meetHardwareRequirements,
-     * secureBootRequired, dmaProtectionRequired, hyperVNotSupportedForGuestVM, hyperVNotAvailable.
-     */
-    deviceGuardVirtualizationBasedSecurityHardwareRequirementState?: DeviceGuardVirtualizationBasedSecurityHardwareRequirementState;
-    /**
-     * Virtualization-based security status. . Possible values are: running, rebootRequired, require64BitArchitecture,
-     * notLicensed, notConfigured, doesNotMeetHardwareRequirements, other.
-     */
-    deviceGuardVirtualizationBasedSecurityState?: DeviceGuardVirtualizationBasedSecurityState;
-    // eSIM identifier
-    esimIdentifier?: NullableOption<string>;
-    // Free storage space of the device.
-    freeStorageSpace?: number;
-    // IMEI
-    imei?: NullableOption<string>;
-    // IPAddressV4
-    ipAddressV4?: NullableOption<string>;
-    // Encryption status of the device
-    isEncrypted?: boolean;
-    // Shared iPad
-    isSharedDevice?: boolean;
-    // Supervised mode of the device
-    isSupervised?: boolean;
-    // Manufacturer of the device
-    manufacturer?: NullableOption<string>;
-    // MEID
-    meid?: NullableOption<string>;
-    // Model of the device
-    model?: NullableOption<string>;
-    // String that specifies the OS edition.
-    operatingSystemEdition?: NullableOption<string>;
-    // Operating system language of the device
-    operatingSystemLanguage?: NullableOption<string>;
-    /**
-     * Int that specifies the Windows Operating System ProductType. More details here
-     * https://go.microsoft.com/fwlink/?linkid=2126950. Valid values 0 to 2147483647
-     */
-    operatingSystemProductType?: number;
-    // Operating System Build Number on Android device
-    osBuildNumber?: NullableOption<string>;
-    // Phone number of the device
-    phoneNumber?: NullableOption<string>;
-    // Serial number.
-    serialNumber?: NullableOption<string>;
-    // All users on the shared Apple device
-    sharedDeviceCachedUsers?: NullableOption<SharedAppleDeviceUser[]>;
-    // SubnetAddress
-    subnetAddress?: NullableOption<string>;
-    // Subscriber carrier of the device
-    subscriberCarrier?: NullableOption<string>;
-    // Total storage space of the device.
-    totalStorageSpace?: number;
-    // String that specifies the specification version.
-    tpmSpecificationVersion?: NullableOption<string>;
-    // WiFi MAC address of the device
-    wifiMac?: NullableOption<string>;
-}
-export interface LoggedOnUser {
-    // Date time when user logs on
-    lastLogOnDateTime?: string;
-    // User id
-    userId?: NullableOption<string>;
-}
 export interface WindowsEnrollmentStatusScreenSettings {
     // Allow or block user to use device before profile and app installation complete
     allowDeviceUseBeforeProfileAndAppInstallComplete?: boolean;
@@ -38614,18 +38695,30 @@ export interface BucketAggregationDefinition {
     sortBy?: BucketAggregationSortProperty;
 }
 export interface AlterationResponse {
+    // Defines the original user query string.
     originalQueryString?: NullableOption<string>;
+    // Defines the details of alteration information for the spelling correction.
     queryAlteration?: NullableOption<SearchAlteration>;
+    // Defines the type of the spelling correction. Possible values are suggestion, modification.
     queryAlterationType?: NullableOption<SearchAlterationType>;
 }
 export interface SearchAlteration {
+    /**
+     * Defines the altered highlighted query string with spelling correction. The annotation around the corrected segment is
+     * (/ue000, /ue001)
+     */
     alteredHighlightedQueryString?: NullableOption<string>;
+    // Defines the altered query string with spelling correction.
     alteredQueryString?: NullableOption<string>;
+    // Represents changed segments with respect to original query.
     alteredQueryTokens?: NullableOption<AlteredQueryToken[]>;
 }
 export interface AlteredQueryToken {
+    // Defines the length of a changed segment.
     length?: NullableOption<number>;
+    // Defines the offset of a changed segment.
     offset?: NullableOption<number>;
+    // Represents the corrected segment string.
     suggestion?: NullableOption<string>;
 }
 export interface BucketAggregationRange {
@@ -38662,7 +38755,17 @@ export interface SearchBucket {
     key?: NullableOption<string>;
 }
 export interface SearchAlterationOptions {
+    /**
+     * Indicates whether spelling modifications are enabled. If enabled, user will get the search results for corrected query
+     * when there are no results for the original query with typos and get the spelling modification information in
+     * queryAlterationResponse property of the response. Optional.
+     */
     enableModification?: NullableOption<boolean>;
+    /**
+     * Indicates whether spelling suggestions are enabled. If enabled, user will get the search results for original search
+     * query and suggesting spelling correction in queryAlterationResponse property of the response for typos in query.
+     * Optional.
+     */
     enableSuggestion?: NullableOption<boolean>;
 }
 export interface SearchHit {
@@ -38766,11 +38869,15 @@ export interface SortProperty {
     name?: string;
 }
 export interface SearchResponse {
+    // Provides details of query alteration response for spelling correction.
     queryAlterationResponse?: NullableOption<AlterationResponse>;
+    // Represents results from a search query, and the terms used for the query.
     value?: SearchResultSet[];
 }
 export interface SearchResultSet {
+    // A collection of search results.
     hitsContainers?: NullableOption<SearchHitsContainer[]>;
+    // Contains the search terms sent in the initial search query.
     searchTerms?: NullableOption<string[]>;
 }
 export interface DateTimeTimeZoneType {
@@ -40328,9 +40435,11 @@ export interface AudioConferencing {
     dialinUrl?: NullableOption<string>;
     // The toll-free number that connects to the Audio Conference Provider.
     tollFreeNumber?: NullableOption<string>;
+    // List of toll-free numbers that are displayed in the meeting invite.
     tollFreeNumbers?: NullableOption<string[]>;
     // The toll number that connects to the Audio Conference Provider.
     tollNumber?: NullableOption<string>;
+    // List of toll numbers that are displayed in the meeting invite.
     tollNumbers?: NullableOption<string[]>;
 }
 export interface BroadcastMeetingSettings {
@@ -41130,6 +41239,10 @@ export namespace Ediscovery {
         createdBy?: NullableOption<microsoftgraphbeta.IdentitySet>;
         // The date and time the sourceCollection was created.
         createdDateTime?: NullableOption<string>;
+        /**
+         * When specified, the collection will span across a service for an entire workload. Possible values are:
+         * none,allTenantMailboxes,allTenantSites,allCaseCustodians,allCaseNoncustodialDataSources.
+         */
         dataSourceScopes?: NullableOption<DataSourceScopes>;
         // The description of the sourceCollection
         description?: NullableOption<string>;
@@ -41147,6 +41260,7 @@ export namespace Ediscovery {
         custodianSources?: NullableOption<DataSource[]>;
         // The last estimate operation associated with the sourceCollection.
         lastEstimateStatisticsOperation?: NullableOption<EstimateStatisticsOperation>;
+        // noncustodialDataSource sources that are included in the sourceCollection
         noncustodialSources?: NullableOption<NoncustodialDataSource[]>;
     }
     interface Case extends microsoftgraphbeta.Entity {
@@ -41180,10 +41294,15 @@ export namespace Ediscovery {
          * see the following table.
          */
         status?: NullableOption<CaseStatus>;
+        // Returns a list of case custodian objects for this case. Nullable.
         custodians?: NullableOption<Custodian[]>;
+        // Returns a list of case legalHold objects for this case. Nullable.
         legalHolds?: NullableOption<LegalHold[]>;
+        // Returns a list of case noncustodialDataSource objects for this case. Nullable.
         noncustodialDataSources?: NullableOption<NoncustodialDataSource[]>;
+        // Returns a list of case operation objects for this case. Nullable.
         operations?: NullableOption<CaseOperation[]>;
+        // Returns a list of reviewSet objects in the case. Read-only. Nullable.
         reviewSets?: NullableOption<ReviewSet[]>;
         settings?: NullableOption<Settings>;
         // Returns a list of sourceCollection objects associated with this case.
@@ -41192,10 +41311,15 @@ export namespace Ediscovery {
         tags?: NullableOption<Tag[]>;
     }
     interface DataSourceContainer extends microsoftgraphbeta.Entity {
+        // Created date and time of the dataSourceContainer entity.
         createdDateTime?: NullableOption<string>;
+        // Display name of the dataSourceContainer entity.
         displayName?: NullableOption<string>;
+        // Last modified date and time of the dataSourceContainer.
         lastModifiedDateTime?: NullableOption<string>;
+        // Date and time that the dataSourceContainer was released from the case.
         releasedDateTime?: NullableOption<string>;
+        // Latest status of the dataSourceContainer. Possible values are: Active, Released.
         status?: NullableOption<DataSourceContainerStatus>;
         lastIndexOperation?: NullableOption<CaseIndexOperation>;
     }
@@ -41244,12 +41368,17 @@ export namespace Ediscovery {
         userSources?: NullableOption<UserSource[]>;
     }
     interface NoncustodialDataSource extends DataSourceContainer {
+        // Indicates if hold is applied to non-custodial data source (such as mailbox or site).
         applyHoldToSource?: NullableOption<boolean>;
+        // User source or SharePoint site data source as non-custodial data source.
         dataSource?: NullableOption<DataSource>;
     }
     interface Settings extends microsoftgraphbeta.Entity {
+        // The OCR (Optical Character Recognition) settings for the case.
         ocr?: NullableOption<OcrSettings>;
+        // The redundancy (near duplicate and email threading) detection settings for the case.
         redundancyDetection?: NullableOption<RedundancyDetectionSettings>;
+        // The Topic Modeling (Themes) settings for the case.
         topicModeling?: NullableOption<TopicModelingSettings>;
     }
     interface Tag extends microsoftgraphbeta.Entity {
@@ -41367,20 +41496,34 @@ export namespace Ediscovery {
 // tslint:disable-next-line: no-empty-interface
     interface TagOperation extends CaseOperation {}
     interface OcrSettings {
+        // Indicates whether or not OCR is enabled for the case.
         isEnabled?: NullableOption<boolean>;
+        // Maximum image size that will be processed in KB).
         maxImageSize?: NullableOption<number>;
+        /**
+         * The timeout duration for the OCR engine. A longer timeout may increase success of OCR, but may add to the total
+         * processing time.
+         */
         timeout?: NullableOption<string>;
     }
     interface RedundancyDetectionSettings {
+        // Indicates whether email threading and near duplicate detection are enabled.
         isEnabled?: NullableOption<boolean>;
+        // See Minimum/maximum number of words to learn more.
         maxWords?: NullableOption<number>;
+        // See Minimum/maximum number of words to learn more.
         minWords?: NullableOption<number>;
+        // See Document and email similarity threshold to learn more.
         similarityThreshold?: NullableOption<number>;
     }
     interface TopicModelingSettings {
+        // To learn more, see Adjust maximum number of themes dynamically.
         dynamicallyAdjustTopicCount?: NullableOption<boolean>;
+        // To learn more, see Include numbers in themes.
         ignoreNumbers?: NullableOption<boolean>;
+        // Indicates whether themes is enabled for the case.
         isEnabled?: NullableOption<boolean>;
+        // To learn more, see Maximum number of themes.
         topicCount?: NullableOption<number>;
     }
 }
@@ -42092,80 +42235,149 @@ export namespace WindowsUpdates {
     type RequestedDeploymentStateValue = "none" | "paused" | "archived" | "unknownFutureValue";
     type UpdateCategory = "feature" | "quality" | "unknownFutureValue";
     interface Admin {
+        // Entity that acts as a container for functionality. Read-only.
         windows?: NullableOption<Windows>;
     }
     interface Windows extends microsoftgraphbeta.Entity {
+        // Entity that acts as a container for the functionality of the Windows Update for Business deployment service. Read-only.
         updates?: NullableOption<Updates>;
     }
 // tslint:disable-next-line: no-empty-interface
     interface UpdatableAsset extends microsoftgraphbeta.Entity {}
     interface AzureADDevice extends UpdatableAsset {
+        // Specifies areas of the service in which the device is enrolled. Read-only. Returned by default.
         enrollments?: NullableOption<UpdatableAssetEnrollment[]>;
+        /**
+         * Specifies any errors that prevent the device from being enrolled in update management or receving deployed content.
+         * Read-only. Returned by default.
+         */
         errors?: NullableOption<UpdatableAssetError[]>;
     }
     interface Catalog extends microsoftgraphbeta.Entity {
+        // Lists the content that you can approve for deployment. Read-only.
         entries?: NullableOption<CatalogEntry[]>;
     }
     interface CatalogEntry extends microsoftgraphbeta.Entity {
+        // The date on which the content is no longer available to deploy using the service. Read-only.
         deployableUntilDateTime?: NullableOption<string>;
+        // The display name of the content. Read-only.
         displayName?: NullableOption<string>;
+        // The release date for the content. Read-only.
         releaseDateTime?: string;
     }
     interface Deployment extends microsoftgraphbeta.Entity {
+        // Specifies what content to deploy. Cannot be changed. Returned by default.
         content?: NullableOption<DeployableContent>;
+        // The date and time the deployment was created. Returned by default. Read-only.
         createdDateTime?: string;
+        // The date and time the deployment was last modified. Returned by default. Read-only.
         lastModifiedDateTime?: string;
+        // Settings specified on the specific deployment governing how to deploy content. Returned by default.
         settings?: NullableOption<DeploymentSettings>;
+        // Execution status of the deployment. Returned by default.
         state?: NullableOption<DeploymentState>;
+        // Specifies the audience to which content is deployed.
         audience?: NullableOption<DeploymentAudience>;
     }
     interface DeploymentAudience extends microsoftgraphbeta.Entity {
+        // Specifies the assets to exclude from the audience.
         exclusions?: NullableOption<UpdatableAsset[]>;
+        // Specifies the assets to include in the audience.
         members?: NullableOption<UpdatableAsset[]>;
     }
 // tslint:disable-next-line: no-empty-interface
     interface SoftwareUpdateCatalogEntry extends CatalogEntry {}
     interface FeatureUpdateCatalogEntry extends SoftwareUpdateCatalogEntry {
+        // The version of the feature update. Read-only.
         version?: NullableOption<string>;
     }
     interface QualityUpdateCatalogEntry extends SoftwareUpdateCatalogEntry {
+        // Indicates whether the content can be deployed as an expedited quality update. Read-only.
         isExpeditable?: boolean;
+        /**
+         * The classification on the quality update. Supports a subset of the values for qualityUpdateClassification. Possible
+         * values are: all, security, nonSecurity. Read-only.
+         */
         qualityUpdateClassification?: QualityUpdateClassification;
     }
     interface UpdatableAssetGroup extends UpdatableAsset {
+        // Members of the group. Read-only.
         members?: NullableOption<UpdatableAsset[]>;
     }
     interface Updates extends microsoftgraphbeta.Entity {
+        // Catalog of content that can be approved for deployment by the deployment service. Read-only.
         catalog?: NullableOption<Catalog>;
+        // Deployments created using the deployment service. Read-only.
         deployments?: NullableOption<Deployment[]>;
+        // Assets registered with the deployment service that can receive updates. Read-only.
         updatableAssets?: NullableOption<UpdatableAsset[]>;
     }
 // tslint:disable-next-line: no-empty-interface
     interface UpdatableAssetError {}
     interface AzureADDeviceRegistrationError extends UpdatableAssetError {
+        /**
+         * The reason why the registration encountered an error. Possible values are: invalidGlobalDeviceId,
+         * invalidAzureADDeviceId, missingTrustType, invalidAzureADJoin.
+         */
         reason?: AzureADDeviceRegistrationErrorReason;
     }
 // tslint:disable-next-line: no-empty-interface
     interface DeployableContent {}
     interface DeploymentSettings {
+        // Settings governing conditions to monitor and automated actions to take.
         monitoring?: NullableOption<MonitoringSettings>;
+        // Settings governing how the content is rolled out.
         rollout?: NullableOption<RolloutSettings>;
     }
     interface MonitoringSettings {
+        /**
+         * Specifies the rules through which monitoring signals can trigger actions on the deployment. Rules are combined using
+         * 'or'.
+         */
         monitoringRules?: NullableOption<MonitoringRule[]>;
     }
     interface RolloutSettings {
+        /**
+         * Specifies the number of devices that are offered at the same time. Has no effect when endDateTime is set. When
+         * endDateTime and devicesPerOffer are both not set, all devices in the deployment are offered content at the same time.
+         */
         devicesPerOffer?: number;
+        /**
+         * Specifies duration between each set of devices being offered the update. Has an effect when endDateTime or
+         * devicesPerOffer are defined. Default value is P1D (1 day).
+         */
         durationBetweenOffers?: NullableOption<string>;
+        /**
+         * Specifies the date before which all devices currently in the deployment are offered the update. Devices added after
+         * this date are offered immediately. When endDateTime and devicesPerOffer are both not set, all devices in the deployment
+         * are offered content at the same time.
+         */
         endDateTime?: string;
+        /**
+         * Date on which devices in the deployment start receiving the update. When not set, the deployment starts as soon as
+         * devices are assigned.
+         */
         startDateTime?: NullableOption<string>;
     }
     interface DeploymentState {
+        // Specifies the reasons the deployment has its state value. Read-only.
         reasons?: NullableOption<DeploymentStateReason[]>;
+        /**
+         * Specifies the requested state of the deployment. Supports a subset of the values for requestedDeploymentStateValue.
+         * Possible values are: none, paused.
+         */
         requestedValue?: RequestedDeploymentStateValue;
+        /**
+         * Specifies the state of the deployment. Supports a subset of the values for deploymentStateValue. Possible values are:
+         * scheduled, offering, paused. Read-only.
+         */
         value?: DeploymentStateValue;
     }
     interface DeploymentStateReason {
+        /**
+         * Specifies a reason for the deployment state. Possible values are: scheduledByOfferWindow, offeringByRequest,
+         * pausedByRequest, pausedByMonitoring. Read-only.
+         */
         value?: DeploymentStateReasonValue;
     }
 // tslint:disable-next-line: no-empty-interface
@@ -42173,29 +42385,54 @@ export namespace WindowsUpdates {
 // tslint:disable-next-line: no-empty-interface
     interface WindowsUpdateReference extends SoftwareUpdateReference {}
     interface QualityUpdateReference extends WindowsUpdateReference {
+        /**
+         * Specifies the classification of the referenced content. Supports a subset of the values for
+         * qualityUpdateClassification. Possible values are: security.
+         */
         classification?: NullableOption<QualityUpdateClassification>;
+        /**
+         * Specifies a quality update in the given servicingChannel with the given classification by date (i.e. the last update
+         * published on the specified date). Default value is security.
+         */
         releaseDateTime?: string;
     }
     interface ExpeditedQualityUpdateReference extends QualityUpdateReference {
+        /**
+         * Specifies other content to consider as equivalent. Supports a subset of the values for equivalentContentOption. Default
+         * value is latestSecurity. Possible values are: latestSecurity.
+         */
         equivalentContent?: NullableOption<EquivalentContentOption>;
     }
     interface FeatureUpdateReference extends WindowsUpdateReference {
+        // Specifies a feature update by version.
         version?: NullableOption<string>;
     }
     interface MonitoringRule {
+        // The action triggered when the threshold for the given signal is met. Possible values are: alertError, pauseDeployment.
         action?: NullableOption<MonitoringAction>;
+        // The signal to monitor. Possible values are: rollback.
         signal?: NullableOption<MonitoringSignal>;
+        // The threshold for a signal at which to trigger action. An integer from 1 to 100 (inclusive).
         threshold?: NullableOption<number>;
     }
 // tslint:disable-next-line: no-empty-interface
     interface UpdatableAssetEnrollment {}
     interface UpdateManagementEnrollment extends UpdatableAssetEnrollment {
+        /**
+         * The category of updates that the service manages. Supports a subset of the values for updateCategory. Possible values
+         * are: feature.
+         */
         updateCategory?: UpdateCategory;
     }
     interface UserExperienceSettings {
+        /**
+         * Specifies the number of days after an update is installed, during which the user of the device can control when the
+         * device restarts.
+         */
         daysUntilForcedReboot?: NullableOption<number>;
     }
     interface WindowsDeploymentSettings extends DeploymentSettings {
+        // Settings governing the user's update experience on a device.
         userExperience?: NullableOption<UserExperienceSettings>;
     }
 }
