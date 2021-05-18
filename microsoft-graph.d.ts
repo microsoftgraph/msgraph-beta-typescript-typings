@@ -1,10 +1,11 @@
-// Project: https://github.com/microsoftgraph/msgraph-beta-typescript-typings
+// Project: https://github.com/microsoftgraph/msgraph-typescript-typings
 // Definitions by: Microsoft Graph Team <https://github.com/microsoftgraph>
 //                 Michael Mainer <https://github.com/MIchaelMainer>
 //                 Peter Ombwa <https://github.com/peombwa>
 //                 Mustafa Zengin <https://github.com/zengin>
 //                 DeVere Dyett <https://github.com/ddyett>
 //                 Nikitha Udaykumar Chettiar <https://github.com/nikithauc>
+// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 2.1
 
 export as namespace microsoftgraphbeta;
@@ -3839,7 +3840,7 @@ export interface User extends DirectoryObject {
      * definitions for further information. Returned only on $select.
      */
     ageGroup?: NullableOption<string>;
-    // The licenses that are assigned to the user. Not nullable. Supports $filter.
+    // The licenses that are assigned to the user, including inherited (group-based) licenses. Not nullable. Supports $filter.
     assignedLicenses?: AssignedLicense[];
     // The plans that are assigned to the user. Returned only on $select. Read-only. Not nullable.
     assignedPlans?: AssignedPlan[];
@@ -3869,7 +3870,7 @@ export interface User extends DirectoryObject {
      * The date and time the user was created. The value cannot be modified and is automatically populated when the entity is
      * created. The DateTimeOffset type represents date and time information using ISO 8601 format and is always in UTC time.
      * Property is nullable. A null value indicates that an accurate creation time couldn't be determined for the user.
-     * Returned only on $select. Read-only. Supports $filter with the eq, lt, and ge operators.
+     * Returned only on $select. Read-only. Supports $filter with the eq, ne, le, and ge operators.
      */
     createdDateTime?: NullableOption<string>;
     /**
@@ -4176,6 +4177,7 @@ export interface User extends DirectoryObject {
     // The scoped-role administrative unit memberships for this user. Read-only. Nullable.
     scopedRoleMemberOf?: NullableOption<ScopedRoleMembership[]>;
     transitiveMemberOf?: NullableOption<DirectoryObject[]>;
+    transitiveReports?: NullableOption<DirectoryObject[]>;
     // The user's primary calendar. Read-only.
     calendar?: NullableOption<Calendar>;
     // The user's calendar groups. Read-only. Nullable.
@@ -4339,7 +4341,7 @@ export interface OAuth2PermissionGrant extends Entity {
      */
     clientId?: string;
     /**
-     * Indicates if authorization is granted for the client application to impersonate all users or only a specific user.
+     * Indicates whether authorization is granted for the client application to impersonate all users or only a specific user.
      * AllPrincipals indicates authorization to impersonate all users. Principal indicates authorization to impersonate a
      * specific user. Consent on behalf of all users can be granted by an administrator. Non-admin users may be authorized to
      * consent on behalf of themselves in some cases, for some delegated permissions. Required. Supports $filter (eq only).
@@ -5325,7 +5327,7 @@ export interface AppConsentRequest extends Entity {
     // The identifier of the application. Required. Supports $filter (eq only) and $orderby.
     appId?: string;
     /**
-     * The consent type of the request. Possible values are: Static and Dynamic. These represent static and dynamic
+     * The consent type of the request. Possible values are: Static and Dynamic. These represent static and dynamic
      * permissions, respectively, requested in the consent workflow. Supports $filter (eq only) and $orderby. Required.
      */
     consentType?: NullableOption<string>;
@@ -11878,6 +11880,7 @@ export interface OrgContact extends DirectoryObject {
     // Groups that this contact is a member of. Read-only. Nullable.
     memberOf?: NullableOption<DirectoryObject[]>;
     transitiveMemberOf?: NullableOption<DirectoryObject[]>;
+    transitiveReports?: NullableOption<DirectoryObject[]>;
 }
 export interface PermissionGrantConditionSet extends Entity {
     /**
@@ -12203,7 +12206,10 @@ export interface UnifiedRoleEligibilityScheduleRequest extends Request {
      * only.
      */
     directoryScopeId?: NullableOption<string>;
-    // Boolean
+    /**
+     * A boolean that determines whether the call is a validation or an actual call. Only set this property if you want to
+     * check whether an activation is subject to additional rules like MFA before actually submitting the request.
+     */
     isValidationOnly?: NullableOption<boolean>;
     // A message provided by users and administrators when create the request about why it is needed.
     justification?: NullableOption<string>;
@@ -14923,8 +14929,22 @@ export interface AgreementFileLocalization extends AgreementFileProperties {
 // tslint:disable-next-line: no-empty-interface
 export interface AgreementFileVersion extends AgreementFileProperties {}
 export interface AuthenticationContextClassReference extends Entity {
+    /**
+     * A short explanation of the policies that are enforced by authenticationContextClassReference. This value should be used
+     * to provide secondary text to describe the authentication context class reference when building user facing admin
+     * experiences. For example, selection UX.
+     */
     description?: NullableOption<string>;
+    /**
+     * The display name is the friendly name of the authenticationContextClassReference. This value should be used to identify
+     * the authentication context class reference when building user facing admin experiences. For example, selection UX.
+     */
     displayName?: NullableOption<string>;
+    /**
+     * Indicates whether the authenticationContextClassReference has been published by the security admin and is ready for use
+     * by apps. When it is set to false it should not be shown in admin UX experiences because the value is not currently
+     * available for selection.
+     */
     isAvailable?: NullableOption<boolean>;
 }
 export interface NamedLocation extends Entity {
@@ -22300,7 +22320,7 @@ export interface Windows10GeneralConfiguration extends DeviceConfiguration {
     appManagementMSIAllowUserControlOverInstall?: boolean;
     // This policy setting directs Windows Installer to use elevated permissions when it installs any program on the system.
     appManagementMSIAlwaysInstallWithElevatedPrivileges?: boolean;
-    // List of semi-colon delimited Package Family Names of Windows apps. Listed Windows apps are to be launched after logon.
+    // List of semi-colon delimited Package Family Names of Windows apps. Listed Windows apps are to be launched after logon.​
     appManagementPackageFamilyNamesToLaunchAfterLogOn?: NullableOption<string[]>;
     /**
      * Indicates whether apps from AppX packages signed with a trusted certificate can be side loaded. Possible values are:
@@ -22837,7 +22857,7 @@ export interface Windows10GeneralConfiguration extends DeviceConfiguration {
     privacyBlockInputPersonalization?: boolean;
     // Blocks the shared experiences/discovery of recently used resources in task switcher etc.
     privacyBlockPublishUserActivities?: boolean;
-    // This policy prevents the privacy experience from launching during user logon for new and upgraded users.
+    // This policy prevents the privacy experience from launching during user logon for new and upgraded users.​
     privacyDisableLaunchExperience?: boolean;
     // Indicates whether or not to Block the user from reset protection mode.
     resetProtectionModeBlocked?: boolean;
@@ -23587,7 +23607,7 @@ export interface WindowsDeliveryOptimizationConfiguration extends DeviceConfigur
     cacheServerBackgroundDownloadFallbackToHttpDelayInSeconds?: number;
     /**
      * Specifies number of seconds to delay a fall back from cache servers to an HTTP source for a foreground download. Valid
-     * values 0 to 2592000.
+     * values 0 to 2592000.​
      */
     cacheServerForegroundDownloadFallbackToHttpDelayInSeconds?: number;
     // Specifies cache servers host names.
@@ -24181,8 +24201,8 @@ export interface WindowsWifiEnterpriseEAPConfiguration extends WindowsWifiConfig
     // Specify trusted server certificate names.
     trustedServerCertificateNames?: NullableOption<string[]>;
     /**
-     * Specifiy whether to change the virtual LAN used by the device based on the user's credentials. Cannot be used when
-     * NetworkSingleSignOnType is set to Disabled.
+     * Specifiy whether to change the virtual LAN used by the device based on the user’s credentials. Cannot be used when
+     * NetworkSingleSignOnType is set to ​Disabled.
      */
     userBasedVirtualLan?: NullableOption<boolean>;
     // Specify identity certificate for client authentication.
@@ -29281,7 +29301,6 @@ export interface Fido2AuthenticationMethod extends AuthenticationMethod {
     attestationLevel?: NullableOption<AttestationLevel>;
     // The timestamp when this key was registered to the user.
     createdDateTime?: NullableOption<string>;
-    // The timestamp when this key was registered to the user.
     creationDateTime?: NullableOption<string>;
     // The display name of the key as given by the user.
     displayName?: NullableOption<string>;
