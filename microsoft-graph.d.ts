@@ -3839,7 +3839,7 @@ export interface User extends DirectoryObject {
      * definitions for further information. Returned only on $select.
      */
     ageGroup?: NullableOption<string>;
-    // The licenses that are assigned to the user. Not nullable. Supports $filter.
+    // The licenses that are assigned to the user, including inherited (group-based) licenses. Not nullable. Supports $filter.
     assignedLicenses?: AssignedLicense[];
     // The plans that are assigned to the user. Returned only on $select. Read-only. Not nullable.
     assignedPlans?: AssignedPlan[];
@@ -3869,7 +3869,7 @@ export interface User extends DirectoryObject {
      * The date and time the user was created. The value cannot be modified and is automatically populated when the entity is
      * created. The DateTimeOffset type represents date and time information using ISO 8601 format and is always in UTC time.
      * Property is nullable. A null value indicates that an accurate creation time couldn't be determined for the user.
-     * Returned only on $select. Read-only. Supports $filter with the eq, lt, and ge operators.
+     * Returned only on $select. Read-only. Supports $filter with the eq, ne, le, and ge operators.
      */
     createdDateTime?: NullableOption<string>;
     /**
@@ -4176,6 +4176,7 @@ export interface User extends DirectoryObject {
     // The scoped-role administrative unit memberships for this user. Read-only. Nullable.
     scopedRoleMemberOf?: NullableOption<ScopedRoleMembership[]>;
     transitiveMemberOf?: NullableOption<DirectoryObject[]>;
+    transitiveReports?: NullableOption<DirectoryObject[]>;
     // The user's primary calendar. Read-only.
     calendar?: NullableOption<Calendar>;
     // The user's calendar groups. Read-only. Nullable.
@@ -4339,7 +4340,7 @@ export interface OAuth2PermissionGrant extends Entity {
      */
     clientId?: string;
     /**
-     * Indicates if authorization is granted for the client application to impersonate all users or only a specific user.
+     * Indicates whether authorization is granted for the client application to impersonate all users or only a specific user.
      * AllPrincipals indicates authorization to impersonate all users. Principal indicates authorization to impersonate a
      * specific user. Consent on behalf of all users can be granted by an administrator. Non-admin users may be authorized to
      * consent on behalf of themselves in some cases, for some delegated permissions. Required. Supports $filter (eq only).
@@ -11878,6 +11879,7 @@ export interface OrgContact extends DirectoryObject {
     // Groups that this contact is a member of. Read-only. Nullable.
     memberOf?: NullableOption<DirectoryObject[]>;
     transitiveMemberOf?: NullableOption<DirectoryObject[]>;
+    transitiveReports?: NullableOption<DirectoryObject[]>;
 }
 export interface PermissionGrantConditionSet extends Entity {
     /**
@@ -12203,7 +12205,10 @@ export interface UnifiedRoleEligibilityScheduleRequest extends Request {
      * only.
      */
     directoryScopeId?: NullableOption<string>;
-    // Boolean
+    /**
+     * A boolean that determines whether the call is a validation or an actual call. Only set this property if you want to
+     * check whether an activation is subject to additional rules like MFA before actually submitting the request.
+     */
     isValidationOnly?: NullableOption<boolean>;
     // A message provided by users and administrators when create the request about why it is needed.
     justification?: NullableOption<string>;
@@ -14923,8 +14928,22 @@ export interface AgreementFileLocalization extends AgreementFileProperties {
 // tslint:disable-next-line: no-empty-interface
 export interface AgreementFileVersion extends AgreementFileProperties {}
 export interface AuthenticationContextClassReference extends Entity {
+    /**
+     * A short explanation of the policies that are enforced by authenticationContextClassReference. This value should be used
+     * to provide secondary text to describe the authentication context class reference when building user facing admin
+     * experiences. For example, selection UX.
+     */
     description?: NullableOption<string>;
+    /**
+     * The display name is the friendly name of the authenticationContextClassReference. This value should be used to identify
+     * the authentication context class reference when building user facing admin experiences. For example, selection UX.
+     */
     displayName?: NullableOption<string>;
+    /**
+     * Indicates whether the authenticationContextClassReference has been published by the security admin and is ready for use
+     * by apps. When it is set to false it should not be shown in admin UX experiences because the value is not currently
+     * available for selection.
+     */
     isAvailable?: NullableOption<boolean>;
 }
 export interface NamedLocation extends Entity {
@@ -24181,7 +24200,7 @@ export interface WindowsWifiEnterpriseEAPConfiguration extends WindowsWifiConfig
     // Specify trusted server certificate names.
     trustedServerCertificateNames?: NullableOption<string[]>;
     /**
-     * Specifiy whether to change the virtual LAN used by the device based on the user's credentials. Cannot be used when
+     * Specifiy whether to change the virtual LAN used by the device based on the user’s credentials. Cannot be used when
      * NetworkSingleSignOnType is set to Disabled.
      */
     userBasedVirtualLan?: NullableOption<boolean>;
@@ -29281,7 +29300,6 @@ export interface Fido2AuthenticationMethod extends AuthenticationMethod {
     attestationLevel?: NullableOption<AttestationLevel>;
     // The timestamp when this key was registered to the user.
     createdDateTime?: NullableOption<string>;
-    // The timestamp when this key was registered to the user.
     creationDateTime?: NullableOption<string>;
     // The display name of the key as given by the user.
     displayName?: NullableOption<string>;
