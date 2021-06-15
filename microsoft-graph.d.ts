@@ -252,6 +252,10 @@ export type LocationType =
 export type LocationUniqueIdType = "unknown" | "locationStore" | "directory" | "private" | "bing";
 export type PhysicalAddressType = "unknown" | "home" | "business" | "other";
 export type ActionState = "none" | "pending" | "canceled" | "active" | "done" | "failed" | "notSupported";
+export type CloudPcAuditActivityOperationType = "create" | "delete" | "patch" | "other";
+export type CloudPcAuditActivityResult = "success" | "clientError" | "failure" | "timeout" | "other";
+export type CloudPcAuditActorType = "itPro" | "application" | "partner" | "unknown";
+export type CloudPcAuditCategory = "cloudPC" | "other";
 export type CloudPcDeviceImageStatus = "pending" | "ready" | "failed";
 export type CloudPcDeviceImageStatusDetails =
     | "internalServerError"
@@ -272,15 +276,21 @@ export type CloudPcOnPremisesConnectionHealthCheckErrorType =
     | "endpointConnectivityCheckWVDUrlNotAllowListed"
     | "endpointConnectivityCheckIntuneUrlNotAllowListed"
     | "endpointConnectivityCheckUnknownError"
-    | "aadConnectivityCheckUnknownError"
+    | "azureAdDeviceSyncCheckDeviceNotFound"
+    | "azureAdDeviceSyncCheckLongSyncCircle"
+    | "azureAdDeviceSyncCheckUnknownError"
     | "resourceAvailabilityCheckNoSubnetIP"
     | "resourceAvailabilityCheckSubscriptionDisabled"
+    | "resourceAvailabilityCheckAzurePolicyViolation"
     | "resourceAvailabilityCheckUnsupportedVNetRegion"
     | "resourceAvailabilityCheckUnknownError"
     | "permissionCheckNoSubscriptionReaderRole"
     | "permissionCheckNoResourceGroupOwnerRole"
     | "permissionCheckNoVNetContributorRole"
     | "permissionCheckUnknownError"
+    | "internalServerErrorDeploymentCanceled"
+    | "internalServerErrorAllocateResourceFailed"
+    | "internalServerErrorVMDeploymentTimeout"
     | "internalServerUnknownError";
 export type CloudPcOnPremisesConnectionStatus =
     | "pending"
@@ -389,6 +399,11 @@ export type PhoneType =
     | "pager"
     | "radio";
 export type EducationAddedStudentAction = "none" | "assignIfOpen" | "unknownFutureValue";
+export type EducationAddToCalendarOptions =
+    | "none"
+    | "studentsAndPublisher"
+    | "studentsAndTeamOwners"
+    | "unknownFutureValue";
 export type EducationAssignmentStatus = "draft" | "published" | "assigned" | "unknownFutureValue";
 export type EducationSubmissionStatus = "working" | "submitted" | "released" | "returned" | "unknownFutureValue";
 export type ContactRelationship =
@@ -987,7 +1002,8 @@ export type DevicePlatformType =
     | "windows81AndLater"
     | "windows10AndLater"
     | "androidWorkProfile"
-    | "unknown";
+    | "unknown"
+    | "androidAOSP";
 export type ErrorCode = "noError" | "unauthorized" | "notFound" | "deleted";
 export type PolicySetStatus = "unknown" | "validating" | "partialSuccess" | "success" | "error" | "notAssigned";
 export type ChromeOSOnboardingStatus = "unknown" | "inprogress" | "onboarded" | "failed";
@@ -1692,7 +1708,8 @@ export type ManagementAgentType =
     | "jamf"
     | "googleCloudDevicePolicyController"
     | "microsoft365ManagedMdm"
-    | "windowsManagementCloudApi";
+    | "windowsManagementCloudApi"
+    | "intuneAosp";
 export type MeteredConnectionLimitType = "unrestricted" | "fixed" | "variable";
 export type MicrosoftLauncherDockPresence = "notConfigured" | "show" | "hide" | "disabled";
 export type MicrosoftLauncherSearchBarPlacement = "notConfigured" | "top" | "bottom" | "hide";
@@ -1763,6 +1780,7 @@ export type PolicyPlatformType =
     | "windows10AndLater"
     | "androidWorkProfile"
     | "windows10XProfile"
+    | "androidAOSP"
     | "all";
 export type PowerActionType = "notConfigured" | "noAction" | "sleep" | "hibernate" | "shutdown";
 export type PrereleaseFeatures = "userDefined" | "settingsOnly" | "settingsAndExperimentations" | "notAllowed";
@@ -3326,7 +3344,8 @@ export type TeamsAsyncOperationType =
     | "createTeam"
     | "unknownFutureValue"
     | "teamifyGroup"
-    | "createChannel";
+    | "createChannel"
+    | "createChat";
 export type TeamSpecialization =
     | "none"
     | "educationStandard"
@@ -6219,6 +6238,7 @@ export interface Chat extends Entity {
     members?: NullableOption<ConversationMember[]>;
     // A collection of all the messages in the chat. Nullable.
     messages?: NullableOption<ChatMessage[]>;
+    operations?: NullableOption<TeamsAsyncOperation[]>;
     // A collection of permissions granted to apps for the chat.
     permissionGrants?: NullableOption<ResourceSpecificPermissionGrant[]>;
     tabs?: NullableOption<TeamsTab[]>;
@@ -6285,6 +6305,7 @@ export interface Team extends Entity {
      * must be specified as an object ID (GUID), not a UPN.
      */
     owners?: NullableOption<User[]>;
+    permissionGrants?: NullableOption<ResourceSpecificPermissionGrant[]>;
     // The team photo.
     photo?: NullableOption<ProfilePhoto>;
     // The general channel for the team.
@@ -6425,6 +6446,12 @@ export interface Application extends DirectoryObject {
     createdDateTime?: NullableOption<string>;
     defaultRedirectUri?: NullableOption<string>;
     description?: NullableOption<string>;
+    /**
+     * Specifies whether Microsoft has disabled the registered application. Possible values are: null (default value),
+     * NotDisabled, and DisabledDueToViolationOfServicesAgreement (reasons may include suspicious, abusive, or malicious
+     * activity, or a violation of the Microsoft Services Agreement).
+     */
+    disabledByMicrosoftStatus?: NullableOption<string>;
     // The display name for the application.
     displayName?: NullableOption<string>;
     /**
@@ -6570,6 +6597,12 @@ export interface ServicePrincipal extends DirectoryObject {
      * MyApps will display the application description in this field. The maximum allowed size is 1024 characters.
      */
     description?: NullableOption<string>;
+    /**
+     * Specifies whether Microsoft has disabled the registered application. Possible values are: null (default value),
+     * NotDisabled, and DisabledDueToViolationOfServicesAgreement (reasons may include suspicious, abusive, or malicious
+     * activity, or a violation of the Microsoft Services Agreement).
+     */
+    disabledByMicrosoftStatus?: NullableOption<string>;
     // The display name for the service principal.
     displayName?: NullableOption<string>;
     // Deprecated. Don't use.
@@ -7400,6 +7433,11 @@ export interface AppScope extends Entity {
 export interface CloudPC extends Entity {
     // The cloud PC display name.
     displayName?: NullableOption<string>;
+    /**
+     * The date and time when the grace period ends and reprovisioning/deprovisioning happens. Required only if status is
+     * inGracePeriod. The timestamp is shown in ISO 8601 format and Coordinated Universal Time (UTC). For example, midnight
+     * UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
+     */
     gracePeriodEndDateTime?: NullableOption<string>;
     // Name of the OS image that's on the cloud PC.
     imageDisplayName?: NullableOption<string>;
@@ -7412,9 +7450,11 @@ export interface CloudPC extends Entity {
     managedDeviceId?: NullableOption<string>;
     // The cloud PC’s Intune device name.
     managedDeviceName?: NullableOption<string>;
+    // The on-premises connection that is applied during provisioning of cloud PCs.
     onPremisesConnectionName?: NullableOption<string>;
     // The cloud PC's provisioning policy ID.
     provisioningPolicyId?: NullableOption<string>;
+    // The provisioning policy that is applied during provisioning of cloud PCs.
     provisioningPolicyName?: NullableOption<string>;
     // The cloud PC's service plan ID.
     servicePlanId?: NullableOption<string>;
@@ -7429,6 +7469,19 @@ export interface CloudPC extends Entity {
     statusDetails?: NullableOption<CloudPcStatusDetails>;
     // The user principal name (UPN) of the user assigned to the cloud PC.
     userPrincipalName?: NullableOption<string>;
+}
+export interface CloudPcAuditEvent extends Entity {
+    activity?: NullableOption<string>;
+    activityDateTime?: string;
+    activityOperationType?: CloudPcAuditActivityOperationType;
+    activityResult?: CloudPcAuditActivityResult;
+    activityType?: string;
+    actor?: CloudPcAuditActor;
+    category?: CloudPcAuditCategory;
+    componentName?: string;
+    correlationId?: string;
+    displayName?: string;
+    resources?: CloudPcAuditResource[];
 }
 export interface CloudPcDeviceImage extends Entity {
     // The image's display name.
@@ -7545,6 +7598,7 @@ export interface CloudPcProvisioningPolicyAssignment extends Entity {
     target?: NullableOption<CloudPcManagementAssignmentTarget>;
 }
 export interface CloudPcUserSetting extends Entity {
+    createdDateTime?: NullableOption<string>;
     displayName?: NullableOption<string>;
     lastModifiedDateTime?: NullableOption<string>;
     localAdminEnabled?: NullableOption<boolean>;
@@ -7552,6 +7606,7 @@ export interface CloudPcUserSetting extends Entity {
     assignments?: NullableOption<CloudPcUserSettingAssignment[]>;
 }
 export interface CloudPcUserSettingAssignment extends Entity {
+    createdDateTime?: NullableOption<string>;
     target?: NullableOption<CloudPcManagementAssignmentTarget>;
 }
 export interface DeviceManagement extends Entity {
@@ -7902,6 +7957,7 @@ export interface AndroidDeviceOwnerEnrollmentProfile extends Entity {
     tokenValue?: NullableOption<string>;
 }
 export interface VirtualEndpoint extends Entity {
+    auditEvents?: NullableOption<CloudPcAuditEvent[]>;
     // Cloud managed virtual desktops.
     cloudPCs?: NullableOption<CloudPC[]>;
     // The image resource on cloud PC.
@@ -10905,6 +10961,18 @@ export interface TeamsAsyncOperation extends Entity {
      */
     targetResourceLocation?: NullableOption<string>;
 }
+export interface ResourceSpecificPermissionGrant extends DirectoryObject {
+    // ID of the service principal of the Azure AD app that has been granted access. Read-only.
+    clientAppId?: NullableOption<string>;
+    // ID of the Azure AD app that has been granted access. Read-only.
+    clientId?: NullableOption<string>;
+    // The name of the permission. Read-only.
+    permission?: NullableOption<string>;
+    // The type of permission. Possible values are: Application, Delegated. Read-only.
+    permissionType?: NullableOption<string>;
+    // ID of the Azure AD app that is hosting the resource. Read-only.
+    resourceAppId?: NullableOption<string>;
+}
 export interface TeamworkTag extends Entity {
     description?: NullableOption<string>;
     displayName?: NullableOption<string>;
@@ -10950,18 +11018,6 @@ export interface Schedule extends Entity {
     timeOffRequests?: NullableOption<TimeOffRequest[]>;
     // The instances of times off in the schedule.
     timesOff?: NullableOption<TimeOff[]>;
-}
-export interface ResourceSpecificPermissionGrant extends DirectoryObject {
-    // ID of the service principal of the Azure AD app that has been granted access. Read-only.
-    clientAppId?: NullableOption<string>;
-    // ID of the Azure AD app that has been granted access. Read-only.
-    clientId?: NullableOption<string>;
-    // The name of the permission. Read-only.
-    permission?: NullableOption<string>;
-    // The type of permission. Possible values are: Application, Delegated. Read-only.
-    permissionType?: NullableOption<string>;
-    // ID of the Azure AD app that is hosting the resource. Read-only.
-    resourceAppId?: NullableOption<string>;
 }
 export interface DirectorySetting extends Entity {
     // Display name of this group of settings, which comes from the associated template. Read-only.
@@ -12396,6 +12452,11 @@ export interface EducationAssignment extends Entity {
      */
     addedStudentAction?: NullableOption<EducationAddedStudentAction>;
     /**
+     * Optional field to control the assignment behavior for adding assignments to students' and teachers' calendars when the
+     * assignment is published. Possible values are: studentsAndPublisher, studentsAndTeamOwners, none. Default value is none.
+     */
+    addToCalendarAction?: NullableOption<EducationAddToCalendarOptions>;
+    /**
      * Identifies whether students can submit after the due date. If this property is not specified during create, it defaults
      * to true.
      */
@@ -12557,6 +12618,11 @@ export interface EducationAssignmentDefaults extends Entity {
      * are: none, assignIfOpen.
      */
     addedStudentAction?: NullableOption<EducationAddedStudentAction>;
+    /**
+     * Optional field to control the asfor adding assignments to students' and teachers' calendars when the assignment is
+     * published. Possible values are: studentsAndPublisher, studentsAndTeamOwners, none. Default value is none.
+     */
+    addToCalendarAction?: NullableOption<EducationAddToCalendarOptions>;
     // Class-level default value for due time field. Default value is 23:59:00.
     dueTime?: NullableOption<string>;
     // Default Teams channel to which notifications will be sent. Default value is null.
@@ -29762,7 +29828,7 @@ export interface ChatMessage extends Entity {
     summary?: NullableOption<string>;
     // Read-only. Link to the message in Microsoft Teams.
     webUrl?: NullableOption<string>;
-    // Content in a message hosted by Microsoft Teams e.g., images, code snippets etc.
+    // Content in a message hosted by Microsoft Teams - for example, images or code snippets.
     hostedContents?: NullableOption<ChatMessageHostedContent[]>;
     // Replies for a specified message.
     replies?: NullableOption<ChatMessage[]>;
@@ -29848,14 +29914,16 @@ export interface WorkforceIntegration extends ChangeTrackedEntity {
     /**
      * This property will replace supports in v1.0. We recommend that you use this property instead of supports. The supports
      * property will still be supported in beta for the time being. Possible values are none, shift, swapRequest, openshift,
-     * openShiftRequest, userShiftPreferences. If selecting more than one value, all values must start with the first letter
-     * in uppercase.
+     * openShiftRequest, userShiftPreferences, offerShiftRequest, timeCard, timeOffReason, timeOff, timeOffRequest and
+     * unknownFutureValue. If selecting more than one value, all values must start with the first letter in uppercase.
      */
     supportedEntities?: NullableOption<WorkforceIntegrationSupportedEntities>;
     /**
      * The Shifts entities supported for synchronous change notifications. Shifts will make a call back to the url provided on
      * client changes on those entities added here. By default, no entities are supported for change notifications. Possible
-     * values are: none, shift, swapRequest, openshift, openShiftRequest, userShiftPreferences
+     * values are none, shift, swapRequest, openshift, openShiftRequest, userShiftPreferences, offerShiftRequest, timeCard,
+     * timeOffReason, timeOff, timeOffRequest and unknownFutureValue. If selecting more than one value, all values must start
+     * with the first letter in uppercase.
      */
     supports?: NullableOption<WorkforceIntegrationSupportedEntities>;
     // Workforce Integration URL for callbacks from the Shifts service.
@@ -29930,13 +29998,24 @@ export interface SwapShiftsChangeRequest extends OfferShiftRequest {
     recipientShiftId?: NullableOption<string>;
 }
 export interface TimeCard extends ChangeTrackedEntity {
+    // The list of breaks associated with the timeCard.
     breaks?: NullableOption<TimeCardBreak[]>;
+    // The clock-in event of the timeCard.
     clockInEvent?: NullableOption<TimeCardEvent>;
+    // The clock-out event of the timeCard.
     clockOutEvent?: NullableOption<TimeCardEvent>;
+    // Indicate if this timeCard entry is confirmed. Possible values are none, user, manager, unknownFutureValue.
     confirmedBy?: NullableOption<ConfirmedBy>;
+    // Notes about the timeCard.
     notes?: NullableOption<ItemBody>;
+    // The original timeCardEntry of the timeCard, before user edits.
     originalEntry?: NullableOption<TimeCardEntry>;
+    /**
+     * The current state of the timeCard during its life cycle.Possible values are: clockedIn, onBreak, clockedOut,
+     * unknownFutureValue.
+     */
     state?: NullableOption<TimeCardState>;
+    // User ID to which the timeCard belongs.
     userId?: NullableOption<string>;
 }
 export interface TimeOffReason extends ChangeTrackedEntity {
@@ -30932,6 +31011,7 @@ export interface OnPremisesPublishing {
     externalUrl?: NullableOption<string>;
     // The internal url of the application. For example, https://intranet/.
     internalUrl?: NullableOption<string>;
+    isBackendCertificateValidationEnabled?: NullableOption<boolean>;
     /**
      * Indicates if the HTTPOnly cookie flag should be set in the HTTP response headers. Set this value to true to have
      * Application Proxy cookies include the HTTPOnly flag in the HTTP response headers. If using Remote Desktop Services, set
@@ -31178,6 +31258,34 @@ export interface TimeSlot {
     end?: DateTimeTimeZone;
     // The date, time, and time zone that a period ends.
     start?: DateTimeTimeZone;
+}
+export interface CloudPcAuditActor {
+    applicationDisplayName?: NullableOption<string>;
+    applicationId?: NullableOption<string>;
+    ipAddress?: NullableOption<string>;
+    remoteTenantId?: NullableOption<string>;
+    remoteUserId?: NullableOption<string>;
+    servicePrincipalName?: NullableOption<string>;
+    type?: CloudPcAuditActorType;
+    userId?: NullableOption<string>;
+    userPermissions?: string[];
+    userPrincipalName?: NullableOption<string>;
+    userRoleScopeTags?: NullableOption<CloudPcUserRoleScopeTagInfo[]>;
+}
+export interface CloudPcUserRoleScopeTagInfo {
+    displayName?: string;
+    roleScopeTagId?: string;
+}
+export interface CloudPcAuditProperty {
+    displayName?: string;
+    newValue?: string;
+    oldValue?: NullableOption<string>;
+}
+export interface CloudPcAuditResource {
+    displayName?: NullableOption<string>;
+    modifiedProperties?: CloudPcAuditProperty[];
+    resourceId?: string;
+    type?: string;
 }
 // tslint:disable-next-line: no-empty-interface
 export interface CloudPcManagementAssignmentTarget {}
@@ -34788,6 +34896,8 @@ export interface ConditionalAccessApplications {
      * to All.
      */
     includeApplications?: string[];
+    // Authentication context class references include. Supported values are c1 through c25.
+    includeAuthenticationContextClassReferences?: string[];
     // User actions to include. Supported values are urn:user:registersecurityinfo and urn:user:registerdevice
     includeUserActions?: string[];
 }
@@ -34826,6 +34936,7 @@ export interface ConditionalAccessConditionSet {
     users?: NullableOption<ConditionalAccessUsers>;
 }
 export interface ConditionalAccessDevices {
+    deviceFilter?: NullableOption<ConditionalAccessFilter>;
     // States excluded from the scope of the policy. Possible values: Compliant, DomainJoined.
     excludeDevices?: string[];
     excludeDeviceStates?: string[];
@@ -34864,6 +34975,10 @@ export interface ConditionalAccessUsers {
     includeRoles?: string[];
     // User IDs in scope of policy unless explicitly excluded, or None or All or GuestsOrExternalUsers.
     includeUsers?: string[];
+}
+export interface ConditionalAccessFilter {
+    mode?: FilterMode;
+    rule?: string;
 }
 export interface ConditionalAccessGrantControls {
     /**
@@ -39457,6 +39572,17 @@ export interface BucketAggregationRange {
      */
     to?: string;
 }
+export interface ResultTemplate {
+    body?: NullableOption<any>;
+    displayName?: NullableOption<string>;
+}
+// tslint:disable-next-line: no-empty-interface
+export interface Dictionary {}
+// tslint:disable-next-line: no-empty-interface
+export interface ResultTemplateDictionary extends Dictionary {}
+export interface ResultTemplateOption {
+    enableResultTemplate?: NullableOption<boolean>;
+}
 export interface SearchAggregation {
     // Defines the actual buckets of the computed aggregation.
     buckets?: NullableOption<SearchBucket[]>;
@@ -39577,6 +39703,7 @@ export interface SearchRequest {
     from?: number;
     // Contains the query terms. Required.
     query?: SearchQuery;
+    resultTemplateOptions?: NullableOption<ResultTemplateOption>;
     // The size of the page to be retrieved. Optional.
     size?: number;
     /**
@@ -39601,6 +39728,7 @@ export interface SearchResponse {
 export interface SearchResultSet {
     // A collection of search results.
     hitsContainers?: NullableOption<SearchHitsContainer[]>;
+    resultTemplates?: NullableOption<ResultTemplateDictionary>;
     // Contains the search terms sent in the initial search query.
     searchTerms?: NullableOption<string[]>;
 }
@@ -41860,6 +41988,10 @@ export interface OperationError {
     // Operation error message.
     message?: NullableOption<string>;
 }
+export interface ProvisionChannelEmailResult {
+    // Represents the provisioned email address.
+    email?: NullableOption<string>;
+}
 export interface TabUpdatedEventMessageDetail extends EventMessageDetail {
     initiator?: NullableOption<IdentitySet>;
     tabId?: NullableOption<string>;
@@ -42002,22 +42134,33 @@ export interface TimeRange {
     startTime?: NullableOption<string>;
 }
 export interface TimeCardBreak {
+    // ID of the timeCardBreak.
     breakId?: NullableOption<string>;
+    // The start event of the timeCardBreak.
     end?: NullableOption<TimeCardEvent>;
+    // Notes about the timeCardBreak.
     notes?: NullableOption<ItemBody>;
+    // The start event of the timeCardBreak.
     start?: TimeCardEvent;
 }
 export interface TimeCardEvent {
+    // Indicates whether the entry was recorded at the approved location.
     atApprovedLocation?: NullableOption<boolean>;
+    // The time the entry is recorded.
     dateTime?: string;
+    // Notes about the timeCardEvent.
     notes?: NullableOption<ItemBody>;
 }
 export interface TimeCardEntry {
+    // The list of breaks associated with the timeCard.
     breaks?: NullableOption<TimeCardBreak[]>;
+    // The clock-in event of the timeCard.
     clockInEvent?: NullableOption<TimeCardEvent>;
+    // The clock-out event of the timeCard.
     clockOutEvent?: NullableOption<TimeCardEvent>;
 }
 export interface TimeClockSettings {
+    // The aprroved location of the timeClock.
     approvedLocation?: NullableOption<GeoCoordinates>;
 }
 export interface TimeOffItem extends ScheduleEntity {
