@@ -1,10 +1,11 @@
-// Project: https://github.com/microsoftgraph/msgraph-beta-typescript-typings
+// Project: https://github.com/microsoftgraph/msgraph-typescript-typings
 // Definitions by: Microsoft Graph Team <https://github.com/microsoftgraph>
 //                 Michael Mainer <https://github.com/MIchaelMainer>
 //                 Peter Ombwa <https://github.com/peombwa>
 //                 Mustafa Zengin <https://github.com/zengin>
 //                 DeVere Dyett <https://github.com/ddyett>
 //                 Nikitha Udaykumar Chettiar <https://github.com/nikithauc>
+// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 2.1
 
 export as namespace microsoftgraphbeta;
@@ -3222,6 +3223,7 @@ export type EndpointType =
 export type MediaDirection = "inactive" | "sendOnly" | "receiveOnly" | "sendReceive";
 export type MediaState = "active" | "inactive" | "unknownFutureValue";
 export type MeetingCapabilities = "questionAndAnswer" | "unknownFutureValue";
+export type MeetingChatMode = "enabled" | "disabled" | "limited" | "unknownFutureValue";
 export type Modality = "unknown" | "audio" | "video" | "videoBasedScreenSharing" | "data" | "unknownFutureValue";
 export type OnlineMeetingRole = "attendee" | "presenter" | "unknownFutureValue" | "producer";
 export type PlayPromptCompletionReason =
@@ -3876,121 +3878,137 @@ export interface DirectoryObject extends Entity {
 }
 export interface User extends DirectoryObject {
     /**
-     * Get the last signed-in date and request ID of the sign-in for a given user.Supports $filter, but not with any other
-     * filterable properties. Returned only on $select. Read-only. Note: Details for this property require an Azure AD Premium
-     * P1/P2 license and the AuditLog.Read.All permission.
+     * Get the last signed-in date and request ID of the sign-in for a given user. Read-only.Returned only on $select.
+     * Supports $filter (eq, ne, NOT, ge, le) but, not with any other filterable properties. Note: Details for this property
+     * require an Azure AD Premium P1/P2 license and the AuditLog.Read.All permission.
      */
     signInActivity?: NullableOption<SignInActivity>;
     /**
-     * true if the account is enabled; otherwise, false. This property is required when a user is created. Returned only on
-     * $select. Supports $filter.
+     * true if the account is enabled; otherwise, false. This property is required when a user is created. Supports $filter
+     * (eq, ne, NOT, and in).
      */
     accountEnabled?: NullableOption<boolean>;
     /**
      * Sets the age group of the user. Allowed values: null, minor, notAdult and adult. Refer to the legal age group property
-     * definitions for further information. Returned only on $select.
+     * definitions for further information. Supports $filter (eq, ne, NOT, and in).
      */
     ageGroup?: NullableOption<string>;
-    // The licenses that are assigned to the user, including inherited (group-based) licenses. Not nullable. Supports $filter.
+    /**
+     * The licenses that are assigned to the user, including inherited (group-based) licenses. Not nullable. Supports $filter
+     * (eq and NOT).
+     */
     assignedLicenses?: AssignedLicense[];
-    // The plans that are assigned to the user. Returned only on $select. Read-only. Not nullable.
+    // The plans that are assigned to the user. Read-only. Not nullable.Supports $filter (eq and NOT).
     assignedPlans?: AssignedPlan[];
     /**
-     * The telephone numbers for the user. Only one number can be set for this property. Returned by default. Read-only for
-     * users synced from on-premises directory.
+     * The telephone numbers for the user. Only one number can be set for this property. Read-only for users synced from
+     * on-premises directory. Supports $filter (eq and NOT).
      */
     businessPhones?: string[];
-    // The city in which the user is located. Maximum length is 128 characters. Returned only on $select. Supports $filter.
+    /**
+     * The city in which the user is located. Maximum length is 128 characters. Supports $filter (eq, ne, NOT, ge, le, in,
+     * startsWith).
+     */
     city?: NullableOption<string>;
     /**
      * The company name which the user is associated. This property can be useful for describing the company that an external
-     * user comes from. The maximum length of the company name is 64 characters.Returned only on $select.
+     * user comes from. The maximum length of the company name is 64 characters.Supports $filter (eq, ne, NOT, ge, le, in,
+     * startsWith).
      */
     companyName?: NullableOption<string>;
     /**
      * Sets whether consent has been obtained for minors. Allowed values: null, granted, denied and notRequired. Refer to the
-     * legal age group property definitions for further information. Returned only on $select.
+     * legal age group property definitions for further information. Supports $filter (eq, ne, NOT, and in).
      */
     consentProvidedForMinor?: NullableOption<string>;
     /**
-     * The country/region in which the user is located; for example, 'US' or 'UK'. Maximum length is 128 characters. Returned
-     * only on $select. Supports $filter.
+     * The country/region in which the user is located; for example, US or UK. Maximum length is 128 characters. Supports
+     * $filter (eq, ne, NOT, ge, le, in, startsWith).
      */
     country?: NullableOption<string>;
     /**
      * The date and time the user was created. The value cannot be modified and is automatically populated when the entity is
      * created. The DateTimeOffset type represents date and time information using ISO 8601 format and is always in UTC time.
      * Property is nullable. A null value indicates that an accurate creation time couldn't be determined for the user.
-     * Returned only on $select. Read-only. Supports $filter with the eq, ne, le, and ge operators.
+     * Read-only. Supports $filter (eq, ne, NOT , ge, le, and in operators) and $orderBy.
      */
     createdDateTime?: NullableOption<string>;
     /**
      * Indicates whether the user account was created as a regular school or work account (null), an external account
      * (Invitation), a local account for an Azure Active Directory B2C tenant (LocalAccount) or self-service sign-up using
-     * email verification (EmailVerified). Returned only on $select. Read-only.
+     * email verification (EmailVerified). Read-only. Supports $filter (eq, ne, NOT, and in).
      */
     creationType?: NullableOption<string>;
     /**
-     * The name for the department in which the user works. Maximum length is 64 characters.Returned only on $select. Supports
-     * $filter.
+     * The name for the department in which the user works. Maximum length is 64 characters.Supports $filter (eq, ne, NOT ,
+     * ge, le, and in operators).
      */
     department?: NullableOption<string>;
     deviceKeys?: DeviceKey[];
     /**
      * The name displayed in the address book for the user. This value is usually the combination of the user's first name,
      * middle initial, and last name. This property is required when a user is created and it cannot be cleared during
-     * updates. Maximum length is 256 characters. Returned by default. Supports $filter and $orderby.
+     * updates. Maximum length is 256 characters. Supports $filter (eq, ne, NOT , ge, le, in, startsWith), $orderBy, and
+     * $search.
      */
     displayName?: NullableOption<string>;
     /**
-     * The date and time when the user was hired or will start work in case of a future hire. Returned only on $select.
-     * Supports $filter.
+     * The date and time when the user was hired or will start work in case of a future hire. Supports $filter (eq, ne, NOT ,
+     * ge, le, in).
      */
     employeeHireDate?: NullableOption<string>;
-    // The employee identifier assigned to the user by the organization. Returned only on $select. Supports $filter.
+    /**
+     * The employee identifier assigned to the user by the organization. Supports $filter (eq, ne, NOT , ge, le, in,
+     * startsWith).
+     */
     employeeId?: NullableOption<string>;
-    // Represents organization data (e.g. division and costCenter) associated with a user. Returned only on $select.
+    /**
+     * Represents organization data (e.g. division and costCenter) associated with a user. Supports $filter (eq, ne, NOT , ge,
+     * le, in).
+     */
     employeeOrgData?: NullableOption<EmployeeOrgData>;
     /**
-     * Captures enterprise worker type. For example, Employee, Contractor, Consultant, or Vendor. Returned only on $select.
-     * Supports $filter with the eq operator.
+     * Captures enterprise worker type. For example, Employee, Contractor, Consultant, or Vendor. Supports $filter (eq, ne,
+     * NOT , ge, le, in, startsWith).
      */
     employeeType?: NullableOption<string>;
     /**
      * For an external user invited to the tenant using the invitation API, this property represents the invited user's
      * invitation status. For invited users, the state can be PendingAcceptance or Accepted, or null for all other users.
-     * Returned only on $select. Supports $filter with the supported values. For example: $filter=externalUserState eq
-     * 'PendingAcceptance'.
+     * Supports $filter (eq, ne, NOT , in).
      */
     externalUserState?: NullableOption<string>;
-    // Shows the timestamp for the latest change to the externalUserState property. Returned only on $select.
+    // Shows the timestamp for the latest change to the externalUserState property. Supports $filter (eq, ne, NOT , in).
     externalUserStateChangeDateTime?: NullableOption<string>;
-    // The fax number of the user. Returned only on $select.
+    // The fax number of the user. Supports $filter (eq, ne, NOT , ge, le, in, startsWith).
     faxNumber?: NullableOption<string>;
-    // The given name (first name) of the user. Maximum length is 64 characters. Returned by default. Supports $filter.
+    /**
+     * The given name (first name) of the user. Maximum length is 64 characters. Supports $filter (eq, ne, NOT , ge, le, in,
+     * startsWith).
+     */
     givenName?: NullableOption<string>;
     /**
      * Represents the identities that can be used to sign in to this user account. An identity can be provided by Microsoft
      * (also known as a local account), by organizations, or by social identity providers such as Facebook, Google, and
-     * Microsoft, and tied to a user account. May contain multiple items with the same signInType value. Returned only on
-     * $select. Supports $filter.
+     * Microsoft, and tied to a user account. May contain multiple items with the same signInType value. Supports $filter (eq)
+     * only where the signInType is not userPrincipalName.
      */
     identities?: NullableOption<ObjectIdentity[]>;
-    // The instant message voice over IP (VOIP) session initiation protocol (SIP) addresses for the user. Read-only.
+    /**
+     * The instant message voice over IP (VOIP) session initiation protocol (SIP) addresses for the user. Read-only. Supports
+     * $filter (eq, NOT, ge, le, startsWith).
+     */
     imAddresses?: NullableOption<string[]>;
-    // Identifies the info segments assigned to the user. Returned by default.
+    // Identifies the info segments assigned to the user. Supports $filter (eq, NOT, ge, le, startsWith).
     infoCatalogs?: string[];
     // Do not use – reserved for future use.
     isResourceAccount?: NullableOption<boolean>;
-    /**
-     * The user's job title. Maximum length is 128 characters. Returned by default. Supports $filter (eq and startsWith
-     * operators).
-     */
+    // The user's job title. Maximum length is 128 characters. Supports $filter (eq, ne, NOT , ge, le, in, startsWith).
     jobTitle?: NullableOption<string>;
     /**
      * The time when this Azure AD user last changed their password. The Timestamp type represents date and time information
-     * using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z
-     * Returned only on $select. Read-only.
+     * using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
+     * Read-only. Returned only on $select.
      */
     lastPasswordChangeDateTime?: NullableOption<string>;
     /**
@@ -4000,37 +4018,39 @@ export interface User extends DirectoryObject {
      * definitions for further information. Returned only on $select.
      */
     legalAgeGroupClassification?: NullableOption<string>;
-    // State of license assignments for this user. Returned only on $select. Read-only.
+    // State of license assignments for this user. Read-only. Returned only on $select.
     licenseAssignmentStates?: NullableOption<LicenseAssignmentState[]>;
     /**
-     * The SMTP address for the user, for example, 'jeff@contoso.onmicrosoft.com'. Changes to this property will also update
-     * the user's proxyAddresses collection to include the value as an SMTP address. While this property can contain accent
-     * characters, using them can cause access issues with other Microsoft applications for the user. Supports $filter and
-     * endsWith.
+     * The SMTP address for the user, for example, admin@contoso.com. Changes to this property will also update the user's
+     * proxyAddresses collection to include the value as an SMTP address. While this property can contain accent characters,
+     * using them can cause access issues with other Microsoft applications for the user. Supports $filter (eq, ne, NOT, ge,
+     * le, in, startsWith, endsWith).
      */
     mail?: NullableOption<string>;
     /**
      * The mail alias for the user. This property must be specified when a user is created. Maximum length is 64 characters.
-     * Returned only on $select. Supports $filter.
+     * Supports $filter (eq, ne, NOT, ge, le, in, startsWith).
      */
     mailNickname?: NullableOption<string>;
     /**
-     * The primary cellular telephone number for the user. Returned by default. Read-only for users synced from on-premises
-     * directory.
+     * The primary cellular telephone number for the user. Read-only for users synced from on-premises directory. Supports
+     * $filter (eq, ne, NOT, ge, le, in, startsWith).
      */
     mobilePhone?: NullableOption<string>;
-    // The office location in the user's place of business. Maximum length is 128 characters. Returned by default.
+    /**
+     * The office location in the user's place of business. Maximum length is 128 characters. Supports $filter (eq, ne, NOT,
+     * ge, le, in, startsWith).
+     */
     officeLocation?: NullableOption<string>;
     /**
      * Contains the on-premises Active Directory distinguished name or DN. The property is only populated for customers who
-     * are synchronizing their on-premises directory to Azure Active Directory via Azure AD Connect. Returned only on $select.
-     * Read-only.
+     * are synchronizing their on-premises directory to Azure Active Directory via Azure AD Connect. Read-only.
      */
     onPremisesDistinguishedName?: NullableOption<string>;
     /**
      * Contains the on-premises domainFQDN, also called dnsDomainName synchronized from the on-premises directory. The
      * property is only populated for customers who are synchronizing their on-premises directory to Azure Active Directory
-     * via Azure AD Connect. Returned only on $select. Read-only.
+     * via Azure AD Connect. Read-only.
      */
     onPremisesDomainName?: NullableOption<string>;
     /**
@@ -4038,117 +4058,128 @@ export interface User extends DirectoryObject {
      * nor filterable. For an onPremisesSyncEnabled user, the source of authority for this set of properties is the
      * on-premises and is read-only and is read-only. For a cloud-only user (where onPremisesSyncEnabled is false), these
      * properties may be set during creation or update. These extension attributes are also known as Exchange custom
-     * attributes 1-15. Returned only on $select.
+     * attributes 1-15. Supports $filter (eq, NOT, ge, le, in).
      */
     onPremisesExtensionAttributes?: NullableOption<OnPremisesExtensionAttributes>;
     /**
      * This property is used to associate an on-premises Active Directory user account to their Azure AD user object. This
      * property must be specified when creating a new user account in the Graph if you are using a federated domain for the
-     * user's userPrincipalName (UPN) property. Important: The $ and _ characters cannot be used when specifying this
-     * property. Returned only on $select. Supports $filter.
+     * user's userPrincipalName (UPN) property. Note: The $ and _ characters cannot be used when specifying this property.
+     * Supports $filter (eq, ne, NOT, ge, le, in).
      */
     onPremisesImmutableId?: NullableOption<string>;
     /**
      * Indicates the last time at which the object was synced with the on-premises directory; for example:
      * '2013-02-16T03:04:54Z'. The Timestamp type represents date and time information using ISO 8601 format and is always in
-     * UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z. Returned only on $select. Read-only.
+     * UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z. Read-only. Supports $filter (eq, ne, NOT,
+     * ge, le, in).
      */
     onPremisesLastSyncDateTime?: NullableOption<string>;
-    // Errors when using Microsoft synchronization product during provisioning. Returned only on $select.
+    // Errors when using Microsoft synchronization product during provisioning.
     onPremisesProvisioningErrors?: NullableOption<OnPremisesProvisioningError[]>;
     /**
      * Contains the on-premises sAMAccountName synchronized from the on-premises directory. The property is only populated for
-     * customers who are synchronizing their on-premises directory to Azure Active Directory via Azure AD Connect. Returned
-     * only on $select. Read-only.
+     * customers who are synchronizing their on-premises directory to Azure Active Directory via Azure AD Connect. Read-only.
+     * Supports $filter (eq, ne, NOT, ge, le, in, startsWith).
      */
     onPremisesSamAccountName?: NullableOption<string>;
     /**
      * Contains the on-premises security identifier (SID) for the user that was synchronized from on-premises to the cloud.
-     * Returned only on $select. Read-only.
+     * Read-only. Supports $filter (eq, ne, NOT, in).
      */
     onPremisesSecurityIdentifier?: NullableOption<string>;
     /**
      * true if this object is synced from an on-premises directory; false if this object was originally synced from an
      * on-premises directory but is no longer synced; null if this object has never been synced from an on-premises directory
-     * (default). Returned only on $select. Read-only.
+     * (default). Read-only. Supports $filter (eq, ne, NOT, in).
      */
     onPremisesSyncEnabled?: NullableOption<boolean>;
     /**
      * Contains the on-premises userPrincipalName synchronized from the on-premises directory. The property is only populated
      * for customers who are synchronizing their on-premises directory to Azure Active Directory via Azure AD Connect.
-     * Returned only on $select. Read-only.
+     * Read-only. Supports $filter (eq, ne, NOT, ge, le, in, startsWith).
      */
     onPremisesUserPrincipalName?: NullableOption<string>;
     /**
      * A list of additional email addresses for the user; for example: ['bob@contoso.com', 'Robert@fabrikam.com'].NOTE: While
      * this property can contain accent characters, they can cause access issues to first-party applications for the
-     * user.Returned only on $select. Supports$filter.
+     * user.Supports $filter (eq, NOT, ge, le, in, startsWith).
      */
     otherMails?: string[];
     /**
      * Specifies password policies for the user. This value is an enumeration with one possible value being
-     * 'DisableStrongPassword', which allows weaker passwords than the default policy to be specified.
-     * 'DisablePasswordExpiration' can also be specified. The two may be specified together; for example:
-     * 'DisablePasswordExpiration, DisableStrongPassword'.Returned only on $select.
+     * DisableStrongPassword, which allows weaker passwords than the default policy to be specified. DisablePasswordExpiration
+     * can also be specified. The two may be specified together; for example: DisablePasswordExpiration,
+     * DisableStrongPassword.Supports $filter (eq, ne, NOT).
      */
     passwordPolicies?: NullableOption<string>;
     /**
      * Specifies the password profile for the user. The profile contains the user's password. This property is required when a
      * user is created. The password in the profile must satisfy minimum requirements as specified by the passwordPolicies
-     * property. By default, a strong password is required. Returned only on $select.
+     * property. By default, a strong password is required. NOTE: For Azure B2C tenants, the forceChangePasswordNextSignIn
+     * property should be set to false and instead use custom policies and user flows to force password reset at first logon.
+     * See Force password reset at first logon.
      */
     passwordProfile?: NullableOption<PasswordProfile>;
     /**
      * The postal code for the user's postal address. The postal code is specific to the user's country/region. In the United
-     * States of America, this attribute contains the ZIP code. Maximum length is 40 characters. Returned only on $select.
+     * States of America, this attribute contains the ZIP code. Maximum length is 40 characters. Supports $filter (eq, ne,
+     * NOT, ge, le, in, startsWith).
      */
     postalCode?: NullableOption<string>;
-    /**
-     * The preferred data location for the user. For more information, see OneDrive Online Multi-Geo. Returned only on
-     * $select.
-     */
+    // The preferred data location for the user. For more information, see OneDrive Online Multi-Geo.
     preferredDataLocation?: NullableOption<string>;
-    // The preferred language for the user. Should follow ISO 639-1 Code; for example 'en-US'. Returned by default.
+    /**
+     * The preferred language for the user. Should follow ISO 639-1 Code; for example en-US. Supports $filter (eq, ne, NOT,
+     * ge, le, in, startsWith).
+     */
     preferredLanguage?: NullableOption<string>;
-    // The plans that are provisioned for the user. Returned only on $select. Read-only. Not nullable.
+    // The plans that are provisioned for the user. Read-only. Not nullable.
     provisionedPlans?: ProvisionedPlan[];
     /**
-     * For example: ['SMTP: bob@contoso.com', 'smtp: bob@sales.contoso.com'] The any operator is required for filter
-     * expressions on multi-valued properties. Returned only on $select. Read-only, Not nullable. Supports $filter.
+     * For example: ['SMTP: bob@contoso.com', 'smtp: bob@sales.contoso.com']. Read-only, Not nullable. Supports $filter (eq,
+     * NOT, ge, le, startsWith).
      */
     proxyAddresses?: string[];
     /**
      * Any refresh tokens or sessions tokens (session cookies) issued before this time are invalid, and applications will get
      * an error when using an invalid refresh or sessions token to acquire a delegated access token (to access APIs such as
      * Microsoft Graph). If this happens, the application will need to acquire a new refresh token by making a request to the
-     * authorize endpoint. Returned only on $select. Read-only. Use invalidateAllRefreshTokens to reset.
+     * authorize endpoint. Read-only. Use invalidateAllRefreshTokens to reset.
      */
     refreshTokensValidFromDateTime?: NullableOption<string>;
     /**
      * true if the Outlook global address list should contain this user, otherwise false. If not set, this will be treated as
-     * true. For users invited through the invitation manager, this property will be set to false. Returned only on $select.
+     * true. For users invited through the invitation manager, this property will be set to false. Supports $filter (eq, ne,
+     * NOT, in).
      */
     showInAddressList?: NullableOption<boolean>;
     /**
      * Any refresh tokens or sessions tokens (session cookies) issued before this time are invalid, and applications will get
      * an error when using an invalid refresh or sessions token to acquire a delegated access token (to access APIs such as
      * Microsoft Graph). If this happens, the application will need to acquire a new refresh token by making a request to the
-     * authorize endpoint. Returned only on $select. Read-only. Use revokeSignInSessions to reset.
+     * authorize endpoint. Read-only. Use revokeSignInSessions to reset.
      */
     signInSessionsValidFromDateTime?: NullableOption<string>;
     /**
-     * The state or province in the user's address. Maximum length is 128 characters. Returned only on $select. Supports
-     * $filter.
+     * The state or province in the user's address. Maximum length is 128 characters. Supports $filter (eq, ne, NOT, ge, le,
+     * in, startsWith).
      */
     state?: NullableOption<string>;
-    // The street address of the user's place of business. Maximum length is 1024 characters. Returned only on $select.
+    /**
+     * The street address of the user's place of business. Maximum length is 1024 characters. Supports $filter (eq, ne, NOT,
+     * ge, le, in, startsWith).
+     */
     streetAddress?: NullableOption<string>;
-    // The user's surname (family name or last name). Maximum length is 64 characters. Returned by default. Supports $filter.
+    /**
+     * The user's surname (family name or last name). Maximum length is 64 characters. Supports $filter (eq, ne, NOT, ge, le,
+     * in, startsWith).
+     */
     surname?: NullableOption<string>;
     /**
      * A two letter country code (ISO standard 3166). Required for users that will be assigned licenses due to legal
-     * requirement to check for availability of services in countries. Examples include: 'US', 'JP', and 'GB'. Not nullable.
-     * Returned only on $select. Supports $filter.
+     * requirement to check for availability of services in countries. Examples include: US, JP, and GB. Not nullable.
+     * Supports $filter (eq, ne, NOT, ge, le, in, startsWith).
      */
     usageLocation?: NullableOption<string>;
     /**
@@ -4157,18 +4188,17 @@ export interface User extends DirectoryObject {
      * domain must be present in the tenant's collection of verified domains. This property is required when a user is
      * created. The verified domains for the tenant can be accessed from the verifiedDomains property of organization.NOTE:
      * While this property can contain accent characters, they can cause access issues to first-party applications for the
-     * user. Returned by default. Supports $filter, $orderby, and endsWith.
+     * user. Supports $filter (eq, ne, NOT, ge, le, in, startsWith, endsWith) and $orderBy.
      */
     userPrincipalName?: NullableOption<string>;
     /**
-     * A string value that can be used to classify user types in your directory, such as 'Member' and 'Guest'. Returned only
-     * on $select. Supports $filter.
+     * A string value that can be used to classify user types in your directory, such as Member and Guest. Supports $filter
+     * (eq, ne, NOT, in, startsWith, endsWith).
      */
     userType?: NullableOption<string>;
     /**
      * Settings for the primary mailbox of the signed-in user. You can get or update settings for sending automatic replies to
-     * incoming messages, locale, and time zone. Returned only on $select. Supported only on the Get user API (GET /users/{id}
-     * or GET /me).
+     * incoming messages, locale, and time zone. Returned only on $select.
      */
     mailboxSettings?: NullableOption<MailboxSettings>;
     // The limit on the maximum number of devices that the user is permitted to enroll. Allowed values are 5 or 1000.
@@ -4847,9 +4877,11 @@ export interface Group extends DirectoryObject {
     // Identifies the info segments assigned to the group. Returned by default.
     infoCatalogs?: string[];
     /**
-     * Indicates whether this group can be assigned to an Azure Active Directory role or not.This property can only be set
-     * while creating the group and is immutable. Only Global Administrator and Privileged Role Administrator roles can set
-     * this property. For more information, see Using a group to manage Azure AD role assignmentsReturned by default.
+     * Indicates whether this group can be assigned to an Azure Active Directory role.This property can only be set while
+     * creating the group and is immutable. If set to true, the securityEnabled property must also be set to true and the
+     * group cannot be a dynamic group (that is, groupTypes cannot contain DynamicMembership).Only callers in Global
+     * Administrator and Privileged Role Administrator roles can set this property. For more, see Using a group to manage
+     * Azure AD role assignmentsReturned by default.
      */
     isAssignableToRole?: NullableOption<boolean>;
     /**
@@ -5379,7 +5411,7 @@ export interface AppConsentRequest extends Entity {
     // The identifier of the application. Required. Supports $filter (eq only) and $orderby.
     appId?: string;
     /**
-     * The consent type of the request. Possible values are: Static and Dynamic. These represent static and dynamic
+     * The consent type of the request. Possible values are: Static and Dynamic. These represent static and dynamic
      * permissions, respectively, requested in the consent workflow. Supports $filter (eq only) and $orderby. Required.
      */
     consentType?: NullableOption<string>;
@@ -6149,11 +6181,19 @@ export interface Device extends DirectoryObject {
 }
 export interface OnlineMeeting extends Entity {
     accessLevel?: NullableOption<AccessLevel>;
+    // Indicates whether attendees can turn on their camera.
+    allowAttendeeToEnableCamera?: NullableOption<boolean>;
+    // Indicates whether attendees can turn on their microphone.
+    allowAttendeeToEnableMic?: NullableOption<boolean>;
     /**
      * Specifies who can be a presenter in a meeting. Possible values are everyone, organization, roleIsPresenter, organizer,
      * and unknownFutureValue.
      */
     allowedPresenters?: NullableOption<OnlineMeetingPresenters>;
+    // Specifies the mode of meeting chat.
+    allowMeetingChat?: NullableOption<MeetingChatMode>;
+    // Indicates if Teams reactions are enabled for the meeting.
+    allowTeamworkReactions?: NullableOption<boolean>;
     // The content stream of the alternative recording of a live event. Read-only.
     alternativeRecording?: NullableOption<any>;
     // The content stream of the attendee report of a live event. Read-only.
@@ -6174,10 +6214,10 @@ export interface OnlineMeeting extends Entity {
     expirationDateTime?: NullableOption<string>;
     // The external ID. A custom ID. Optional.
     externalId?: NullableOption<string>;
-    // Indicates if this is a live event.
+    // Indicates whether this is a live event.
     isBroadcast?: NullableOption<boolean>;
     isCancelled?: NullableOption<boolean>;
-    // Whether or not to announce when callers join or leave.
+    // Indicates whether to announce when callers join or leave.
     isEntryExitAnnounced?: NullableOption<boolean>;
     // The join information in the language and locale variant specified in 'Accept-Language' request HTTP header. Read-only
     joinInformation?: NullableOption<ItemBody>;
@@ -13035,7 +13075,7 @@ export interface Workbook extends Entity {
     application?: NullableOption<WorkbookApplication>;
     comments?: NullableOption<WorkbookComment[]>;
     functions?: NullableOption<WorkbookFunctions>;
-    // Represents a collection of workbook scoped named items (named ranges and constants). Read-only.
+    // Represents a collection of workbooks scoped named items (named ranges and constants). Read-only.
     names?: NullableOption<WorkbookNamedItem[]>;
     /**
      * The status of Workbook operations. Getting an operation collection is not supported, but you can get the status of a
@@ -22575,7 +22615,7 @@ export interface Windows10GeneralConfiguration extends DeviceConfiguration {
     appManagementMSIAllowUserControlOverInstall?: boolean;
     // This policy setting directs Windows Installer to use elevated permissions when it installs any program on the system.
     appManagementMSIAlwaysInstallWithElevatedPrivileges?: boolean;
-    // List of semi-colon delimited Package Family Names of Windows apps. Listed Windows apps are to be launched after logon.
+    // List of semi-colon delimited Package Family Names of Windows apps. Listed Windows apps are to be launched after logon.​
     appManagementPackageFamilyNamesToLaunchAfterLogOn?: NullableOption<string[]>;
     /**
      * Indicates whether apps from AppX packages signed with a trusted certificate can be side loaded. Possible values are:
@@ -23112,7 +23152,7 @@ export interface Windows10GeneralConfiguration extends DeviceConfiguration {
     privacyBlockInputPersonalization?: boolean;
     // Blocks the shared experiences/discovery of recently used resources in task switcher etc.
     privacyBlockPublishUserActivities?: boolean;
-    // This policy prevents the privacy experience from launching during user logon for new and upgraded users.
+    // This policy prevents the privacy experience from launching during user logon for new and upgraded users.​
     privacyDisableLaunchExperience?: boolean;
     // Indicates whether or not to Block the user from reset protection mode.
     resetProtectionModeBlocked?: boolean;
@@ -23862,7 +23902,7 @@ export interface WindowsDeliveryOptimizationConfiguration extends DeviceConfigur
     cacheServerBackgroundDownloadFallbackToHttpDelayInSeconds?: number;
     /**
      * Specifies number of seconds to delay a fall back from cache servers to an HTTP source for a foreground download. Valid
-     * values 0 to 2592000.
+     * values 0 to 2592000.​
      */
     cacheServerForegroundDownloadFallbackToHttpDelayInSeconds?: number;
     // Specifies cache servers host names.
@@ -24457,7 +24497,7 @@ export interface WindowsWifiEnterpriseEAPConfiguration extends WindowsWifiConfig
     trustedServerCertificateNames?: NullableOption<string[]>;
     /**
      * Specifiy whether to change the virtual LAN used by the device based on the user’s credentials. Cannot be used when
-     * NetworkSingleSignOnType is set to Disabled.
+     * NetworkSingleSignOnType is set to ​Disabled.
      */
     userBasedVirtualLan?: NullableOption<boolean>;
     // Specify identity certificate for client authentication.
@@ -34762,6 +34802,7 @@ export interface AccessReviewScheduleSettings {
     justificationRequiredOnApproval?: boolean;
     // Indicates whether emails are enabled or disabled. Default value is false.
     mailNotificationsEnabled?: boolean;
+    recommendationLookBackDuration?: NullableOption<string>;
     // Indicates whether decision recommendations are enabled/disabled.
     recommendationsEnabled?: boolean;
     /**
@@ -39625,6 +39666,7 @@ export interface SearchHit {
     hitId?: NullableOption<string>;
     // The rank or the order of the result.
     rank?: NullableOption<number>;
+    resultTemplateId?: NullableOption<string>;
     // A summary of the result, if a summary is available.
     summary?: NullableOption<string>;
     _id?: NullableOption<string>;
@@ -41957,8 +41999,8 @@ export interface ChatRenamedEventMessageDetail extends EventMessageDetail {
     initiator?: NullableOption<IdentitySet>;
 }
 export interface ConversationMemberRoleUpdatedEventMessageDetail extends EventMessageDetail {
-    conversationMemberId?: NullableOption<string>;
     conversationMemberRoles?: NullableOption<string[]>;
+    conversationMemberUser?: NullableOption<Identity>;
     initiator?: NullableOption<IdentitySet>;
 }
 export interface MeetingPolicyUpdatedEventMessageDetail extends EventMessageDetail {
@@ -43141,6 +43183,386 @@ export namespace CallRecords {
         role?: ServiceRole;
     }
 }
+export namespace ManagedTenants {
+    type DelegatedPrivilegeStatus = "none" | "delegatedAdminPrivileges" | "unknownFutureValue";
+    type ManagementActionStatus =
+        | "toAddress"
+        | "completed"
+        | "error"
+        | "timeOut"
+        | "inProgress"
+        | "planned"
+        | "resolvedBy3rdParty"
+        | "resolvedThroughAlternateMitigation"
+        | "riskAccepted"
+        | "unknownFutureValue";
+    type ManagementCategory = "custom" | "devices" | "identity" | "unknownFutureValue";
+    type ManagementParameterValueType =
+        | "string"
+        | "integer"
+        | "boolean"
+        | "guid"
+        | "stringCollection"
+        | "integerCollection"
+        | "booleanCollection"
+        | "guidCollection"
+        | "unknownFutureValue";
+    type TenantOnboardingStatus = "ineligible" | "inProcess" | "active" | "inactive" | "unknownFutureValue";
+    type WorkloadActionCategory = "automated" | "manual" | "unknownFutureValue";
+    type WorkloadActionStatus = "toAddress" | "completed" | "error" | "timeOut" | "inProgress" | "unknownFutureValue";
+    type WorkloadOnboardingStatus = "notOnboarded" | "onboarded" | "unknownFutureValue";
+    interface ManagedTenant extends microsoftgraphbeta.Entity {
+        aggregatedPolicyCompliances?: NullableOption<AggregatedPolicyCompliance[]>;
+        cloudPcConnections?: NullableOption<CloudPcConnection[]>;
+        cloudPcDevices?: NullableOption<CloudPcDevice[]>;
+        cloudPcsOverview?: NullableOption<CloudPcOverview[]>;
+        conditionalAccessPolicyCoverages?: NullableOption<ConditionalAccessPolicyCoverage[]>;
+        credentialUserRegistrationsSummaries?: NullableOption<CredentialUserRegistrationsSummary[]>;
+        deviceCompliancePolicySettingStateSummaries?: NullableOption<DeviceCompliancePolicySettingStateSummary[]>;
+        managedDeviceCompliances?: NullableOption<ManagedDeviceCompliance[]>;
+        managedDeviceComplianceTrends?: NullableOption<ManagedDeviceComplianceTrend[]>;
+        managementActions?: NullableOption<ManagementAction[]>;
+        managementActionTenantDeploymentStatuses?: NullableOption<ManagementActionTenantDeploymentStatus[]>;
+        managementIntents?: NullableOption<ManagementIntent[]>;
+        managementTemplates?: NullableOption<ManagementTemplate[]>;
+        riskyUsers?: NullableOption<RiskyUser[]>;
+        tenantGroups?: NullableOption<TenantGroup[]>;
+        tenants?: NullableOption<Tenant[]>;
+        tenantsCustomizedInformation?: NullableOption<TenantCustomizedInformation[]>;
+        tenantsDetailedInformation?: NullableOption<TenantDetailedInformation[]>;
+        tenantTags?: NullableOption<TenantTag[]>;
+        windowsDeviceMalwareStates?: NullableOption<WindowsDeviceMalwareState[]>;
+        windowsProtectionStates?: NullableOption<WindowsProtectionState[]>;
+    }
+    interface AggregatedPolicyCompliance extends microsoftgraphbeta.Entity {
+        compliancePolicyId?: NullableOption<string>;
+        compliancePolicyName?: NullableOption<string>;
+        compliancePolicyPlatform?: NullableOption<string>;
+        compliancePolicyType?: NullableOption<string>;
+        lastRefreshedDateTime?: NullableOption<string>;
+        numberOfCompliantDevices?: NullableOption<number>;
+        numberOfErrorDevices?: NullableOption<number>;
+        numberOfNonCompliantDevices?: NullableOption<number>;
+        policyModifiedDateTime?: NullableOption<string>;
+        tenantDisplayName?: NullableOption<string>;
+        tenantId?: NullableOption<string>;
+    }
+    interface CloudPcConnection extends microsoftgraphbeta.Entity {
+        displayName?: NullableOption<string>;
+        healthCheckStatus?: NullableOption<string>;
+        lastRefreshedDateTime?: NullableOption<string>;
+        tenantDisplayName?: NullableOption<string>;
+        tenantId?: NullableOption<string>;
+    }
+    interface CloudPcDevice extends microsoftgraphbeta.Entity {
+        cloudPcStatus?: NullableOption<string>;
+        displayName?: NullableOption<string>;
+        lastRefreshedDateTime?: NullableOption<string>;
+        managedDeviceId?: NullableOption<string>;
+        managedDeviceName?: NullableOption<string>;
+        provisioningPolicyId?: NullableOption<string>;
+        servicePlanName?: NullableOption<string>;
+        tenantDisplayName?: NullableOption<string>;
+        tenantId?: NullableOption<string>;
+        userPrincipalName?: NullableOption<string>;
+    }
+    interface CloudPcOverview {
+        lastRefreshedDateTime?: NullableOption<string>;
+        numberOfCloudPcConnectionStatusFailed?: NullableOption<number>;
+        numberOfCloudPcConnectionStatusPassed?: NullableOption<number>;
+        numberOfCloudPcConnectionStatusPending?: NullableOption<number>;
+        numberOfCloudPcConnectionStatusRunning?: NullableOption<number>;
+        numberOfCloudPcConnectionStatusUnkownFutureValue?: NullableOption<number>;
+        numberOfCloudPcStatusDeprovisioning?: NullableOption<number>;
+        numberOfCloudPcStatusFailed?: NullableOption<number>;
+        numberOfCloudPcStatusInGracePeriod?: NullableOption<number>;
+        numberOfCloudPcStatusNotProvisioned?: NullableOption<number>;
+        numberOfCloudPcStatusProvisioned?: NullableOption<number>;
+        numberOfCloudPcStatusProvisioning?: NullableOption<number>;
+        numberOfCloudPcStatusUnknown?: NullableOption<number>;
+        numberOfCloudPcStatusUpgrading?: NullableOption<number>;
+        tenantDisplayName?: NullableOption<string>;
+        tenantId?: string;
+        totalCloudPcConnectionStatus?: NullableOption<number>;
+        totalCloudPcStatus?: NullableOption<number>;
+    }
+    interface ConditionalAccessPolicyCoverage extends microsoftgraphbeta.Entity {
+        conditionalAccessPolicyState?: NullableOption<string>;
+        latestPolicyModifiedDateTime?: NullableOption<string>;
+        requiresDeviceCompliance?: NullableOption<boolean>;
+        tenantDisplayName?: NullableOption<string>;
+    }
+    interface CredentialUserRegistrationsSummary extends microsoftgraphbeta.Entity {
+        lastRefreshedDateTime?: NullableOption<string>;
+        mfaAndSsprCapableUserCount?: NullableOption<number>;
+        mfaConditionalAccessPolicyState?: NullableOption<string>;
+        mfaRegisteredUserCount?: NullableOption<number>;
+        securityDefaultsEnabled?: NullableOption<boolean>;
+        ssprEnabledUserCount?: NullableOption<number>;
+        ssprRegisteredUserCount?: NullableOption<number>;
+        tenantDisplayName?: NullableOption<string>;
+        tenantId?: NullableOption<string>;
+        totalUserCount?: NullableOption<number>;
+    }
+    interface DeviceCompliancePolicySettingStateSummary extends microsoftgraphbeta.Entity {
+        conflictDeviceCount?: NullableOption<number>;
+        errorDeviceCount?: NullableOption<number>;
+        failedDeviceCount?: NullableOption<number>;
+        intuneAccountId?: NullableOption<string>;
+        intuneSettingId?: NullableOption<string>;
+        lastRefreshedDateTime?: NullableOption<string>;
+        notApplicableDeviceCount?: NullableOption<number>;
+        pendingDeviceCount?: NullableOption<number>;
+        policyType?: NullableOption<string>;
+        settingName?: NullableOption<string>;
+        succeededDeviceCount?: NullableOption<number>;
+        tenantDisplayName?: NullableOption<string>;
+        tenantId?: NullableOption<string>;
+    }
+    interface ManagedDeviceCompliance extends microsoftgraphbeta.Entity {
+        complianceStatus?: NullableOption<string>;
+        deviceType?: NullableOption<string>;
+        inGracePeriodUntilDateTime?: NullableOption<string>;
+        lastRefreshedDateTime?: NullableOption<string>;
+        lastSyncDateTime?: NullableOption<string>;
+        managedDeviceId?: NullableOption<string>;
+        managedDeviceName?: NullableOption<string>;
+        manufacturer?: NullableOption<string>;
+        model?: NullableOption<string>;
+        osDescription?: NullableOption<string>;
+        osVersion?: NullableOption<string>;
+        ownerType?: NullableOption<string>;
+        tenantDisplayName?: NullableOption<string>;
+        tenantId?: NullableOption<string>;
+    }
+    interface ManagedDeviceComplianceTrend extends microsoftgraphbeta.Entity {
+        compliantDeviceCount?: NullableOption<number>;
+        configManagerDeviceCount?: NullableOption<number>;
+        countDateTime?: NullableOption<string>;
+        errorDeviceCount?: NullableOption<number>;
+        inGracePeriodDeviceCount?: NullableOption<number>;
+        noncompliantDeviceCount?: NullableOption<number>;
+        tenantDisplayName?: NullableOption<string>;
+        tenantId?: NullableOption<string>;
+        unknownDeviceCount?: NullableOption<number>;
+    }
+    interface ManagementAction extends microsoftgraphbeta.Entity {
+        category?: NullableOption<ManagementCategory>;
+        description?: NullableOption<string>;
+        displayName?: NullableOption<string>;
+        referenceTemplateId?: NullableOption<string>;
+        workloadActions?: NullableOption<WorkloadAction[]>;
+    }
+    interface ManagementActionTenantDeploymentStatus extends microsoftgraphbeta.Entity {
+        statuses?: NullableOption<ManagementActionDeploymentStatus[]>;
+        tenantGroupId?: NullableOption<string>;
+        tenantId?: NullableOption<string>;
+    }
+    interface ManagementIntent extends microsoftgraphbeta.Entity {
+        displayName?: NullableOption<string>;
+        isGlobal?: boolean;
+        managementTemplates?: NullableOption<ManagementTemplateDetailedInfo[]>;
+    }
+    interface ManagementTemplate extends microsoftgraphbeta.Entity {
+        category?: NullableOption<ManagementCategory>;
+        description?: NullableOption<string>;
+        displayName?: NullableOption<string>;
+        parameters?: NullableOption<TemplateParameter[]>;
+        workloadActions?: NullableOption<WorkloadAction[]>;
+    }
+    interface RiskyUser extends microsoftgraphbeta.Entity {
+        isDeleted?: NullableOption<boolean>;
+        lastRefreshedDateTime?: NullableOption<string>;
+        riskDetail?: NullableOption<string>;
+        riskLastUpdatedDateTime?: NullableOption<string>;
+        riskLevel?: NullableOption<string>;
+        riskState?: NullableOption<string>;
+        tenantDisplayName?: NullableOption<string>;
+        tenantId?: NullableOption<string>;
+        userDisplayName?: NullableOption<string>;
+        userId?: NullableOption<string>;
+        userPrincipalName?: NullableOption<string>;
+    }
+    interface TenantGroup extends microsoftgraphbeta.Entity {
+        allTenantsIncluded?: boolean;
+        displayName?: NullableOption<string>;
+        managementActions?: NullableOption<ManagementActionInfo[]>;
+        managementIntents?: NullableOption<ManagementIntentInfo[]>;
+        tenantIds?: NullableOption<string[]>;
+    }
+    interface Tenant extends microsoftgraphbeta.Entity {
+        contract?: NullableOption<TenantContract>;
+        createdDateTime?: NullableOption<string>;
+        displayName?: NullableOption<string>;
+        lastUpdatedDateTime?: NullableOption<string>;
+        tenantId?: NullableOption<string>;
+        tenantStatusInformation?: NullableOption<TenantStatusInformation>;
+    }
+    interface TenantCustomizedInformation extends microsoftgraphbeta.Entity {
+        contacts?: NullableOption<TenantContactInformation[]>;
+        displayName?: NullableOption<string>;
+        tenantId?: string;
+        website?: NullableOption<string>;
+    }
+    interface TenantDetailedInformation extends microsoftgraphbeta.Entity {
+        city?: NullableOption<string>;
+        countryCode?: NullableOption<string>;
+        countryName?: NullableOption<string>;
+        defaultDomainName?: NullableOption<string>;
+        displayName?: NullableOption<string>;
+        industryName?: NullableOption<string>;
+        region?: NullableOption<string>;
+        segmentName?: NullableOption<string>;
+        tenantId?: NullableOption<string>;
+        verticalName?: NullableOption<string>;
+    }
+    interface TenantTag extends microsoftgraphbeta.Entity {
+        createdByUserId?: NullableOption<string>;
+        createdDateTime?: NullableOption<string>;
+        deletedDateTime?: NullableOption<string>;
+        description?: NullableOption<string>;
+        displayName?: NullableOption<string>;
+        lastActionByUserId?: NullableOption<string>;
+        lastActionDateTime?: NullableOption<string>;
+        tenants?: NullableOption<TenantInfo[]>;
+    }
+    interface WindowsDeviceMalwareState extends microsoftgraphbeta.Entity {
+        additionalInformationUrl?: NullableOption<string>;
+        detectionCount?: NullableOption<number>;
+        deviceDeleted?: NullableOption<boolean>;
+        initialDetectionDateTime?: NullableOption<string>;
+        lastRefreshedDateTime?: NullableOption<string>;
+        lastStateChangeDateTime?: NullableOption<string>;
+        malwareCategory?: NullableOption<string>;
+        malwareDisplayName?: NullableOption<string>;
+        malwareExecutionState?: NullableOption<string>;
+        malwareId?: NullableOption<string>;
+        malwareSeverity?: NullableOption<string>;
+        malwareThreatState?: NullableOption<string>;
+        managedDeviceId?: NullableOption<string>;
+        managedDeviceName?: NullableOption<string>;
+        tenantDisplayName?: NullableOption<string>;
+        tenantId?: NullableOption<string>;
+    }
+    interface WindowsProtectionState extends microsoftgraphbeta.Entity {
+        antiMalwareVersion?: NullableOption<string>;
+        attentionRequired?: NullableOption<boolean>;
+        deviceDeleted?: NullableOption<boolean>;
+        devicePropertyRefreshDateTime?: NullableOption<string>;
+        engineVersion?: NullableOption<string>;
+        fullScanOverdue?: NullableOption<boolean>;
+        fullScanRequired?: NullableOption<boolean>;
+        lastFullScanDateTime?: NullableOption<string>;
+        lastFullScanSignatureVersion?: NullableOption<string>;
+        lastQuickScanDateTime?: NullableOption<string>;
+        lastQuickScanSignatureVersion?: NullableOption<string>;
+        lastRefreshedDateTime?: NullableOption<string>;
+        lastReportedDateTime?: NullableOption<string>;
+        malwareProtectionEnabled?: NullableOption<boolean>;
+        managedDeviceHealthState?: NullableOption<string>;
+        managedDeviceId?: NullableOption<string>;
+        managedDeviceName?: NullableOption<string>;
+        networkInspectionSystemEnabled?: NullableOption<boolean>;
+        quickScanOverdue?: NullableOption<boolean>;
+        realTimeProtectionEnabled?: NullableOption<boolean>;
+        rebootRequired?: NullableOption<boolean>;
+        signatureUpdateOverdue?: NullableOption<boolean>;
+        signatureVersion?: NullableOption<string>;
+        tenantDisplayName?: NullableOption<string>;
+        tenantId?: NullableOption<string>;
+    }
+    interface ManagedTenantOperationError {
+        error?: NullableOption<string>;
+        tenantId?: string;
+    }
+    interface ManagedTenantExecutionError extends ManagedTenantOperationError {
+        errorDetails?: NullableOption<string>;
+        nodeId?: number;
+        rawToken?: NullableOption<string>;
+        statementIndex?: number;
+    }
+// tslint:disable-next-line: no-empty-interface
+    interface ManagedTenantGenericError extends ManagedTenantOperationError {}
+    interface ManagementActionDeploymentStatus {
+        managementActionId?: NullableOption<string>;
+        managementTemplateId?: NullableOption<string>;
+        status?: NullableOption<ManagementActionStatus>;
+        workloadActionDeploymentStatuses?: NullableOption<WorkloadActionDeploymentStatus[]>;
+    }
+    interface WorkloadActionDeploymentStatus {
+        actionId?: NullableOption<string>;
+        deployedPolicyId?: NullableOption<string>;
+        error?: NullableOption<microsoftgraphbeta.GenericError>;
+        lastDeploymentDateTime?: string;
+        status?: NullableOption<WorkloadActionStatus>;
+    }
+    interface ManagementActionInfo {
+        managementActionId?: string;
+        managementTemplateId?: NullableOption<string>;
+    }
+    interface ManagementIntentInfo {
+        managementIntentDisplayName?: NullableOption<string>;
+        managementIntentId?: NullableOption<string>;
+        managementTemplates?: NullableOption<ManagementTemplateDetailedInfo[]>;
+    }
+    interface ManagementTemplateDetailedInfo {
+        category?: NullableOption<ManagementCategory>;
+        displayName?: NullableOption<string>;
+        managementTemplateId?: NullableOption<string>;
+    }
+    interface Setting {
+        displayName?: NullableOption<string>;
+        jsonValue?: NullableOption<string>;
+        overwriteAllowed?: boolean;
+        valueType?: ManagementParameterValueType;
+    }
+    interface TemplateParameter {
+        description?: NullableOption<string>;
+        displayName?: NullableOption<string>;
+        jsonAllowedValues?: NullableOption<string>;
+        jsonDefaultValue?: NullableOption<string>;
+        valueType?: ManagementParameterValueType;
+    }
+    interface TenantContactInformation {
+        email?: NullableOption<string>;
+        name?: NullableOption<string>;
+        notes?: NullableOption<string>;
+        phone?: NullableOption<string>;
+        title?: NullableOption<string>;
+    }
+    interface TenantContract {
+        contractType?: NullableOption<number>;
+        defaultDomainName?: NullableOption<string>;
+        displayName?: NullableOption<string>;
+    }
+    interface TenantInfo {
+        tenantId?: NullableOption<string>;
+    }
+    interface TenantStatusInformation {
+        delegatedPrivilegeStatus?: NullableOption<DelegatedPrivilegeStatus>;
+        lastDelegatedPrivilegeRefreshDateTime?: NullableOption<string>;
+        offboardedByUserId?: NullableOption<string>;
+        offboardedDateTime?: NullableOption<string>;
+        onboardedByUserId?: NullableOption<string>;
+        onboardedDateTime?: NullableOption<string>;
+        onboardingStatus?: NullableOption<TenantOnboardingStatus>;
+        workloadStatuses?: NullableOption<WorkloadStatus[]>;
+    }
+    interface WorkloadStatus {
+        displayName?: NullableOption<string>;
+        offboardedDateTime?: NullableOption<string>;
+        onboardedDateTime?: NullableOption<string>;
+        onboardingStatus?: WorkloadOnboardingStatus;
+    }
+    interface WorkloadAction {
+        actionId?: NullableOption<string>;
+        category?: NullableOption<WorkloadActionCategory>;
+        description?: NullableOption<string>;
+        displayName?: NullableOption<string>;
+        service?: NullableOption<string>;
+        settings?: NullableOption<Setting[]>;
+    }
+}
 export namespace ExternalConnectors {
     type AccessType = "grant" | "deny" | "unknownFutureValue";
     type AclType = "user" | "group" | "everyone" | "everyoneExceptGuests" | "unknownFutureValue";
@@ -43451,191 +43873,5 @@ export namespace WindowsUpdates {
     interface WindowsDeploymentSettings extends DeploymentSettings {
         // Settings governing the user's update experience on a device.
         userExperience?: NullableOption<UserExperienceSettings>;
-    }
-}
-export namespace ManagedTenants {
-    interface ManagedTenant extends microsoftgraphbeta.Entity {
-        aggregatedPolicyCompliances?: NullableOption<AggregatedPolicyCompliance[]>;
-        cloudPcConnections?: NullableOption<CloudPcConnection[]>;
-        cloudPcDevices?: NullableOption<CloudPcDevice[]>;
-        cloudPcsOverview?: NullableOption<CloudPcOverview[]>;
-        conditionalAccessPolicyCoverages?: NullableOption<ConditionalAccessPolicyCoverage[]>;
-        credentialUserRegistrationsSummaries?: NullableOption<CredentialUserRegistrationsSummary[]>;
-        deviceCompliancePolicySettingStateSummaries?: NullableOption<DeviceCompliancePolicySettingStateSummary[]>;
-        managedDeviceCompliances?: NullableOption<ManagedDeviceCompliance[]>;
-        managedDeviceComplianceTrends?: NullableOption<ManagedDeviceComplianceTrend[]>;
-        riskyUsers?: NullableOption<RiskyUser[]>;
-        windowsDeviceMalwareStates?: NullableOption<WindowsDeviceMalwareState[]>;
-        windowsProtectionStates?: NullableOption<WindowsProtectionState[]>;
-    }
-    interface AggregatedPolicyCompliance extends microsoftgraphbeta.Entity {
-        compliancePolicyId?: NullableOption<string>;
-        compliancePolicyName?: NullableOption<string>;
-        compliancePolicyPlatform?: NullableOption<string>;
-        compliancePolicyType?: NullableOption<string>;
-        lastRefreshedDateTime?: NullableOption<string>;
-        numberOfCompliantDevices?: NullableOption<number>;
-        numberOfErrorDevices?: NullableOption<number>;
-        numberOfNonCompliantDevices?: NullableOption<number>;
-        policyModifiedDateTime?: NullableOption<string>;
-        tenantDisplayName?: NullableOption<string>;
-        tenantId?: NullableOption<string>;
-    }
-    interface CloudPcConnection extends microsoftgraphbeta.Entity {
-        displayName?: NullableOption<string>;
-        healthCheckStatus?: NullableOption<string>;
-        lastRefreshedDateTime?: NullableOption<string>;
-        tenantDisplayName?: NullableOption<string>;
-        tenantId?: NullableOption<string>;
-    }
-    interface CloudPcDevice extends microsoftgraphbeta.Entity {
-        cloudPcStatus?: NullableOption<string>;
-        displayName?: NullableOption<string>;
-        lastRefreshedDateTime?: NullableOption<string>;
-        managedDeviceId?: NullableOption<string>;
-        managedDeviceName?: NullableOption<string>;
-        provisioningPolicyId?: NullableOption<string>;
-        servicePlanName?: NullableOption<string>;
-        tenantDisplayName?: NullableOption<string>;
-        tenantId?: NullableOption<string>;
-        userPrincipalName?: NullableOption<string>;
-    }
-    interface CloudPcOverview {
-        lastRefreshedDateTime?: NullableOption<string>;
-        numberOfCloudPcConnectionStatusFailed?: NullableOption<number>;
-        numberOfCloudPcConnectionStatusPassed?: NullableOption<number>;
-        numberOfCloudPcConnectionStatusPending?: NullableOption<number>;
-        numberOfCloudPcConnectionStatusRunning?: NullableOption<number>;
-        numberOfCloudPcConnectionStatusUnkownFutureValue?: NullableOption<number>;
-        numberOfCloudPcStatusDeprovisioning?: NullableOption<number>;
-        numberOfCloudPcStatusFailed?: NullableOption<number>;
-        numberOfCloudPcStatusInGracePeriod?: NullableOption<number>;
-        numberOfCloudPcStatusNotProvisioned?: NullableOption<number>;
-        numberOfCloudPcStatusProvisioned?: NullableOption<number>;
-        numberOfCloudPcStatusProvisioning?: NullableOption<number>;
-        numberOfCloudPcStatusUnknown?: NullableOption<number>;
-        numberOfCloudPcStatusUpgrading?: NullableOption<number>;
-        tenantDisplayName?: NullableOption<string>;
-        tenantId?: string;
-        totalCloudPcConnectionStatus?: NullableOption<number>;
-        totalCloudPcStatus?: NullableOption<number>;
-    }
-    interface ConditionalAccessPolicyCoverage extends microsoftgraphbeta.Entity {
-        conditionalAccessPolicyState?: NullableOption<string>;
-        latestPolicyModifiedDateTime?: NullableOption<string>;
-        requiresDeviceCompliance?: NullableOption<boolean>;
-        tenantDisplayName?: NullableOption<string>;
-    }
-    interface CredentialUserRegistrationsSummary extends microsoftgraphbeta.Entity {
-        lastRefreshedDateTime?: NullableOption<string>;
-        mfaAndSsprCapableUserCount?: NullableOption<number>;
-        mfaConditionalAccessPolicyState?: NullableOption<string>;
-        mfaRegisteredUserCount?: NullableOption<number>;
-        securityDefaultsEnabled?: NullableOption<boolean>;
-        ssprEnabledUserCount?: NullableOption<number>;
-        ssprRegisteredUserCount?: NullableOption<number>;
-        tenantDisplayName?: NullableOption<string>;
-        tenantId?: NullableOption<string>;
-        totalUserCount?: NullableOption<number>;
-    }
-    interface DeviceCompliancePolicySettingStateSummary extends microsoftgraphbeta.Entity {
-        conflictDeviceCount?: NullableOption<number>;
-        errorDeviceCount?: NullableOption<number>;
-        failedDeviceCount?: NullableOption<number>;
-        intuneAccountId?: NullableOption<string>;
-        intuneSettingId?: NullableOption<string>;
-        lastRefreshedDateTime?: NullableOption<string>;
-        notApplicableDeviceCount?: NullableOption<number>;
-        pendingDeviceCount?: NullableOption<number>;
-        policyType?: NullableOption<string>;
-        settingName?: NullableOption<string>;
-        succeededDeviceCount?: NullableOption<number>;
-        tenantDisplayName?: NullableOption<string>;
-        tenantId?: NullableOption<string>;
-    }
-    interface ManagedDeviceCompliance extends microsoftgraphbeta.Entity {
-        complianceStatus?: NullableOption<string>;
-        deviceType?: NullableOption<string>;
-        inGracePeriodUntilDateTime?: NullableOption<string>;
-        lastRefreshedDateTime?: NullableOption<string>;
-        lastSyncDateTime?: NullableOption<string>;
-        managedDeviceId?: NullableOption<string>;
-        managedDeviceName?: NullableOption<string>;
-        manufacturer?: NullableOption<string>;
-        model?: NullableOption<string>;
-        osDescription?: NullableOption<string>;
-        osVersion?: NullableOption<string>;
-        ownerType?: NullableOption<string>;
-        tenantDisplayName?: NullableOption<string>;
-        tenantId?: NullableOption<string>;
-    }
-    interface ManagedDeviceComplianceTrend extends microsoftgraphbeta.Entity {
-        compliantDeviceCount?: NullableOption<number>;
-        configManagerDeviceCount?: NullableOption<number>;
-        countDateTime?: NullableOption<string>;
-        errorDeviceCount?: NullableOption<number>;
-        inGracePeriodDeviceCount?: NullableOption<number>;
-        noncompliantDeviceCount?: NullableOption<number>;
-        tenantDisplayName?: NullableOption<string>;
-        tenantId?: NullableOption<string>;
-        unknownDeviceCount?: NullableOption<number>;
-    }
-    interface RiskyUser extends microsoftgraphbeta.Entity {
-        isDeleted?: NullableOption<boolean>;
-        lastRefreshedDateTime?: NullableOption<string>;
-        riskDetail?: NullableOption<string>;
-        riskLastUpdatedDateTime?: NullableOption<string>;
-        riskLevel?: NullableOption<string>;
-        riskState?: NullableOption<string>;
-        tenantDisplayName?: NullableOption<string>;
-        tenantId?: NullableOption<string>;
-        userDisplayName?: NullableOption<string>;
-        userId?: NullableOption<string>;
-        userPrincipalName?: NullableOption<string>;
-    }
-    interface WindowsDeviceMalwareState extends microsoftgraphbeta.Entity {
-        additionalInformationUrl?: NullableOption<string>;
-        detectionCount?: NullableOption<number>;
-        deviceDeleted?: NullableOption<boolean>;
-        initialDetectionDateTime?: NullableOption<string>;
-        lastRefreshedDateTime?: NullableOption<string>;
-        lastStateChangeDateTime?: NullableOption<string>;
-        malwareCategory?: NullableOption<string>;
-        malwareDisplayName?: NullableOption<string>;
-        malwareExecutionState?: NullableOption<string>;
-        malwareId?: NullableOption<string>;
-        malwareSeverity?: NullableOption<string>;
-        malwareThreatState?: NullableOption<string>;
-        managedDeviceId?: NullableOption<string>;
-        managedDeviceName?: NullableOption<string>;
-        tenantDisplayName?: NullableOption<string>;
-        tenantId?: NullableOption<string>;
-    }
-    interface WindowsProtectionState extends microsoftgraphbeta.Entity {
-        antiMalwareVersion?: NullableOption<string>;
-        attentionRequired?: NullableOption<boolean>;
-        deviceDeleted?: NullableOption<boolean>;
-        devicePropertyRefreshDateTime?: NullableOption<string>;
-        engineVersion?: NullableOption<string>;
-        fullScanOverdue?: NullableOption<boolean>;
-        fullScanRequired?: NullableOption<boolean>;
-        lastFullScanDateTime?: NullableOption<string>;
-        lastFullScanSignatureVersion?: NullableOption<string>;
-        lastQuickScanDateTime?: NullableOption<string>;
-        lastQuickScanSignatureVersion?: NullableOption<string>;
-        lastRefreshedDateTime?: NullableOption<string>;
-        lastReportedDateTime?: NullableOption<string>;
-        malwareProtectionEnabled?: NullableOption<boolean>;
-        managedDeviceHealthState?: NullableOption<string>;
-        managedDeviceId?: NullableOption<string>;
-        managedDeviceName?: NullableOption<string>;
-        networkInspectionSystemEnabled?: NullableOption<boolean>;
-        quickScanOverdue?: NullableOption<boolean>;
-        realTimeProtectionEnabled?: NullableOption<boolean>;
-        rebootRequired?: NullableOption<boolean>;
-        signatureUpdateOverdue?: NullableOption<boolean>;
-        signatureVersion?: NullableOption<string>;
-        tenantDisplayName?: NullableOption<string>;
-        tenantId?: NullableOption<string>;
     }
 }
