@@ -1,11 +1,10 @@
-// Project: https://github.com/microsoftgraph/msgraph-typescript-typings
+// Project: https://github.com/microsoftgraph/msgraph-beta-typescript-typings
 // Definitions by: Microsoft Graph Team <https://github.com/microsoftgraph>
 //                 Michael Mainer <https://github.com/MIchaelMainer>
 //                 Peter Ombwa <https://github.com/peombwa>
 //                 Mustafa Zengin <https://github.com/zengin>
 //                 DeVere Dyett <https://github.com/ddyett>
 //                 Nikitha Udaykumar Chettiar <https://github.com/nikithauc>
-// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 2.1
 
 export as namespace microsoftgraphbeta;
@@ -5462,7 +5461,7 @@ export interface AppConsentRequest extends Entity {
     // The identifier of the application. Required. Supports $filter (eq only) and $orderby.
     appId?: string;
     /**
-     * The consent type of the request. Possible values are: Static and Dynamic. These represent static and dynamic
+     * The consent type of the request. Possible values are: Static and Dynamic. These represent static and dynamic
      * permissions, respectively, requested in the consent workflow. Supports $filter (eq only) and $orderby. Required.
      */
     consentType?: NullableOption<string>;
@@ -7651,15 +7650,15 @@ export interface CloudPC extends Entity {
     userPrincipalName?: NullableOption<string>;
 }
 export interface CloudPcAuditEvent extends Entity {
-    // Friendly name of the activity. Optional.
+    // Friendly name of the activity. Optional.
     activity?: NullableOption<string>;
     // The date time in UTC when the activity was performed. Read-only.
     activityDateTime?: string;
-    // The HTTP operation type of the activity. Possible values include create, delete, patch and other. Read-only.
+    // The HTTP operation type of the activity. Possible values include create, delete, patch and other. Read-only.
     activityOperationType?: CloudPcAuditActivityOperationType;
-    // The result of the activity. Read-only.
+    // The result of the activity. Read-only.
     activityResult?: CloudPcAuditActivityResult;
-    // The type of activity that was performed. Read-only.
+    // The type of activity that was performed. Read-only.
     activityType?: string;
     // Azure AD user and application associated with the audit event. Read-only.
     actor?: CloudPcAuditActor;
@@ -7667,11 +7666,11 @@ export interface CloudPcAuditEvent extends Entity {
     category?: CloudPcAuditCategory;
     // Component name. Read-only.
     componentName?: string;
-    // The client request identifier, used to correlate activity within the system. Read-only.
+    // The client request identifier, used to correlate activity within the system. Read-only.
     correlationId?: string;
     // Event display name. Read-only.
     displayName?: string;
-    // List of cloudPcAuditResource objects. Read-only.
+    // List of cloudPcAuditResource objects. Read-only.
     resources?: CloudPcAuditResource[];
 }
 export interface CloudPcDeviceImage extends Entity {
@@ -7800,7 +7799,7 @@ export interface CloudPcUserSetting extends Entity {
     /**
      * The last date and time the setting was modified. The Timestamp type represents the date and time information using ISO
      * 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 looks like
-     * this: '2014-01-01T00:00:00Z'.
+     * this: '2014-01-01T00:00:00Z'.
      */
     lastModifiedDateTime?: NullableOption<string>;
     /**
@@ -7810,7 +7809,7 @@ export interface CloudPcUserSetting extends Entity {
     localAdminEnabled?: NullableOption<boolean>;
     /**
      * Indicates whether the self-service option is enabled. Default value is false. To enable the self-service option, change
-     * the setting to true. If the self-service option is enabled, the end user is allowed to perform some self-service
+     * the setting to true. If the self-service option is enabled, the end user is allowed to perform some self-service
      * operations, such as upgrading the cloud PC through the end user portal.
      */
     selfServiceEnabled?: NullableOption<boolean>;
@@ -22874,7 +22873,7 @@ export interface Windows10GeneralConfiguration extends DeviceConfiguration {
     appManagementMSIAllowUserControlOverInstall?: boolean;
     // This policy setting directs Windows Installer to use elevated permissions when it installs any program on the system.
     appManagementMSIAlwaysInstallWithElevatedPrivileges?: boolean;
-    // List of semi-colon delimited Package Family Names of Windows apps. Listed Windows apps are to be launched after logon.​
+    // List of semi-colon delimited Package Family Names of Windows apps. Listed Windows apps are to be launched after logon.
     appManagementPackageFamilyNamesToLaunchAfterLogOn?: NullableOption<string[]>;
     /**
      * Indicates whether apps from AppX packages signed with a trusted certificate can be side loaded. Possible values are:
