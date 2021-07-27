@@ -1,10 +1,11 @@
-// Project: https://github.com/microsoftgraph/msgraph-beta-typescript-typings
+// Project: https://github.com/microsoftgraph/msgraph-typescript-typings
 // Definitions by: Microsoft Graph Team <https://github.com/microsoftgraph>
 //                 Michael Mainer <https://github.com/MIchaelMainer>
 //                 Peter Ombwa <https://github.com/peombwa>
 //                 Mustafa Zengin <https://github.com/zengin>
 //                 DeVere Dyett <https://github.com/ddyett>
 //                 Nikitha Udaykumar Chettiar <https://github.com/nikithauc>
+// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 2.1
 
 export as namespace microsoftgraphbeta;
@@ -4053,9 +4054,8 @@ export interface User extends DirectoryObject {
     licenseAssignmentStates?: NullableOption<LicenseAssignmentState[]>;
     /**
      * The SMTP address for the user, for example, admin@contoso.com. Changes to this property will also update the user's
-     * proxyAddresses collection to include the value as an SMTP address. While this property can contain accent characters,
-     * using them can cause access issues with other Microsoft applications for the user. Supports $filter (eq, ne, NOT, ge,
-     * le, in, startsWith, endsWith).
+     * proxyAddresses collection to include the value as an SMTP address. This property cannot contain accent characters.
+     * Supports $filter (eq, ne, NOT, ge, le, in, startsWith, endsWith).
      */
     mail?: NullableOption<string>;
     /**
@@ -4132,9 +4132,8 @@ export interface User extends DirectoryObject {
      */
     onPremisesUserPrincipalName?: NullableOption<string>;
     /**
-     * A list of additional email addresses for the user; for example: ['bob@contoso.com', 'Robert@fabrikam.com'].NOTE: While
-     * this property can contain accent characters, they can cause access issues to first-party applications for the
-     * user.Supports $filter (eq, NOT, ge, le, in, startsWith).
+     * A list of additional email addresses for the user; for example: ['bob@contoso.com', 'Robert@fabrikam.com'].NOTE: This
+     * property cannot contain accent characters.Supports $filter (eq, NOT, ge, le, in, startsWith).
      */
     otherMails?: string[];
     /**
@@ -4219,8 +4218,8 @@ export interface User extends DirectoryObject {
      * standard RFC 822. By convention, this should map to the user's email name. The general format is alias@domain, where
      * domain must be present in the tenant's collection of verified domains. This property is required when a user is
      * created. The verified domains for the tenant can be accessed from the verifiedDomains property of organization.NOTE:
-     * While this property can contain accent characters, they can cause access issues to first-party applications for the
-     * user. Supports $filter (eq, ne, NOT, ge, le, in, startsWith, endsWith) and $orderBy.
+     * This property cannot contain accent characters. Supports $filter (eq, ne, NOT, ge, le, in, startsWith, endsWith) and
+     * $orderBy.
      */
     userPrincipalName?: NullableOption<string>;
     /**
@@ -5461,7 +5460,7 @@ export interface AppConsentRequest extends Entity {
     // The identifier of the application. Required. Supports $filter (eq only) and $orderby.
     appId?: string;
     /**
-     * The consent type of the request. Possible values are: Static and Dynamic. These represent static and dynamic
+     * The consent type of the request. Possible values are: Static and Dynamic. These represent static and dynamic
      * permissions, respectively, requested in the consent workflow. Supports $filter (eq only) and $orderby. Required.
      */
     consentType?: NullableOption<string>;
@@ -7088,27 +7087,51 @@ export interface MicrosoftAuthenticatorAuthenticationMethodTarget extends Authen
     featureSettings?: NullableOption<AuthenticatorAppFeatureSettings>;
 }
 export interface PolicyRoot {
+    /**
+     * The authentication methods and the users that are allowed to use them to sign in and perform multi-factor
+     * authentication (MFA) in Azure Active Directory (Azure AD).
+     */
     authenticationMethodsPolicy?: NullableOption<AuthenticationMethodsPolicy>;
+    // The policy configuration of the self-service sign-up experience of external users.
     authenticationFlowsPolicy?: NullableOption<AuthenticationFlowsPolicy>;
+    // The Azure AD B2C policies that define how end users register via local accounts.
     b2cAuthenticationMethodsPolicy?: NullableOption<B2cAuthenticationMethodsPolicy>;
+    // The policy that controls the idle time out for web sessions for applications.
     activityBasedTimeoutPolicies?: NullableOption<ActivityBasedTimeoutPolicy[]>;
     appManagementPolicies?: NullableOption<AppManagementPolicy[]>;
+    // The policy that controls Azure AD authorization settings.
     authorizationPolicy?: NullableOption<AuthorizationPolicy[]>;
+    /**
+     * The claim-mapping policies for WS-Fed, SAML, OAuth 2.0, and OpenID Connect protocols, for tokens issued to a specific
+     * application.
+     */
     claimsMappingPolicies?: NullableOption<ClaimsMappingPolicy[]>;
     defaultAppManagementPolicy?: NullableOption<TenantAppManagementPolicy>;
+    // The policy to control Azure AD authentication behavior for federated users.
     homeRealmDiscoveryPolicies?: NullableOption<HomeRealmDiscoveryPolicy[]>;
+    // The policy that specifies the conditions under which consent can be granted.
     permissionGrantPolicies?: NullableOption<PermissionGrantPolicy[]>;
+    // The policy that specifies the characteristics of SAML tokens issued by Azure AD.
     tokenIssuancePolicies?: NullableOption<TokenIssuancePolicy[]>;
+    // The policy that controls the lifetime of a JWT access token, an ID token, or a SAML 1.1/2.0 token issued by Azure AD.
     tokenLifetimePolicies?: NullableOption<TokenLifetimePolicy[]>;
+    // The feature rollout policy associated with a directory object.
     featureRolloutPolicies?: NullableOption<FeatureRolloutPolicy[]>;
+    // The policy that contains directory-level access review settings.
     accessReviewPolicy?: NullableOption<AccessReviewPolicy>;
+    // The policy by which consent requests are created and managed for the entire tenant.
     adminConsentRequestPolicy?: NullableOption<AdminConsentRequestPolicy>;
     directoryRoleAccessReviewPolicy?: NullableOption<DirectoryRoleAccessReviewPolicy>;
+    // The custom rules that define an access scenario.
     conditionalAccessPolicies?: NullableOption<ConditionalAccessPolicy[]>;
+    // The policy that represents the security defaults that protect against common attacks.
     identitySecurityDefaultsEnforcementPolicy?: NullableOption<IdentitySecurityDefaultsEnforcementPolicy>;
+    // The policy that defines auto-enrollment configuration for a mobility management (MDM or MAM) application.
     mobileAppManagementPolicies?: NullableOption<MobilityManagementPolicy[]>;
     mobileDeviceManagementPolicies?: NullableOption<MobilityManagementPolicy[]>;
+    // Represents the role management policies.
     roleManagementPolicies?: NullableOption<UnifiedRoleManagementPolicy[]>;
+    // Represents the role management policy assignments.
     roleManagementPolicyAssignments?: NullableOption<UnifiedRoleManagementPolicyAssignment[]>;
 }
 export interface AuthenticationFlowsPolicy extends Entity {
@@ -7610,7 +7633,7 @@ export interface AppScope extends Entity {
     type?: NullableOption<string>;
 }
 export interface CloudPC extends Entity {
-    // The cloud PC display name.
+    // The Cloud PC display name.
     displayName?: NullableOption<string>;
     /**
      * The date and time when the grace period ends and reprovisioning/deprovisioning happens. Required only if status is
@@ -7618,47 +7641,47 @@ export interface CloudPC extends Entity {
      * UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
      */
     gracePeriodEndDateTime?: NullableOption<string>;
-    // Name of the OS image that's on the cloud PC.
+    // Name of the OS image that's on the Cloud PC.
     imageDisplayName?: NullableOption<string>;
     /**
-     * The cloud PC's last modified date and time. The Timestamp type represents date and time information using ISO 8601
+     * The Cloud PC's last modified date and time. The Timestamp type represents date and time information using ISO 8601
      * format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
      */
     lastModifiedDateTime?: string;
-    // The cloud PC’s Intune device ID.
+    // The Cloud PC’s Intune device ID.
     managedDeviceId?: NullableOption<string>;
-    // The cloud PC’s Intune device name.
+    // The Cloud PC’s Intune device name.
     managedDeviceName?: NullableOption<string>;
-    // The on-premises connection that is applied during provisioning of cloud PCs.
+    // The on-premises connection that is applied during provisioning of Cloud PCs.
     onPremisesConnectionName?: NullableOption<string>;
-    // The cloud PC's provisioning policy ID.
+    // The Cloud PC's provisioning policy ID.
     provisioningPolicyId?: NullableOption<string>;
-    // The provisioning policy that is applied during provisioning of cloud PCs.
+    // The provisioning policy that is applied during provisioning of Cloud PCs.
     provisioningPolicyName?: NullableOption<string>;
-    // The cloud PC's service plan ID.
+    // The Cloud PC's service plan ID.
     servicePlanId?: NullableOption<string>;
-    // The cloud PC's service plan name.
+    // The Cloud PC's service plan name.
     servicePlanName?: NullableOption<string>;
     /**
-     * Status of the cloud PC. Possible values are: notProvisioned, provisioning, provisioned, upgrading, inGracePeriod,
+     * Status of the Cloud PC. Possible values are: notProvisioned, provisioning, provisioned, upgrading, inGracePeriod,
      * deprovisioning, failed.
      */
     status?: CloudPcStatus;
-    // The details of the cloud PC status.
+    // The details of the Cloud PC status.
     statusDetails?: NullableOption<CloudPcStatusDetails>;
-    // The user principal name (UPN) of the user assigned to the cloud PC.
+    // The user principal name (UPN) of the user assigned to the Cloud PC.
     userPrincipalName?: NullableOption<string>;
 }
 export interface CloudPcAuditEvent extends Entity {
-    // Friendly name of the activity. Optional.
+    // Friendly name of the activity. Optional.
     activity?: NullableOption<string>;
     // The date time in UTC when the activity was performed. Read-only.
     activityDateTime?: string;
-    // The HTTP operation type of the activity. Possible values include create, delete, patch and other. Read-only.
+    // The HTTP operation type of the activity. Possible values include create, delete, patch and other. Read-only.
     activityOperationType?: CloudPcAuditActivityOperationType;
-    // The result of the activity. Read-only.
+    // The result of the activity. Read-only.
     activityResult?: CloudPcAuditActivityResult;
-    // The type of activity that was performed. Read-only.
+    // The type of activity that was performed. Read-only.
     activityType?: string;
     // Azure AD user and application associated with the audit event. Read-only.
     actor?: CloudPcAuditActor;
@@ -7666,11 +7689,11 @@ export interface CloudPcAuditEvent extends Entity {
     category?: CloudPcAuditCategory;
     // Component name. Read-only.
     componentName?: string;
-    // The client request identifier, used to correlate activity within the system. Read-only.
+    // The client request identifier, used to correlate activity within the system. Read-only.
     correlationId?: string;
     // Event display name. Read-only.
     displayName?: string;
-    // List of cloudPcAuditResource objects. Read-only.
+    // List of cloudPcAuditResource objects. Read-only.
     resources?: CloudPcAuditResource[];
 }
 export interface CloudPcDeviceImage extends Entity {
@@ -7690,7 +7713,7 @@ export interface CloudPcDeviceImage extends Entity {
      * '/subscriptions/{subscription-id}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/images/{imageName}'.
      */
     sourceImageResourceId?: NullableOption<string>;
-    // The status of the image on cloud PC. Possible values are: pending, ready, failed.
+    // The status of the image on Cloud PC. Possible values are: pending, ready, failed.
     status?: NullableOption<CloudPcDeviceImageStatus>;
     /**
      * The details of the image's status, which indicates why the upload failed, if applicable. Possible values are:
@@ -7763,15 +7786,15 @@ export interface CloudPcProvisioningPolicy extends Entity {
     // The display name for the OS image you’re provisioning.
     imageDisplayName?: NullableOption<string>;
     /**
-     * The ID of the OS image you want to provision on cloud PCs. The format for a gallery type image is:
+     * The ID of the OS image you want to provision on Cloud PCs. The format for a gallery type image is:
      * {publisher_offer_sku}.
      */
     imageId?: NullableOption<string>;
-    // The type of OS image (custom or gallery) you want to provision on cloud PCs. Possible values are: gallery, custom.
+    // The type of OS image (custom or gallery) you want to provision on Cloud PCs. Possible values are: gallery, custom.
     imageType?: CloudPcProvisioningPolicyImageType;
     /**
-     * The ID of the cloudPcOnPremisesConnection. To ensure that cloud PCs have network connectivity and that they domain
-     * join, choose a connection with a virtual network that’s validated by the cloud PC service.
+     * The ID of the cloudPcOnPremisesConnection. To ensure that Cloud PCs have network connectivity and that they domain
+     * join, choose a connection with a virtual network that’s validated by the Cloud PC service.
      */
     onPremisesConnectionId?: NullableOption<string>;
     /**
@@ -7799,18 +7822,18 @@ export interface CloudPcUserSetting extends Entity {
     /**
      * The last date and time the setting was modified. The Timestamp type represents the date and time information using ISO
      * 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 looks like
-     * this: '2014-01-01T00:00:00Z'.
+     * this: '2014-01-01T00:00:00Z'.
      */
     lastModifiedDateTime?: NullableOption<string>;
     /**
      * Indicates whether the local admin option is enabled. Default value is false. To enable the local admin option, change
-     * the setting to true. If the local admin option is enabled, the end user can be an admin of the cloud PC device.
+     * the setting to true. If the local admin option is enabled, the end user can be an admin of the Cloud PC device.
      */
     localAdminEnabled?: NullableOption<boolean>;
     /**
      * Indicates whether the self-service option is enabled. Default value is false. To enable the self-service option, change
-     * the setting to true. If the self-service option is enabled, the end user is allowed to perform some self-service
-     * operations, such as upgrading the cloud PC through the end user portal.
+     * the setting to true. If the self-service option is enabled, the end user is allowed to perform some self-service
+     * operations, such as upgrading the Cloud PC through the end user portal.
      */
     selfServiceEnabled?: NullableOption<boolean>;
     /**
@@ -8186,11 +8209,11 @@ export interface VirtualEndpoint extends Entity {
     auditEvents?: NullableOption<CloudPcAuditEvent[]>;
     // Cloud managed virtual desktops.
     cloudPCs?: NullableOption<CloudPC[]>;
-    // The image resource on cloud PC.
+    // The image resource on Cloud PC.
     deviceImages?: NullableOption<CloudPcDeviceImage[]>;
     /**
      * A defined collection of Azure resource information that can be used to establish on-premises network connectivity for
-     * cloud PCs.
+     * Cloud PCs.
      */
     onPremisesConnections?: NullableOption<CloudPcOnPremisesConnection[]>;
     // Cloud PC provisioning policy.
@@ -11712,7 +11735,7 @@ export interface OpenIdConnectIdentityProvider extends IdentityProviderBase {
      * The client secret for the application obtained when registering the application with the identity provider. The
      * clientSecret has a dependency on responseType. When responseType is code, a secret is required for the auth code
      * exchange.When responseType is id_token the secret is not required because there is no code exchange. The id_token is
-     * returned directly from the authorization response. This is write-only. A read operation returns '****'.
+     * returned directly from the authorization response. This is write-only. A read operation returns ****.
      */
     clientSecret?: NullableOption<string>;
     /**
@@ -11797,7 +11820,7 @@ export interface SocialIdentityProvider extends IdentityProviderBase {
     clientId?: NullableOption<string>;
     /**
      * The client secret for the application that is obtained when the application is registered with the identity provider.
-     * This is write-only. A read operation returns '****'. Required.
+     * This is write-only. A read operation returns ****. Required.
      */
     clientSecret?: NullableOption<string>;
     /**
@@ -22873,7 +22896,7 @@ export interface Windows10GeneralConfiguration extends DeviceConfiguration {
     appManagementMSIAllowUserControlOverInstall?: boolean;
     // This policy setting directs Windows Installer to use elevated permissions when it installs any program on the system.
     appManagementMSIAlwaysInstallWithElevatedPrivileges?: boolean;
-    // List of semi-colon delimited Package Family Names of Windows apps. Listed Windows apps are to be launched after logon.
+    // List of semi-colon delimited Package Family Names of Windows apps. Listed Windows apps are to be launched after logon.​
     appManagementPackageFamilyNamesToLaunchAfterLogOn?: NullableOption<string[]>;
     /**
      * Indicates whether apps from AppX packages signed with a trusted certificate can be side loaded. Possible values are:
@@ -40822,10 +40845,18 @@ export interface TicketInfo {
     ticketSystem?: NullableOption<string>;
 }
 export interface UnifiedRoleManagementPolicyRuleTarget {
+    // The caller for the policy rule target. Allowed values are: None, Admin, EndUser.
     caller?: NullableOption<string>;
+    // The list of settings which are enforced and cannot be overridden by child scopes. Use All for all settings.
     enforcedSettings?: NullableOption<string[]>;
+    // The list of settings which can be inherited by child scopes. Use All for all settings.
     inheritableSettings?: NullableOption<string[]>;
+    // The level for the policy rule target. Allowed values are: Eligibility, Assignment.
     level?: NullableOption<string>;
+    /**
+     * The operations for policy rule target. Allowed values are: All, Activate, Deactivate, Assign, Update, Remove, Extend,
+     * Renew.
+     */
     operations?: NullableOption<string[]>;
     targetObjects?: NullableOption<DirectoryObject[]>;
 }
