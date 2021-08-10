@@ -445,7 +445,9 @@ export type EducationSynchronizationStatus =
     | "error"
     | "validationError"
     | "quarantined"
-    | "unknownFutureValue";
+    | "unknownFutureValue"
+    | "extracting"
+    | "validating";
 export type EducationUserRole = "student" | "teacher" | "none" | "unknownFutureValue" | "faculty";
 export type EducationExternalSource = "sis" | "manual" | "unknownFutureValue" | "lms";
 export type EducationGender = "female" | "male" | "other" | "unknownFutureValue";
@@ -718,13 +720,17 @@ export type SynchronizationSecret =
     | "Oauth2AuthorizationCode"
     | "Oauth2RedirectUri"
     | "ApplicationTemplateIdentifier"
+    | "Oauth2TokenExchangeUri"
+    | "Oauth2AuthorizationUri"
+    | "AuthenticationType"
     | "Server"
     | "PerformInboundEntitlementGrants"
     | "HardDeletesEnabled"
     | "SyncAgentCompatibilityKey"
     | "SyncAgentADContainer"
     | "ValidateDomain"
-    | "TestReferences";
+    | "TestReferences"
+    | "ConnectionString";
 export type SynchronizationStatusCode = "NotConfigured" | "NotRun" | "Active" | "Paused" | "Quarantine";
 export type SynchronizationTaskExecutionResult = "Succeeded" | "Failed" | "EntryLevelErrors";
 export type AccessReviewHistoryDecisionFilter =
@@ -1009,6 +1015,19 @@ export type AssignmentFilterEvaluationResult =
     | "inconclusive"
     | "failure"
     | "notEvaluated";
+export type AssignmentFilterOperator =
+    | "notSet"
+    | "equals"
+    | "notEquals"
+    | "startsWith"
+    | "notStartsWith"
+    | "contains"
+    | "notContains"
+    | "in"
+    | "notIn"
+    | "endsWith"
+    | "notEndsWith";
+export type AssignmentFilterPayloadType = "notSet" | "enrollmentRestrictions";
 export type DevicePlatformType =
     | "android"
     | "androidForWork"
@@ -1165,6 +1184,7 @@ export type AndroidWorkProfileVpnConnectionType =
     | "netMotionMobility"
     | "microsoftProtect";
 export type AppInstallControlType = "notConfigured" | "anywhere" | "storeOnly" | "recommendations" | "preferStore";
+export type AppleDeploymentChannel = "deviceChannel" | "userChannel";
 export type AppleSubjectNameFormat =
     | "commonName"
     | "commonNameAsEmail"
@@ -1985,7 +2005,8 @@ export type VpnEncryptionAlgorithmType =
     | "aes128Gcm"
     | "aes256Gcm"
     | "aes192"
-    | "aes192Gcm";
+    | "aes192Gcm"
+    | "chaCha20Poly1305";
 export type VpnIntegrityAlgorithmType = "sha2_256" | "sha1_96" | "sha1_160" | "sha2_384" | "sha2_512" | "md5";
 export type VpnLocalIdentifier = "deviceFQDN" | "empty" | "clientCertificateSubjectName";
 export type VpnOnDemandRuleConnectionAction = "connect" | "evaluateConnection" | "ignore" | "disconnect";
@@ -2233,6 +2254,15 @@ export type DeviceManagementPartnerTenantState =
     | "rejected"
     | "unresponsive";
 export type EnrollmentAvailabilityOptions = "availableWithPrompts" | "availableWithoutPrompts" | "unavailable";
+export type EnrollmentRestrictionPlatformType =
+    | "allPlatforms"
+    | "ios"
+    | "windows"
+    | "windowsPhone"
+    | "android"
+    | "androidForWork"
+    | "androidAosp"
+    | "mac";
 export type MdmAuthority = "unknown" | "intune" | "sccm" | "office365";
 export type MicrosoftStoreForBusinessPortalSelectionOptions = "none" | "companyPortal" | "privateStore";
 export type MobileThreatPartnerTenantState = "unavailable" | "available" | "enabled" | "unresponsive";
@@ -2441,7 +2471,11 @@ export type ManagedDeviceRemoteAction =
     | "customTextNotification"
     | "rebootNow"
     | "setDeviceName"
-    | "syncDevice";
+    | "syncDevice"
+    | "deprovision"
+    | "disable"
+    | "reenable"
+    | "moveDeviceToOrganizationalUnit";
 export type ManagedInstallerStatus = "disabled" | "enabled";
 export type ManagementState =
     | "managed"
@@ -2456,6 +2490,7 @@ export type ManagementState =
     | "wipeCanceled"
     | "retireCanceled"
     | "discovered";
+export type OperatingSystemUpgradeEligibility = "upgraded" | "unknown" | "notCapable" | "capable";
 export type RemediationState = "unknown" | "skipped" | "success" | "remediationFailed" | "scriptError";
 export type RemoteAction =
     | "unknown"
@@ -2710,6 +2745,7 @@ export type ManagedAppPhoneNumberRedirectLevel = "allApps" | "managedApps" | "cu
 export type ManagedAppPinCharacterSet = "numeric" | "alphanumericAndSymbol";
 export type ManagedAppRemediationAction = "block" | "wipe" | "warn";
 export type ManagedBrowserType = "notConfigured" | "microsoftEdge";
+export type TargetedManagedAppGroupType = "selectedPublicApps" | "allCoreMicrosoftApps" | "allMicrosoftApps" | "allApps";
 export type WindowsInformationProtectionEnforcementLevel =
     | "noProtection"
     | "encryptAndAuditOnly"
@@ -3000,7 +3036,798 @@ export type PrinterProcessingStateDetail =
     | "developerLow"
     | "developerEmpty"
     | "interpreterResourceUnavailable"
-    | "unknownFutureValue";
+    | "unknownFutureValue"
+    | "alertRemovalOfBinaryChangeEntry"
+    | "banderAdded"
+    | "banderAlmostEmpty"
+    | "banderAlmostFull"
+    | "banderAtLimit"
+    | "banderClosed"
+    | "banderConfigurationChange"
+    | "banderCoverClosed"
+    | "banderCoverOpen"
+    | "banderEmpty"
+    | "banderFull"
+    | "banderInterlockClosed"
+    | "banderInterlockOpen"
+    | "banderJam"
+    | "banderLifeAlmostOver"
+    | "banderLifeOver"
+    | "banderMemoryExhausted"
+    | "banderMissing"
+    | "banderMotorFailure"
+    | "banderNearLimit"
+    | "banderOffline"
+    | "banderOpened"
+    | "banderOverTemperature"
+    | "banderPowerSaver"
+    | "banderRecoverableFailure"
+    | "banderRecoverableStorage"
+    | "banderRemoved"
+    | "banderResourceAdded"
+    | "banderResourceRemoved"
+    | "banderThermistorFailure"
+    | "banderTimingFailure"
+    | "banderTurnedOff"
+    | "banderTurnedOn"
+    | "banderUnderTemperature"
+    | "banderUnrecoverableFailure"
+    | "banderUnrecoverableStorageError"
+    | "banderWarmingUp"
+    | "binderAdded"
+    | "binderAlmostEmpty"
+    | "binderAlmostFull"
+    | "binderAtLimit"
+    | "binderClosed"
+    | "binderConfigurationChange"
+    | "binderCoverClosed"
+    | "binderCoverOpen"
+    | "binderEmpty"
+    | "binderFull"
+    | "binderInterlockClosed"
+    | "binderInterlockOpen"
+    | "binderJam"
+    | "binderLifeAlmostOver"
+    | "binderLifeOver"
+    | "binderMemoryExhausted"
+    | "binderMissing"
+    | "binderMotorFailure"
+    | "binderNearLimit"
+    | "binderOffline"
+    | "binderOpened"
+    | "binderOverTemperature"
+    | "binderPowerSaver"
+    | "binderRecoverableFailure"
+    | "binderRecoverableStorage"
+    | "binderRemoved"
+    | "binderResourceAdded"
+    | "binderResourceRemoved"
+    | "binderThermistorFailure"
+    | "binderTimingFailure"
+    | "binderTurnedOff"
+    | "binderTurnedOn"
+    | "binderUnderTemperature"
+    | "binderUnrecoverableFailure"
+    | "binderUnrecoverableStorageError"
+    | "binderWarmingUp"
+    | "cameraFailure"
+    | "chamberCooling"
+    | "chamberFailure"
+    | "chamberHeating"
+    | "chamberTemperatureHigh"
+    | "chamberTemperatureLow"
+    | "cleanerLifeAlmostOver"
+    | "cleanerLifeOver"
+    | "configurationChange"
+    | "deactivated"
+    | "deleted"
+    | "dieCutterAdded"
+    | "dieCutterAlmostEmpty"
+    | "dieCutterAlmostFull"
+    | "dieCutterAtLimit"
+    | "dieCutterClosed"
+    | "dieCutterConfigurationChange"
+    | "dieCutterCoverClosed"
+    | "dieCutterCoverOpen"
+    | "dieCutterEmpty"
+    | "dieCutterFull"
+    | "dieCutterInterlockClosed"
+    | "dieCutterInterlockOpen"
+    | "dieCutterJam"
+    | "dieCutterLifeAlmostOver"
+    | "dieCutterLifeOver"
+    | "dieCutterMemoryExhausted"
+    | "dieCutterMissing"
+    | "dieCutterMotorFailure"
+    | "dieCutterNearLimit"
+    | "dieCutterOffline"
+    | "dieCutterOpened"
+    | "dieCutterOverTemperature"
+    | "dieCutterPowerSaver"
+    | "dieCutterRecoverableFailure"
+    | "dieCutterRecoverableStorage"
+    | "dieCutterRemoved"
+    | "dieCutterResourceAdded"
+    | "dieCutterResourceRemoved"
+    | "dieCutterThermistorFailure"
+    | "dieCutterTimingFailure"
+    | "dieCutterTurnedOff"
+    | "dieCutterTurnedOn"
+    | "dieCutterUnderTemperature"
+    | "dieCutterUnrecoverableFailure"
+    | "dieCutterUnrecoverableStorageError"
+    | "dieCutterWarmingUp"
+    | "extruderCooling"
+    | "extruderFailure"
+    | "extruderHeating"
+    | "extruderJam"
+    | "extruderTemperatureHigh"
+    | "extruderTemperatureLow"
+    | "fanFailure"
+    | "faxModemLifeAlmostOver"
+    | "faxModemLifeOver"
+    | "faxModemMissing"
+    | "faxModemTurnedOff"
+    | "faxModemTurnedOn"
+    | "folderAdded"
+    | "folderAlmostEmpty"
+    | "folderAlmostFull"
+    | "folderAtLimit"
+    | "folderClosed"
+    | "folderConfigurationChange"
+    | "folderCoverClosed"
+    | "folderCoverOpen"
+    | "folderEmpty"
+    | "folderFull"
+    | "folderInterlockClosed"
+    | "folderInterlockOpen"
+    | "folderJam"
+    | "folderLifeAlmostOver"
+    | "folderLifeOver"
+    | "folderMemoryExhausted"
+    | "folderMissing"
+    | "folderMotorFailure"
+    | "folderNearLimit"
+    | "folderOffline"
+    | "folderOpened"
+    | "folderOverTemperature"
+    | "folderPowerSaver"
+    | "folderRecoverableFailure"
+    | "folderRecoverableStorage"
+    | "folderRemoved"
+    | "folderResourceAdded"
+    | "folderResourceRemoved"
+    | "folderThermistorFailure"
+    | "folderTimingFailure"
+    | "folderTurnedOff"
+    | "folderTurnedOn"
+    | "folderUnderTemperature"
+    | "folderUnrecoverableFailure"
+    | "folderUnrecoverableStorageError"
+    | "folderWarmingUp"
+    | "hibernate"
+    | "holdNewJobs"
+    | "identifyPrinterRequested"
+    | "imprinterAdded"
+    | "imprinterAlmostEmpty"
+    | "imprinterAlmostFull"
+    | "imprinterAtLimit"
+    | "imprinterClosed"
+    | "imprinterConfigurationChange"
+    | "imprinterCoverClosed"
+    | "imprinterCoverOpen"
+    | "imprinterEmpty"
+    | "imprinterFull"
+    | "imprinterInterlockClosed"
+    | "imprinterInterlockOpen"
+    | "imprinterJam"
+    | "imprinterLifeAlmostOver"
+    | "imprinterLifeOver"
+    | "imprinterMemoryExhausted"
+    | "imprinterMissing"
+    | "imprinterMotorFailure"
+    | "imprinterNearLimit"
+    | "imprinterOffline"
+    | "imprinterOpened"
+    | "imprinterOverTemperature"
+    | "imprinterPowerSaver"
+    | "imprinterRecoverableFailure"
+    | "imprinterRecoverableStorage"
+    | "imprinterRemoved"
+    | "imprinterResourceAdded"
+    | "imprinterResourceRemoved"
+    | "imprinterThermistorFailure"
+    | "imprinterTimingFailure"
+    | "imprinterTurnedOff"
+    | "imprinterTurnedOn"
+    | "imprinterUnderTemperature"
+    | "imprinterUnrecoverableFailure"
+    | "imprinterUnrecoverableStorageError"
+    | "imprinterWarmingUp"
+    | "inputCannotFeedSizeSelected"
+    | "inputManualInputRequest"
+    | "inputMediaColorChange"
+    | "inputMediaFormPartsChange"
+    | "inputMediaSizeChange"
+    | "inputMediaTrayFailure"
+    | "inputMediaTrayFeedError"
+    | "inputMediaTrayJam"
+    | "inputMediaTypeChange"
+    | "inputMediaWeightChange"
+    | "inputPickRollerFailure"
+    | "inputPickRollerLifeOver"
+    | "inputPickRollerLifeWarn"
+    | "inputPickRollerMissing"
+    | "inputTrayElevationFailure"
+    | "inputTrayPositionFailure"
+    | "inserterAdded"
+    | "inserterAlmostEmpty"
+    | "inserterAlmostFull"
+    | "inserterAtLimit"
+    | "inserterClosed"
+    | "inserterConfigurationChange"
+    | "inserterCoverClosed"
+    | "inserterCoverOpen"
+    | "inserterEmpty"
+    | "inserterFull"
+    | "inserterInterlockClosed"
+    | "inserterInterlockOpen"
+    | "inserterJam"
+    | "inserterLifeAlmostOver"
+    | "inserterLifeOver"
+    | "inserterMemoryExhausted"
+    | "inserterMissing"
+    | "inserterMotorFailure"
+    | "inserterNearLimit"
+    | "inserterOffline"
+    | "inserterOpened"
+    | "inserterOverTemperature"
+    | "inserterPowerSaver"
+    | "inserterRecoverableFailure"
+    | "inserterRecoverableStorage"
+    | "inserterRemoved"
+    | "inserterResourceAdded"
+    | "inserterResourceRemoved"
+    | "inserterThermistorFailure"
+    | "inserterTimingFailure"
+    | "inserterTurnedOff"
+    | "inserterTurnedOn"
+    | "inserterUnderTemperature"
+    | "inserterUnrecoverableFailure"
+    | "inserterUnrecoverableStorageError"
+    | "inserterWarmingUp"
+    | "interlockClosed"
+    | "interpreterCartridgeAdded"
+    | "interpreterCartridgeDeleted"
+    | "interpreterComplexPageEncountered"
+    | "interpreterMemoryDecrease"
+    | "interpreterMemoryIncrease"
+    | "interpreterResourceAdded"
+    | "interpreterResourceDeleted"
+    | "lampAtEol"
+    | "lampFailure"
+    | "lampNearEol"
+    | "laserAtEol"
+    | "laserFailure"
+    | "laserNearEol"
+    | "makeEnvelopeAdded"
+    | "makeEnvelopeAlmostEmpty"
+    | "makeEnvelopeAlmostFull"
+    | "makeEnvelopeAtLimit"
+    | "makeEnvelopeClosed"
+    | "makeEnvelopeConfigurationChange"
+    | "makeEnvelopeCoverClosed"
+    | "makeEnvelopeCoverOpen"
+    | "makeEnvelopeEmpty"
+    | "makeEnvelopeFull"
+    | "makeEnvelopeInterlockClosed"
+    | "makeEnvelopeInterlockOpen"
+    | "makeEnvelopeJam"
+    | "makeEnvelopeLifeAlmostOver"
+    | "makeEnvelopeLifeOver"
+    | "makeEnvelopeMemoryExhausted"
+    | "makeEnvelopeMissing"
+    | "makeEnvelopeMotorFailure"
+    | "makeEnvelopeNearLimit"
+    | "makeEnvelopeOffline"
+    | "makeEnvelopeOpened"
+    | "makeEnvelopeOverTemperature"
+    | "makeEnvelopePowerSaver"
+    | "makeEnvelopeRecoverableFailure"
+    | "makeEnvelopeRecoverableStorage"
+    | "makeEnvelopeRemoved"
+    | "makeEnvelopeResourceAdded"
+    | "makeEnvelopeResourceRemoved"
+    | "makeEnvelopeThermistorFailure"
+    | "makeEnvelopeTimingFailure"
+    | "makeEnvelopeTurnedOff"
+    | "makeEnvelopeTurnedOn"
+    | "makeEnvelopeUnderTemperature"
+    | "makeEnvelopeUnrecoverableFailure"
+    | "makeEnvelopeUnrecoverableStorageError"
+    | "makeEnvelopeWarmingUp"
+    | "markerAdjustingPrintQuality"
+    | "markerCleanerMissing"
+    | "markerDeveloperAlmostEmpty"
+    | "markerDeveloperEmpty"
+    | "markerDeveloperMissing"
+    | "markerFuserMissing"
+    | "markerFuserThermistorFailure"
+    | "markerFuserTimingFailure"
+    | "markerInkAlmostEmpty"
+    | "markerInkEmpty"
+    | "markerInkMissing"
+    | "markerOpcMissing"
+    | "markerPrintRibbonAlmostEmpty"
+    | "markerPrintRibbonEmpty"
+    | "markerPrintRibbonMissing"
+    | "markerSupplyAlmostEmpty"
+    | "markerSupplyMissing"
+    | "markerTonerCartridgeMissing"
+    | "markerTonerMissing"
+    | "markerWasteInkReceptacleAlmostFull"
+    | "markerWasteInkReceptacleFull"
+    | "markerWasteInkReceptacleMissing"
+    | "markerWasteMissing"
+    | "markerWasteTonerReceptacleAlmostFull"
+    | "markerWasteTonerReceptacleFull"
+    | "markerWasteTonerReceptacleMissing"
+    | "materialEmpty"
+    | "materialLow"
+    | "materialNeeded"
+    | "mediaDrying"
+    | "mediaPathCannotDuplexMediaSelected"
+    | "mediaPathFailure"
+    | "mediaPathInputEmpty"
+    | "mediaPathInputFeedError"
+    | "mediaPathInputJam"
+    | "mediaPathInputRequest"
+    | "mediaPathJam"
+    | "mediaPathMediaTrayAlmostFull"
+    | "mediaPathMediaTrayFull"
+    | "mediaPathMediaTrayMissing"
+    | "mediaPathOutputFeedError"
+    | "mediaPathOutputFull"
+    | "mediaPathOutputJam"
+    | "mediaPathPickRollerFailure"
+    | "mediaPathPickRollerLifeOver"
+    | "mediaPathPickRollerLifeWarn"
+    | "mediaPathPickRollerMissing"
+    | "motorFailure"
+    | "outputMailboxSelectFailure"
+    | "outputMediaTrayFailure"
+    | "outputMediaTrayFeedError"
+    | "outputMediaTrayJam"
+    | "perforaterAdded"
+    | "perforaterAlmostEmpty"
+    | "perforaterAlmostFull"
+    | "perforaterAtLimit"
+    | "perforaterClosed"
+    | "perforaterConfigurationChange"
+    | "perforaterCoverClosed"
+    | "perforaterCoverOpen"
+    | "perforaterEmpty"
+    | "perforaterFull"
+    | "perforaterInterlockClosed"
+    | "perforaterInterlockOpen"
+    | "perforaterJam"
+    | "perforaterLifeAlmostOver"
+    | "perforaterLifeOver"
+    | "perforaterMemoryExhausted"
+    | "perforaterMissing"
+    | "perforaterMotorFailure"
+    | "perforaterNearLimit"
+    | "perforaterOffline"
+    | "perforaterOpened"
+    | "perforaterOverTemperature"
+    | "perforaterPowerSaver"
+    | "perforaterRecoverableFailure"
+    | "perforaterRecoverableStorage"
+    | "perforaterRemoved"
+    | "perforaterResourceAdded"
+    | "perforaterResourceRemoved"
+    | "perforaterThermistorFailure"
+    | "perforaterTimingFailure"
+    | "perforaterTurnedOff"
+    | "perforaterTurnedOn"
+    | "perforaterUnderTemperature"
+    | "perforaterUnrecoverableFailure"
+    | "perforaterUnrecoverableStorageError"
+    | "perforaterWarmingUp"
+    | "platformCooling"
+    | "platformFailure"
+    | "platformHeating"
+    | "platformTemperatureHigh"
+    | "platformTemperatureLow"
+    | "powerDown"
+    | "powerUp"
+    | "printerManualReset"
+    | "printerNmsReset"
+    | "printerReadyToPrint"
+    | "puncherAdded"
+    | "puncherAlmostEmpty"
+    | "puncherAlmostFull"
+    | "puncherAtLimit"
+    | "puncherClosed"
+    | "puncherConfigurationChange"
+    | "puncherCoverClosed"
+    | "puncherCoverOpen"
+    | "puncherEmpty"
+    | "puncherFull"
+    | "puncherInterlockClosed"
+    | "puncherInterlockOpen"
+    | "puncherJam"
+    | "puncherLifeAlmostOver"
+    | "puncherLifeOver"
+    | "puncherMemoryExhausted"
+    | "puncherMissing"
+    | "puncherMotorFailure"
+    | "puncherNearLimit"
+    | "puncherOffline"
+    | "puncherOpened"
+    | "puncherOverTemperature"
+    | "puncherPowerSaver"
+    | "puncherRecoverableFailure"
+    | "puncherRecoverableStorage"
+    | "puncherRemoved"
+    | "puncherResourceAdded"
+    | "puncherResourceRemoved"
+    | "puncherThermistorFailure"
+    | "puncherTimingFailure"
+    | "puncherTurnedOff"
+    | "puncherTurnedOn"
+    | "puncherUnderTemperature"
+    | "puncherUnrecoverableFailure"
+    | "puncherUnrecoverableStorageError"
+    | "puncherWarmingUp"
+    | "resuming"
+    | "scanMediaPathFailure"
+    | "scanMediaPathInputEmpty"
+    | "scanMediaPathInputFeedError"
+    | "scanMediaPathInputJam"
+    | "scanMediaPathInputRequest"
+    | "scanMediaPathJam"
+    | "scanMediaPathOutputFeedError"
+    | "scanMediaPathOutputFull"
+    | "scanMediaPathOutputJam"
+    | "scanMediaPathPickRollerFailure"
+    | "scanMediaPathPickRollerLifeOver"
+    | "scanMediaPathPickRollerLifeWarn"
+    | "scanMediaPathPickRollerMissing"
+    | "scanMediaPathTrayAlmostFull"
+    | "scanMediaPathTrayFull"
+    | "scanMediaPathTrayMissing"
+    | "scannerLightFailure"
+    | "scannerLightLifeAlmostOver"
+    | "scannerLightLifeOver"
+    | "scannerLightMissing"
+    | "scannerSensorFailure"
+    | "scannerSensorLifeAlmostOver"
+    | "scannerSensorLifeOver"
+    | "scannerSensorMissing"
+    | "separationCutterAdded"
+    | "separationCutterAlmostEmpty"
+    | "separationCutterAlmostFull"
+    | "separationCutterAtLimit"
+    | "separationCutterClosed"
+    | "separationCutterConfigurationChange"
+    | "separationCutterCoverClosed"
+    | "separationCutterCoverOpen"
+    | "separationCutterEmpty"
+    | "separationCutterFull"
+    | "separationCutterInterlockClosed"
+    | "separationCutterInterlockOpen"
+    | "separationCutterJam"
+    | "separationCutterLifeAlmostOver"
+    | "separationCutterLifeOver"
+    | "separationCutterMemoryExhausted"
+    | "separationCutterMissing"
+    | "separationCutterMotorFailure"
+    | "separationCutterNearLimit"
+    | "separationCutterOffline"
+    | "separationCutterOpened"
+    | "separationCutterOverTemperature"
+    | "separationCutterPowerSaver"
+    | "separationCutterRecoverableFailure"
+    | "separationCutterRecoverableStorage"
+    | "separationCutterRemoved"
+    | "separationCutterResourceAdded"
+    | "separationCutterResourceRemoved"
+    | "separationCutterThermistorFailure"
+    | "separationCutterTimingFailure"
+    | "separationCutterTurnedOff"
+    | "separationCutterTurnedOn"
+    | "separationCutterUnderTemperature"
+    | "separationCutterUnrecoverableFailure"
+    | "separationCutterUnrecoverableStorageError"
+    | "separationCutterWarmingUp"
+    | "sheetRotatorAdded"
+    | "sheetRotatorAlmostEmpty"
+    | "sheetRotatorAlmostFull"
+    | "sheetRotatorAtLimit"
+    | "sheetRotatorClosed"
+    | "sheetRotatorConfigurationChange"
+    | "sheetRotatorCoverClosed"
+    | "sheetRotatorCoverOpen"
+    | "sheetRotatorEmpty"
+    | "sheetRotatorFull"
+    | "sheetRotatorInterlockClosed"
+    | "sheetRotatorInterlockOpen"
+    | "sheetRotatorJam"
+    | "sheetRotatorLifeAlmostOver"
+    | "sheetRotatorLifeOver"
+    | "sheetRotatorMemoryExhausted"
+    | "sheetRotatorMissing"
+    | "sheetRotatorMotorFailure"
+    | "sheetRotatorNearLimit"
+    | "sheetRotatorOffline"
+    | "sheetRotatorOpened"
+    | "sheetRotatorOverTemperature"
+    | "sheetRotatorPowerSaver"
+    | "sheetRotatorRecoverableFailure"
+    | "sheetRotatorRecoverableStorage"
+    | "sheetRotatorRemoved"
+    | "sheetRotatorResourceAdded"
+    | "sheetRotatorResourceRemoved"
+    | "sheetRotatorThermistorFailure"
+    | "sheetRotatorTimingFailure"
+    | "sheetRotatorTurnedOff"
+    | "sheetRotatorTurnedOn"
+    | "sheetRotatorUnderTemperature"
+    | "sheetRotatorUnrecoverableFailure"
+    | "sheetRotatorUnrecoverableStorageError"
+    | "sheetRotatorWarmingUp"
+    | "slitterAdded"
+    | "slitterAlmostEmpty"
+    | "slitterAlmostFull"
+    | "slitterAtLimit"
+    | "slitterClosed"
+    | "slitterConfigurationChange"
+    | "slitterCoverClosed"
+    | "slitterCoverOpen"
+    | "slitterEmpty"
+    | "slitterFull"
+    | "slitterInterlockClosed"
+    | "slitterInterlockOpen"
+    | "slitterJam"
+    | "slitterLifeAlmostOver"
+    | "slitterLifeOver"
+    | "slitterMemoryExhausted"
+    | "slitterMissing"
+    | "slitterMotorFailure"
+    | "slitterNearLimit"
+    | "slitterOffline"
+    | "slitterOpened"
+    | "slitterOverTemperature"
+    | "slitterPowerSaver"
+    | "slitterRecoverableFailure"
+    | "slitterRecoverableStorage"
+    | "slitterRemoved"
+    | "slitterResourceAdded"
+    | "slitterResourceRemoved"
+    | "slitterThermistorFailure"
+    | "slitterTimingFailure"
+    | "slitterTurnedOff"
+    | "slitterTurnedOn"
+    | "slitterUnderTemperature"
+    | "slitterUnrecoverableFailure"
+    | "slitterUnrecoverableStorageError"
+    | "slitterWarmingUp"
+    | "stackerAdded"
+    | "stackerAlmostEmpty"
+    | "stackerAlmostFull"
+    | "stackerAtLimit"
+    | "stackerClosed"
+    | "stackerConfigurationChange"
+    | "stackerCoverClosed"
+    | "stackerCoverOpen"
+    | "stackerEmpty"
+    | "stackerFull"
+    | "stackerInterlockClosed"
+    | "stackerInterlockOpen"
+    | "stackerJam"
+    | "stackerLifeAlmostOver"
+    | "stackerLifeOver"
+    | "stackerMemoryExhausted"
+    | "stackerMissing"
+    | "stackerMotorFailure"
+    | "stackerNearLimit"
+    | "stackerOffline"
+    | "stackerOpened"
+    | "stackerOverTemperature"
+    | "stackerPowerSaver"
+    | "stackerRecoverableFailure"
+    | "stackerRecoverableStorage"
+    | "stackerRemoved"
+    | "stackerResourceAdded"
+    | "stackerResourceRemoved"
+    | "stackerThermistorFailure"
+    | "stackerTimingFailure"
+    | "stackerTurnedOff"
+    | "stackerTurnedOn"
+    | "stackerUnderTemperature"
+    | "stackerUnrecoverableFailure"
+    | "stackerUnrecoverableStorageError"
+    | "stackerWarmingUp"
+    | "standby"
+    | "staplerAdded"
+    | "staplerAlmostEmpty"
+    | "staplerAlmostFull"
+    | "staplerAtLimit"
+    | "staplerClosed"
+    | "staplerConfigurationChange"
+    | "staplerCoverClosed"
+    | "staplerCoverOpen"
+    | "staplerEmpty"
+    | "staplerFull"
+    | "staplerInterlockClosed"
+    | "staplerInterlockOpen"
+    | "staplerJam"
+    | "staplerLifeAlmostOver"
+    | "staplerLifeOver"
+    | "staplerMemoryExhausted"
+    | "staplerMissing"
+    | "staplerMotorFailure"
+    | "staplerNearLimit"
+    | "staplerOffline"
+    | "staplerOpened"
+    | "staplerOverTemperature"
+    | "staplerPowerSaver"
+    | "staplerRecoverableFailure"
+    | "staplerRecoverableStorage"
+    | "staplerRemoved"
+    | "staplerResourceAdded"
+    | "staplerResourceRemoved"
+    | "staplerThermistorFailure"
+    | "staplerTimingFailure"
+    | "staplerTurnedOff"
+    | "staplerTurnedOn"
+    | "staplerUnderTemperature"
+    | "staplerUnrecoverableFailure"
+    | "staplerUnrecoverableStorageError"
+    | "staplerWarmingUp"
+    | "stitcherAdded"
+    | "stitcherAlmostEmpty"
+    | "stitcherAlmostFull"
+    | "stitcherAtLimit"
+    | "stitcherClosed"
+    | "stitcherConfigurationChange"
+    | "stitcherCoverClosed"
+    | "stitcherCoverOpen"
+    | "stitcherEmpty"
+    | "stitcherFull"
+    | "stitcherInterlockClosed"
+    | "stitcherInterlockOpen"
+    | "stitcherJam"
+    | "stitcherLifeAlmostOver"
+    | "stitcherLifeOver"
+    | "stitcherMemoryExhausted"
+    | "stitcherMissing"
+    | "stitcherMotorFailure"
+    | "stitcherNearLimit"
+    | "stitcherOffline"
+    | "stitcherOpened"
+    | "stitcherOverTemperature"
+    | "stitcherPowerSaver"
+    | "stitcherRecoverableFailure"
+    | "stitcherRecoverableStorage"
+    | "stitcherRemoved"
+    | "stitcherResourceAdded"
+    | "stitcherResourceRemoved"
+    | "stitcherThermistorFailure"
+    | "stitcherTimingFailure"
+    | "stitcherTurnedOff"
+    | "stitcherTurnedOn"
+    | "stitcherUnderTemperature"
+    | "stitcherUnrecoverableFailure"
+    | "stitcherUnrecoverableStorageError"
+    | "stitcherWarmingUp"
+    | "subunitAdded"
+    | "subunitAlmostEmpty"
+    | "subunitAlmostFull"
+    | "subunitAtLimit"
+    | "subunitClosed"
+    | "subunitCoolingDown"
+    | "subunitEmpty"
+    | "subunitFull"
+    | "subunitLifeAlmostOver"
+    | "subunitLifeOver"
+    | "subunitMemoryExhausted"
+    | "subunitMissing"
+    | "subunitMotorFailure"
+    | "subunitNearLimit"
+    | "subunitOffline"
+    | "subunitOpened"
+    | "subunitOverTemperature"
+    | "subunitPowerSaver"
+    | "subunitRecoverableFailure"
+    | "subunitRecoverableStorage"
+    | "subunitRemoved"
+    | "subunitResourceAdded"
+    | "subunitResourceRemoved"
+    | "subunitThermistorFailure"
+    | "subunitTimingFailure"
+    | "subunitTurnedOff"
+    | "subunitTurnedOn"
+    | "subunitUnderTemperature"
+    | "subunitUnrecoverableFailure"
+    | "subunitUnrecoverableStorage"
+    | "subunitWarmingUp"
+    | "suspend"
+    | "testing"
+    | "trimmerAdded"
+    | "trimmerAlmostEmpty"
+    | "trimmerAlmostFull"
+    | "trimmerAtLimit"
+    | "trimmerClosed"
+    | "trimmerConfigurationChange"
+    | "trimmerCoverClosed"
+    | "trimmerCoverOpen"
+    | "trimmerEmpty"
+    | "trimmerFull"
+    | "trimmerInterlockClosed"
+    | "trimmerInterlockOpen"
+    | "trimmerJam"
+    | "trimmerLifeAlmostOver"
+    | "trimmerLifeOver"
+    | "trimmerMemoryExhausted"
+    | "trimmerMissing"
+    | "trimmerMotorFailure"
+    | "trimmerNearLimit"
+    | "trimmerOffline"
+    | "trimmerOpened"
+    | "trimmerOverTemperature"
+    | "trimmerPowerSaver"
+    | "trimmerRecoverableFailure"
+    | "trimmerRecoverableStorage"
+    | "trimmerRemoved"
+    | "trimmerResourceAdded"
+    | "trimmerResourceRemoved"
+    | "trimmerThermistorFailure"
+    | "trimmerTimingFailure"
+    | "trimmerTurnedOff"
+    | "trimmerTurnedOn"
+    | "trimmerUnderTemperature"
+    | "trimmerUnrecoverableFailure"
+    | "trimmerUnrecoverableStorageError"
+    | "trimmerWarmingUp"
+    | "unknown"
+    | "wrapperAdded"
+    | "wrapperAlmostEmpty"
+    | "wrapperAlmostFull"
+    | "wrapperAtLimit"
+    | "wrapperClosed"
+    | "wrapperConfigurationChange"
+    | "wrapperCoverClosed"
+    | "wrapperCoverOpen"
+    | "wrapperEmpty"
+    | "wrapperFull"
+    | "wrapperInterlockClosed"
+    | "wrapperInterlockOpen"
+    | "wrapperJam"
+    | "wrapperLifeAlmostOver"
+    | "wrapperLifeOver"
+    | "wrapperMemoryExhausted"
+    | "wrapperMissing"
+    | "wrapperMotorFailure"
+    | "wrapperNearLimit"
+    | "wrapperOffline"
+    | "wrapperOpened"
+    | "wrapperOverTemperature"
+    | "wrapperPowerSaver"
+    | "wrapperRecoverableFailure"
+    | "wrapperRecoverableStorage"
+    | "wrapperRemoved"
+    | "wrapperResourceAdded"
+    | "wrapperResourceRemoved"
+    | "wrapperThermistorFailure"
+    | "wrapperTimingFailure"
+    | "wrapperTurnedOff"
+    | "wrapperTurnedOn"
+    | "wrapperUnderTemperature"
+    | "wrapperUnrecoverableFailure"
+    | "wrapperUnrecoverableStorageError"
+    | "wrapperWarmingUp";
 export type PrinterProcessingStateReason =
     | "paused"
     | "mediaJam"
@@ -3116,6 +3943,7 @@ export type PrintScaling = "auto" | "shrinkToFit" | "fill" | "fit" | "none" | "u
 export type PrintTaskProcessingState = "pending" | "processing" | "completed" | "aborted" | "unknownFutureValue";
 export type Status = "active" | "updated" | "deleted" | "ignored" | "unknownFutureValue";
 export type DataPolicyOperationStatus = "notStarted" | "running" | "complete" | "failed" | "unknownFutureValue";
+export type AnswerState = "published" | "draft" | "excluded" | "unknownFutureValue";
 export type AccountStatus = "unknown" | "staged" | "active" | "suspended" | "deleted" | "unknownFutureValue";
 export type AlertFeedback = "unknown" | "truePositive" | "falsePositive" | "benignPositive" | "unknownFutureValue";
 export type AlertSeverity = "unknown" | "informational" | "low" | "medium" | "high" | "unknownFutureValue";
@@ -4053,9 +4881,9 @@ export interface User extends DirectoryObject {
     licenseAssignmentStates?: NullableOption<LicenseAssignmentState[]>;
     /**
      * The SMTP address for the user, for example, admin@contoso.com. Changes to this property will also update the user's
-     * proxyAddresses collection to include the value as an SMTP address. While this property can contain accent characters,
-     * using them can cause access issues with other Microsoft applications for the user. Supports $filter (eq, ne, NOT, ge,
-     * le, in, startsWith, endsWith).
+     * proxyAddresses collection to include the value as an SMTP address. For Azure AD B2C accounts, this property can be
+     * updated up to only ten times with unique SMTP addresses. This property cannot contain accent characters. Supports
+     * $filter (eq, ne, NOT, ge, le, in, startsWith, endsWith).
      */
     mail?: NullableOption<string>;
     /**
@@ -4132,9 +4960,8 @@ export interface User extends DirectoryObject {
      */
     onPremisesUserPrincipalName?: NullableOption<string>;
     /**
-     * A list of additional email addresses for the user; for example: ['bob@contoso.com', 'Robert@fabrikam.com'].NOTE: While
-     * this property can contain accent characters, they can cause access issues to first-party applications for the
-     * user.Supports $filter (eq, NOT, ge, le, in, startsWith).
+     * A list of additional email addresses for the user; for example: ['bob@contoso.com', 'Robert@fabrikam.com'].NOTE: This
+     * property cannot contain accent characters.Supports $filter (eq, NOT, ge, le, in, startsWith).
      */
     otherMails?: string[];
     /**
@@ -4169,8 +4996,8 @@ export interface User extends DirectoryObject {
     // The plans that are provisioned for the user. Read-only. Not nullable. Supports $filter (eq, NOT, ge, le).
     provisionedPlans?: ProvisionedPlan[];
     /**
-     * For example: ['SMTP: bob@contoso.com', 'smtp: bob@sales.contoso.com']. Read-only, Not nullable. Supports $filter (eq,
-     * NOT, ge, le, startsWith).
+     * For example: ['SMTP: bob@contoso.com', 'smtp: bob@sales.contoso.com']. For Azure AD B2C accounts, this property has a
+     * limit of ten unique addresses. Read-only, Not nullable. Supports $filter (eq, NOT, ge, le, startsWith).
      */
     proxyAddresses?: string[];
     /**
@@ -4219,8 +5046,8 @@ export interface User extends DirectoryObject {
      * standard RFC 822. By convention, this should map to the user's email name. The general format is alias@domain, where
      * domain must be present in the tenant's collection of verified domains. This property is required when a user is
      * created. The verified domains for the tenant can be accessed from the verifiedDomains property of organization.NOTE:
-     * While this property can contain accent characters, they can cause access issues to first-party applications for the
-     * user. Supports $filter (eq, ne, NOT, ge, le, in, startsWith, endsWith) and $orderBy.
+     * This property cannot contain accent characters. Supports $filter (eq, ne, NOT, ge, le, in, startsWith, endsWith) and
+     * $orderBy.
      */
     userPrincipalName?: NullableOption<string>;
     /**
@@ -5000,6 +5827,7 @@ export interface Group extends DirectoryObject {
      * (default). Returned by default. Read-only. Supports $filter (eq, ne, NOT, in).
      */
     onPremisesSyncEnabled?: NullableOption<boolean>;
+    organizationId?: NullableOption<string>;
     // The preferred data location for the group. For more information, see OneDrive Online Multi-Geo. Returned by default.
     preferredDataLocation?: NullableOption<string>;
     /**
@@ -5498,6 +6326,7 @@ export interface AccessReviewInstance extends Entity {
      * Completed, AutoReviewing, and AutoReviewed. Supports $select, $orderby, and $filter (eq only). Read-only.
      */
     status?: NullableOption<string>;
+    contactedReviewers?: NullableOption<AccessReviewReviewer[]>;
     /**
      * Each user reviewed in an accessReviewInstance has a decision item representing if they were approved, denied, or not
      * yet reviewed.
@@ -5641,6 +6470,11 @@ export interface ManagedDevice extends Entity {
     emailAddress?: NullableOption<string>;
     // Enrollment time of the device. This property is read-only.
     enrolledDateTime?: string;
+    /**
+     * Name of the enrollment profile assigned to the device. Default value is empty string, indicating no enrollment profile
+     * was assgined. This property is read-only.
+     */
+    enrollmentProfileName?: NullableOption<string>;
     // Ethernet MAC. This property is read-only.
     ethernetMacAddress?: NullableOption<string>;
     /**
@@ -6663,6 +7497,7 @@ export interface Application extends DirectoryObject {
      * properties allows you to publish your on-premises application for secure remote access.
      */
     onPremisesPublishing?: NullableOption<OnPremisesPublishing>;
+    // The appManagementPolicy applied to this application.
     appManagementPolicies?: NullableOption<AppManagementPolicy[]>;
     // Read-only.
     createdOnBehalfOf?: NullableOption<DirectoryObject>;
@@ -6843,6 +7678,7 @@ export interface ServicePrincipal extends DirectoryObject {
      * token must use the matching private key to decrypt the token before it can be used for the signed-in user.
      */
     tokenEncryptionKeyId?: NullableOption<string>;
+    // The appManagementPolicy applied to this service principal.
     appManagementPolicies?: NullableOption<AppManagementPolicy[]>;
     // App role assignments for this app or service, granted to users, groups, and other service principals.Supports $expand.
     appRoleAssignedTo?: NullableOption<AppRoleAssignment[]>;
@@ -6893,8 +7729,11 @@ export interface PolicyBase extends DirectoryObject {
     displayName?: string;
 }
 export interface AppManagementPolicy extends PolicyBase {
+    // Denotes whether the policy is enabled.
     isEnabled?: boolean;
+    // Restrictions that apply to an application or service principal object.
     restrictions?: NullableOption<AppManagementConfiguration>;
+    // Collection of application and service principals to which a policy is applied.
     appliesTo?: NullableOption<DirectoryObject[]>;
 }
 export interface ExtensionProperty extends DirectoryObject {
@@ -7088,27 +7927,51 @@ export interface MicrosoftAuthenticatorAuthenticationMethodTarget extends Authen
     featureSettings?: NullableOption<AuthenticatorAppFeatureSettings>;
 }
 export interface PolicyRoot {
+    /**
+     * The authentication methods and the users that are allowed to use them to sign in and perform multi-factor
+     * authentication (MFA) in Azure Active Directory (Azure AD).
+     */
     authenticationMethodsPolicy?: NullableOption<AuthenticationMethodsPolicy>;
+    // The policy configuration of the self-service sign-up experience of external users.
     authenticationFlowsPolicy?: NullableOption<AuthenticationFlowsPolicy>;
+    // The Azure AD B2C policies that define how end users register via local accounts.
     b2cAuthenticationMethodsPolicy?: NullableOption<B2cAuthenticationMethodsPolicy>;
+    // The policy that controls the idle time out for web sessions for applications.
     activityBasedTimeoutPolicies?: NullableOption<ActivityBasedTimeoutPolicy[]>;
     appManagementPolicies?: NullableOption<AppManagementPolicy[]>;
+    // The policy that controls Azure AD authorization settings.
     authorizationPolicy?: NullableOption<AuthorizationPolicy[]>;
+    /**
+     * The claim-mapping policies for WS-Fed, SAML, OAuth 2.0, and OpenID Connect protocols, for tokens issued to a specific
+     * application.
+     */
     claimsMappingPolicies?: NullableOption<ClaimsMappingPolicy[]>;
     defaultAppManagementPolicy?: NullableOption<TenantAppManagementPolicy>;
+    // The policy to control Azure AD authentication behavior for federated users.
     homeRealmDiscoveryPolicies?: NullableOption<HomeRealmDiscoveryPolicy[]>;
+    // The policy that specifies the conditions under which consent can be granted.
     permissionGrantPolicies?: NullableOption<PermissionGrantPolicy[]>;
+    // The policy that specifies the characteristics of SAML tokens issued by Azure AD.
     tokenIssuancePolicies?: NullableOption<TokenIssuancePolicy[]>;
+    // The policy that controls the lifetime of a JWT access token, an ID token, or a SAML 1.1/2.0 token issued by Azure AD.
     tokenLifetimePolicies?: NullableOption<TokenLifetimePolicy[]>;
+    // The feature rollout policy associated with a directory object.
     featureRolloutPolicies?: NullableOption<FeatureRolloutPolicy[]>;
+    // The policy that contains directory-level access review settings.
     accessReviewPolicy?: NullableOption<AccessReviewPolicy>;
+    // The policy by which consent requests are created and managed for the entire tenant.
     adminConsentRequestPolicy?: NullableOption<AdminConsentRequestPolicy>;
     directoryRoleAccessReviewPolicy?: NullableOption<DirectoryRoleAccessReviewPolicy>;
+    // The custom rules that define an access scenario.
     conditionalAccessPolicies?: NullableOption<ConditionalAccessPolicy[]>;
+    // The policy that represents the security defaults that protect against common attacks.
     identitySecurityDefaultsEnforcementPolicy?: NullableOption<IdentitySecurityDefaultsEnforcementPolicy>;
+    // The policy that defines auto-enrollment configuration for a mobility management (MDM or MAM) application.
     mobileAppManagementPolicies?: NullableOption<MobilityManagementPolicy[]>;
     mobileDeviceManagementPolicies?: NullableOption<MobilityManagementPolicy[]>;
+    // Represents the role management policies.
     roleManagementPolicies?: NullableOption<UnifiedRoleManagementPolicy[]>;
+    // Represents the role management policy assignments.
     roleManagementPolicyAssignments?: NullableOption<UnifiedRoleManagementPolicyAssignment[]>;
 }
 export interface AuthenticationFlowsPolicy extends Entity {
@@ -7175,8 +8038,11 @@ export interface AuthorizationPolicy extends PolicyBase {
     permissionGrantPolicyIdsAssignedToDefaultUserRole?: NullableOption<string[]>;
 }
 export interface TenantAppManagementPolicy extends PolicyBase {
+    // Restrictions that apply as default to all application objects in the tenant.
     applicationRestrictions?: NullableOption<AppManagementConfiguration>;
+    // Denotes whether the policy is enabled. Default value is false.
     isEnabled?: boolean;
+    // Restrictions that apply as default to all service principal objects in the tenant.
     servicePrincipalRestrictions?: NullableOption<AppManagementConfiguration>;
 }
 export interface PermissionGrantPolicy extends PolicyBase {
@@ -7610,7 +8476,7 @@ export interface AppScope extends Entity {
     type?: NullableOption<string>;
 }
 export interface CloudPC extends Entity {
-    // The cloud PC display name.
+    // The Cloud PC display name.
     displayName?: NullableOption<string>;
     /**
      * The date and time when the grace period ends and reprovisioning/deprovisioning happens. Required only if status is
@@ -7618,41 +8484,41 @@ export interface CloudPC extends Entity {
      * UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
      */
     gracePeriodEndDateTime?: NullableOption<string>;
-    // Name of the OS image that's on the cloud PC.
+    // Name of the OS image that's on the Cloud PC.
     imageDisplayName?: NullableOption<string>;
     /**
-     * The cloud PC's last modified date and time. The Timestamp type represents date and time information using ISO 8601
+     * The Cloud PC's last modified date and time. The Timestamp type represents date and time information using ISO 8601
      * format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
      */
     lastModifiedDateTime?: string;
-    // The cloud PC’s Intune device ID.
+    // The Cloud PC’s Intune device ID.
     managedDeviceId?: NullableOption<string>;
-    // The cloud PC’s Intune device name.
+    // The Cloud PC’s Intune device name.
     managedDeviceName?: NullableOption<string>;
-    // The on-premises connection that is applied during provisioning of cloud PCs.
+    // The on-premises connection that is applied during provisioning of Cloud PCs.
     onPremisesConnectionName?: NullableOption<string>;
-    // The cloud PC's provisioning policy ID.
+    // The Cloud PC's provisioning policy ID.
     provisioningPolicyId?: NullableOption<string>;
-    // The provisioning policy that is applied during provisioning of cloud PCs.
+    // The provisioning policy that is applied during provisioning of Cloud PCs.
     provisioningPolicyName?: NullableOption<string>;
-    // The cloud PC's service plan ID.
+    // The Cloud PC's service plan ID.
     servicePlanId?: NullableOption<string>;
-    // The cloud PC's service plan name.
+    // The Cloud PC's service plan name.
     servicePlanName?: NullableOption<string>;
     /**
-     * Status of the cloud PC. Possible values are: notProvisioned, provisioning, provisioned, upgrading, inGracePeriod,
+     * Status of the Cloud PC. Possible values are: notProvisioned, provisioning, provisioned, upgrading, inGracePeriod,
      * deprovisioning, failed.
      */
     status?: CloudPcStatus;
-    // The details of the cloud PC status.
+    // The details of the Cloud PC status.
     statusDetails?: NullableOption<CloudPcStatusDetails>;
-    // The user principal name (UPN) of the user assigned to the cloud PC.
+    // The user principal name (UPN) of the user assigned to the Cloud PC.
     userPrincipalName?: NullableOption<string>;
 }
 export interface CloudPcAuditEvent extends Entity {
-    // Friendly name of the activity. Optional.
+    // Friendly name of the activity.Optional.
     activity?: NullableOption<string>;
-    // The date time in UTC when the activity was performed. Read-only.
+    // The date time in UTC when the activity was performed. Read-only.
     activityDateTime?: string;
     // The HTTP operation type of the activity. Possible values include create, delete, patch and other. Read-only.
     activityOperationType?: CloudPcAuditActivityOperationType;
@@ -7690,7 +8556,7 @@ export interface CloudPcDeviceImage extends Entity {
      * '/subscriptions/{subscription-id}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/images/{imageName}'.
      */
     sourceImageResourceId?: NullableOption<string>;
-    // The status of the image on cloud PC. Possible values are: pending, ready, failed.
+    // The status of the image on Cloud PC. Possible values are: pending, ready, failed.
     status?: NullableOption<CloudPcDeviceImageStatus>;
     /**
      * The details of the image's status, which indicates why the upload failed, if applicable. Possible values are:
@@ -7763,15 +8629,15 @@ export interface CloudPcProvisioningPolicy extends Entity {
     // The display name for the OS image you’re provisioning.
     imageDisplayName?: NullableOption<string>;
     /**
-     * The ID of the OS image you want to provision on cloud PCs. The format for a gallery type image is:
+     * The ID of the OS image you want to provision on Cloud PCs. The format for a gallery type image is:
      * {publisher_offer_sku}.
      */
     imageId?: NullableOption<string>;
-    // The type of OS image (custom or gallery) you want to provision on cloud PCs. Possible values are: gallery, custom.
+    // The type of OS image (custom or gallery) you want to provision on Cloud PCs. Possible values are: gallery, custom.
     imageType?: CloudPcProvisioningPolicyImageType;
     /**
-     * The ID of the cloudPcOnPremisesConnection. To ensure that cloud PCs have network connectivity and that they domain
-     * join, choose a connection with a virtual network that’s validated by the cloud PC service.
+     * The ID of the cloudPcOnPremisesConnection. To ensure that Cloud PCs have network connectivity and that they domain
+     * join, choose a connection with a virtual network that’s validated by the Cloud PC service.
      */
     onPremisesConnectionId?: NullableOption<string>;
     /**
@@ -7804,13 +8670,13 @@ export interface CloudPcUserSetting extends Entity {
     lastModifiedDateTime?: NullableOption<string>;
     /**
      * Indicates whether the local admin option is enabled. Default value is false. To enable the local admin option, change
-     * the setting to true. If the local admin option is enabled, the end user can be an admin of the cloud PC device.
+     * the setting to true. If the local admin option is enabled, the end user can be an admin of the Cloud PC device.
      */
     localAdminEnabled?: NullableOption<boolean>;
     /**
      * Indicates whether the self-service option is enabled. Default value is false. To enable the self-service option, change
      * the setting to true. If the self-service option is enabled, the end user is allowed to perform some self-service
-     * operations, such as upgrading the cloud PC through the end user portal.
+     * operations, such as upgrading the Cloud PC through the end user portal.
      */
     selfServiceEnabled?: NullableOption<boolean>;
     /**
@@ -8008,6 +8874,10 @@ export interface DeviceManagement extends Entity {
     userExperienceAnalyticsAppHealthApplicationPerformance?: NullableOption<UserExperienceAnalyticsAppHealthApplicationPerformance[]>;
     // User experience analytics appHealth Application Performance by App Version
     userExperienceAnalyticsAppHealthApplicationPerformanceByAppVersion?: NullableOption<UserExperienceAnalyticsAppHealthAppPerformanceByAppVersion[]>;
+    // User experience analytics appHealth Application Performance by App Version details
+    userExperienceAnalyticsAppHealthApplicationPerformanceByAppVersionDetails?: NullableOption<UserExperienceAnalyticsAppHealthAppPerformanceByAppVersionDetails[]>;
+    // User experience analytics appHealth Application Performance by App Version Device Id
+    userExperienceAnalyticsAppHealthApplicationPerformanceByAppVersionDeviceId?: NullableOption<UserExperienceAnalyticsAppHealthAppPerformanceByAppVersionDeviceId[]>;
     // User experience analytics appHealth Application Performance by OS Version
     userExperienceAnalyticsAppHealthApplicationPerformanceByOSVersion?: NullableOption<UserExperienceAnalyticsAppHealthAppPerformanceByOSVersion[]>;
     // User experience analytics appHealth Model Performance
@@ -8054,6 +8924,8 @@ export interface DeviceManagement extends Entity {
     userExperienceAnalyticsResourcePerformance?: NullableOption<UserExperienceAnalyticsResourcePerformance[]>;
     // User experience analytics device Startup Score History
     userExperienceAnalyticsScoreHistory?: NullableOption<UserExperienceAnalyticsScoreHistory[]>;
+    // User experience analytics work from anywhere hardware readiness metrics.
+    userExperienceAnalyticsWorkFromAnywhereHardwareReadinessMetric?: NullableOption<UserExperienceAnalyticsWorkFromAnywhereHardwareReadinessMetric>;
     // User experience analytics work from anywhere metrics.
     userExperienceAnalyticsWorkFromAnywhereMetrics?: NullableOption<UserExperienceAnalyticsWorkFromAnywhereMetric[]>;
     // The list of affected malware in the tenant.
@@ -8186,11 +9058,11 @@ export interface VirtualEndpoint extends Entity {
     auditEvents?: NullableOption<CloudPcAuditEvent[]>;
     // Cloud managed virtual desktops.
     cloudPCs?: NullableOption<CloudPC[]>;
-    // The image resource on cloud PC.
+    // The image resource on Cloud PC.
     deviceImages?: NullableOption<CloudPcDeviceImage[]>;
     /**
      * A defined collection of Azure resource information that can be used to establish on-premises network connectivity for
-     * cloud PCs.
+     * Cloud PCs.
      */
     onPremisesConnections?: NullableOption<CloudPcOnPremisesConnection[]>;
     // Cloud PC provisioning policy.
@@ -8281,6 +9153,8 @@ export interface AndroidManagedStoreAccountEnterpriseSettings extends Entity {
     lastAppSyncStatus?: AndroidManagedStoreAccountAppSyncStatus;
     // Last modification time for Android enterprise settings
     lastModifiedDateTime?: NullableOption<string>;
+    // Initial scope tags for MGP apps
+    managedGooglePlayInitialScopeTagIds?: NullableOption<string[]>;
     // Organization name used when onboarding Android Enterprise
     ownerOrganizationName?: NullableOption<string>;
     // Owner UPN that created the enterprise
@@ -9563,6 +10437,45 @@ export interface UserExperienceAnalyticsAppHealthAppPerformanceByAppVersion exte
     // The mean time to failure for the app in minutes. Valid values -2147483648 to 2147483647
     meanTimeToFailureInMinutes?: number;
 }
+export interface UserExperienceAnalyticsAppHealthAppPerformanceByAppVersionDetails extends Entity {
+    // The number of crashes for the app. Valid values -2147483648 to 2147483647
+    appCrashCount?: number;
+    // The friendly name of the application.
+    appDisplayName?: NullableOption<string>;
+    // The name of the application.
+    appName?: NullableOption<string>;
+    // The publisher of the application.
+    appPublisher?: NullableOption<string>;
+    // The version of the application.
+    appVersion?: NullableOption<string>;
+    /**
+     * The total number of devices that have reported one or more application crashes for this application and version. Valid
+     * values -2147483648 to 2147483647
+     */
+    deviceCountWithCrashes?: number;
+    // Is the version of application the latest version for that app that is in use.
+    isLatestUsedVersion?: boolean;
+    // Is the version of application the most used version for that app.
+    isMostUsedVersion?: boolean;
+}
+export interface UserExperienceAnalyticsAppHealthAppPerformanceByAppVersionDeviceId extends Entity {
+    // The number of crashes for the app. Valid values -2147483648 to 2147483647
+    appCrashCount?: number;
+    // The friendly name of the application.
+    appDisplayName?: NullableOption<string>;
+    // The name of the application.
+    appName?: NullableOption<string>;
+    // The publisher of the application.
+    appPublisher?: NullableOption<string>;
+    // The version of the application.
+    appVersion?: NullableOption<string>;
+    // The name of the device.
+    deviceDisplayName?: NullableOption<string>;
+    // The id of the device.
+    deviceId?: NullableOption<string>;
+    // The date and time when the statistics were last computed.
+    processedDateTime?: string;
+}
 export interface UserExperienceAnalyticsAppHealthAppPerformanceByOSVersion extends Entity {
     // The number of devices where the app has been active. Valid values -2147483648 to 2147483647
     activeDeviceCount?: number;
@@ -9618,10 +10531,16 @@ export interface UserExperienceAnalyticsAppHealthDevicePerformance extends Entit
     deviceModel?: NullableOption<string>;
     // The mean time to failure for the device in minutes. Valid values -2147483648 to 2147483647
     meanTimeToFailureInMinutes?: number;
+    // The date and time when the statistics were last computed.
+    processedDateTime?: string;
 }
 export interface UserExperienceAnalyticsAppHealthDevicePerformanceDetails extends Entity {
     // The friendly name of the application for which the event occurred.
     appDisplayName?: NullableOption<string>;
+    // The publisher of the application.
+    appPublisher?: NullableOption<string>;
+    // The version of the application.
+    appVersion?: NullableOption<string>;
     // The name of the device.
     deviceDisplayName?: NullableOption<string>;
     // The id of the device.
@@ -9721,6 +10640,11 @@ export interface UserExperienceAnalyticsDevicePerformance extends Entity {
     responsiveDesktopTimeInMs?: number;
     // Number of Restarts in the last 14 days. Valid values 0 to 9999999
     restartCount?: number;
+    /**
+     * The user experience analytics device startup performance score. Valid values -1.79769313486232E+308 to
+     * 1.79769313486232E+308
+     */
+    startupPerformanceScore?: number;
 }
 export interface UserExperienceAnalyticsDeviceScores extends Entity {
     /**
@@ -9732,6 +10656,8 @@ export interface UserExperienceAnalyticsDeviceScores extends Entity {
     deviceName?: NullableOption<string>;
     // The user experience analytics device score. Valid values -1.79769313486232E+308 to 1.79769313486232E+308
     endpointAnalyticsScore?: number;
+    // The health state of the user experience analytics device.
+    healthStatus?: UserExperienceAnalyticsHealthState;
     // The user experience analytics device manufacturer.
     manufacturer?: NullableOption<string>;
     // The user experience analytics device model.
@@ -9874,14 +10800,20 @@ export interface UserExperienceAnalyticsRemoteConnection extends Entity {
     deviceId?: NullableOption<string>;
     // The name of the device.
     deviceName?: NullableOption<string>;
+    // The user experience analytics manufacturer.
+    manufacturer?: NullableOption<string>;
     // The user experience analytics device model.
     model?: NullableOption<string>;
     // The remote sign in time of Cloud PC Device. Valid values 0 to 1.79769313486232E+308
     remoteSignInTime?: number;
+    // The user experience analytics userPrincipalName.
+    userPrincipalName?: NullableOption<string>;
     // The user experience analytics virtual network.
     virtualNetwork?: NullableOption<string>;
 }
 export interface UserExperienceAnalyticsResourcePerformance extends Entity {
+    // AverageSpikeTimeScore of a device or a model type. Valid values 0 to 100
+    averageSpikeTimeScore?: number;
     // CPU spike time in percentage. Valid values 0 to 100
     cpuSpikeTimePercentage?: number;
     // Threshold of cpuSpikeTimeScore. Valid values 0 to 100
@@ -9910,6 +10842,54 @@ export interface UserExperienceAnalyticsResourcePerformance extends Entity {
 export interface UserExperienceAnalyticsScoreHistory extends Entity {
     // The user experience analytics device startup date time.
     startupDateTime?: string;
+}
+export interface UserExperienceAnalyticsWorkFromAnywhereHardwareReadinessMetric extends Entity {
+    // The percentage of devices for which OS check has failed. Valid values -1.79769313486232E+308 to 1.79769313486232E+308
+    osCheckFailedPercentage?: number;
+    /**
+     * The percentage of devices for which processor hardware 64-bit architecture check has failed. Valid values
+     * -1.79769313486232E+308 to 1.79769313486232E+308
+     */
+    processor64BitCheckFailedPercentage?: number;
+    /**
+     * The percentage of devices for which processor hardware core count check has failed. Valid values -1.79769313486232E+308
+     * to 1.79769313486232E+308
+     */
+    processorCoreCountCheckFailedPercentage?: number;
+    /**
+     * The percentage of devices for which processor hardware family check has failed. Valid values -1.79769313486232E+308 to
+     * 1.79769313486232E+308
+     */
+    processorFamilyCheckFailedPercentage?: number;
+    /**
+     * The percentage of devices for which processor hardware speed check has failed. Valid values -1.79769313486232E+308 to
+     * 1.79769313486232E+308
+     */
+    processorSpeedCheckFailedPercentage?: number;
+    /**
+     * The percentage of devices for which RAM hardware check has failed. Valid values -1.79769313486232E+308 to
+     * 1.79769313486232E+308
+     */
+    ramCheckFailedPercentage?: number;
+    /**
+     * The percentage of devices for which secure boot hardware check has failed. Valid values -1.79769313486232E+308 to
+     * 1.79769313486232E+308
+     */
+    secureBootCheckFailedPercentage?: number;
+    /**
+     * The percentage of devices for which storage hardware check has failed. Valid values -1.79769313486232E+308 to
+     * 1.79769313486232E+308
+     */
+    storageCheckFailedPercentage?: number;
+    // The count of total devices in an organization. Valid values -2147483648 to 2147483647
+    totalDeviceCount?: number;
+    /**
+     * The percentage of devices for which Trusted Platform Module (TPM) hardware check has failed. Valid values
+     * -1.79769313486232E+308 to 1.79769313486232E+308
+     */
+    tpmCheckFailedPercentage?: number;
+    // The count of devices in an organization eligible for windows upgrade. Valid values -2147483648 to 2147483647
+    upgradeEligibleDeviceCount?: number;
 }
 export interface UserExperienceAnalyticsWorkFromAnywhereMetric extends Entity {
     // The work from anywhere metric devices.
@@ -11144,7 +12124,11 @@ export interface Channel extends Entity {
      * programmatically with Create team. Default: false.
      */
     isFavoriteByDefault?: NullableOption<boolean>;
-    // The type of the channel. Can be set during creation and can't be changed. Default: standard.
+    /**
+     * The type of the channel. Can be set during creation and can't be changed. The possible values are: standard, private,
+     * unknownFutureValue, shared. The default value is standard. Note that you must use the Prefer:
+     * include-unknown-enum-members request header to get the following value in this evolvable enum: shared.
+     */
     membershipType?: NullableOption<ChannelMembershipType>;
     // Settings to configure channel moderation to control who can start new posts and reply to posts in that channel.
     moderationSettings?: NullableOption<ChannelModerationSettings>;
@@ -11189,7 +12173,7 @@ export interface TeamsAsyncOperation extends Entity {
     error?: NullableOption<OperationError>;
     // Time when the async operation was last updated.
     lastActionDateTime?: string;
-    // Denotes which type of operation is being described.
+    // Denotes the type of operation being described.
     operationType?: TeamsAsyncOperationType;
     // Operation status.
     status?: TeamsAsyncOperationStatus;
@@ -11291,24 +12275,27 @@ export interface Conversation extends Entity {
     threads?: NullableOption<ConversationThread[]>;
 }
 export interface ConversationThread extends Entity {
-    // The Cc: recipients for the thread.
+    // The Cc: recipients for the thread. Returned only on $select.
     ccRecipients?: Recipient[];
-    // Indicates whether any of the posts within this thread has at least one attachment.
+    // Indicates whether any of the posts within this thread has at least one attachment. Returned by default.
     hasAttachments?: boolean;
-    // Indicates if the thread is locked.
+    // Indicates if the thread is locked. Returned by default.
     isLocked?: boolean;
     /**
      * The Timestamp type represents date and time information using ISO 8601 format and is always in UTC time. For example,
-     * midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z
+     * midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z. Returned by default.
      */
     lastDeliveredDateTime?: string;
-    // A short summary from the body of the latest post in this conversation.
+    // A short summary from the body of the latest post in this conversation. Returned by default.
     preview?: string;
-    // The topic of the conversation. This property can be set when the conversation is created, but it cannot be updated.
+    /**
+     * The topic of the conversation. This property can be set when the conversation is created, but it cannot be updated.
+     * Returned by default.
+     */
     topic?: string;
-    // The To: recipients for the thread.
+    // The To: recipients for the thread. Returned only on $select.
     toRecipients?: Recipient[];
-    // All the users that sent a message to this thread.
+    // All the users that sent a message to this thread. Returned by default.
     uniqueSenders?: string[];
     // Read-only. Nullable.
     posts?: NullableOption<Post[]>;
@@ -11712,7 +12699,7 @@ export interface OpenIdConnectIdentityProvider extends IdentityProviderBase {
      * The client secret for the application obtained when registering the application with the identity provider. The
      * clientSecret has a dependency on responseType. When responseType is code, a secret is required for the auth code
      * exchange.When responseType is id_token the secret is not required because there is no code exchange. The id_token is
-     * returned directly from the authorization response. This is write-only. A read operation returns '****'.
+     * returned directly from the authorization response. This is write-only. A read operation returns ****.
      */
     clientSecret?: NullableOption<string>;
     /**
@@ -11797,7 +12784,7 @@ export interface SocialIdentityProvider extends IdentityProviderBase {
     clientId?: NullableOption<string>;
     /**
      * The client secret for the application that is obtained when the application is registered with the identity provider.
-     * This is write-only. A read operation returns '****'. Required.
+     * This is write-only. A read operation returns ****. Required.
      */
     clientSecret?: NullableOption<string>;
     /**
@@ -12204,11 +13191,27 @@ export interface OrganizationalBrandingProperties extends Entity {
      * 300kb. A smaller image will reduce bandwidth requirements and make page loads more performant.
      */
     backgroundImage?: NullableOption<any>;
+    backgroundImageRelativeUrl?: NullableOption<string>;
     /**
      * A banner version of your company logo which appears appears on the sign-in page. .png or .jpg no larger than 36x245px.
      * We recommend using a transparent image with no padding around the logo.
      */
     bannerLogo?: NullableOption<any>;
+    bannerLogoRelativeUrl?: NullableOption<string>;
+    cdnList?: NullableOption<string[]>;
+    customAccountResetCredentialsUrl?: NullableOption<string>;
+    customCannotAccessYourAccountText?: NullableOption<string>;
+    customCannotAccessYourAccountUrl?: NullableOption<string>;
+    customForgotMyPasswordText?: NullableOption<string>;
+    customPrivacyAndCookiesText?: NullableOption<string>;
+    customPrivacyAndCookiesUrl?: NullableOption<string>;
+    customResetItNowText?: NullableOption<string>;
+    customTermsOfUseText?: NullableOption<string>;
+    customTermsOfUseUrl?: NullableOption<string>;
+    favicon?: NullableOption<any>;
+    faviconRelativeUrl?: NullableOption<string>;
+    headerBackgroundColor?: NullableOption<string>;
+    loginPageTextVisibilitySettings?: NullableOption<LoginPageTextVisibilitySettings>;
     /**
      * Text that appears at the bottom of the sign-in box. You can use this to communicate additional information, such as the
      * phone number to your help desk or a legal statement. This text must be Unicode and not exceed 1024 characters.
@@ -12220,6 +13223,7 @@ export interface OrganizationalBrandingProperties extends Entity {
      * using a transparent image with no padding around the logo.
      */
     squareLogo?: NullableOption<any>;
+    squareLogoRelativeUrl?: NullableOption<string>;
     /**
      * String that shows as the hint in the username textbox on the sign in screen. This text must be Unicode, without links
      * or code, and can't exceed 64 characters.
@@ -12376,6 +13380,7 @@ export interface UnifiedRoleAssignment extends Entity {
     directoryScopeId?: NullableOption<string>;
     // Identifier of the principal to which the assignment is granted. Supports $filter (eq operator only).
     principalId?: NullableOption<string>;
+    principalOrganizationId?: NullableOption<string>;
     /**
      * The scope at which the unifiedRoleAssignment applies. This is / for service-wide. DO NOT USE. This property will be
      * deprecated soon.
@@ -13154,15 +14159,20 @@ export interface EducationSynchronizationError extends Entity {
     reportableIdentifier?: NullableOption<string>;
 }
 export interface EducationSynchronizationProfileStatus extends Entity {
+    // Number of errors during synchronization.
+    errorCount?: number;
     // Represents the time when most recent changes were observed in profile.
     lastActivityDateTime?: NullableOption<string>;
     // Represents the time of the most recent successful synchronization.
     lastSynchronizationDateTime?: NullableOption<string>;
     /**
-     * The status of a sync. Possible values are: paused, inProgress, success, error, quarantined, validationError,
-     * extracting, validating.
+     * The status of a sync. The possible values are: paused, inProgress, success, error, validationError, quarantined,
+     * unknownFutureValue, extracting, validating. Note that you must use the Prefer: include-unknown-enum-members request
+     * header to get the following values in this evolvable enum: extracting, validating.
      */
     status?: NullableOption<EducationSynchronizationStatus>;
+    // Status message for the current profile's synchronization stage.
+    statusMessage?: string;
 }
 export interface ExactMatchJobBase extends Entity {
     completionDateTime?: NullableOption<string>;
@@ -14710,6 +15720,7 @@ export interface AccessReviewDecision extends Entity {
     reviewResult?: NullableOption<string>;
 }
 export interface AccessReviewReviewer extends Entity {
+    createdDateTime?: NullableOption<string>;
     displayName?: NullableOption<string>;
     userPrincipalName?: NullableOption<string>;
 }
@@ -16250,6 +17261,8 @@ export interface ManagedAppProtection extends ManagedAppPolicy {
     simplePinBlocked?: boolean;
 }
 export interface TargetedManagedAppProtection extends ManagedAppProtection {
+    // Public Apps selection: group or individual
+    appGroupType?: TargetedManagedAppGroupType;
     // Indicates if the policy is deployed to any inclusion groups or not.
     isAssigned?: boolean;
     /**
@@ -16669,6 +17682,8 @@ export interface ManagedAppConfiguration extends ManagedAppPolicy {
     customSettings?: KeyValuePair[];
 }
 export interface TargetedManagedAppConfiguration extends ManagedAppConfiguration {
+    // Public Apps selection: group or individual
+    appGroupType?: TargetedManagedAppGroupType;
     // Count of apps to which the current policy is deployed.
     deployedAppCount?: number;
     // Indicates if the policy is deployed to any inclusion groups or not.
@@ -17963,6 +18978,10 @@ export interface MobileAppPolicySetItem extends PolicySetItem {
     // Settings of the MobileAppPolicySetItem.
     settings?: NullableOption<MobileAppAssignmentSettings>;
 }
+export interface PayloadCompatibleAssignmentFilter extends DeviceAndAppManagementAssignmentFilter {
+    // PayloadType of the Assignment Filter.
+    payloadType?: AssignmentFilterPayloadType;
+}
 export interface PolicySetAssignment extends Entity {
     // Last modified time of the PolicySetAssignment.
     lastModifiedDateTime?: string;
@@ -18276,6 +19295,12 @@ export interface AndroidDeviceOwnerCompliancePolicy extends DeviceCompliancePoli
      * alphanumeric, alphanumericWithSymbols, lowSecurityBiometric, customPassword.
      */
     passwordRequiredType?: NullableOption<AndroidDeviceOwnerRequiredPasswordType>;
+    /**
+     * If setting is set to true, checks that the Intune app installed on fully managed, dedicated, or corporate-owned work
+     * profile Android Enterprise enrolled devices, is the one provided by Microsoft from the Managed Google Playstore. If the
+     * check fails, the device will be reported as non-compliant.
+     */
+    securityRequireIntuneAppIntegrity?: NullableOption<boolean>;
     // Require the device to pass the SafetyNet basic integrity check.
     securityRequireSafetyNetAttestationBasicIntegrity?: NullableOption<boolean>;
     // Require the device to pass the SafetyNet certified device check.
@@ -18913,6 +19938,12 @@ export interface AndroidEnterpriseWiFiConfiguration extends AndroidWiFiConfigura
     passwordFormatString?: NullableOption<string>;
     // PreSharedKey used to build the password to connect to wifi
     preSharedKey?: NullableOption<string>;
+    /**
+     * Trusted server certificate names when EAP Type is configured to EAP-TLS/TTLS/FAST or PEAP. This is the common name used
+     * in the certificates issued by your trusted certificate authority (CA). If you provide this information, you can bypass
+     * the dynamic trust dialog that is displayed on end users' devices when they connect to this Wi-Fi network.
+     */
+    trustedServerCertificateNames?: NullableOption<string[]>;
     // Username format string used to build the username to connect to wifi
     usernameFormatString?: NullableOption<string>;
     /**
@@ -19092,6 +20123,12 @@ export interface AndroidForWorkEnterpriseWiFiConfiguration extends AndroidForWor
      * used to mask the username of individual users when they attempt to connect to Wi-Fi network.
      */
     outerIdentityPrivacyTemporaryValue?: NullableOption<string>;
+    /**
+     * Trusted server certificate names when EAP Type is configured to EAP-TLS/TTLS/FAST or PEAP. This is the common name used
+     * in the certificates issued by your trusted certificate authority (CA). If you provide this information, you can bypass
+     * the dynamic trust dialog that is displayed on end users' devices when they connect to this Wi-Fi network.
+     */
+    trustedServerCertificateNames?: NullableOption<string[]>;
     /**
      * Identity Certificate for client authentication when EAP Type is configured to EAP-TLS, EAP-TTLS (with Certificate
      * Authentication), or PEAP (with Certificate Authentication). This is the certificate presented by client to the Wi-Fi
@@ -19660,6 +20697,12 @@ export interface AndroidWorkProfileEnterpriseWiFiConfiguration extends AndroidWo
     // Proxy Type for this Wi-Fi connection. Possible values are: none, manual, automatic.
     proxySettings?: WiFiProxySetting;
     /**
+     * Trusted server certificate names when EAP Type is configured to EAP-TLS/TTLS/FAST or PEAP. This is the common name used
+     * in the certificates issued by your trusted certificate authority (CA). If you provide this information, you can bypass
+     * the dynamic trust dialog that is displayed on end users' devices when they connect to this Wi-Fi network.
+     */
+    trustedServerCertificateNames?: NullableOption<string[]>;
+    /**
      * Identity Certificate for client authentication when EAP Type is configured to EAP-TLS, EAP-TTLS (with Certificate
      * Authentication), or PEAP (with Certificate Authentication). This is the certificate presented by client to the Wi-Fi
      * endpoint. The authentication server sitting behind the Wi-Fi endpoint must accept this certificate to successfully
@@ -19885,6 +20928,8 @@ export interface AospDeviceOwnerCompliancePolicy extends DeviceCompliancePolicy 
      * alphanumeric, alphanumericWithSymbols, lowSecurityBiometric, customPassword.
      */
     passwordRequiredType?: NullableOption<AndroidDeviceOwnerRequiredPasswordType>;
+    // Devices must not be jailbroken or rooted.
+    securityBlockJailbrokenDevices?: NullableOption<boolean>;
     // Require encryption on Android devices.
     storageRequireEncryption?: NullableOption<boolean>;
 }
@@ -20203,6 +21248,16 @@ export interface IosDeviceFeaturesConfiguration extends AppleDeviceFeaturesConfi
     contentFilterSettings?: NullableOption<IosWebContentFilterBase>;
     // A list of app and folders to appear on the Home Screen Dock. This collection can contain a maximum of 500 elements.
     homeScreenDockIcons?: NullableOption<IosHomeScreenItem[]>;
+    /**
+     * Gets or sets the number of rows to render when configuring iOS home screen layout settings. If this value is
+     * configured, homeScreenGridWidth must be configured as well.
+     */
+    homeScreenGridHeight?: NullableOption<number>;
+    /**
+     * Gets or sets the number of columns to render when configuring iOS home screen layout settings. If this value is
+     * configured, homeScreenGridHeight must be configured as well.
+     */
+    homeScreenGridWidth?: NullableOption<number>;
     // A list of pages on the Home Screen. This collection can contain a maximum of 500 elements.
     homeScreenPages?: NullableOption<IosHomeScreenPage[]>;
     // Gets or sets a single sign-on extension profile.
@@ -20911,6 +21966,11 @@ export interface IosGeneralDeviceConfiguration extends DeviceConfiguration {
      */
     wiFiConnectOnlyToConfiguredNetworks?: boolean;
     /**
+     * Require devices to use Wi-Fi networks set up via configuration profiles. Available for devices running iOS and iPadOS
+     * versions 14.5 and later.
+     */
+    wiFiConnectToAllowedNetworksOnlyForced?: boolean;
+    /**
      * Indicates whether or not Wi-Fi remains on, even when device is in airplane mode. Available for devices running iOS and
      * iPadOS, versions 13.0 and later.
      */
@@ -21168,6 +22228,8 @@ export interface MacOSCustomAppConfiguration extends DeviceConfiguration {
     fileName?: NullableOption<string>;
 }
 export interface MacOSCustomConfiguration extends DeviceConfiguration {
+    // Indicates the channel used to deploy the configuration profile. Available choices are DeviceChannel, UserChannel.
+    deploymentChannel?: AppleDeploymentChannel;
     // Payload. (UTF8 encoded byte array)
     payload?: number;
     // Payload file name (.mobileconfig
@@ -21507,17 +22569,10 @@ export interface MacOSExtensionsConfiguration extends DeviceConfiguration {
     systemExtensionsBlockOverride?: boolean;
 }
 export interface MacOSGeneralDeviceConfiguration extends DeviceConfiguration {
+    // Yes prevents users from adding friends to Game Center. Available for devices running macOS versions 10.13 and later.
+    addingGameCenterFriendsBlocked?: boolean;
     // Indicates whether or not to allow AirDrop.
     airDropBlocked?: boolean;
-    // Indicates whether or not AirPrint is blocked (macOS 10.12 and later).
-    airPrintBlocked?: boolean;
-    /**
-     * Indicates whether or not iBeacon discovery of AirPrint printers is blocked. This prevents spurious AirPrint Bluetooth
-     * beacons from phishing for network traffic (macOS 10.3 and later).
-     */
-    airPrintBlockiBeaconDiscovery?: boolean;
-    // Indicates if trusted certificates are required for TLS printing communication (macOS 10.13 and later).
-    airPrintForceTrustedTLS?: boolean;
     // Indicates whether or to block users from unlocking their Mac with Apple Watch.
     appleWatchBlockAutoUnlock?: boolean;
     // Indicates whether or not to block the user from accessing the camera of the device.
@@ -21562,6 +22617,11 @@ export interface MacOSGeneralDeviceConfiguration extends DeviceConfiguration {
     // An email address lacking a suffix that matches any of these strings will be considered out-of-domain.
     emailInDomainSuffixes?: NullableOption<string[]>;
     /**
+     * Yes disables Game Center, and the Game Center icon is removed from the Home screen. Available for devices running macOS
+     * versions 10.13 and later.
+     */
+    gameCenterBlocked?: boolean;
+    /**
      * Indicates whether or not to block the user from continuing work that they started on a MacOS device on another iOS or
      * MacOS device (MacOS 10.15 or later).
      */
@@ -21590,6 +22650,8 @@ export interface MacOSGeneralDeviceConfiguration extends DeviceConfiguration {
     keyboardBlockDictation?: boolean;
     // Indicates whether or not iCloud keychain synchronization is blocked (macOS 10.12 and later).
     keychainBlockCloudSync?: boolean;
+    // Yes prevents multiplayer gaming when using Game Center. Available for devices running macOS versions 10.13 and later.
+    multiplayerGamingBlocked?: boolean;
     // Indicates whether or not to block sharing passwords with the AirDrop passwords feature.
     passwordBlockAirDropSharing?: boolean;
     // Indicates whether or not to block the AutoFill Passwords feature.
@@ -21637,6 +22699,8 @@ export interface MacOSGeneralDeviceConfiguration extends DeviceConfiguration {
      * delayAppUpdateVisibility.
      */
     updateDelayPolicy?: NullableOption<MacOSSoftwareUpdateDelayPolicy>;
+    // Yes prevents the wallpaper from being changed. Available for devices running macOS versions 10.13 and later.
+    wallpaperModificationBlocked?: boolean;
 }
 export interface MacOSImportedPFXCertificateProfile extends MacOSCertificateProfileBase {
     /**
@@ -21671,6 +22735,8 @@ export interface MacOSPkcsCertificateProfile extends MacOSCertificateProfileBase
     managedDeviceCertificateStates?: NullableOption<ManagedDeviceCertificateState[]>;
 }
 export interface MacOSScepCertificateProfile extends MacOSCertificateProfileBase {
+    // AllowAllAppsAccess setting
+    allowAllAppsAccess?: NullableOption<boolean>;
     // Target store certificate. Possible values are: user, machine.
     certificateStore?: NullableOption<CertificateStore>;
     // Custom Subject Alternative Name Settings. This collection can contain a maximum of 500 elements.
@@ -23410,7 +24476,7 @@ export interface Windows10GeneralConfiguration extends DeviceConfiguration {
     privacyBlockInputPersonalization?: boolean;
     // Blocks the shared experiences/discovery of recently used resources in task switcher etc.
     privacyBlockPublishUserActivities?: boolean;
-    // This policy prevents the privacy experience from launching during user logon for new and upgraded users.​
+    // This policy prevents the privacy experience from launching during user logon for new and upgraded users.
     privacyDisableLaunchExperience?: boolean;
     // Indicates whether or not to Block the user from reset protection mode.
     resetProtectionModeBlocked?: boolean;
@@ -24160,7 +25226,7 @@ export interface WindowsDeliveryOptimizationConfiguration extends DeviceConfigur
     cacheServerBackgroundDownloadFallbackToHttpDelayInSeconds?: number;
     /**
      * Specifies number of seconds to delay a fall back from cache servers to an HTTP source for a foreground download. Valid
-     * values 0 to 2592000.​
+     * values 0 to 2592000.
      */
     cacheServerForegroundDownloadFallbackToHttpDelayInSeconds?: number;
     // Specifies cache servers host names.
@@ -24754,8 +25820,8 @@ export interface WindowsWifiEnterpriseEAPConfiguration extends WindowsWifiConfig
     // Specify trusted server certificate names.
     trustedServerCertificateNames?: NullableOption<string[]>;
     /**
-     * Specifiy whether to change the virtual LAN used by the device based on the user’s credentials. Cannot be used when
-     * NetworkSingleSignOnType is set to ​Disabled.
+     * Specifiy whether to change the virtual LAN used by the device based on the user's credentials. Cannot be used when
+     * NetworkSingleSignOnType is set to Disabled.
      */
     userBasedVirtualLan?: NullableOption<boolean>;
     // Specify identity certificate for client authentication.
@@ -24778,6 +25844,10 @@ export interface DeviceManagementConfigurationChoiceSettingCollectionDefinition 
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationPolicyAssignment extends Entity {
+    // The assignment source for the device compliance policy, direct or parcel/policySet.
+    source?: DeviceAndAppManagementAssignmentSource;
+    // The identifier of the source of the assignment.
+    sourceId?: NullableOption<string>;
     // The assignment target for the DeviceManagementConfigurationPolicy.
     target?: NullableOption<DeviceAndAppManagementAssignmentTarget>;
 }
@@ -24828,6 +25898,12 @@ export interface DeviceComanagementAuthorityConfiguration extends DeviceEnrollme
 export interface DeviceEnrollmentLimitConfiguration extends DeviceEnrollmentConfiguration {
     // The maximum number of devices that a user can enroll
     limit?: number;
+}
+export interface DeviceEnrollmentPlatformRestrictionConfiguration extends DeviceEnrollmentConfiguration {
+    // Restrictions based on platform, platform operating system version, and device ownership
+    platformRestriction?: NullableOption<DeviceEnrollmentPlatformRestriction>;
+    // Type of platform for which this restriction applies.
+    platformType?: EnrollmentRestrictionPlatformType;
 }
 export interface DeviceEnrollmentPlatformRestrictionsConfiguration extends DeviceEnrollmentConfiguration {
     // Android for work restrictions based on platform, platform operating system version, and device ownership
@@ -25286,6 +26362,8 @@ export interface UserExperienceAnalyticsWorkFromAnywhereDevice extends Entity {
     azureAdJoinType?: NullableOption<string>;
     // The user experience work from anywhere device's azureAdRegistered.
     azureAdRegistered?: NullableOption<boolean>;
+    // The user experience work from anywhere device's compliancePolicySetToIntune.
+    compliancePolicySetToIntune?: NullableOption<boolean>;
     // The work from anywhere device's name.
     deviceName?: NullableOption<string>;
     // The user experience work from anywhere management agent of the device.
@@ -25294,14 +26372,65 @@ export interface UserExperienceAnalyticsWorkFromAnywhereDevice extends Entity {
     manufacturer?: NullableOption<string>;
     // The user experience work from anywhere device's model.
     model?: NullableOption<string>;
+    /**
+     * The user experience work from anywhere device, Is OS check failed for device to upgrade to the latest version of
+     * windows.
+     */
+    osCheckFailed?: NullableOption<boolean>;
     // The user experience work from anywhere device's OS Description.
     osDescription?: NullableOption<string>;
     // The user experience work from anywhere device's OS Version.
     osVersion?: NullableOption<string>;
+    // The user experience work from anywhere device's otherWorkloadsSetToIntune.
+    otherWorkloadsSetToIntune?: NullableOption<boolean>;
     // The user experience work from anywhere device's ownership.
     ownership?: NullableOption<string>;
+    /**
+     * The user experience work from anywhere device, Is processor hardware 64-bit architecture check failed for device to
+     * upgrade to the latest version of windows.
+     */
+    processor64BitCheckFailed?: NullableOption<boolean>;
+    /**
+     * The user experience work from anywhere device, Is processor hardware core count check failed for device to upgrade to
+     * the latest version of windows.
+     */
+    processorCoreCountCheckFailed?: NullableOption<boolean>;
+    /**
+     * The user experience work from anywhere device, Is processor hardware family check failed for device to upgrade to the
+     * latest version of windows.
+     */
+    processorFamilyCheckFailed?: NullableOption<boolean>;
+    /**
+     * The user experience work from anywhere device, Is processor hardware speed check failed for device to upgrade to the
+     * latest version of windows.
+     */
+    processorSpeedCheckFailed?: NullableOption<boolean>;
+    /**
+     * Is the user experience analytics work from anywhere device RAM hardware check failed for device to upgrade to the
+     * latest version of windows
+     */
+    ramCheckFailed?: NullableOption<boolean>;
+    /**
+     * The user experience work from anywhere device, Is secure boot hardware check failed for device to upgrade to the latest
+     * version of windows.
+     */
+    secureBootCheckFailed?: NullableOption<boolean>;
     // The user experience work from anywhere device's serial number.
     serialNumber?: NullableOption<string>;
+    /**
+     * The user experience work from anywhere device, Is storage hardware check failed for device to upgrade to the latest
+     * version of windows.
+     */
+    storageCheckFailed?: NullableOption<boolean>;
+    // The user experience work from anywhere device's tenantAttached.
+    tenantAttached?: NullableOption<boolean>;
+    /**
+     * The user experience work from anywhere device, Is Trusted Platform Module (TPM) hardware check failed for device to the
+     * latest version of upgrade to windows.
+     */
+    tpmCheckFailed?: NullableOption<boolean>;
+    // The user experience work from anywhere windows upgrade eligibility status of device.
+    upgradeEligibility?: OperatingSystemUpgradeEligibility;
 }
 export interface WindowsDeviceMalwareState extends Entity {
     // Information URL to learn more about the malware
@@ -25570,6 +26699,8 @@ export interface DepIOSEnrollmentProfile extends DepEnrollmentBaseProfile {
     appearanceScreenDisabled?: boolean;
     // Indicates if the device will need to wait for configured confirmation
     awaitDeviceConfiguredConfirmation?: boolean;
+    // Carrier URL for activating device eSIM.
+    carrierActivationUrl?: NullableOption<string>;
     /**
      * If set, indicates which Vpp token should be used to deploy the Company Portal w/ device licensing.
      * 'enableAuthenticationViaCompanyPortal' must be set in order for this property to be set.
@@ -25589,6 +26720,8 @@ export interface DepIOSEnrollmentProfile extends DepEnrollmentBaseProfile {
     enableSingleAppEnrollmentMode?: boolean;
     // Indicates if Express Language screen is disabled
     expressLanguageScreenDisabled?: boolean;
+    // Indicates if temporary sessions is enabled
+    forceTemporarySession?: boolean;
     // Indicates if home button sensitivity screen is disabled
     homeButtonScreenDisabled?: boolean;
     // Indicates if iMessage and FaceTime screen is disabled
@@ -25601,6 +26734,8 @@ export interface DepIOSEnrollmentProfile extends DepEnrollmentBaseProfile {
     onBoardingScreenDisabled?: boolean;
     // Indicates if Passcode setup pane is disabled
     passCodeDisabled?: boolean;
+    // Indicates timeout before locked screen requires the user to enter the device passocde to unlock it
+    passcodeLockGracePeriodInSeconds?: NullableOption<number>;
     // Indicates if Preferred language screen is disabled
     preferredLanguageScreenDisabled?: boolean;
     // Indicates if Weclome screen is disabled
@@ -25613,8 +26748,12 @@ export interface DepIOSEnrollmentProfile extends DepEnrollmentBaseProfile {
     simSetupScreenDisabled?: boolean;
     // Indicates if the mandatory sofware update screen is disabled
     softwareUpdateScreenDisabled?: boolean;
+    // Indicates timeout of temporary session
+    temporarySessionTimeoutInSeconds?: number;
     // Indicates if Weclome screen is disabled
     updateCompleteScreenDisabled?: boolean;
+    // Indicates timeout of temporary session
+    userSessionTimeoutInSeconds?: number;
     // Indicates if the watch migration screen is disabled
     watchMigrationScreenDisabled?: boolean;
     // Indicates if Weclome screen is disabled
@@ -29344,6 +30483,37 @@ export interface DataPolicyOperation extends Entity {
     // The id for the user on whom the operation is performed.
     userId?: string;
 }
+export interface SearchAnswer extends Entity {
+    description?: NullableOption<string>;
+    displayName?: string;
+    lastModifiedBy?: NullableOption<IdentitySet>;
+    lastModifiedDateTime?: NullableOption<string>;
+    webUrl?: NullableOption<string>;
+}
+export interface Bookmark extends SearchAnswer {
+    availabilityEndDateTime?: NullableOption<string>;
+    availabilityStartDateTime?: NullableOption<string>;
+    categories?: NullableOption<string[]>;
+    groupIds?: NullableOption<string[]>;
+    isSuggested?: NullableOption<boolean>;
+    keywords?: NullableOption<AnswerKeyword>;
+    languageTags?: NullableOption<string[]>;
+    platforms?: DevicePlatformType[];
+    powerAppIds?: NullableOption<string[]>;
+    state?: AnswerState;
+    targetedVariations?: NullableOption<AnswerVariant[]>;
+}
+export interface Qna extends SearchAnswer {
+    availabilityEndDateTime?: NullableOption<string>;
+    availabilityStartDateTime?: NullableOption<string>;
+    groupIds?: NullableOption<string[]>;
+    isSuggested?: NullableOption<boolean>;
+    keywords?: NullableOption<AnswerKeyword>;
+    languageTags?: NullableOption<string[]>;
+    platforms?: DevicePlatformType[];
+    state?: AnswerState;
+    targetedVariations?: NullableOption<AnswerVariant[]>;
+}
 export interface Alert extends Entity {
     // Name or alias of the activity group (attacker) this alert is attributed to.
     activityGroupName?: NullableOption<string>;
@@ -30128,7 +31298,11 @@ export interface ChatMessage extends Entity {
     locale?: string;
     // List of entities mentioned in the chat message. Currently supports user, bot, team, channel.
     mentions?: NullableOption<ChatMessageMention[]>;
-    // The type of chat message. The possible values are: message, unknownFutureValue, systemEventMessage.
+    /**
+     * The type of chat message. The possible values are: message, chatEvent, typing, unknownFutureValue, systemEventMessage.
+     * Note that you must use the Prefer: include-unknown-enum-members request header to get the following value in this
+     * evolvable enum: systemEventMessage.
+     */
     messageType?: ChatMessageType;
     // Defines the properties of a policy violation set by a data loss prevention (DLP) application.
     policyViolation?: NullableOption<ChatMessagePolicyViolation>;
@@ -30245,18 +31419,22 @@ export interface WorkforceIntegration extends ChangeTrackedEntity {
     // Indicates whether this workforce integration is currently active and available.
     isActive?: NullableOption<boolean>;
     /**
-     * This property will replace supports in v1.0. We recommend that you use this property instead of supports. The supports
-     * property will still be supported in beta for the time being. Possible values are none, shift, swapRequest, openshift,
-     * openShiftRequest, userShiftPreferences, offerShiftRequest, timeCard, timeOffReason, timeOff, timeOffRequest and
-     * unknownFutureValue. If selecting more than one value, all values must start with the first letter in uppercase.
+     * This property has replaced supports in v1.0. We recommend that you use this property instead of supports. The supports
+     * property is still supported in beta for the time being. The possible values are: none, shift, swapRequest, openshift,
+     * openShiftRequest, userShiftPreferences, offerShiftRequest, unknownFutureValue, timeCard, timeOffReason, timeOff,
+     * timeOffRequest. Note that you must use the Prefer: include-unknown-enum-members request header to get the following
+     * values in this evolvable enum: timeCard, timeOffReason, timeOff, timeOffRequest. If selecting more than one value, all
+     * values must start with the first letter in uppercase.
      */
     supportedEntities?: NullableOption<WorkforceIntegrationSupportedEntities>;
     /**
      * The Shifts entities supported for synchronous change notifications. Shifts will make a call back to the url provided on
-     * client changes on those entities added here. By default, no entities are supported for change notifications. Possible
-     * values are none, shift, swapRequest, openshift, openShiftRequest, userShiftPreferences, offerShiftRequest, timeCard,
-     * timeOffReason, timeOff, timeOffRequest and unknownFutureValue. If selecting more than one value, all values must start
-     * with the first letter in uppercase.
+     * client changes on those entities added here. By default, no entities are supported for change notifications. The
+     * possible values are: none, shift, swapRequest, openshift, openShiftRequest, userShiftPreferences, offerShiftRequest,
+     * unknownFutureValue, timeCard, timeOffReason, timeOff, timeOffRequest. Note that you must use the Prefer:
+     * include-unknown-enum-members request header to get the following values in this evolvable enum: timeCard,
+     * timeOffReason, timeOff, timeOffRequest. If selecting more than one value, all values must start with the first letter
+     * in uppercase.
      */
     supports?: NullableOption<WorkforceIntegrationSupportedEntities>;
     // Workforce Integration URL for callbacks from the Shifts service.
@@ -30543,7 +31721,9 @@ export interface AppliedConditionalAccessPolicy {
     /**
      * Indicates the result of the CA policy that was triggered. Possible values are: success, failure, notApplied (Policy
      * isn't applied because policy conditions were not met),notEnabled (This is due to the policy in disabled state),
-     * unknown, unknownFutureValue, reportOnlySuccess, reportOnlyFailure, reportOnlyNotApplied, reportOnlyInterrupted
+     * unknown, unknownFutureValue, reportOnlySuccess, reportOnlyFailure, reportOnlyNotApplied, reportOnlyInterrupted. Note
+     * that you must use the Prefer: include-unknown-enum-members request header to get the following values in this evolvable
+     * enum: reportOnlySuccess, reportOnlyFailure, reportOnlyNotApplied, reportOnlyInterrupted.
      */
     result?: NullableOption<AppliedConditionalAccessPolicyResult>;
 }
@@ -30650,25 +31830,22 @@ export interface Initiator extends Identity {
     initiatorType?: NullableOption<InitiatorType>;
 }
 export interface KeyValue {
-    // Key.
+    /**
+     * Contains the name of the field that a value is associated with. When a sign in or domain hint is included in the
+     * sign-in request, corresponding fields are included as key-value pairs. Possible keys: Login hint present, Domain hint
+     * present.
+     */
     key?: NullableOption<string>;
-    // Value.
+    /**
+     * Contains the corresponding value for the specified key. The value is true if a sign in hint was included in the sign-in
+     * request; otherwise false. The value is true if a domain hint was included in the sign-in request; otherwise false.
+     */
     value?: NullableOption<string>;
 }
 export interface KeyValuePair {
-    /**
-     * Name for this key-value pair. Possible names are: AdditionalWSFedEndpointCheckResult,
-     * AllowedAuthenticationClassReferencesCheckResult, AlwaysRequireAuthenticationCheckResult, AutoUpdateEnabledCheckResult,
-     * ClaimsProviderNameCheckResult, EncryptClaimsCheckResult, EncryptedNameIdRequiredCheckResult,
-     * MonitoringEnabledCheckResult,NotBeforeSkewCheckResult, RequestMFAFromClaimsProvidersCheckResult,
-     * SignedSamlRequestsRequiredCheckResult, AdditionalAuthenticationRulesCheckResult, TokenLifetimeCheckResult,
-     * DelegationAuthorizationRulesCheckResult, IssuanceAuthorizationRulesCheckResult, IssuanceTransformRulesCheckResult.
-     */
+    // Name for this key-value pair
     name?: string;
-    /**
-     * Value for this key-value pair. Possible result values are 0 (when the validation check passed), 1 (when the validation
-     * check failed), or 2 (when the validation check is a warning).
-     */
+    // Value for this key-value pair
     value?: NullableOption<string>;
 }
 export interface LicenseInfoDetail {
@@ -32381,6 +33558,7 @@ export interface UserAttributeValuesItem {
 export interface UserFlowApiConnectorConfiguration {
     postAttributeCollection?: NullableOption<IdentityApiConnector>;
     postFederationSignup?: NullableOption<IdentityApiConnector>;
+    preTokenIssuance?: NullableOption<IdentityApiConnector>;
 }
 export interface LabelActionBase {
     name?: NullableOption<string>;
@@ -32621,11 +33799,20 @@ export interface ResourceSpecificPermission {
     value?: NullableOption<string>;
 }
 export interface AppManagementConfiguration {
+    // Collection of password restrictions settings to be applied to an application or service principal
     passwordCredentials?: NullableOption<PasswordCredentialConfiguration[]>;
 }
 export interface PasswordCredentialConfiguration {
     maxLifetime?: NullableOption<string>;
+    /**
+     * Enforces the policy for an app created on or after the enforcement date. For existing applications, the enforcement
+     * date would be back dated. To apply to all applications, enforcement datetime would be null.
+     */
     restrictForAppsCreatedAfterDateTime?: NullableOption<string>;
+    /**
+     * The type of restriction being applied. Possible values are passwordAddition or passwordLifetime. Each value of
+     * restrictionType can be used only once per policy.
+     */
     restrictionType?: NullableOption<AppCredentialRestrictionType>;
 }
 export interface AppMetadata {
@@ -32715,6 +33902,13 @@ export interface LicenseUnitsDetail {
      * a grace period to renew their subscription before it is cancelled (moved to a suspended state).
      */
     warning?: NullableOption<number>;
+}
+export interface LoginPageTextVisibilitySettings {
+    hideCannotAccessYourAccount?: NullableOption<boolean>;
+    hideForgotMyPassword?: NullableOption<boolean>;
+    hidePrivacyAndCookies?: NullableOption<boolean>;
+    hideResetItNow?: NullableOption<boolean>;
+    hideTermsOfUse?: NullableOption<boolean>;
 }
 export interface OptionalClaim {
     /**
@@ -35522,10 +36716,11 @@ export interface AccessPackageAnswerString extends AccessPackageAnswer {
     value?: NullableOption<string>;
 }
 export interface AccessPackageAssignmentRequestRequirements {
-    allowCustomAssignmentSchedule?: NullableOption<boolean>;
     existingAnswers?: NullableOption<AccessPackageAnswer[]>;
-    isApprovalRequiredForAdd?: NullableOption<boolean>;
-    isApprovalRequiredForUpdate?: NullableOption<boolean>;
+    isApprovalRequired?: NullableOption<boolean>;
+    isApprovalRequiredForExtension?: NullableOption<boolean>;
+    isCustomAssignmentScheduleAllowed?: NullableOption<boolean>;
+    isRequestorJustificationRequired?: NullableOption<boolean>;
     policyDescription?: NullableOption<string>;
     policyDisplayName?: NullableOption<string>;
     policyId?: NullableOption<string>;
@@ -35900,6 +37095,13 @@ export interface RemoveProtectionAction extends InformationProtectionAction {}
 export interface RemoveWatermarkAction extends InformationProtectionAction {
     // The name of the UI element of footer to be removed.
     uiElementNames?: NullableOption<string[]>;
+}
+export interface SigningResult {
+    signature?: NullableOption<number>;
+    signingKeyId?: NullableOption<string>;
+}
+export interface VerificationResult {
+    signatureValid?: boolean;
 }
 export interface AndroidEnrollmentCompanyCode {
     // Enrollment Token used by the User to enroll their device.
@@ -36549,6 +37751,8 @@ export interface WindowsMinimumOperatingSystem {
     v10_1909?: boolean;
     // Windows 10 2004 or later.
     v10_2004?: boolean;
+    // Windows 10 21H1 or later.
+    v10_21H1?: boolean;
     // Windows 10 2H20 or later.
     v10_2H20?: boolean;
     // Windows version 8.0 or later.
@@ -36672,6 +37876,20 @@ export interface AssignmentFilterStatusDetails {
     payloadId?: NullableOption<string>;
     // Unique identifier for UserId object. Can be null
     userId?: NullableOption<string>;
+}
+export interface AssignmentFilterSupportedProperty {
+    // The data type of the property.
+    dataType?: NullableOption<string>;
+    // Indicates whether the property is a collection type or not.
+    isCollection?: boolean;
+    // Name of the property.
+    name?: NullableOption<string>;
+    // Regex string to do validation on the property value.
+    propertyRegexConstraint?: NullableOption<string>;
+    // List of all supported operators on this property.
+    supportedOperators?: AssignmentFilterOperator[];
+    // List of all supported values for this propery, empty if everything is supported.
+    supportedValues?: NullableOption<string[]>;
 }
 export interface AssignmentFilterValidationResult {
     // Indicator to valid or invalid rule.
@@ -39484,6 +40702,10 @@ export interface UserExperienceAnalyticsAutopilotDevicesSummary {
     // The count of intune devices not autopilot profile assigned.
     devicesWithoutAutopilotProfileAssigned?: number;
 }
+export interface UserExperienceAnalyticsCloudIdentityDevicesSummary {
+    // The count of devices that are not cloud identity.
+    deviceWithoutCloudIdentityCount?: number;
+}
 export interface UserExperienceAnalyticsCloudManagementDevicesSummary {
     // Total number of co-managed devices.
     coManagedDeviceCount?: number;
@@ -39509,6 +40731,8 @@ export interface UserExperienceAnalyticsWindows10DevicesSummary {
 export interface UserExperienceAnalyticsWorkFromAnywhereDevicesSummary {
     // The value of work from anywhere autopilot devices summary.
     autopilotDevicesSummary?: NullableOption<UserExperienceAnalyticsAutopilotDevicesSummary>;
+    // The user experience analytics work from anywhere Cloud Identity devices summary.
+    cloudIdentityDevicesSummary?: NullableOption<UserExperienceAnalyticsCloudIdentityDevicesSummary>;
     // The user experience work from anywhere Cloud management devices summary.
     cloudManagementDevicesSummary?: NullableOption<UserExperienceAnalyticsCloudManagementDevicesSummary>;
     // The user experience analytics work from anywhere Windows 10 devices summary.
@@ -40376,7 +41600,8 @@ export interface PlannerPlanContainer {
     containerId?: string;
     /**
      * The type of the resource that contains the plan. See the previous table for supported types. Possible values are:
-     * group, roster, unknownFutureValue.
+     * group, unknownFutureValue, roster. Note that you must use the Prefer: include-unknown-enum-members request header to
+     * get the following value in this evolvable enum: roster.
      */
     type?: PlannerContainerType;
     // The full canonical URL of the container.
@@ -40822,10 +42047,18 @@ export interface TicketInfo {
     ticketSystem?: NullableOption<string>;
 }
 export interface UnifiedRoleManagementPolicyRuleTarget {
+    // The caller for the policy rule target. Allowed values are: None, Admin, EndUser.
     caller?: NullableOption<string>;
+    // The list of settings which are enforced and cannot be overridden by child scopes. Use All for all settings.
     enforcedSettings?: NullableOption<string[]>;
+    // The list of settings which can be inherited by child scopes. Use All for all settings.
     inheritableSettings?: NullableOption<string[]>;
+    // The level for the policy rule target. Allowed values are: Eligibility, Assignment.
     level?: NullableOption<string>;
+    /**
+     * The operations for policy rule target. Allowed values are: All, Activate, Deactivate, Assign, Update, Remove, Extend,
+     * Renew.
+     */
     operations?: NullableOption<string[]>;
     targetObjects?: NullableOption<DirectoryObject[]>;
 }
@@ -41273,6 +42506,18 @@ export interface VisualInfo {
 }
 // tslint:disable-next-line: no-empty-interface
 export interface PayloadRequest {}
+export interface AnswerKeyword {
+    keywords?: NullableOption<string[]>;
+    matchSimilarKeywords?: NullableOption<boolean>;
+    reservedKeywords?: NullableOption<string[]>;
+}
+export interface AnswerVariant {
+    description?: NullableOption<string>;
+    displayName?: NullableOption<string>;
+    languageTag?: NullableOption<string>;
+    platform?: NullableOption<DevicePlatformType>;
+    webUrl?: NullableOption<string>;
+}
 export interface AccountAlias {
     id?: string;
     idType?: NullableOption<string>;
@@ -44565,8 +45810,10 @@ export namespace ExternalConnectors {
         /**
          * Specifies one or more well-known tags added against a property. Labels help Microsoft Search understand the semantics
          * of the data in the connection. Adding appropriate labels would result in an enhanced search experience (e.g. better
-         * relevance). Supported labels: title, url, createdBy, lastModifiedBy, authors, createdDateTime, lastModifiedDateTime,
-         * fileName, fileExtension, iconUrl, containerName, and containerUrl. Optional.
+         * relevance). Optional.The possible values are: title, url, createdBy, lastModifiedBy, authors, createdDateTime,
+         * lastModifiedDateTime, fileName, fileExtension, unknownFutureValue, iconUrl, containerName, containerUrl. Note that you
+         * must use the Prefer: include-unknown-enum-members request header to get the following values in this evolvable enum:
+         * iconUrl, containerName, containerUrl.
          */
         labels?: NullableOption<Label[]>;
         /**
@@ -44576,7 +45823,7 @@ export namespace ExternalConnectors {
         name?: string;
         /**
          * The data type of the property. Possible values are: string, int64, double, dateTime, boolean, stringCollection,
-         * int64Collection, doubleCollection, dateTimeCollection. Required.
+         * int64Collection, doubleCollection, dateTimeCollection, unknownFutureValue. Required.
          */
         type?: PropertyType;
     }
