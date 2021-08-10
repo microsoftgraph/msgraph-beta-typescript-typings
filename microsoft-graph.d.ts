@@ -1,10 +1,11 @@
-// Project: https://github.com/microsoftgraph/msgraph-beta-typescript-typings
+// Project: https://github.com/microsoftgraph/msgraph-typescript-typings
 // Definitions by: Microsoft Graph Team <https://github.com/microsoftgraph>
 //                 Michael Mainer <https://github.com/MIchaelMainer>
 //                 Peter Ombwa <https://github.com/peombwa>
 //                 Mustafa Zengin <https://github.com/zengin>
 //                 DeVere Dyett <https://github.com/ddyett>
 //                 Nikitha Udaykumar Chettiar <https://github.com/nikithauc>
+// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 2.1
 
 export as namespace microsoftgraphbeta;
@@ -6289,7 +6290,7 @@ export interface AppConsentRequest extends Entity {
     // The identifier of the application. Required. Supports $filter (eq only) and $orderby.
     appId?: string;
     /**
-     * The consent type of the request. Possible values are: Static and Dynamic. These represent static and dynamic
+     * The consent type of the request. Possible values are: Static and Dynamic. These represent static and dynamic
      * permissions, respectively, requested in the consent workflow. Supports $filter (eq only) and $orderby. Required.
      */
     consentType?: NullableOption<string>;
@@ -7938,6 +7939,10 @@ export interface PolicyRoot {
     b2cAuthenticationMethodsPolicy?: NullableOption<B2cAuthenticationMethodsPolicy>;
     // The policy that controls the idle time out for web sessions for applications.
     activityBasedTimeoutPolicies?: NullableOption<ActivityBasedTimeoutPolicy[]>;
+    /**
+     * The policies that enforce app management restrictions for specific applications and service principals, overriding the
+     * defaultAppManagementPolicy.
+     */
     appManagementPolicies?: NullableOption<AppManagementPolicy[]>;
     // The policy that controls Azure AD authorization settings.
     authorizationPolicy?: NullableOption<AuthorizationPolicy[]>;
@@ -7946,6 +7951,7 @@ export interface PolicyRoot {
      * application.
      */
     claimsMappingPolicies?: NullableOption<ClaimsMappingPolicy[]>;
+    // The tenant-wide policy that enforces app management restrictions for all applications and service principals.
     defaultAppManagementPolicy?: NullableOption<TenantAppManagementPolicy>;
     // The policy to control Azure AD authentication behavior for federated users.
     homeRealmDiscoveryPolicies?: NullableOption<HomeRealmDiscoveryPolicy[]>;
@@ -8516,15 +8522,15 @@ export interface CloudPC extends Entity {
     userPrincipalName?: NullableOption<string>;
 }
 export interface CloudPcAuditEvent extends Entity {
-    // Friendly name of the activity.Optional.
+    // Friendly name of the activity. Optional.
     activity?: NullableOption<string>;
-    // The date time in UTC when the activity was performed. Read-only.
+    // The date time in UTC when the activity was performed. Read-only.
     activityDateTime?: string;
-    // The HTTP operation type of the activity. Possible values include create, delete, patch and other. Read-only.
+    // The HTTP operation type of the activity. Possible values include create, delete, patch and other. Read-only.
     activityOperationType?: CloudPcAuditActivityOperationType;
-    // The result of the activity. Read-only.
+    // The result of the activity. Read-only.
     activityResult?: CloudPcAuditActivityResult;
-    // The type of activity that was performed. Read-only.
+    // The type of activity that was performed. Read-only.
     activityType?: string;
     // Azure AD user and application associated with the audit event. Read-only.
     actor?: CloudPcAuditActor;
@@ -8532,11 +8538,11 @@ export interface CloudPcAuditEvent extends Entity {
     category?: CloudPcAuditCategory;
     // Component name. Read-only.
     componentName?: string;
-    // The client request identifier, used to correlate activity within the system. Read-only.
+    // The client request identifier, used to correlate activity within the system. Read-only.
     correlationId?: string;
     // Event display name. Read-only.
     displayName?: string;
-    // List of cloudPcAuditResource objects. Read-only.
+    // List of cloudPcAuditResource objects. Read-only.
     resources?: CloudPcAuditResource[];
 }
 export interface CloudPcDeviceImage extends Entity {
@@ -8665,7 +8671,7 @@ export interface CloudPcUserSetting extends Entity {
     /**
      * The last date and time the setting was modified. The Timestamp type represents the date and time information using ISO
      * 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 looks like
-     * this: '2014-01-01T00:00:00Z'.
+     * this: '2014-01-01T00:00:00Z'.
      */
     lastModifiedDateTime?: NullableOption<string>;
     /**
@@ -8675,7 +8681,7 @@ export interface CloudPcUserSetting extends Entity {
     localAdminEnabled?: NullableOption<boolean>;
     /**
      * Indicates whether the self-service option is enabled. Default value is false. To enable the self-service option, change
-     * the setting to true. If the self-service option is enabled, the end user is allowed to perform some self-service
+     * the setting to true. If the self-service option is enabled, the end user is allowed to perform some self-service
      * operations, such as upgrading the Cloud PC through the end user portal.
      */
     selfServiceEnabled?: NullableOption<boolean>;
@@ -11064,6 +11070,8 @@ export interface WindowsAutopilotDeploymentProfile extends Entity {
     language?: NullableOption<string>;
     // Profile last modified time
     lastModifiedDateTime?: string;
+    // AzureAD management app ID used during client device-based enrollment discovery
+    managementServiceAppId?: NullableOption<string>;
     // Out of box experience setting
     outOfBoxExperienceSettings?: NullableOption<OutOfBoxExperienceSettings>;
     // Scope tags for the profile.
@@ -16018,7 +16026,10 @@ export interface AccessPackageAssignmentRequest extends Entity {
     isValidationOnly?: NullableOption<boolean>;
     // The requestor's supplied justification.
     justification?: NullableOption<string>;
-    // One of PendingApproval, Canceled, Denied, Delivering, Delivered, PartiallyDelivered, Submitted or Scheduled. Read-only.
+    /**
+     * One of PendingApproval, Canceled, Denied, Delivering, Delivered, PartiallyDelivered, DeliveryFailed, Submitted or
+     * Scheduled. Read-only.
+     */
     requestState?: NullableOption<string>;
     // More information on the request processing status. Read-only.
     requestStatus?: NullableOption<string>;
@@ -23939,7 +23950,7 @@ export interface Windows10GeneralConfiguration extends DeviceConfiguration {
     appManagementMSIAllowUserControlOverInstall?: boolean;
     // This policy setting directs Windows Installer to use elevated permissions when it installs any program on the system.
     appManagementMSIAlwaysInstallWithElevatedPrivileges?: boolean;
-    // List of semi-colon delimited Package Family Names of Windows apps. Listed Windows apps are to be launched after logon.
+    // List of semi-colon delimited Package Family Names of Windows apps. Listed Windows apps are to be launched after logon.​
     appManagementPackageFamilyNamesToLaunchAfterLogOn?: NullableOption<string[]>;
     /**
      * Indicates whether apps from AppX packages signed with a trusted certificate can be side loaded. Possible values are:
@@ -24476,7 +24487,7 @@ export interface Windows10GeneralConfiguration extends DeviceConfiguration {
     privacyBlockInputPersonalization?: boolean;
     // Blocks the shared experiences/discovery of recently used resources in task switcher etc.
     privacyBlockPublishUserActivities?: boolean;
-    // This policy prevents the privacy experience from launching during user logon for new and upgraded users.
+    // This policy prevents the privacy experience from launching during user logon for new and upgraded users.​
     privacyDisableLaunchExperience?: boolean;
     // Indicates whether or not to Block the user from reset protection mode.
     resetProtectionModeBlocked?: boolean;
@@ -25226,7 +25237,7 @@ export interface WindowsDeliveryOptimizationConfiguration extends DeviceConfigur
     cacheServerBackgroundDownloadFallbackToHttpDelayInSeconds?: number;
     /**
      * Specifies number of seconds to delay a fall back from cache servers to an HTTP source for a foreground download. Valid
-     * values 0 to 2592000.
+     * values 0 to 2592000.​
      */
     cacheServerForegroundDownloadFallbackToHttpDelayInSeconds?: number;
     // Specifies cache servers host names.
@@ -25820,8 +25831,8 @@ export interface WindowsWifiEnterpriseEAPConfiguration extends WindowsWifiConfig
     // Specify trusted server certificate names.
     trustedServerCertificateNames?: NullableOption<string[]>;
     /**
-     * Specifiy whether to change the virtual LAN used by the device based on the user's credentials. Cannot be used when
-     * NetworkSingleSignOnType is set to Disabled.
+     * Specifiy whether to change the virtual LAN used by the device based on the user’s credentials. Cannot be used when
+     * NetworkSingleSignOnType is set to ​Disabled.
      */
     userBasedVirtualLan?: NullableOption<boolean>;
     // Specify identity certificate for client authentication.
@@ -27371,7 +27382,10 @@ export interface ServiceAnnouncement extends Entity {
     messages?: NullableOption<ServiceUpdateMessage[]>;
 }
 export interface ServiceHealth extends Entity {
-    // The service name.
+    /**
+     * The service name. Use the list healthOverviews operation to get exact string names for services subscribed by the
+     * tenant.
+     */
     service?: string;
     /**
      * Show the overral service health status. Possible values are: serviceOperational, investigating, restoringService,
@@ -27435,7 +27449,10 @@ export interface ServiceUpdateMessage extends ServiceAnnouncementBase {
     severity?: ServiceUpdateSeverity;
     // A collection of tags for the service message.
     tags?: NullableOption<string[]>;
-    // Represents user view points data of the service message.
+    /**
+     * Represents user view points data of the service message. This data includes message status such as whether the user has
+     * archived, read, or marked the message as favorite. This property is null when accessed with application permissions.
+     */
     viewPoint?: NullableOption<ServiceUpdateMessageViewpoint>;
 }
 // tslint:disable-next-line: no-empty-interface
@@ -31349,10 +31366,12 @@ export interface ChatMessageInfo extends Entity {
     body?: NullableOption<ItemBody>;
     // Date time object representing the time at which message was created.
     createdDateTime?: NullableOption<string>;
+    eventDetail?: NullableOption<EventMessageDetail>;
     // Information about the sender of the message.
     from?: NullableOption<ChatMessageFromIdentitySet>;
     // If set to true, the original message has been deleted.
     isDeleted?: NullableOption<boolean>;
+    messageType?: ChatMessageType;
 }
 export interface TeamworkHostedContent extends Entity {
     // Write only. Bytes for the hosted content (such as images).
@@ -32396,21 +32415,21 @@ export interface KeyCredential {
     displayName?: NullableOption<string>;
     /**
      * The date and time at which the credential expires.The Timestamp type represents date and time information using ISO
-     * 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z
+     * 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
      */
     endDateTime?: NullableOption<string>;
     // Value for the key credential. Should be a base 64 encoded value.
     key?: NullableOption<number>;
-    // The unique identifier (GUID) for the key.
+    // The unique identifier for the key.
     keyId?: NullableOption<string>;
     /**
      * The date and time at which the credential becomes valid.The Timestamp type represents date and time information using
-     * ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z
+     * ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
      */
     startDateTime?: NullableOption<string>;
-    // The type of key credential; for example, 'Symmetric'.
+    // The type of key credential; for example, Symmetric.
     type?: NullableOption<string>;
-    // A string that describes the purpose for which the key can be used; for example, 'Verify'.
+    // A string that describes the purpose for which the key can be used; for example, Verify.
     usage?: NullableOption<string>;
 }
 export interface OptionalClaims {
@@ -43708,6 +43727,7 @@ export interface MembersAddedEventMessageDetail extends EventMessageDetail {
     initiator?: NullableOption<IdentitySet>;
     // List of members added.
     members?: NullableOption<TeamworkUserIdentity[]>;
+    visibleHistoryStartDateTime?: NullableOption<string>;
 }
 export interface MembersDeletedEventMessageDetail extends EventMessageDetail {
     // Initiator of the event.
@@ -45653,6 +45673,7 @@ export namespace ExternalConnectors {
     type ExternalGroupMemberType = "user" | "group" | "unknownFutureValue";
     type ExternalItemContentType = "text" | "html" | "unknownFutureValue";
     type IdentitySourceType = "azureActiveDirectory" | "external" | "unknownFutureValue";
+    type IdentityType = "user" | "group" | "externalGroup" | "unknownFutureValue";
     type Label =
         | "title"
         | "url"
@@ -45776,6 +45797,11 @@ export namespace ExternalConnectors {
         type?: ExternalItemContentType;
         // The content for the externalItem. Required.
         value?: NullableOption<string>;
+    }
+// tslint:disable-next-line: interface-name
+    interface Identity {
+        id?: string;
+        type?: NullableOption<IdentityType>;
     }
 // tslint:disable-next-line: no-empty-interface
     interface Properties {}
