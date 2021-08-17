@@ -1,10 +1,11 @@
-// Project: https://github.com/microsoftgraph/msgraph-beta-typescript-typings
+// Project: https://github.com/microsoftgraph/msgraph-typescript-typings
 // Definitions by: Microsoft Graph Team <https://github.com/microsoftgraph>
 //                 Michael Mainer <https://github.com/MIchaelMainer>
 //                 Peter Ombwa <https://github.com/peombwa>
 //                 Mustafa Zengin <https://github.com/zengin>
 //                 DeVere Dyett <https://github.com/ddyett>
 //                 Nikitha Udaykumar Chettiar <https://github.com/nikithauc>
+// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 2.1
 
 export as namespace microsoftgraphbeta;
@@ -4128,6 +4129,7 @@ export type AuthenticationMethodSignInState =
 export type AuthenticationPhoneType = "mobile" | "alternateMobile" | "office" | "unknownFutureValue";
 export type LongRunningOperationStatus = "notstarted" | "running" | "succeeded" | "failed";
 export type LifecycleEventType = "missed" | "subscriptionRemoved" | "reauthorizationRequired";
+export type BinaryOperator = "or" | "and";
 export type AccessType = "grant" | "deny";
 export type AclType = "user" | "group" | "everyone" | "everyoneExceptGuests" | "externalGroup" | "unknownFutureValue";
 export type ConnectionOperationStatus = "unspecified" | "inprogress" | "completed" | "failed";
@@ -5752,9 +5754,9 @@ export interface Group extends DirectoryObject {
      * Indicates whether this group can be assigned to an Azure Active Directory role.This property can only be set while
      * creating the group and is immutable. If set to true, the securityEnabled property must also be set to true and the
      * group cannot be a dynamic group (that is, groupTypes cannot contain DynamicMembership). Only callers in Global
-     * administrator and Privileged role administrator roles can set this property. The caller must also be assigned the
-     * Directory.AccessAsUser.All permission to set this property. For more, see Using a group to manage Azure AD role
-     * assignmentsReturned by default. Supports $filter (eq, ne, NOT).
+     * administrator and Privileged role administrator roles can set this property. The caller must be assigned the
+     * RoleManagement.ReadWrite.Directory permission to set this property or update the membership of such groups. For more,
+     * see Using a group to manage Azure AD role assignmentsReturned by default. Supports $filter (eq, ne, NOT).
      */
     isAssignableToRole?: NullableOption<boolean>;
     /**
@@ -6289,7 +6291,7 @@ export interface AppConsentRequest extends Entity {
     // The identifier of the application. Required. Supports $filter (eq only) and $orderby.
     appId?: string;
     /**
-     * The consent type of the request. Possible values are: Static and Dynamic. These represent static and dynamic
+     * The consent type of the request. Possible values are: Static and Dynamic. These represent static and dynamic
      * permissions, respectively, requested in the consent workflow. Supports $filter (eq only) and $orderby. Required.
      */
     consentType?: NullableOption<string>;
@@ -6308,7 +6310,17 @@ export interface AccessReviewInstance extends Entity {
      * $select. Read-only.
      */
     endDateTime?: NullableOption<string>;
+    /**
+     * This collection of reviewer scopes is used to define the list of fallback reviewers. These fallback reviewers will be
+     * notified to take action if no users are found from the list of reviewers specified. This could occur when either the
+     * group owner is specified as the reviewer but the group owner does not exist, or manager is specified as reviewer but a
+     * user's manager does not exist. Supports $select.
+     */
     fallbackReviewers?: NullableOption<AccessReviewReviewerScope[]>;
+    /**
+     * This collection of access review scopes is used to define who the reviewers are. Supports $select. For examples of
+     * options for assigning reviewers, see Assign reviewers to your access review definition using the Microsoft Graph API.
+     */
     reviewers?: NullableOption<AccessReviewReviewerScope[]>;
     /**
      * Created based on scope and instanceEnumerationScope at the accessReviewScheduleDefinition level. Defines the scope of
@@ -6326,6 +6338,11 @@ export interface AccessReviewInstance extends Entity {
      * Completed, AutoReviewing, and AutoReviewed. Supports $select, $orderby, and $filter (eq only). Read-only.
      */
     status?: NullableOption<string>;
+    /**
+     * Returns the collection of reviewers who were contacted to complete this review. While the reviewers and
+     * fallbackReviewers properties of the accessReviewScheduleDefinition might specify group owners or managers as reviewers,
+     * contactedReviewers returns their individual identities. Supports $select. Read-only.
+     */
     contactedReviewers?: NullableOption<AccessReviewReviewer[]>;
     /**
      * Each user reviewed in an accessReviewInstance has a decision item representing if they were approved, denied, or not
@@ -7298,7 +7315,7 @@ export interface Invitation extends Entity {
     // The URL user should be redirected to once the invitation is redeemed. Required.
     inviteRedirectUrl?: string;
     resetRedemption?: NullableOption<boolean>;
-    // Indicates whether an email should be sent to the user being invited or not. The default is false.
+    // Indicates whether an email should be sent to the user being invited. The default is false.
     sendInvitationMessage?: NullableOption<boolean>;
     // The status of the invitation. Possible values: PendingAcceptance, Completed, InProgress, and Error
     status?: NullableOption<string>;
@@ -7882,7 +7899,7 @@ export interface AuthenticationMethodsPolicy extends Entity {
 export interface AuthenticationMethodTarget extends Entity {
     // Determines if the user is enforced to register the authentication method.
     isRegistrationRequired?: boolean;
-    // Possible values are: user, group.
+    // Possible values are: user, group, and unknownFutureValue.
     targetType?: AuthenticationMethodTargetType;
 }
 export interface EmailAuthenticationMethodConfiguration extends AuthenticationMethodConfiguration {
@@ -7915,14 +7932,14 @@ export interface MicrosoftAuthenticatorAuthenticationMethodConfiguration extends
 }
 export interface MicrosoftAuthenticatorAuthenticationMethodTarget extends AuthenticationMethodTarget {
     /**
-     * Determines which types of notifications can be used for sign-in. Possible values are: any, deviceBasedPush
-     * (passwordless only), push.
+     * Determines which types of notifications can be used for sign-in. The possible values are: deviceBasedPush (passwordless
+     * only), push, and any.
      */
     authenticationMode?: MicrosoftAuthenticatorAuthenticationMode;
     /**
-     * Determines what additional settings should be applied to Microsoft Authenticator. Possible values are: null,
+     * Determines what additional settings should be applied to Microsoft Authenticator. The possible values are:
      * requireNumberMatching (Requires number matching for MFA notifications. Value is ignored for phone sign-in
-     * notifications).
+     * notifications). Nullable.
      */
     featureSettings?: NullableOption<AuthenticatorAppFeatureSettings>;
 }
@@ -8521,15 +8538,15 @@ export interface CloudPC extends Entity {
     userPrincipalName?: NullableOption<string>;
 }
 export interface CloudPcAuditEvent extends Entity {
-    // Friendly name of the activity. Optional.
+    // Friendly name of the activity. Optional.
     activity?: NullableOption<string>;
-    // The date time in UTC when the activity was performed. Read-only.
+    // The date time in UTC when the activity was performed. Read-only.
     activityDateTime?: string;
-    // The HTTP operation type of the activity. Possible values include create, delete, patch and other. Read-only.
+    // The HTTP operation type of the activity. Possible values include create, delete, patch and other. Read-only.
     activityOperationType?: CloudPcAuditActivityOperationType;
-    // The result of the activity. Read-only.
+    // The result of the activity. Read-only.
     activityResult?: CloudPcAuditActivityResult;
-    // The type of activity that was performed. Read-only.
+    // The type of activity that was performed. Read-only.
     activityType?: string;
     // Azure AD user and application associated with the audit event. Read-only.
     actor?: CloudPcAuditActor;
@@ -8537,11 +8554,11 @@ export interface CloudPcAuditEvent extends Entity {
     category?: CloudPcAuditCategory;
     // Component name. Read-only.
     componentName?: string;
-    // The client request identifier, used to correlate activity within the system. Read-only.
+    // The client request identifier, used to correlate activity within the system. Read-only.
     correlationId?: string;
     // Event display name. Read-only.
     displayName?: string;
-    // List of cloudPcAuditResource objects. Read-only.
+    // List of cloudPcAuditResource objects. Read-only.
     resources?: CloudPcAuditResource[];
 }
 export interface CloudPcDeviceImage extends Entity {
@@ -8670,7 +8687,7 @@ export interface CloudPcUserSetting extends Entity {
     /**
      * The last date and time the setting was modified. The Timestamp type represents the date and time information using ISO
      * 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 looks like
-     * this: '2014-01-01T00:00:00Z'.
+     * this: '2014-01-01T00:00:00Z'.
      */
     lastModifiedDateTime?: NullableOption<string>;
     /**
@@ -8680,7 +8697,7 @@ export interface CloudPcUserSetting extends Entity {
     localAdminEnabled?: NullableOption<boolean>;
     /**
      * Indicates whether the self-service option is enabled. Default value is false. To enable the self-service option, change
-     * the setting to true If the self-service option is enabled, the end user is allowed to perform some self-service
+     * the setting to true. If the self-service option is enabled, the end user is allowed to perform some self-service
      * operations, such as upgrading the Cloud PC through the end user portal.
      */
     selfServiceEnabled?: NullableOption<boolean>;
@@ -10661,7 +10678,10 @@ export interface UserExperienceAnalyticsDeviceScores extends Entity {
     deviceName?: NullableOption<string>;
     // The user experience analytics device score. Valid values -1.79769313486232E+308 to 1.79769313486232E+308
     endpointAnalyticsScore?: number;
-    // The health state of the user experience analytics device.
+    /**
+     * The health state of the user experience analytics device. Possible values are: unknown, insufficientData,
+     * needsAttention, meetingGoals.
+     */
     healthStatus?: UserExperienceAnalyticsHealthState;
     // The user experience analytics device manufacturer.
     manufacturer?: NullableOption<string>;
@@ -11296,18 +11316,30 @@ export interface GroupPolicyDefinition extends Entity {
     explainText?: NullableOption<string>;
     // The category id of the parent category
     groupPolicyCategoryId?: string;
+    // Signifies whether or not there are related definitions to this definition
+    hasRelatedDefinitions?: boolean;
     // The date and time the entity was last modified.
     lastModifiedDateTime?: string;
+    // Minimum required CSP version for device configuration in this definition
+    minDeviceCspVersion?: NullableOption<string>;
+    // Minimum required CSP version for user configuration in this definition
+    minUserCspVersion?: NullableOption<string>;
     // Specifies the type of group policy. Possible values are: admxBacked, admxIngested.
     policyType?: GroupPolicyType;
     // Localized string used to specify what operating system or application version is affected by the policy.
     supportedOn?: NullableOption<string>;
+    // Setting definition version
+    version?: NullableOption<string>;
     // The group policy category associated with the definition.
     category?: NullableOption<GroupPolicyCategory>;
     // The group policy file associated with the definition.
     definitionFile?: NullableOption<GroupPolicyDefinitionFile>;
+    // Definition of the next version of this definition
+    nextVersionDefinition?: NullableOption<GroupPolicyDefinition>;
     // The group policy presentations associated with the definition.
     presentations?: NullableOption<GroupPolicyPresentation[]>;
+    // Definition of the previous version of this definition
+    previousVersionDefinition?: NullableOption<GroupPolicyDefinition>;
 }
 export interface GroupPolicyUploadedDefinitionFile extends GroupPolicyDefinitionFile {
     // The contents of the uploaded ADMX file.
@@ -11545,7 +11577,7 @@ export interface RemoteAssistanceSettings extends Entity {
     /**
      * The current state of remote assistance for the account. Possible values are: notConfigured, disabled, enabled. This
      * setting is configurable by the admin. Remote assistance settings that have not yet been configured by the admin have a
-     * notConfigured state. Returned by default.
+     * notConfigured state. Returned by default. Possible values are: notConfigured, disabled, enabled.
      */
     remoteAssistanceState?: RemoteAssistanceState;
 }
@@ -13812,7 +13844,7 @@ export interface EducationCategory extends Entity {
     displayName?: NullableOption<string>;
 }
 export interface EducationAssignmentResource extends Entity {
-    // Indicates whether this resource should be copied to each student submission for modification and submission.
+    // Indicates whether this resource should be copied to each student submission for modification and submission. Required
     distributeForStudentWork?: NullableOption<boolean>;
     // Resource object that has been associated with this assignment.
     resource?: NullableOption<EducationResource>;
@@ -13890,8 +13922,8 @@ export interface EducationAssignmentDefaults extends Entity {
      */
     addedStudentAction?: NullableOption<EducationAddedStudentAction>;
     /**
-     * Optional field to control the asfor adding assignments to students' and teachers' calendars when the assignment is
-     * published. Possible values are: studentsAndPublisher, studentsAndTeamOwners, none. Default value is none.
+     * Optional field to control adding assignments to students' and teachers' calendars when the assignment is published.
+     * Possible values are: studentsAndPublisher and studentsAndTeamOwners.
      */
     addToCalendarAction?: NullableOption<EducationAddToCalendarOptions>;
     // Class-level default value for due time field. Default value is 23:59:00.
@@ -15727,8 +15759,11 @@ export interface AccessReviewDecision extends Entity {
     reviewResult?: NullableOption<string>;
 }
 export interface AccessReviewReviewer extends Entity {
+    // The date when the reviewer was added for the access review.
     createdDateTime?: NullableOption<string>;
+    // Name of reviewer.
     displayName?: NullableOption<string>;
+    // User principal name of the user.
     userPrincipalName?: NullableOption<string>;
 }
 export interface AccessReviewHistoryDefinition extends Entity {
@@ -15868,9 +15903,9 @@ export interface AccessReviewScheduleDefinition extends Entity {
      */
     reviewers?: NullableOption<AccessReviewReviewerScope[]>;
     /**
-     * Defines scope of resources to review. For supported scopes, see accessReviewScope. Required on create. Supports $select
-     * and $filter (contains only). For examples of options for configuring scope, see Configure the scope of your access
-     * review definition using the Microsoft Graph API.
+     * Defines the entities whose access is reviewed. For supported scopes, see accessReviewScope. Required on create.
+     * Supports $select and $filter (contains only). For examples of options for configuring scope, see Configure the scope of
+     * your access review definition using the Microsoft Graph API.
      */
     scope?: NullableOption<AccessReviewScope>;
     // The settings for an access review series, see type definition below. Supports $select. Required on create.
@@ -17271,7 +17306,10 @@ export interface ManagedAppProtection extends ManagedAppPolicy {
     simplePinBlocked?: boolean;
 }
 export interface TargetedManagedAppProtection extends ManagedAppProtection {
-    // Public Apps selection: group or individual
+    /**
+     * Public Apps selection: group or individual. Possible values are: selectedPublicApps, allCoreMicrosoftApps,
+     * allMicrosoftApps, allApps.
+     */
     appGroupType?: TargetedManagedAppGroupType;
     // Indicates if the policy is deployed to any inclusion groups or not.
     isAssigned?: boolean;
@@ -18989,7 +19027,7 @@ export interface MobileAppPolicySetItem extends PolicySetItem {
     settings?: NullableOption<MobileAppAssignmentSettings>;
 }
 export interface PayloadCompatibleAssignmentFilter extends DeviceAndAppManagementAssignmentFilter {
-    // PayloadType of the Assignment Filter.
+    // PayloadType of the Assignment Filter. Possible values are: notSet, enrollmentRestrictions.
     payloadType?: AssignmentFilterPayloadType;
 }
 export interface PolicySetAssignment extends Entity {
@@ -19023,36 +19061,21 @@ export interface WindowsAutopilotDeploymentProfileAssignment extends Entity {
 // tslint:disable-next-line: no-empty-interface
 export interface WindowsAutopilotDeploymentProfilePolicySetItem extends PolicySetItem {}
 export interface OfficeClientConfiguration extends Entity {
-    // List of office Client check-in status.
     checkinStatuses?: NullableOption<OfficeClientCheckinStatus[]>;
-    // Not yet documented
     description?: NullableOption<string>;
-    // Admin provided description of the office client configuration policy.
     displayName?: NullableOption<string>;
-    // Policy settings JSON string in binary format, these values cannot be changed by the user.
     policyPayload?: NullableOption<any>;
-    /**
-     * Priority value should be unique value for each policy under a tenant and will be used for conflict resolution, lower
-     * values mean priority is high.
-     */
     priority?: number;
-    // User check-in summary for the policy.
     userCheckinSummary?: NullableOption<OfficeUserCheckinSummary>;
-    // Preference settings JSON string in binary format, these values can be overridden by the user.
     userPreferencePayload?: NullableOption<any>;
-    // The list of group assignments for the policy.
     assignments?: NullableOption<OfficeClientConfigurationAssignment[]>;
 }
 export interface OfficeClientConfigurationAssignment extends Entity {
-    // The target assignment defined by the admin.
     target?: NullableOption<OfficeConfigurationAssignmentTarget>;
 }
 export interface OfficeConfiguration {
-    // List of office Client check-in status.
     tenantCheckinStatuses?: NullableOption<OfficeClientCheckinStatus[]>;
-    // Entity that describes tenant check-in statues
     tenantUserCheckinSummary?: NullableOption<OfficeUserCheckinSummary>;
-    // List of office Client configuration.
     clientConfigurations?: NullableOption<OfficeClientConfiguration[]>;
 }
 // tslint:disable-next-line: no-empty-interface
@@ -22238,7 +22261,10 @@ export interface MacOSCustomAppConfiguration extends DeviceConfiguration {
     fileName?: NullableOption<string>;
 }
 export interface MacOSCustomConfiguration extends DeviceConfiguration {
-    // Indicates the channel used to deploy the configuration profile. Available choices are DeviceChannel, UserChannel.
+    /**
+     * Indicates the channel used to deploy the configuration profile. Available choices are DeviceChannel, UserChannel.
+     * Possible values are: deviceChannel, userChannel.
+     */
     deploymentChannel?: AppleDeploymentChannel;
     // Payload. (UTF8 encoded byte array)
     payload?: number;
@@ -23949,7 +23975,7 @@ export interface Windows10GeneralConfiguration extends DeviceConfiguration {
     appManagementMSIAllowUserControlOverInstall?: boolean;
     // This policy setting directs Windows Installer to use elevated permissions when it installs any program on the system.
     appManagementMSIAlwaysInstallWithElevatedPrivileges?: boolean;
-    // List of semi-colon delimited Package Family Names of Windows apps. Listed Windows apps are to be launched after logon.
+    // List of semi-colon delimited Package Family Names of Windows apps. Listed Windows apps are to be launched after logon.​
     appManagementPackageFamilyNamesToLaunchAfterLogOn?: NullableOption<string[]>;
     /**
      * Indicates whether apps from AppX packages signed with a trusted certificate can be side loaded. Possible values are:
@@ -24486,7 +24512,7 @@ export interface Windows10GeneralConfiguration extends DeviceConfiguration {
     privacyBlockInputPersonalization?: boolean;
     // Blocks the shared experiences/discovery of recently used resources in task switcher etc.
     privacyBlockPublishUserActivities?: boolean;
-    // This policy prevents the privacy experience from launching during user logon for new and upgraded users.
+    // This policy prevents the privacy experience from launching during user logon for new and upgraded users.​
     privacyDisableLaunchExperience?: boolean;
     // Indicates whether or not to Block the user from reset protection mode.
     resetProtectionModeBlocked?: boolean;
@@ -25236,7 +25262,7 @@ export interface WindowsDeliveryOptimizationConfiguration extends DeviceConfigur
     cacheServerBackgroundDownloadFallbackToHttpDelayInSeconds?: number;
     /**
      * Specifies number of seconds to delay a fall back from cache servers to an HTTP source for a foreground download. Valid
-     * values 0 to 2592000.
+     * values 0 to 2592000.​
      */
     cacheServerForegroundDownloadFallbackToHttpDelayInSeconds?: number;
     // Specifies cache servers host names.
@@ -25831,7 +25857,7 @@ export interface WindowsWifiEnterpriseEAPConfiguration extends WindowsWifiConfig
     trustedServerCertificateNames?: NullableOption<string[]>;
     /**
      * Specifiy whether to change the virtual LAN used by the device based on the user’s credentials. Cannot be used when
-     * NetworkSingleSignOnType is set to Disabled.
+     * NetworkSingleSignOnType is set to ​Disabled.
      */
     userBasedVirtualLan?: NullableOption<boolean>;
     // Specify identity certificate for client authentication.
@@ -25854,7 +25880,10 @@ export interface DeviceManagementConfigurationChoiceSettingCollectionDefinition 
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationPolicyAssignment extends Entity {
-    // The assignment source for the device compliance policy, direct or parcel/policySet.
+    /**
+     * The assignment source for the device compliance policy, direct or parcel/policySet. Possible values are: direct,
+     * policySets.
+     */
     source?: DeviceAndAppManagementAssignmentSource;
     // The identifier of the source of the assignment.
     sourceId?: NullableOption<string>;
@@ -25912,7 +25941,10 @@ export interface DeviceEnrollmentLimitConfiguration extends DeviceEnrollmentConf
 export interface DeviceEnrollmentPlatformRestrictionConfiguration extends DeviceEnrollmentConfiguration {
     // Restrictions based on platform, platform operating system version, and device ownership
     platformRestriction?: NullableOption<DeviceEnrollmentPlatformRestriction>;
-    // Type of platform for which this restriction applies.
+    /**
+     * Type of platform for which this restriction applies. Possible values are: allPlatforms, ios, windows, windowsPhone,
+     * android, androidForWork, androidAosp, mac.
+     */
     platformType?: EnrollmentRestrictionPlatformType;
 }
 export interface DeviceEnrollmentPlatformRestrictionsConfiguration extends DeviceEnrollmentConfiguration {
@@ -26439,7 +26471,10 @@ export interface UserExperienceAnalyticsWorkFromAnywhereDevice extends Entity {
      * latest version of upgrade to windows.
      */
     tpmCheckFailed?: NullableOption<boolean>;
-    // The user experience work from anywhere windows upgrade eligibility status of device.
+    /**
+     * The user experience work from anywhere windows upgrade eligibility status of device. Possible values are: upgraded,
+     * unknown, notCapable, capable.
+     */
     upgradeEligibility?: OperatingSystemUpgradeEligibility;
 }
 export interface WindowsDeviceMalwareState extends Entity {
@@ -31953,6 +31988,8 @@ export interface SessionLifetimePolicy {
     expirationRequirement?: NullableOption<ExpirationRequirement>;
 }
 export interface SignInActivity {
+    lastNonInteractiveSignInDateTime?: NullableOption<string>;
+    lastNonInteractiveSignInRequestId?: NullableOption<string>;
     /**
      * The last interactive sign-in date for a specific user. You can use this field to calculate the last time a user signed
      * in to the directory with an interactive authentication method. This field can be used to build reports, such as
@@ -36400,6 +36437,11 @@ export interface AccessReviewScheduleSettings {
     justificationRequiredOnApproval?: boolean;
     // Indicates whether emails are enabled or disabled. Default value is false.
     mailNotificationsEnabled?: boolean;
+    /**
+     * Optional field. Indicates the time period of inactivity (with respect to the start date of the review instance) that
+     * recommendations will be configured from. The recommendation will be to deny if the user is inactive during the look
+     * back duration. Supported durations are 30, 60, or 90 days.
+     */
     recommendationLookBackDuration?: NullableOption<string>;
     // Indicates whether decision recommendations are enabled/disabled.
     recommendationsEnabled?: boolean;
@@ -36734,15 +36776,31 @@ export interface AccessPackageAnswerString extends AccessPackageAnswer {
     value?: NullableOption<string>;
 }
 export interface AccessPackageAssignmentRequestRequirements {
+    // Answers that have already been provided.
     existingAnswers?: NullableOption<AccessPackageAnswer[]>;
+    // Indicates whether a request must be approved by an approver.
     isApprovalRequired?: NullableOption<boolean>;
+    // Indicates whether approval is required when a user tries to extend their access.
     isApprovalRequiredForExtension?: NullableOption<boolean>;
+    // Indicates whether the requestor is allowed to set a custom schedule.
     isCustomAssignmentScheduleAllowed?: NullableOption<boolean>;
+    // Indicates whether a requestor must supply justification when submitting an assignment request.
     isRequestorJustificationRequired?: NullableOption<boolean>;
+    // The description of the policy that the user is trying to request access using.
     policyDescription?: NullableOption<string>;
+    // The display name of the policy that the user is trying to request access using.
     policyDisplayName?: NullableOption<string>;
+    /**
+     * The identifier of the policy that these requirements are associated with. This identifier can be used when creating a
+     * new assignment request.
+     */
     policyId?: NullableOption<string>;
+    /**
+     * Questions that are configured on the policy. The questions can be required or optional; callers can determine whether a
+     * question is required or optional based on the isRequired property on accessPackageQuestion.
+     */
     questions?: NullableOption<AccessPackageQuestion[]>;
+    // Schedule restrictions enforced, if any.
     schedule?: NullableOption<RequestSchedule>;
 }
 export interface RequestSchedule {
@@ -37980,35 +38038,23 @@ export interface OutOfBoxExperienceSettings {
     userType?: WindowsUserType;
 }
 export interface OfficeClientCheckinStatus {
-    // List of policies delivered to the device as last checkin.
     appliedPolicies?: NullableOption<string[]>;
-    // Last device check-in time in UTC.
     checkinDateTime?: string;
-    // Device name trying to check-in.
     deviceName?: NullableOption<string>;
-    // Device platform trying to check-in.
     devicePlatform?: NullableOption<string>;
-    // Device platform version trying to check-in.
     devicePlatformVersion?: NullableOption<string>;
-    // Error message if any associated for the last checkin.
     errorMessage?: NullableOption<string>;
-    // User identifier using the device.
     userId?: string;
-    // User principal name using the device.
     userPrincipalName?: NullableOption<string>;
-    // If the last checkin was successful.
     wasSuccessful?: boolean;
 }
 // tslint:disable-next-line: no-empty-interface
 export interface OfficeConfigurationAssignmentTarget {}
 export interface OfficeConfigurationGroupAssignmentTarget extends OfficeConfigurationAssignmentTarget {
-    // The Id of the AAD group we are targeting the device configuration to.
     groupId?: NullableOption<string>;
 }
 export interface OfficeUserCheckinSummary {
-    // Total failed user check ins for the last 3 months.
     failedUserCount?: number;
-    // Total successful user check ins for the last 3 months.
     succeededUserCount?: number;
 }
 export interface AirPrintDestination {
@@ -38256,12 +38302,15 @@ export interface CryptographySuite {
     authenticationTransformConstants?: NullableOption<AuthenticationTransformConstant>;
     /**
      * Cipher Transform Constants. Possible values are: aes256, des, tripleDes, aes128, aes128Gcm, aes256Gcm, aes192,
-     * aes192Gcm.
+     * aes192Gcm, chaCha20Poly1305.
      */
     cipherTransformConstants?: NullableOption<VpnEncryptionAlgorithmType>;
     // Diffie Hellman Group. Possible values are: group1, group2, group14, ecp256, ecp384, group24.
     dhGroup?: NullableOption<DiffieHellmanGroup>;
-    // Encryption Method. Possible values are: aes256, des, tripleDes, aes128, aes128Gcm, aes256Gcm, aes192, aes192Gcm.
+    /**
+     * Encryption Method. Possible values are: aes256, des, tripleDes, aes128, aes128Gcm, aes256Gcm, aes192, aes192Gcm,
+     * chaCha20Poly1305.
+     */
     encryptionMethod?: NullableOption<VpnEncryptionAlgorithmType>;
     // Integrity Check Method. Possible values are: sha2_256, sha1_96, sha1_160, sha2_384, sha2_512, md5.
     integrityCheckMethod?: NullableOption<VpnIntegrityAlgorithmType>;
@@ -38812,7 +38861,10 @@ export interface IosVpnSecurityAssociationParameters {
     lifetimeInMinutes?: NullableOption<number>;
     // Diffie-Hellman Group
     securityDiffieHellmanGroup?: NullableOption<number>;
-    // Encryption algorithm. Possible values are: aes256, des, tripleDes, aes128, aes128Gcm, aes256Gcm, aes192, aes192Gcm.
+    /**
+     * Encryption algorithm. Possible values are: aes256, des, tripleDes, aes128, aes128Gcm, aes256Gcm, aes192, aes192Gcm,
+     * chaCha20Poly1305.
+     */
     securityEncryptionAlgorithm?: NullableOption<VpnEncryptionAlgorithmType>;
     // Integrity algorithm. Possible values are: sha2_256, sha1_96, sha1_160, sha2_384, sha2_512, md5.
     securityIntegrityAlgorithm?: NullableOption<VpnIntegrityAlgorithmType>;
@@ -45698,6 +45750,16 @@ export namespace ExternalConnectors {
         | "doubleCollection"
         | "dateTimeCollection"
         | "unknownFutureValue";
+    type RuleOperation =
+        | "null"
+        | "equals"
+        | "notEquals"
+        | "contains"
+        | "notContains"
+        | "lessThan"
+        | "greaterThan"
+        | "startsWith"
+        | "unknownFutureValue";
     interface ConnectionOperation extends microsoftgraphbeta.Entity {
         // If status is failed, provides more information about the error that caused the failure.
         error?: NullableOption<microsoftgraphbeta.PublicError>;
@@ -45713,6 +45775,7 @@ export namespace ExternalConnectors {
          * Optional.
          */
         configuration?: NullableOption<Configuration>;
+        connectorId?: NullableOption<string>;
         // Description of the connection displayed in the Microsoft 365 admin center. Optional.
         description?: NullableOption<string>;
         /**
@@ -45720,6 +45783,7 @@ export namespace ExternalConnectors {
          * Required.
          */
         name?: NullableOption<string>;
+        searchSettings?: NullableOption<SearchSettings>;
         // Indicates the current state of the connection. Possible values are draft, ready, obsolete, and limitExceeded. Required.
         state?: NullableOption<ConnectionState>;
         groups?: NullableOption<ExternalGroup[]>;
@@ -45791,6 +45855,18 @@ export namespace ExternalConnectors {
          */
         authorizedAppIds?: NullableOption<string[]>;
     }
+    interface DisplayTemplate {
+        id?: string;
+        layout?: microsoftgraphbeta.any;
+        priority?: number;
+        rules?: NullableOption<PropertyRule[]>;
+    }
+    interface PropertyRule {
+        operation?: RuleOperation;
+        property?: string;
+        values?: string[];
+        valuesJoinedBy?: microsoftgraphbeta.BinaryOperator;
+    }
     interface ExternalItemContent {
         // The type of content in the value property. Possible values are text and html. Required.
         type?: ExternalItemContentType;
@@ -45851,6 +45927,9 @@ export namespace ExternalConnectors {
          * int64Collection, doubleCollection, dateTimeCollection, unknownFutureValue. Required.
          */
         type?: PropertyType;
+    }
+    interface SearchSettings {
+        searchResultTemplates?: NullableOption<DisplayTemplate[]>;
     }
 }
 export namespace WindowsUpdates {
