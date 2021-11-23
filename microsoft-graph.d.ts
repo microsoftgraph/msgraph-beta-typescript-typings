@@ -8950,7 +8950,7 @@ export interface CloudPcOnPremisesConnection extends Entity {
      * '/subscriptions/{subscription-id}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/virtualNetworks/{virtualNetworkId}/subnets/{subnetName}'.
      */
     subnetId?: string;
-    // The ID of the target Azure subscription that’s associated with your tenant.
+    // The ID of the target Azure subscription that's associated with your tenant.
     subscriptionId?: string;
     // The name of the target Azure subscription. Read-only.
     subscriptionName?: NullableOption<string>;
