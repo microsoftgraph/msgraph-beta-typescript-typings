@@ -134,6 +134,21 @@ export type ProvisioningStepType =
     | "referenceResolution"
     | "export"
     | "unknownFutureValue";
+export type RecommendationCategory =
+    | "usageAndCompliance"
+    | "security"
+    | "productivity"
+    | "health"
+    | "configuration"
+    | "unknownFutureValue";
+export type RecommendationPriority = "low" | "medium" | "high";
+export type RecommendationStatus =
+    | "active"
+    | "completedBySystem"
+    | "completedByUser"
+    | "dismissed"
+    | "postponed"
+    | "unknownFutureValue";
 export type RegistrationAuthMethod =
     | "email"
     | "mobilePhone"
@@ -4568,121 +4583,125 @@ export interface DirectoryObject extends Entity {
 export interface User extends DirectoryObject {
     /**
      * Get the last signed-in date and request ID of the sign-in for a given user. Read-only.Returned only on $select.
-     * Supports $filter (eq, ne, NOT, ge, le) but, not with any other filterable properties. Note: Details for this property
+     * Supports $filter (eq, ne, not, ge, le) but, not with any other filterable properties. Note: Details for this property
      * require an Azure AD Premium P1/P2 license and the AuditLog.Read.All permission.Note: There's a known issue with
      * retrieving this property.
      */
     signInActivity?: NullableOption<SignInActivity>;
     /**
      * true if the account is enabled; otherwise, false. This property is required when a user is created. Returned only on
-     * $select. Supports $filter (eq, ne, NOT, and in).
+     * $select. Supports $filter (eq, ne, not, and in).
      */
     accountEnabled?: NullableOption<boolean>;
     /**
      * Sets the age group of the user. Allowed values: null, minor, notAdult and adult. Refer to the legal age group property
-     * definitions for further information. Returned only on $select. Supports $filter (eq, ne, NOT, and in).
+     * definitions for further information. Returned only on $select. Supports $filter (eq, ne, not, and in).
      */
     ageGroup?: NullableOption<string>;
     /**
      * The licenses that are assigned to the user, including inherited (group-based) licenses. Not nullable. Returned only on
-     * $select. Supports $filter (eq and NOT).
+     * $select. Supports $filter (eq and not).
      */
     assignedLicenses?: AssignedLicense[];
     /**
      * The plans that are assigned to the user. Read-only. Not nullable. Returned only on $select. Supports $filter (eq and
-     * NOT).
+     * not).
      */
     assignedPlans?: AssignedPlan[];
     /**
      * The telephone numbers for the user. NOTE: Although this is a string collection, only one number can be set for this
-     * property. Read-only for users synced from on-premises directory. Returned by default. Supports $filter (eq and NOT).
+     * property. Read-only for users synced from on-premises directory. Returned by default. Supports $filter (eq and not).
      */
     businessPhones?: string[];
     /**
      * The city in which the user is located. Maximum length is 128 characters. Returned only on $select. Supports $filter
-     * (eq, ne, NOT, ge, le, in, startsWith, and eq on null values).
+     * (eq, ne, not, ge, le, in, startsWith, and eq on null values).
      */
     city?: NullableOption<string>;
     /**
      * The company name which the user is associated. This property can be useful for describing the company that an external
      * user comes from. The maximum length of the company name is 64 characters.Returned only on $select. Supports $filter
-     * (eq, ne, NOT, ge, le, in, startsWith, and eq on null values).
+     * (eq, ne, not, ge, le, in, startsWith, and eq on null values).
      */
     companyName?: NullableOption<string>;
     /**
      * Sets whether consent has been obtained for minors. Allowed values: null, granted, denied and notRequired. Refer to the
-     * legal age group property definitions for further information. Returned only on $select. Supports $filter (eq, ne, NOT,
+     * legal age group property definitions for further information. Returned only on $select. Supports $filter (eq, ne, not,
      * and in).
      */
     consentProvidedForMinor?: NullableOption<string>;
     /**
      * The country/region in which the user is located; for example, US or UK. Maximum length is 128 characters. Returned only
-     * on $select. Supports $filter (eq, ne, NOT, ge, le, in, startsWith, and eq on null values).
+     * on $select. Supports $filter (eq, ne, not, ge, le, in, startsWith, and eq on null values).
      */
     country?: NullableOption<string>;
-    // The created date of the user object. Read-only. Returned only on $select. Supports $filter (eq, ne, NOT , ge, le, in).
+    // The created date of the user object. Read-only. Returned only on $select. Supports $filter (eq, ne, not , ge, le, in).
     createdDateTime?: NullableOption<string>;
     /**
      * Indicates whether the user account was created through one of the following methods: As a regular school or work
      * account (null). As an external account (Invitation). As a local account for an Azure Active Directory B2C tenant
      * (LocalAccount). Through self-service sign-up by an internal user using email verification (EmailVerified). Through
      * self-service sign-up by an external user signing up through a link that is part of a user flow (SelfServiceSignUp).
-     * Read-only.Returned only on $select. Supports $filter (eq, ne, NOT, in).
+     * Read-only.Returned only on $select. Supports $filter (eq, ne, not, in).
      */
     creationType?: NullableOption<string>;
+    /**
+     * An open complex type that holds the value of a custom security attribute that is assigned to a directory object.
+     * Nullable. Returned only on $select. Supports $filter (eq, ne, not, startsWith).
+     */
     customSecurityAttributes?: NullableOption<CustomSecurityAttributeValue>;
     /**
      * The name for the department in which the user works. Maximum length is 64 characters. Returned only on $select.
-     * Supports $filter (eq, ne, NOT , ge, le, in, and eq on null values).
+     * Supports $filter (eq, ne, not , ge, le, in, and eq on null values).
      */
     department?: NullableOption<string>;
     deviceKeys?: DeviceKey[];
     /**
      * The name displayed in the address book for the user. This is usually the combination of the user's first name, middle
      * initial and last name. This property is required when a user is created and it cannot be cleared during updates.
-     * Maximum length is 256 characters. Returned by default. Supports $filter (eq, ne, NOT , ge, le, in, startsWith, and eq
+     * Maximum length is 256 characters. Returned by default. Supports $filter (eq, ne, not , ge, le, in, startsWith, and eq
      * on null values), $orderBy, and $search.
      */
     displayName?: NullableOption<string>;
     /**
      * The date and time when the user was hired or will start work in case of a future hire. Returned only on $select.
-     * Supports $filter (eq, ne, NOT , ge, le, in).
+     * Supports $filter (eq, ne, not , ge, le, in).
      */
     employeeHireDate?: NullableOption<string>;
     /**
      * The employee identifier assigned to the user by the organization. Returned only on $select. Supports $filter (eq, ne,
-     * NOT , ge, le, in, startsWith, and eq on null values).
+     * not , ge, le, in, startsWith, and eq on null values).
      */
     employeeId?: NullableOption<string>;
     /**
      * Represents organization data (e.g. division and costCenter) associated with a user. Returned only on $select. Supports
-     * $filter (eq, ne, NOT , ge, le, in).
+     * $filter (eq, ne, not , ge, le, in).
      */
     employeeOrgData?: NullableOption<EmployeeOrgData>;
     /**
      * Captures enterprise worker type. For example, Employee, Contractor, Consultant, or Vendor. Returned only on $select.
-     * Supports $filter (eq, ne, NOT , ge, le, in, startsWith).
+     * Supports $filter (eq, ne, not , ge, le, in, startsWith).
      */
     employeeType?: NullableOption<string>;
     /**
      * For an external user invited to the tenant using the invitation API, this property represents the invited user's
      * invitation status. For invited users, the state can be PendingAcceptance or Accepted, or null for all other users.
-     * Returned only on $select. Supports $filter (eq, ne, NOT , in).
+     * Returned only on $select. Supports $filter (eq, ne, not , in).
      */
     externalUserState?: NullableOption<string>;
     /**
      * Shows the timestamp for the latest change to the externalUserState property. Returned only on $select. Supports $filter
-     * (eq, ne, NOT , in).
+     * (eq, ne, not , in).
      */
     externalUserStateChangeDateTime?: NullableOption<string>;
     /**
-     * The fax number of the user. Returned only on $select. Supports $filter (eq, ne, NOT , ge, le, in, startsWith, and eq on
+     * The fax number of the user. Returned only on $select. Supports $filter (eq, ne, not , ge, le, in, startsWith, and eq on
      * null values).
      */
     faxNumber?: NullableOption<string>;
     /**
      * The given name (first name) of the user. Maximum length is 64 characters. Returned by default. Supports $filter (eq,
-     * ne, NOT , ge, le, in, startsWith, and eq on null values).
+     * ne, not , ge, le, in, startsWith, and eq on null values).
      */
     givenName?: NullableOption<string>;
     /**
@@ -4694,15 +4713,15 @@ export interface User extends DirectoryObject {
     identities?: NullableOption<ObjectIdentity[]>;
     /**
      * The instant message voice over IP (VOIP) session initiation protocol (SIP) addresses for the user. Read-only. Returned
-     * only on $select. Supports $filter (eq, NOT, ge, le, startsWith).
+     * only on $select. Supports $filter (eq, not, ge, le, startsWith).
      */
     imAddresses?: NullableOption<string[]>;
-    // Identifies the info segments assigned to the user. Supports $filter (eq, NOT, ge, le, startsWith).
+    // Identifies the info segments assigned to the user. Supports $filter (eq, not, ge, le, startsWith).
     infoCatalogs?: string[];
     // Do not use – reserved for future use.
     isResourceAccount?: NullableOption<boolean>;
     /**
-     * The user's job title. Maximum length is 128 characters. Returned by default. Supports $filter (eq, ne, NOT , ge, le,
+     * The user's job title. Maximum length is 128 characters. Returned by default. Supports $filter (eq, ne, not , ge, le,
      * in, startsWith, and eq on null values).
      */
     jobTitle?: NullableOption<string>;
@@ -4725,22 +4744,22 @@ export interface User extends DirectoryObject {
      * The SMTP address for the user, for example, jeff@contoso.onmicrosoft.com.Changes to this property will also update the
      * user's proxyAddresses collection to include the value as an SMTP address. For Azure AD B2C accounts, this property can
      * be updated up to only ten times with unique SMTP addresses. This property cannot contain accent characters.Returned by
-     * default. Supports $filter (eq, ne, NOT, ge, le, in, startsWith, endsWith, and eq on null values).
+     * default. Supports $filter (eq, ne, not, ge, le, in, startsWith, endsWith, and eq on null values).
      */
     mail?: NullableOption<string>;
     /**
      * The mail alias for the user. This property must be specified when a user is created. Maximum length is 64 characters.
-     * Returned only on $select. Supports $filter (eq, ne, NOT, ge, le, in, startsWith, and eq on null values).
+     * Returned only on $select. Supports $filter (eq, ne, not, ge, le, in, startsWith, and eq on null values).
      */
     mailNickname?: NullableOption<string>;
     /**
      * The primary cellular telephone number for the user. Read-only for users synced from on-premises directory. Maximum
-     * length is 64 characters. Returned by default. Supports $filter (eq, ne, NOT, ge, le, in, startsWith, and eq on null
+     * length is 64 characters. Returned by default. Supports $filter (eq, ne, not, ge, le, in, startsWith, and eq on null
      * values).
      */
     mobilePhone?: NullableOption<string>;
     /**
-     * The office location in the user's place of business. Returned by default. Supports $filter (eq, ne, NOT, ge, le, in,
+     * The office location in the user's place of business. Returned by default. Supports $filter (eq, ne, not, ge, le, in,
      * startsWith, and eq on null values).
      */
     officeLocation?: NullableOption<string>;
@@ -4761,32 +4780,32 @@ export interface User extends DirectoryObject {
      * nor filterable. For an onPremisesSyncEnabled user, the source of authority for this set of properties is the
      * on-premises and is read-only. For a cloud-only user (where onPremisesSyncEnabled is false), these properties may be set
      * during creation or update. These extension attributes are also known as Exchange custom attributes 1-15. Returned only
-     * on $select. Supports $filter (eq, NOT, ge, le, in, and eq on null values).
+     * on $select. Supports $filter (eq, not, ge, le, in, and eq on null values).
      */
     onPremisesExtensionAttributes?: NullableOption<OnPremisesExtensionAttributes>;
     /**
      * This property is used to associate an on-premises Active Directory user account to their Azure AD user object. This
      * property must be specified when creating a new user account in the Graph if you are using a federated domain for the
      * user's userPrincipalName (UPN) property. NOTE: The $ and _ characters cannot be used when specifying this property.
-     * Returned only on $select. Supports $filter (eq, ne, NOT, ge, le, in)..
+     * Returned only on $select. Supports $filter (eq, ne, not, ge, le, in)..
      */
     onPremisesImmutableId?: NullableOption<string>;
     /**
      * Indicates the last time at which the object was synced with the on-premises directory; for example:
      * 2013-02-16T03:04:54Z. The Timestamp type represents date and time information using ISO 8601 format and is always in
      * UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z. Read-only. Returned only on $select.
-     * Supports $filter (eq, ne, NOT, ge, le, in).
+     * Supports $filter (eq, ne, not, ge, le, in).
      */
     onPremisesLastSyncDateTime?: NullableOption<string>;
     /**
      * Errors when using Microsoft synchronization product during provisioning. Returned only on $select. Supports $filter
-     * (eq, NOT, ge, le).
+     * (eq, not, ge, le).
      */
     onPremisesProvisioningErrors?: NullableOption<OnPremisesProvisioningError[]>;
     /**
      * Contains the on-premises samAccountName synchronized from the on-premises directory. The property is only populated for
      * customers who are synchronizing their on-premises directory to Azure Active Directory via Azure AD Connect. Read-only.
-     * Returned only on $select. Supports $filter (eq, ne, NOT, ge, le, in, startsWith).
+     * Returned only on $select. Supports $filter (eq, ne, not, ge, le, in, startsWith).
      */
     onPremisesSamAccountName?: NullableOption<string>;
     /**
@@ -4797,18 +4816,18 @@ export interface User extends DirectoryObject {
     /**
      * true if this object is synced from an on-premises directory; false if this object was originally synced from an
      * on-premises directory but is no longer synced; null if this object has never been synced from an on-premises directory
-     * (default). Read-only. Returned only on $select. Supports $filter (eq, ne, NOT, in, and eq on null values).
+     * (default). Read-only. Returned only on $select. Supports $filter (eq, ne, not, in, and eq on null values).
      */
     onPremisesSyncEnabled?: NullableOption<boolean>;
     /**
      * Contains the on-premises userPrincipalName synchronized from the on-premises directory. The property is only populated
      * for customers who are synchronizing their on-premises directory to Azure Active Directory via Azure AD Connect.
-     * Read-only. Returned only on $select. Supports $filter (eq, ne, NOT, ge, le, in, startsWith).
+     * Read-only. Returned only on $select. Supports $filter (eq, ne, not, ge, le, in, startsWith).
      */
     onPremisesUserPrincipalName?: NullableOption<string>;
     /**
      * A list of additional email addresses for the user; for example: ['bob@contoso.com', 'Robert@fabrikam.com']. NOTE: This
-     * property cannot contain accent characters. Returned only on $select. Supports $filter (eq, NOT, ge, le, in,
+     * property cannot contain accent characters. Returned only on $select. Supports $filter (eq, not, ge, le, in,
      * startsWith).
      */
     otherMails?: string[];
@@ -4817,7 +4836,7 @@ export interface User extends DirectoryObject {
      * DisableStrongPassword, which allows weaker passwords than the default policy to be specified. DisablePasswordExpiration
      * can also be specified. The two may be specified together; for example: DisablePasswordExpiration,
      * DisableStrongPassword. Returned only on $select. For more information on the default password policies, see Azure AD
-     * pasword policies. Supports $filter (ne, NOT, and eq on null values).
+     * pasword policies. Supports $filter (ne, not, and eq on null values).
      */
     passwordPolicies?: NullableOption<string>;
     /**
@@ -4825,31 +4844,31 @@ export interface User extends DirectoryObject {
      * user is created. The password in the profile must satisfy minimum requirements as specified by the passwordPolicies
      * property. By default, a strong password is required. NOTE: For Azure B2C tenants, the forceChangePasswordNextSignIn
      * property should be set to false and instead use custom policies and user flows to force password reset at first logon.
-     * See Force password reset at first logon.Returned only on $select. Supports $filter (eq, ne, NOT, in, and eq on null
+     * See Force password reset at first logon.Returned only on $select. Supports $filter (eq, ne, not, in, and eq on null
      * values).
      */
     passwordProfile?: NullableOption<PasswordProfile>;
     /**
      * The postal code for the user's postal address. The postal code is specific to the user's country/region. In the United
      * States of America, this attribute contains the ZIP code. Maximum length is 40 characters. Returned only on $select.
-     * Supports $filter (eq, ne, NOT, ge, le, in, startsWith, and eq on null values).
+     * Supports $filter (eq, ne, not, ge, le, in, startsWith, and eq on null values).
      */
     postalCode?: NullableOption<string>;
     // The preferred data location for the user. For more information, see OneDrive Online Multi-Geo.
     preferredDataLocation?: NullableOption<string>;
     /**
      * The preferred language for the user. Should follow ISO 639-1 Code; for example en-US. Returned by default. Supports
-     * $filter (eq, ne, NOT, ge, le, in, startsWith, and eq on null values)
+     * $filter (eq, ne, not, ge, le, in, startsWith, and eq on null values)
      */
     preferredLanguage?: NullableOption<string>;
     /**
      * The plans that are provisioned for the user. Read-only. Not nullable. Returned only on $select. Supports $filter (eq,
-     * NOT, ge, le).
+     * not, ge, le).
      */
     provisionedPlans?: ProvisionedPlan[];
     /**
      * For example: ['SMTP: bob@contoso.com', 'smtp: bob@sales.contoso.com']. For Azure AD B2C accounts, this property has a
-     * limit of ten unique addresses. Read-only, Not nullable. Returned only on $select. Supports $filter (eq, NOT, ge, le,
+     * limit of ten unique addresses. Read-only, Not nullable. Returned only on $select. Supports $filter (eq, not, ge, le,
      * startsWith).
      */
     proxyAddresses?: string[];
@@ -4863,7 +4882,7 @@ export interface User extends DirectoryObject {
     /**
      * true if the Outlook global address list should contain this user, otherwise false. If not set, this will be treated as
      * true. For users invited through the invitation manager, this property will be set to false. Returned only on $select.
-     * Supports $filter (eq, ne, NOT, in).
+     * Supports $filter (eq, ne, not, in).
      */
     showInAddressList?: NullableOption<boolean>;
     /**
@@ -4875,23 +4894,23 @@ export interface User extends DirectoryObject {
     signInSessionsValidFromDateTime?: NullableOption<string>;
     /**
      * The state or province in the user's address. Maximum length is 128 characters. Returned only on $select. Supports
-     * $filter (eq, ne, NOT, ge, le, in, startsWith, and eq on null values).
+     * $filter (eq, ne, not, ge, le, in, startsWith, and eq on null values).
      */
     state?: NullableOption<string>;
     /**
      * The street address of the user's place of business. Maximum length is 1024 characters. Returned only on $select.
-     * Supports $filter (eq, ne, NOT, ge, le, in, startsWith, and eq on null values).
+     * Supports $filter (eq, ne, not, ge, le, in, startsWith, and eq on null values).
      */
     streetAddress?: NullableOption<string>;
     /**
      * The user's surname (family name or last name). Maximum length is 64 characters. Returned by default. Supports $filter
-     * (eq, ne, NOT, ge, le, in, startsWith, and eq on null values).
+     * (eq, ne, not, ge, le, in, startsWith, and eq on null values).
      */
     surname?: NullableOption<string>;
     /**
      * A two letter country code (ISO standard 3166). Required for users that will be assigned licenses due to legal
      * requirement to check for availability of services in countries. Examples include: US, JP, and GB. Not nullable.
-     * Returned only on $select. Supports $filter (eq, ne, NOT, ge, le, in, startsWith, and eq on null values).
+     * Returned only on $select. Supports $filter (eq, ne, not, ge, le, in, startsWith, and eq on null values).
      */
     usageLocation?: NullableOption<string>;
     /**
@@ -4899,13 +4918,13 @@ export interface User extends DirectoryObject {
      * standard RFC 822. By convention, this should map to the user's email name. The general format is alias@domain, where
      * domain must be present in the tenant's collection of verified domains. This property is required when a user is
      * created. The verified domains for the tenant can be accessed from the verifiedDomains property of organization.NOTE:
-     * This property cannot contain accent characters. Returned by default. Supports $filter (eq, ne, NOT, ge, le, in,
+     * This property cannot contain accent characters. Returned by default. Supports $filter (eq, ne, not, ge, le, in,
      * startsWith, endsWith) and $orderBy.
      */
     userPrincipalName?: NullableOption<string>;
     /**
      * A string value that can be used to classify user types in your directory, such as Member and Guest. Returned only on
-     * $select. Supports $filter (eq, ne, NOT, in, and eq on null values). NOTE: For more information about the permissions
+     * $select. Supports $filter (eq, ne, not, in, and eq on null values). NOTE: For more information about the permissions
      * for member and guest users, see What are the default user permissions in Azure Active Directory?
      */
     userType?: NullableOption<string>;
@@ -5461,29 +5480,29 @@ export interface Group extends DirectoryObject {
     /**
      * Describes a classification for the group (such as low, medium or high business impact). Valid values for this property
      * are defined by creating a ClassificationList setting value, based on the template definition.Returned by default.
-     * Supports $filter (eq, ne, NOT, ge, le, startsWith).
+     * Supports $filter (eq, ne, not, ge, le, startsWith).
      */
     classification?: NullableOption<string>;
     /**
      * App ID of the app used to create the group. Can be null for some groups. Returned by default. Read-only. Supports
-     * $filter (eq, ne, NOT, in, startsWith).
+     * $filter (eq, ne, not, in, startsWith).
      */
     createdByAppId?: NullableOption<string>;
     /**
      * Timestamp of when the group was created. The value cannot be modified and is automatically populated when the group is
      * created. The Timestamp type represents date and time information using ISO 8601 format and is always in UTC time. For
-     * example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z. Returned by default. Supports $filter (eq, ne, NOT, ge,
+     * example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z. Returned by default. Supports $filter (eq, ne, not, ge,
      * le, in). Read-only.
      */
     createdDateTime?: NullableOption<string>;
     /**
-     * An optional description for the group. Returned by default. Supports $filter (eq, ne, NOT, ge, le, startsWith) and
+     * An optional description for the group. Returned by default. Supports $filter (eq, ne, not, ge, le, startsWith) and
      * $search.
      */
     description?: NullableOption<string>;
     /**
      * The display name for the group. This property is required when a group is created and cannot be cleared during updates.
-     * Returned by default. Supports $filter (eq, ne, NOT, ge, le, in, startsWith, and eq on null values), $search, and
+     * Returned by default. Supports $filter (eq, ne, not, ge, le, in, startsWith, and eq on null values), $search, and
      * $orderBy.
      */
     displayName?: NullableOption<string>;
@@ -5491,14 +5510,14 @@ export interface Group extends DirectoryObject {
      * Timestamp of when the group is set to expire. The value cannot be modified and is automatically populated when the
      * group is created. The Timestamp type represents date and time information using ISO 8601 format and is always in UTC
      * time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z. Returned by default. Supports $filter (eq, ne,
-     * NOT, ge, le, in). Read-only.
+     * not, ge, le, in). Read-only.
      */
     expirationDateTime?: NullableOption<string>;
     /**
      * Specifies the group type and its membership. If the collection contains Unified, the group is a Microsoft 365 group;
      * otherwise, it's either a security group or distribution group. For details, see groups overview.If the collection
      * includes DynamicMembership, the group has dynamic membership; otherwise, membership is static. Returned by default.
-     * Supports $filter (eq, NOT).
+     * Supports $filter (eq, not).
      */
     groupTypes?: string[];
     /**
@@ -5508,7 +5527,7 @@ export interface Group extends DirectoryObject {
      */
     hasMembersWithLicenseErrors?: NullableOption<boolean>;
     /**
-     * Identifies the info segments assigned to the group. Returned by default. Supports $filter (eq, NOT, ge, le,
+     * Identifies the info segments assigned to the group. Returned by default. Supports $filter (eq, not, ge, le,
      * startsWith).
      */
     infoCatalogs?: string[];
@@ -5518,7 +5537,7 @@ export interface Group extends DirectoryObject {
      * and the group cannot be a dynamic group (that is, groupTypes cannot contain DynamicMembership). Only callers in Global
      * administrator and Privileged role administrator roles can set this property. The caller must be assigned the
      * RoleManagement.ReadWrite.Directory permission to set this property or update the membership of such groups. For more,
-     * see Using a group to manage Azure AD role assignmentsReturned by default. Supports $filter (eq, ne, NOT).
+     * see Using a group to manage Azure AD role assignmentsReturned by default. Supports $filter (eq, ne, not).
      */
     isAssignableToRole?: NullableOption<boolean>;
     /**
@@ -5528,27 +5547,27 @@ export interface Group extends DirectoryObject {
     licenseProcessingState?: NullableOption<LicenseProcessingState>;
     /**
      * The SMTP address for the group, for example, 'serviceadmins@contoso.onmicrosoft.com'. Returned by default. Read-only.
-     * Supports $filter (eq, ne, NOT, ge, le, in, startsWith, and eq on null values).
+     * Supports $filter (eq, ne, not, ge, le, in, startsWith, and eq on null values).
      */
     mail?: NullableOption<string>;
-    // Specifies whether the group is mail-enabled. Required. Returned by default. Supports $filter (eq, ne, NOT).
+    // Specifies whether the group is mail-enabled. Required. Returned by default. Supports $filter (eq, ne, not).
     mailEnabled?: NullableOption<boolean>;
     /**
      * The mail alias for the group, unique in the organization. Maximum length is 64 characters. This property can contain
      * only characters in the ASCII character set 0 - 127 except the following: @ () / [] ' ; : . &amp;lt;&amp;gt; , SPACE.
-     * Required. Returned by default. Supports $filter (eq, ne, NOT, ge, le, in, startsWith, and eq on null values).
+     * Required. Returned by default. Supports $filter (eq, ne, not, ge, le, in, startsWith, and eq on null values).
      */
     mailNickname?: NullableOption<string>;
     mdmAppId?: NullableOption<string>;
     /**
      * The rule that determines members for this group if the group is a dynamic group (groupTypes contains
      * DynamicMembership). For more information about the syntax of the membership rule, see Membership Rules syntax. Returned
-     * by default. Supports $filter (eq, ne, NOT, ge, le, startsWith).
+     * by default. Supports $filter (eq, ne, not, ge, le, startsWith).
      */
     membershipRule?: NullableOption<string>;
     /**
      * Indicates whether the dynamic membership processing is on or paused. Possible values are On or Paused. Returned by
-     * default. Supports $filter (eq, ne, NOT, in).
+     * default. Supports $filter (eq, ne, not, in).
      */
     membershipRuleProcessingState?: NullableOption<string>;
     /**
@@ -5560,7 +5579,7 @@ export interface Group extends DirectoryObject {
     /**
      * Indicates the last time at which the group was synced with the on-premises directory.The Timestamp type represents date
      * and time information using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is
-     * 2014-01-01T00:00:00Z. Returned by default. Read-only. Supports $filter (eq, ne, NOT, ge, le, in).
+     * 2014-01-01T00:00:00Z. Returned by default. Read-only. Supports $filter (eq, ne, not, ge, le, in).
      */
     onPremisesLastSyncDateTime?: NullableOption<string>;
     /**
@@ -5571,13 +5590,13 @@ export interface Group extends DirectoryObject {
     onPremisesNetBiosName?: NullableOption<string>;
     /**
      * Errors when using Microsoft synchronization product during provisioning. Returned by default. Supports $filter (eq,
-     * NOT).
+     * not).
      */
     onPremisesProvisioningErrors?: NullableOption<OnPremisesProvisioningError[]>;
     /**
      * Contains the on-premises SAM account name synchronized from the on-premises directory. The property is only populated
      * for customers who are synchronizing their on-premises directory to Azure Active Directory via Azure AD Connect.Returned
-     * by default. Supports $filter (eq, ne, NOT, ge, le, in, startsWith). Read-only.
+     * by default. Supports $filter (eq, ne, not, ge, le, in, startsWith). Read-only.
      */
     onPremisesSamAccountName?: NullableOption<string>;
     /**
@@ -5588,7 +5607,7 @@ export interface Group extends DirectoryObject {
     /**
      * true if this group is synced from an on-premises directory; false if this group was originally synced from an
      * on-premises directory but is no longer synced; null if this object has never been synced from an on-premises directory
-     * (default). Returned by default. Read-only. Supports $filter (eq, ne, NOT, in, and eq on null values).
+     * (default). Returned by default. Read-only. Supports $filter (eq, ne, not, in, and eq on null values).
      */
     onPremisesSyncEnabled?: NullableOption<boolean>;
     organizationId?: NullableOption<string>;
@@ -5601,20 +5620,20 @@ export interface Group extends DirectoryObject {
     preferredDataLocation?: NullableOption<string>;
     /**
      * The preferred language for a Microsoft 365 group. Should follow ISO 639-1 Code; for example en-US. Returned by default.
-     * Supports $filter (eq, ne, NOT, ge, le, in, startsWith, and eq on null values).
+     * Supports $filter (eq, ne, not, ge, le, in, startsWith, and eq on null values).
      */
     preferredLanguage?: NullableOption<string>;
     /**
      * Email addresses for the group that direct to the same group mailbox. For example: ['SMTP: bob@contoso.com', 'smtp:
      * bob@sales.contoso.com']. The any operator is required to filter expressions on multi-valued properties. Returned by
-     * default. Read-only. Not nullable. Supports $filter (eq, NOT, ge, le, startsWith).
+     * default. Read-only. Not nullable. Supports $filter (eq, not, ge, le, startsWith).
      */
     proxyAddresses?: string[];
     /**
      * Timestamp of when the group was last renewed. This cannot be modified directly and is only updated via the renew
      * service action. The Timestamp type represents date and time information using ISO 8601 format and is always in UTC
      * time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z. Returned by default. Supports $filter (eq, ne,
-     * NOT, ge, le, in). Read-only.
+     * not, ge, le, in). Read-only.
      */
     renewedDateTime?: NullableOption<string>;
     /**
@@ -5629,7 +5648,7 @@ export interface Group extends DirectoryObject {
      * provisioning options.
      */
     resourceProvisioningOptions?: string[];
-    // Specifies whether the group is a security group. Required. Returned by default. Supports $filter (eq, ne, NOT, in).
+    // Specifies whether the group is a security group. Required. Returned by default. Supports $filter (eq, ne, not, in).
     securityEnabled?: NullableOption<boolean>;
     // Security identifier of the group, used in Windows scenarios. Returned by default.
     securityIdentifier?: NullableOption<string>;
@@ -6683,15 +6702,15 @@ export interface UserActivity extends Entity {
 }
 export interface Device extends DirectoryObject {
     /**
-     * true if the account is enabled; otherwise, false. Required. Default is true. Supports $filter (eq, ne, NOT, in). Only
+     * true if the account is enabled; otherwise, false. Required. Default is true. Supports $filter (eq, ne, not, in). Only
      * callers in Global Administrator and Cloud Device Administrator roles can set this property.
      */
     accountEnabled?: NullableOption<boolean>;
-    // For internal use only. Not nullable. Supports $filter (eq, NOT, ge, le).
+    // For internal use only. Not nullable. Supports $filter (eq, not, ge, le).
     alternativeSecurityIds?: AlternativeSecurityId[];
     /**
      * The timestamp type represents date and time information using ISO 8601 format and is always in UTC time. For example,
-     * midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z. Read-only. Supports $filter (eq, ne, NOT, ge, le, and eq on null
+     * midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z. Read-only. Supports $filter (eq, ne, not, ge, le, and eq on null
      * values) and $orderBy.
      */
     approximateLastSignInDateTime?: NullableOption<string>;
@@ -6704,7 +6723,7 @@ export interface Device extends DirectoryObject {
     // User-defined property set by Intune to automatically add devices to groups and simplify managing devices.
     deviceCategory?: NullableOption<string>;
     /**
-     * Unique identifier set by Azure Device Registration Service at the time of registration. Supports $filter (eq, ne, NOT,
+     * Unique identifier set by Azure Device Registration Service at the time of registration. Supports $filter (eq, ne, not,
      * startsWith).
      */
     deviceId?: NullableOption<string>;
@@ -6715,7 +6734,7 @@ export interface Device extends DirectoryObject {
     // For internal use only.
     deviceVersion?: NullableOption<number>;
     /**
-     * The display name for the device. Required. Supports $filter (eq, ne, NOT, ge, le, in, startsWith, and eq on null
+     * The display name for the device. Required. Supports $filter (eq, ne, not, ge, le, in, startsWith, and eq on null
      * values), $search, and $orderBy.
      */
     displayName?: NullableOption<string>;
@@ -6735,7 +6754,7 @@ export interface Device extends DirectoryObject {
     /**
      * Contains extension attributes 1-15 for the device. The individual extension attributes are not selectable. These
      * properties are mastered in cloud and can be set during creation or update of a device object in Azure AD. Supports
-     * $filter (eq, NOT, startsWith, and eq on null values).
+     * $filter (eq, not, startsWith, and eq on null values).
      */
     extensionAttributes?: NullableOption<OnPremisesExtensionAttributes>;
     // List of hostNames for the device.
@@ -6743,12 +6762,12 @@ export interface Device extends DirectoryObject {
     /**
      * true if the device complies with Mobile Device Management (MDM) policies; otherwise, false. Read-only. This can only be
      * updated by Intune for any device OS type or by an approved MDM app for Windows OS devices. Supports $filter (eq, ne,
-     * NOT).
+     * not).
      */
     isCompliant?: NullableOption<boolean>;
     /**
      * true if the device is managed by a Mobile Device Management (MDM) app; otherwise, false. This can only be updated by
-     * Intune for any device OS type or by an approved MDM app for Windows OS devices. Supports $filter (eq, ne, NOT).
+     * Intune for any device OS type or by an approved MDM app for Windows OS devices. Supports $filter (eq, ne, not).
      */
     isManaged?: NullableOption<boolean>;
     // true if device is rooted; false if device is jail-broken. This can only be updated by Intune.
@@ -6762,26 +6781,26 @@ export interface Device extends DirectoryObject {
     /**
      * The last time at which the object was synced with the on-premises directory. The Timestamp type represents date and
      * time information using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is
-     * 2014-01-01T00:00:00Z Read-only. Supports $filter (eq, ne, NOT, ge, le, in).
+     * 2014-01-01T00:00:00Z Read-only. Supports $filter (eq, ne, not, ge, le, in).
      */
     onPremisesLastSyncDateTime?: NullableOption<string>;
     /**
      * true if this object is synced from an on-premises directory; false if this object was originally synced from an
      * on-premises directory but is no longer synced; null if this object has never been synced from an on-premises directory
-     * (default). Read-only. Supports $filter (eq, ne, NOT, in, and eq on null values).
+     * (default). Read-only. Supports $filter (eq, ne, not, in, and eq on null values).
      */
     onPremisesSyncEnabled?: NullableOption<boolean>;
     /**
-     * The type of operating system on the device. Required. Supports $filter (eq, ne, NOT, ge, le, startsWith, and eq on null
+     * The type of operating system on the device. Required. Supports $filter (eq, ne, not, ge, le, startsWith, and eq on null
      * values).
      */
     operatingSystem?: NullableOption<string>;
     /**
-     * The version of the operating system on the device. Required. Supports $filter (eq, ne, NOT, ge, le, startsWith, and eq
+     * The version of the operating system on the device. Required. Supports $filter (eq, ne, not, ge, le, startsWith, and eq
      * on null values).
      */
     operatingSystemVersion?: NullableOption<string>;
-    // For internal use only. Not nullable. Supports $filter (eq, NOT, ge, le, startsWith).
+    // For internal use only. Not nullable. Supports $filter (eq, not, ge, le, startsWith).
     physicalIds?: string[];
     // The profile type of the device. Possible values: RegisteredDevice (default), SecureVM, Printer, Shared, IoT.
     profileType?: NullableOption<string>;
@@ -6892,7 +6911,8 @@ export interface OnlineMeeting extends Entity {
     subject?: NullableOption<string>;
     // The video teleconferencing ID. Read-only.
     videoTeleconferenceId?: NullableOption<string>;
-    // The attendance report of an online meeting. Read-only.
+    // The attendance reports of an online meeting. Read-only.
+    attendanceReports?: NullableOption<MeetingAttendanceReport[]>;
     meetingAttendanceReport?: NullableOption<MeetingAttendanceReport>;
     /**
      * The registration that has been enabled for an online meeting. One online meeting can only have one registration
@@ -7128,6 +7148,7 @@ export interface DirectoryAudit extends Entity {
      * Directory, App, Role, Group, Policy or Other.
      */
     targetResources?: NullableOption<TargetResource[]>;
+    // Type of user agent used by a user in the activity.
     userAgent?: NullableOption<string>;
 }
 export interface ProvisioningObjectSummary extends Entity {
@@ -7385,6 +7406,172 @@ export interface CredentialUserRegistrationDetails extends Entity {
     // Provides the user principal name of the corresponding user.
     userPrincipalName?: string;
 }
+export interface Directory extends Entity {
+    impactedResources?: NullableOption<RecommendationResource[]>;
+    recommendations?: NullableOption<Recommendation[]>;
+    // Conceptual container for user and group directory objects.
+    administrativeUnits?: NullableOption<AdministrativeUnit[]>;
+    // Group of related custom security attribute definitions.
+    attributeSets?: NullableOption<AttributeSet[]>;
+    // Schema of a custom security attributes (key-value pairs).
+    customSecurityAttributeDefinitions?: NullableOption<CustomSecurityAttributeDefinition[]>;
+    // Recently deleted items. Read-only. Nullable.
+    deletedItems?: NullableOption<DirectoryObject[]>;
+    /**
+     * Configure domain federation with organizations whose identity provider (IdP) supports either the SAML or WS-Fed
+     * protocol.
+     */
+    federationConfigurations?: NullableOption<IdentityProviderBase[]>;
+    inboundSharedUserProfiles?: NullableOption<InboundSharedUserProfile[]>;
+    outboundSharedUserProfiles?: NullableOption<OutboundSharedUserProfile[]>;
+    sharedEmailDomains?: NullableOption<SharedEmailDomain[]>;
+    // Nullable.
+    featureRolloutPolicies?: NullableOption<FeatureRolloutPolicy[]>;
+}
+export interface RecommendationResource extends Entity {
+    addedDateTime?: string;
+    additionalDetails?: NullableOption<KeyValue[]>;
+    apiUrl?: NullableOption<string>;
+    displayName?: string;
+    owner?: NullableOption<string>;
+    portalUrl?: NullableOption<string>;
+    rank?: NullableOption<number>;
+    recommendationId?: string;
+    resourceType?: string;
+    status?: RecommendationStatus;
+}
+export interface Recommendation extends Entity {
+    actionSteps?: NullableOption<ActionStep[]>;
+    benefits?: NullableOption<string>;
+    category?: RecommendationCategory;
+    createdDateTime?: string;
+    displayName?: string;
+    impactStartDateTime?: NullableOption<string>;
+    impactType?: NullableOption<string>;
+    insights?: NullableOption<string>;
+    lastCheckedDateTime?: NullableOption<string>;
+    lastModifiedBy?: NullableOption<string>;
+    lastModifiedDateTime?: NullableOption<string>;
+    postponeUntilDateTime?: NullableOption<string>;
+    priority?: RecommendationPriority;
+    status?: RecommendationStatus;
+    impactedResources?: NullableOption<RecommendationResource[]>;
+}
+export interface AdministrativeUnit extends DirectoryObject {
+    // An optional description for the administrative unit.
+    description?: NullableOption<string>;
+    // Display name for the administrative unit.
+    displayName?: NullableOption<string>;
+    /**
+     * Controls whether the administrative unit and its members are hidden or public. Can be set to HiddenMembership or
+     * Public. If not set, default behavior is Public. When set to HiddenMembership, only members of the administrative unit
+     * can list other members of the administrative unit.
+     */
+    visibility?: NullableOption<string>;
+    /**
+     * Users and groups that are members of this Adminsitrative Unit. HTTP Methods: GET (list members), POST (add members),
+     * DELETE (remove members).
+     */
+    members?: NullableOption<DirectoryObject[]>;
+    /**
+     * Scoped-role members of this Administrative Unit. HTTP Methods: GET (list scopedRoleMemberships), POST (add
+     * scopedRoleMembership), DELETE (remove scopedRoleMembership).
+     */
+    scopedRoleMembers?: NullableOption<ScopedRoleMembership[]>;
+    // The collection of open extensions defined for this Administrative Unit. Nullable.
+    extensions?: NullableOption<Extension[]>;
+}
+export interface AttributeSet extends Entity {
+    /**
+     * Description of the attribute set. Can be up to 128 characters long and include Unicode characters. Can be changed
+     * later.
+     */
+    description?: NullableOption<string>;
+    /**
+     * Maximum number of custom security attributes that can be defined in this attribute set. Default value is null. If not
+     * specified, the administrator can add up to the maximum of 500 active attributes per tenant. Can be changed later.
+     */
+    maxAttributesPerSet?: NullableOption<number>;
+}
+export interface CustomSecurityAttributeDefinition extends Entity {
+    // Name of the attribute set. Case insensitive.
+    attributeSet?: string;
+    /**
+     * Description of the custom security attribute. Can be up to 128 characters long and include Unicode characters. Can be
+     * changed later.
+     */
+    description?: NullableOption<string>;
+    /**
+     * Indicates whether multiple values can be assigned to the custom security attribute. Cannot be changed later. If type is
+     * set to Boolean, isCollection cannot be set to true.
+     */
+    isCollection?: boolean;
+    /**
+     * Indicates whether custom security attribute values will be indexed for searching on objects that are assigned attribute
+     * values. Cannot be changed later.
+     */
+    isSearchable?: NullableOption<boolean>;
+    /**
+     * Name of the custom security attribute. Must be unique within an attribute set. Can be up to 32 characters long and
+     * include Unicode characters. Cannot contain spaces or special characters. Cannot be changed later. Case insensitive.
+     */
+    name?: string;
+    /**
+     * Specifies whether the custom security attribute is active or deactivated. Acceptable values are Available and
+     * Deprecated. Can be changed later.
+     */
+    status?: string;
+    /**
+     * Data type for the custom security attribute values. Supported types are Boolean, Integer, and String. Cannot be changed
+     * later.
+     */
+    type?: string;
+    /**
+     * Indicates whether only predefined values can be assigned to the custom security attribute. If set to false, free-form
+     * values are allowed. Can later be changed from true to false, but cannot be changed from false to true. If type is set
+     * to Boolean, usePreDefinedValuesOnly cannot be set to true.
+     */
+    usePreDefinedValuesOnly?: NullableOption<boolean>;
+    /**
+     * Values that are predefined for this custom security attribute.This navigation property is not returned by default and
+     * must be specified in an $expand query. For example,
+     * /directory/customSecurityAttributeDefinitions?$expand=allowedValues.
+     */
+    allowedValues?: NullableOption<AllowedValue[]>;
+}
+// tslint:disable-next-line: interface-name
+export interface IdentityProviderBase extends Entity {
+    // The display name of the identity provider.
+    displayName?: NullableOption<string>;
+}
+// tslint:disable-next-line: interface-name
+export interface InboundSharedUserProfile extends DirectoryObject {
+    displayName?: string;
+    homeTenantId?: string;
+    userId?: string;
+    userPrincipalName?: string;
+}
+export interface OutboundSharedUserProfile extends DirectoryObject {
+    userId?: string;
+    tenants?: NullableOption<TenantReference[]>;
+}
+export interface SharedEmailDomain extends Entity {
+    provisioningStatus?: NullableOption<string>;
+}
+export interface FeatureRolloutPolicy extends Entity {
+    // A description for this feature rollout policy.
+    description?: NullableOption<string>;
+    // The display name for this feature rollout policy.
+    displayName?: string;
+    // Possible values are: passthroughAuthentication, seamlessSso, passwordHashSync, emailAsAlternateId, unknownFutureValue.
+    feature?: StagedFeatureName;
+    // Indicates whether this feature rollout policy should be applied to the entire organization.
+    isAppliedToOrganization?: boolean;
+    // Indicates whether the feature rollout is enabled.
+    isEnabled?: boolean;
+    // Nullable. Specifies a list of directoryObjects that feature is enabled for.
+    appliesTo?: NullableOption<DirectoryObject[]>;
+}
 export interface RelyingPartyDetailedSummary extends Entity {
     // Number of failed sign in on Active Directory Federation Service in the period specified.
     failedSignInCount?: number;
@@ -7600,7 +7787,7 @@ export interface Application extends DirectoryObject {
     /**
      * The date and time the application was registered. The DateTimeOffset type represents date and time information using
      * ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z. Read-only.
-     * Supports $filter (eq, ne, NOT, ge, le, in, and eq on null values) and $orderBy.
+     * Supports $filter (eq, ne, not, ge, le, in, and eq on null values) and $orderBy.
      */
     createdDateTime?: NullableOption<string>;
     /**
@@ -7609,16 +7796,16 @@ export interface Application extends DirectoryObject {
      * IdP-initiated single sign-on. The value must match one of the configured redirect URIs for the application.
      */
     defaultRedirectUri?: NullableOption<string>;
-    // An optional description of the application. Supports $filter (eq, ne, NOT, ge, le, startsWith) and $search.
+    // An optional description of the application. Supports $filter (eq, ne, not, ge, le, startsWith) and $search.
     description?: NullableOption<string>;
     /**
      * Specifies whether Microsoft has disabled the registered application. Possible values are: null (default value),
      * NotDisabled, and DisabledDueToViolationOfServicesAgreement (reasons may include suspicious, abusive, or malicious
-     * activity, or a violation of the Microsoft Services Agreement). Supports $filter (eq, ne, NOT).
+     * activity, or a violation of the Microsoft Services Agreement). Supports $filter (eq, ne, not).
      */
     disabledByMicrosoftStatus?: NullableOption<string>;
     /**
-     * The display name for the application. Supports $filter (eq, ne, NOT, ge, le, in, startsWith, and eq on null values),
+     * The display name for the application. Supports $filter (eq, ne, not, ge, le, in, startsWith, and eq on null values),
      * $search, and $orderBy.
      */
     displayName?: NullableOption<string>;
@@ -7641,7 +7828,7 @@ export interface Application extends DirectoryObject {
      * Basic profile information of the application such as app's marketing, support, terms of service and privacy statement
      * URLs. The terms of service and privacy statement are surfaced to users through the user consent experience. For more
      * info, see How to: Add Terms of service and privacy statement for registered Azure AD apps. Supports $filter (eq, ne,
-     * NOT, ge, le, and eq on null values).
+     * not, ge, le, and eq on null values).
      */
     info?: NullableOption<InformationalUrl>;
     // Specifies whether this application supports device authentication without a user. The default is false.
@@ -7654,7 +7841,7 @@ export interface Application extends DirectoryObject {
      * value of this property.
      */
     isFallbackPublicClient?: NullableOption<boolean>;
-    // The collection of key credentials associated with the application. Not nullable. Supports $filter (eq, NOT, ge, le).
+    // The collection of key credentials associated with the application. Not nullable. Supports $filter (eq, not, ge, le).
     keyCredentials?: KeyCredential[];
     // The main logo for the application. Not nullable.
     logo?: any;
@@ -7682,13 +7869,13 @@ export interface Application extends DirectoryObject {
      * permissions and application roles that it needs for each of those resources. This configuration of access to the
      * required resources drives the consent experience. No more than 50 resource services (APIs) can be configured. Beginning
      * mid-October 2021, the total number of required permissions must not exceed 400. Not nullable. Supports $filter (eq,
-     * NOT, ge, le).
+     * not, ge, le).
      */
     requiredResourceAccess?: RequiredResourceAccess[];
     /**
      * Specifies the Microsoft accounts that are supported for the current application. The possible values are: AzureADMyOrg,
      * AzureADMultipleOrgs, AzureADandPersonalMicrosoftAccount (default), and PersonalMicrosoftAccount. See more in the table
-     * below. Supports $filter (eq, ne, NOT).
+     * below. Supports $filter (eq, ne, not).
      */
     signInAudience?: NullableOption<string>;
     /**
@@ -7697,7 +7884,7 @@ export interface Application extends DirectoryObject {
      */
     spa?: NullableOption<SpaApplication>;
     /**
-     * Custom strings that can be used to categorize and identify the application. Not nullable. Supports $filter (eq, NOT,
+     * Custom strings that can be used to categorize and identify the application. Not nullable. Supports $filter (eq, not,
      * ge, le, startsWith).
      */
     tags?: string[];
@@ -7745,7 +7932,7 @@ export interface ServicePrincipal extends DirectoryObject {
      * property. Read-only for applicationTemplates except for custom applicationTemplates.
      */
     passwordSingleSignOnSettings?: NullableOption<PasswordSingleSignOnSettings>;
-    // true if the service principal account is enabled; otherwise, false. Supports $filter (eq, ne, NOT, in).
+    // true if the service principal account is enabled; otherwise, false. Supports $filter (eq, ne, not, in).
     accountEnabled?: NullableOption<boolean>;
     /**
      * Defines custom behavior that a consuming service can use to call an app in specific contexts. For example, applications
@@ -7755,14 +7942,17 @@ export interface ServicePrincipal extends DirectoryObject {
     addIns?: AddIn[];
     /**
      * Used to retrieve service principals by subscription, identify resource group and full resource ids for managed
-     * identities. Supports $filter (eq, NOT, ge, le, startsWith).
+     * identities. Supports $filter (eq, not, ge, le, startsWith).
      */
     alternativeNames?: string[];
     // The description exposed by the associated application.
     appDescription?: NullableOption<string>;
     // The display name exposed by the associated application.
     appDisplayName?: NullableOption<string>;
-    // The unique identifier for the associated application (its appId property).
+    /**
+     * The unique identifier for the associated application (its appId property). Supports $filter (eq, ne, not, in,
+     * startsWith).
+     */
     appId?: NullableOption<string>;
     /**
      * Unique identifier of the applicationTemplate that the servicePrincipal was created from. Read-only. Supports $filter
@@ -7785,21 +7975,25 @@ export interface ServicePrincipal extends DirectoryObject {
      * property definition on the application entity. Not nullable.
      */
     appRoles?: AppRole[];
+    /**
+     * An open complex type that holds the value of a custom security attribute that is assigned to a directory object.
+     * Nullable. Returned only on $select. Supports $filter (eq, ne, not, startsWith).
+     */
     customSecurityAttributes?: NullableOption<CustomSecurityAttributeValue>;
     /**
      * Free text field to provide an internal end-user facing description of the service principal. End-user portals such
      * MyApps will display the application description in this field. The maximum allowed size is 1024 characters. Supports
-     * $filter (eq, ne, NOT, ge, le, startsWith) and $search.
+     * $filter (eq, ne, not, ge, le, startsWith) and $search.
      */
     description?: NullableOption<string>;
     /**
      * Specifies whether Microsoft has disabled the registered application. Possible values are: null (default value),
      * NotDisabled, and DisabledDueToViolationOfServicesAgreement (reasons may include suspicious, abusive, or malicious
-     * activity, or a violation of the Microsoft Services Agreement). Supports $filter (eq, ne, NOT).
+     * activity, or a violation of the Microsoft Services Agreement). Supports $filter (eq, ne, not).
      */
     disabledByMicrosoftStatus?: NullableOption<string>;
     /**
-     * The display name for the service principal. Supports $filter (eq, ne, NOT, ge, le, in, startsWith, and eq on null
+     * The display name for the service principal. Supports $filter (eq, ne, not, ge, le, in, startsWith, and eq on null
      * values), $search, and $orderBy.
      */
     displayName?: NullableOption<string>;
@@ -7811,11 +8005,11 @@ export interface ServicePrincipal extends DirectoryObject {
      * Basic profile information of the acquired application such as app's marketing, support, terms of service and privacy
      * statement URLs. The terms of service and privacy statement are surfaced to users through the user consent experience.
      * For more info, see How to: Add Terms of service and privacy statement for registered Azure AD apps. Supports $filter
-     * (eq, ne, NOT, ge, le, and eq on null values).
+     * (eq, ne, not, ge, le, and eq on null values).
      */
     info?: NullableOption<InformationalUrl>;
     /**
-     * The collection of key credentials associated with the service principal. Not nullable. Supports $filter (eq, NOT, ge,
+     * The collection of key credentials associated with the service principal. Not nullable. Supports $filter (eq, not, ge,
      * le).
      */
     keyCredentials?: KeyCredential[];
@@ -7877,7 +8071,7 @@ export interface ServicePrincipal extends DirectoryObject {
      * hybrid applications. These values can be used to identify the permissions exposed by this app within Azure AD. For
      * example,Client apps can specify a resource URI which is based on the values of this property to acquire an access
      * token, which is the URI returned in the 'aud' claim.The any operator is required for filter expressions on multi-valued
-     * properties. Not nullable. Supports $filter (eq, NOT, ge, le, startsWith).
+     * properties. Not nullable. Supports $filter (eq, not, ge, le, startsWith).
      */
     servicePrincipalNames?: string[];
     /**
@@ -7904,7 +8098,7 @@ export interface ServicePrincipal extends DirectoryObject {
     signInAudience?: NullableOption<string>;
     /**
      * Custom strings that can be used to categorize and identify the service principal. Not nullable. Supports $filter (eq,
-     * NOT, ge, le, startsWith).
+     * not, ge, le, startsWith).
      */
     tags?: string[];
     /**
@@ -8332,20 +8526,6 @@ export interface ServicePrincipalCreationPolicy extends PolicyBase {
     excludes?: NullableOption<ServicePrincipalCreationConditionSet[]>;
     includes?: NullableOption<ServicePrincipalCreationConditionSet[]>;
 }
-export interface FeatureRolloutPolicy extends Entity {
-    // A description for this feature rollout policy.
-    description?: NullableOption<string>;
-    // The display name for this feature rollout policy.
-    displayName?: string;
-    // Possible values are: passthroughAuthentication, seamlessSso, passwordHashSync, emailAsAlternateId, unknownFutureValue.
-    feature?: StagedFeatureName;
-    // Indicates whether this feature rollout policy should be applied to the entire organization.
-    isAppliedToOrganization?: boolean;
-    // Indicates whether the feature rollout is enabled.
-    isEnabled?: boolean;
-    // Nullable. Specifies a list of directoryObjects that feature is enabled for.
-    appliesTo?: NullableOption<DirectoryObject[]>;
-}
 export interface AccessReviewPolicy extends Entity {
     // Description for this policy. Read-only.
     description?: NullableOption<string>;
@@ -8743,8 +8923,8 @@ export interface BookingStaffMember extends BookingPerson {
      */
     colorIndex?: NullableOption<number>;
     /**
-     * The role of the staff member in the business. Possible values are: guest, administrator, viewer, externalGuest.
-     * Required.
+     * The role of the staff member in the business. Possible values are: guest, administrator, viewer, externalGuest,
+     * scheduler, and member. Required.
      */
     role?: BookingStaffRole;
     // The time zone of the staff member. For a list of possible values, see dateTimeTimeZone.
@@ -8950,7 +9130,7 @@ export interface CloudPcOnPremisesConnection extends Entity {
      * '/subscriptions/{subscription-id}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/virtualNetworks/{virtualNetworkId}/subnets/{subnetName}'.
      */
     subnetId?: string;
-    // The ID of the target Azure subscription that's associated with your tenant.
+    // The ID of the target Azure subscription that’s associated with your tenant.
     subscriptionId?: string;
     // The name of the target Azure subscription. Read-only.
     subscriptionName?: NullableOption<string>;
@@ -13289,11 +13469,6 @@ export interface IdentityApiConnector extends Entity {
     // The URL of the API endpoint to call.
     targetUrl?: NullableOption<string>;
 }
-// tslint:disable-next-line: interface-name
-export interface IdentityProviderBase extends Entity {
-    // The display name of the identity provider.
-    displayName?: NullableOption<string>;
-}
 export interface AppleManagedIdentityProvider extends IdentityProviderBase {
     // The certificate data, which is a long string of text from the certificate. Can be null.
     certificateData?: NullableOption<string>;
@@ -13698,30 +13873,6 @@ export interface TextClassificationRequest extends Entity {
     sensitiveTypeIds?: NullableOption<string[]>;
     text?: NullableOption<string>;
 }
-export interface AdministrativeUnit extends DirectoryObject {
-    // An optional description for the administrative unit.
-    description?: NullableOption<string>;
-    // Display name for the administrative unit.
-    displayName?: NullableOption<string>;
-    /**
-     * Controls whether the administrative unit and its members are hidden or public. Can be set to HiddenMembership or
-     * Public. If not set, default behavior is Public. When set to HiddenMembership, only members of the administrative unit
-     * can list other members of the administrative unit.
-     */
-    visibility?: NullableOption<string>;
-    /**
-     * Users and groups that are members of this Adminsitrative Unit. HTTP Methods: GET (list members), POST (add members),
-     * DELETE (remove members).
-     */
-    members?: NullableOption<DirectoryObject[]>;
-    /**
-     * Scoped-role members of this Administrative Unit. HTTP Methods: GET (list scopedRoleMemberships), POST (add
-     * scopedRoleMembership), DELETE (remove scopedRoleMembership).
-     */
-    scopedRoleMembers?: NullableOption<ScopedRoleMembership[]>;
-    // The collection of open extensions defined for this Administrative Unit. Nullable.
-    extensions?: NullableOption<Extension[]>;
-}
 export interface AllowedDataLocation extends Entity {
     appId?: NullableOption<string>;
     domain?: NullableOption<string>;
@@ -13729,11 +13880,11 @@ export interface AllowedDataLocation extends Entity {
     location?: NullableOption<string>;
 }
 export interface AllowedValue extends Entity {
+    /**
+     * Indicates whether the predefined value is active or deactivated. If set to false, this predefined value cannot be
+     * assigned to any additional supported directory objects.
+     */
     isActive?: NullableOption<boolean>;
-}
-export interface AttributeSet extends Entity {
-    description?: NullableOption<string>;
-    maxAttributesPerSet?: NullableOption<number>;
 }
 export interface DefaultUserRoleOverride extends Entity {
     isDefault?: NullableOption<boolean>;
@@ -13764,49 +13915,6 @@ export interface Contract extends DirectoryObject {
      * It is not automatically updated if the customer tenant's display name changes.
      */
     displayName?: NullableOption<string>;
-}
-export interface CustomSecurityAttributeDefinition extends Entity {
-    attributeSet?: string;
-    description?: NullableOption<string>;
-    isCollection?: boolean;
-    isSearchable?: NullableOption<boolean>;
-    name?: string;
-    status?: string;
-    type?: string;
-    usePreDefinedValuesOnly?: NullableOption<boolean>;
-    allowedValues?: NullableOption<AllowedValue[]>;
-}
-export interface Directory extends Entity {
-    // Conceptual container for user and group directory objects.
-    administrativeUnits?: NullableOption<AdministrativeUnit[]>;
-    attributeSets?: NullableOption<AttributeSet[]>;
-    customSecurityAttributeDefinitions?: NullableOption<CustomSecurityAttributeDefinition[]>;
-    // Recently deleted items. Read-only. Nullable.
-    deletedItems?: NullableOption<DirectoryObject[]>;
-    /**
-     * Configure domain federation with organizations whose identity provider (IdP) supports either the SAML or WS-Fed
-     * protocol.
-     */
-    federationConfigurations?: NullableOption<IdentityProviderBase[]>;
-    inboundSharedUserProfiles?: NullableOption<InboundSharedUserProfile[]>;
-    outboundSharedUserProfiles?: NullableOption<OutboundSharedUserProfile[]>;
-    sharedEmailDomains?: NullableOption<SharedEmailDomain[]>;
-    // Nullable.
-    featureRolloutPolicies?: NullableOption<FeatureRolloutPolicy[]>;
-}
-// tslint:disable-next-line: interface-name
-export interface InboundSharedUserProfile extends DirectoryObject {
-    displayName?: string;
-    homeTenantId?: string;
-    userId?: string;
-    userPrincipalName?: string;
-}
-export interface OutboundSharedUserProfile extends DirectoryObject {
-    userId?: string;
-    tenants?: NullableOption<TenantReference[]>;
-}
-export interface SharedEmailDomain extends Entity {
-    provisioningStatus?: NullableOption<string>;
 }
 export interface DirectoryObjectPartnerReference extends DirectoryObject {
     // Description of the object returned. Read-only.
@@ -14142,66 +14250,66 @@ export interface OrgContact extends DirectoryObject {
     // Postal addresses for this organizational contact. For now a contact can only have one physical address.
     addresses?: NullableOption<PhysicalOfficeAddress[]>;
     /**
-     * Name of the company that this organizational contact belong to. Supports $filter (eq, ne, NOT, ge, le, in, startsWith,
+     * Name of the company that this organizational contact belong to. Supports $filter (eq, ne, not, ge, le, in, startsWith,
      * and eq on null values).
      */
     companyName?: NullableOption<string>;
     /**
-     * The name for the department in which the contact works. Supports $filter (eq, ne, NOT, ge, le, in, startsWith, and eq
+     * The name for the department in which the contact works. Supports $filter (eq, ne, not, ge, le, in, startsWith, and eq
      * on null values).
      */
     department?: NullableOption<string>;
     /**
-     * Display name for this organizational contact. Supports $filter (eq, ne, NOT, ge, le, in, startsWith, and eq on null
+     * Display name for this organizational contact. Supports $filter (eq, ne, not, ge, le, in, startsWith, and eq on null
      * values), $search, and $orderBy.
      */
     displayName?: NullableOption<string>;
     /**
-     * First name for this organizational contact. Supports $filter (eq, ne, NOT, ge, le, in, startsWith, and eq on null
+     * First name for this organizational contact. Supports $filter (eq, ne, not, ge, le, in, startsWith, and eq on null
      * values).
      */
     givenName?: NullableOption<string>;
     /**
-     * Job title for this organizational contact. Supports $filter (eq, ne, NOT, ge, le, in, startsWith, and eq on null
+     * Job title for this organizational contact. Supports $filter (eq, ne, not, ge, le, in, startsWith, and eq on null
      * values).
      */
     jobTitle?: NullableOption<string>;
     /**
-     * The SMTP address for the contact, for example, 'jeff@contoso.onmicrosoft.com'. Supports $filter (eq, ne, NOT, ge, le,
+     * The SMTP address for the contact, for example, 'jeff@contoso.onmicrosoft.com'. Supports $filter (eq, ne, not, ge, le,
      * in, startsWith, and eq on null values).
      */
     mail?: NullableOption<string>;
     /**
      * Email alias (portion of email address pre-pending the @ symbol) for this organizational contact. Supports $filter (eq,
-     * ne, NOT, ge, le, in, startsWith, and eq on null values).
+     * ne, not, ge, le, in, startsWith, and eq on null values).
      */
     mailNickname?: NullableOption<string>;
     /**
      * Date and time when this organizational contact was last synchronized from on-premises AD. The Timestamp type represents
      * date and time information using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is
-     * 2014-01-01T00:00:00Z. Supports $filter (eq, ne, NOT, ge, le, in).
+     * 2014-01-01T00:00:00Z. Supports $filter (eq, ne, not, ge, le, in).
      */
     onPremisesLastSyncDateTime?: NullableOption<string>;
-    // List of any synchronization provisioning errors for this organizational contact. Supports $filter (eq, NOT).
+    // List of any synchronization provisioning errors for this organizational contact. Supports $filter (eq, not).
     onPremisesProvisioningErrors?: NullableOption<OnPremisesProvisioningError[]>;
     /**
      * true if this object is synced from an on-premises directory; false if this object was originally synced from an
      * on-premises directory but is no longer synced and now mastered in Exchange; null if this object has never been synced
-     * from an on-premises directory (default). Supports $filter (eq, ne, NOT, in, and eq on null values).
+     * from an on-premises directory (default). Supports $filter (eq, ne, not, in, and eq on null values).
      */
     onPremisesSyncEnabled?: NullableOption<boolean>;
     /**
      * List of phones for this organizational contact. Phone types can be mobile, business, and businessFax. Only one of each
-     * type can ever be present in the collection. Supports $filter (eq, ne, NOT, in).
+     * type can ever be present in the collection. Supports $filter (eq, ne, not, in).
      */
     phones?: NullableOption<Phone[]>;
     /**
      * For example: 'SMTP: bob@contoso.com', 'smtp: bob@sales.contoso.com'. The any operator is required for filter
-     * expressions on multi-valued properties. Supports $filter (eq, NOT, ge, le, startsWith).
+     * expressions on multi-valued properties. Supports $filter (eq, not, ge, le, startsWith).
      */
     proxyAddresses?: string[];
     /**
-     * Last name for this organizational contact. Supports $filter (eq, ne, NOT, ge, le, in, startsWith, and eq on null
+     * Last name for this organizational contact. Supports $filter (eq, ne, not, ge, le, in, startsWith, and eq on null
      * values)
      */
     surname?: NullableOption<string>;
@@ -14884,7 +14992,7 @@ export interface EducationAssignmentSettings extends Entity {
 export interface EducationClass extends Entity {
     // Class code used by the school to identify the class.
     classCode?: NullableOption<string>;
-    // Course information for the class
+    // Course information for the class.
     course?: NullableOption<EducationCourse>;
     // Entity who created the class
     createdBy?: NullableOption<IdentitySet>;
@@ -16837,7 +16945,7 @@ export interface AccessReviewHistoryDefinition extends Entity {
     reviewHistoryPeriodStartDateTime?: string;
     /**
      * Used to scope what reviews are included in the fetched history data. Fetches reviews whose scope matches with this
-     * provided scope. See accessreviewqueryscope. Required.
+     * provided scope. Required.
      */
     scopes?: AccessReviewScope[];
     // Represents the status of the review history data collection. Possible values are: done, inprogress, error, requested.
@@ -31937,10 +32045,6 @@ export interface Simulation extends Entity {
     lastModifiedDateTime?: NullableOption<string>;
     // Date and time of the launch/start of the attack simulation and training campaign. Supports $filter and $orderby.
     launchDateTime?: NullableOption<string>;
-    /**
-     * Mode of the attack simulation and training campaign. Supports $filter and $orderby. Possible values are: real, preview,
-     * unknownFutureValue.
-     */
     mode?: NullableOption<SimulationMode>;
     /**
      * Method of delivery of the phishing payload used in the attack simulation and training campaign. Possible values are:
@@ -31972,6 +32076,18 @@ export interface Simulation extends Entity {
     trainingContentPreference?: NullableOption<TrainingContentPreference>;
     // Date and time before which the trainings need to be completed by users in the attack simulation and training campaign.
     trainingDueDateTime?: NullableOption<string>;
+}
+export interface AttendanceRecord extends Entity {
+    // List of time periods between joining and leaving.
+    attendanceIntervals?: NullableOption<AttendanceInterval[]>;
+    // Email address.
+    emailAddress?: NullableOption<string>;
+    // Identifier, such as display name.
+    identity?: NullableOption<Identity>;
+    // Role of the attendee. Possible values are None, Attendee, Presenter, and Organizer.
+    role?: NullableOption<string>;
+    // Total duration of the attendances in seconds.
+    totalAttendanceInSeconds?: NullableOption<number>;
 }
 export interface AudioRoutingGroup extends Entity {
     // List of receiving participant ids.
@@ -32015,10 +32131,14 @@ export interface InviteParticipantsOperation extends CommsOperation {
     participants?: InvitationParticipantInfo[];
 }
 export interface MeetingAttendanceReport extends Entity {
-    // The list of attendance records.
-    attendanceRecords?: NullableOption<AttendanceRecord[]>;
-    // Total number of participants.
+    // UTC time when the meeting ended. Read-only.
+    meetingEndDateTime?: NullableOption<string>;
+    // UTC time when the meeting started. Read-only.
+    meetingStartDateTime?: NullableOption<string>;
+    // Total number of participants. Read-only.
     totalParticipantCount?: NullableOption<number>;
+    // List of attendance records of an attendance report. Read-only.
+    attendanceRecords?: NullableOption<AttendanceRecord[]>;
 }
 export interface MeetingRegistrant extends Entity {
     // The registrant's answer to custom questions.
@@ -32948,6 +33068,15 @@ export interface MailboxSettings {
     userPurposeV2?: NullableOption<MailboxRecipientType>;
     // The days of the week and hours in a specific time zone that the user works.
     workingHours?: NullableOption<WorkingHours>;
+}
+export interface ActionStep {
+    actionUrl?: NullableOption<ActionUrl>;
+    stepNumber?: number;
+    text?: NullableOption<string>;
+}
+export interface ActionUrl {
+    displayName?: string;
+    url?: NullableOption<string>;
 }
 export interface AppIdentity {
     // Refers to the Unique GUID representing Application Id in the Azure Active Directory.
@@ -36036,10 +36165,12 @@ export interface Attendee extends AttendeeBase {
 export interface ResponseStatus {
     /**
      * The response type. Possible values are: none, organizer, tentativelyAccepted, accepted, declined, notResponded.To
-     * differentiate between none and notResponded: as an example, if attendee Alex hasn't responded to a meeting request,
-     * getting Alex' response status for that event in Alex' calendar returns notResponded. Getting Alex' response from the
-     * calendar of any other attendee or the organizer's returns none. Getting the organizer's response for the event in
-     * anybody's calendar also returns none.
+     * differentiate between none and notResponded: none – from organizer's perspective. This value is used when the status of
+     * an attendee/participant is reported to the organizer of a meeting. notResponded – from attendde's perspective.
+     * Indicates the attendee has not responded to the meeting request. Clients can treat notResponded == none. As an example,
+     * if attendee Alex hasn't responded to a meeting request, getting Alex' response status for that event in Alex' calendar
+     * returns notResponded. Getting Alex' response from the calendar of any other attendee or the organizer's returns none.
+     * Getting the organizer's response for the event in anybody's calendar also returns none.
      */
     response?: NullableOption<ResponseType>;
     /**
@@ -44606,18 +44737,6 @@ export interface AttendanceInterval {
     // Time attendee left in UTC.
     leaveDateTime?: NullableOption<string>;
 }
-export interface AttendanceRecord {
-    // List of time periods between joining and leaving.
-    attendanceIntervals?: NullableOption<AttendanceInterval[]>;
-    // Email address.
-    emailAddress?: NullableOption<string>;
-    // Identifier, such as display name.
-    identity?: NullableOption<Identity>;
-    // Role of the attendee. Possible values are None, Attendee, Presenter, and Organizer.
-    role?: NullableOption<string>;
-    // Total duration of the attendances in seconds.
-    totalAttendanceInSeconds?: NullableOption<number>;
-}
 export interface AudioConferencing {
     // The conference id of the online meeting.
     conferenceId?: NullableOption<string>;
@@ -45309,8 +45428,9 @@ export interface ChatRenamedEventMessageDetail extends EventMessageDetail {
     initiator?: NullableOption<IdentitySet>;
 }
 export interface ChatViewpoint {
+    // Indicates whether the chat is hidden for the current user.
     isHidden?: NullableOption<boolean>;
-    // Represents the dateTime up until which the calling user has read chatMessages in a specific chat.
+    // Represents the dateTime up until which the current user has read chatMessages in a specific chat.
     lastMessageReadDateTime?: NullableOption<string>;
 }
 export interface ConversationMemberRoleUpdatedEventMessageDetail extends EventMessageDetail {
