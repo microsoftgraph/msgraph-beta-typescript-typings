@@ -4573,8 +4573,11 @@ export interface EntitlementManagement extends Entity {
     accessPackageResourceRequests?: NullableOption<AccessPackageResourceRequest[]>;
     accessPackageResourceRoleScopes?: NullableOption<AccessPackageResourceRoleScope[]>;
     accessPackageResources?: NullableOption<AccessPackageResource[]>;
+    // Access packages.
     accessPackages?: NullableOption<AccessPackage[]>;
+    // Connected organizations.
     connectedOrganizations?: NullableOption<ConnectedOrganization[]>;
+    // Entitlement management settings.
     settings?: NullableOption<EntitlementManagementSettings>;
 }
 export interface DirectoryObject extends Entity {
@@ -4610,7 +4613,8 @@ export interface User extends DirectoryObject {
     assignedPlans?: AssignedPlan[];
     /**
      * The telephone numbers for the user. NOTE: Although this is a string collection, only one number can be set for this
-     * property. Read-only for users synced from on-premises directory. Returned by default. Supports $filter (eq and not).
+     * property. Read-only for users synced from on-premises directory. Returned by default. Supports $filter (eq, not, ge,
+     * le, startsWith).
      */
     businessPhones?: string[];
     /**
@@ -7458,9 +7462,12 @@ export interface Recommendation extends Entity {
     impactedResources?: NullableOption<RecommendationResource[]>;
 }
 export interface AdministrativeUnit extends DirectoryObject {
-    // An optional description for the administrative unit.
+    // An optional description for the administrative unit. Supports $filter (eq, ne, in, startsWith).
     description?: NullableOption<string>;
-    // Display name for the administrative unit.
+    /**
+     * Display name for the administrative unit. Supports $filter (eq, ne, not, ge, le, in, startsWith, and eq on null
+     * values), $search, and $orderBy.
+     */
     displayName?: NullableOption<string>;
     /**
      * Controls whether the administrative unit and its members are hidden or public. Can be set to HiddenMembership or
@@ -7469,16 +7476,16 @@ export interface AdministrativeUnit extends DirectoryObject {
      */
     visibility?: NullableOption<string>;
     /**
-     * Users and groups that are members of this Adminsitrative Unit. HTTP Methods: GET (list members), POST (add members),
+     * Users and groups that are members of this administrative unit. HTTP Methods: GET (list members), POST (add members),
      * DELETE (remove members).
      */
     members?: NullableOption<DirectoryObject[]>;
     /**
-     * Scoped-role members of this Administrative Unit. HTTP Methods: GET (list scopedRoleMemberships), POST (add
+     * Scoped-role members of this administrative unit. HTTP Methods: GET (list scopedRoleMemberships), POST (add
      * scopedRoleMembership), DELETE (remove scopedRoleMembership).
      */
     scopedRoleMembers?: NullableOption<ScopedRoleMembership[]>;
-    // The collection of open extensions defined for this Administrative Unit. Nullable.
+    // The collection of open extensions defined for this administrative unit. Nullable.
     extensions?: NullableOption<Extension[]>;
 }
 export interface AttributeSet extends Entity {
@@ -7796,7 +7803,10 @@ export interface Application extends DirectoryObject {
      * IdP-initiated single sign-on. The value must match one of the configured redirect URIs for the application.
      */
     defaultRedirectUri?: NullableOption<string>;
-    // An optional description of the application. Supports $filter (eq, ne, not, ge, le, startsWith) and $search.
+    /**
+     * Free text field to provide a description of the application object to end users. The maximum allowed size is 1024
+     * characters. Supports $filter (eq, ne, not, ge, le, startsWith) and $search.
+     */
     description?: NullableOption<string>;
     /**
      * Specifies whether Microsoft has disabled the registered application. Possible values are: null (default value),
@@ -9047,7 +9057,7 @@ export interface CloudPcDeviceImage extends Entity {
     status?: NullableOption<CloudPcDeviceImageStatus>;
     /**
      * The details of the image's status, which indicates why the upload failed, if applicable. Possible values are:
-     * internalServerError, sourceImageNotFound, osVersionNotSupported, and sourceImageInvalid.
+     * internalServerError, sourceImageNotFound, osVersionNotSupported, sourceImageInvalid, and sourceImageNotGeneralized.
      */
     statusDetails?: NullableOption<CloudPcDeviceImageStatusDetails>;
     // The image version. For example: 0.0.1, 1.5.13.
@@ -9086,13 +9096,13 @@ export interface CloudPcGalleryImage extends Entity {
     status?: NullableOption<CloudPcGalleryImageStatus>;
 }
 export interface CloudPcOnPremisesConnection extends Entity {
-    // The fully qualified domain name (FQDN) of the Active Directory domain you want to join.
+    // The fully qualified domain name (FQDN) of the Active Directory domain you want to join. Optional.
     adDomainName?: NullableOption<string>;
     // The password associated with adDomainUsername.
     adDomainPassword?: NullableOption<string>;
     /**
      * The username of an Active Directory account (user or service account) that has permissions to create computer objects
-     * in Active Directory. Required format: admin@contoso.com.
+     * in Active Directory. Required format: admin@contoso.com. Optional.
      */
     adDomainUsername?: NullableOption<string>;
     // The display name for the on-premises connection.
@@ -9134,6 +9144,10 @@ export interface CloudPcOnPremisesConnection extends Entity {
     subscriptionId?: string;
     // The name of the target Azure subscription. Read-only.
     subscriptionName?: NullableOption<string>;
+    /**
+     * Specifies how the provisioned Cloud PC will be joined to Azure Active Directory. Default value is hybridAzureADJoin.
+     * Possible values are: azureADJoin, hybridAzureADJoin, unknownFutureValue.
+     */
     type?: NullableOption<CloudPcOnPremisesConnectionType>;
     /**
      * The ID of the target virtual network. Required format:
@@ -9159,6 +9173,10 @@ export interface CloudPcProvisioningPolicy extends Entity {
     imageId?: NullableOption<string>;
     // The type of OS image (custom or gallery) you want to provision on Cloud PCs. Possible values are: gallery, custom.
     imageType?: CloudPcProvisioningPolicyImageType;
+    /**
+     * The specific settings for the Microsoft Managed Desktop, which enables customers to get a managed device experience for
+     * the Cloud PC. Before you can enable Microsoft Managed Desktop, an admin must configure it.
+     */
     microsoftManagedDesktop?: NullableOption<MicrosoftManagedDesktop>;
     /**
      * The ID of the cloudPcOnPremisesConnection. To ensure that Cloud PCs have network connectivity and that they domain
@@ -9208,7 +9226,7 @@ export interface CloudPcUserSetting extends Entity {
     /**
      * The last date and time the setting was modified. The Timestamp type represents the date and time information using ISO
      * 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 looks like
-     * this: '2014-01-01T00:00:00Z'.
+     * this:'2014-01-01T00:00:00Z'.
      */
     lastModifiedDateTime?: NullableOption<string>;
     /**
@@ -12945,7 +12963,7 @@ export interface RoleManagement {
     // Read-only. Nullable.
     directory?: NullableOption<RbacApplication>;
     cloudPC?: NullableOption<RbacApplicationMultiple>;
-    // The RbacApplication for Entitlement Management
+    // Container for all entitlement management resources in Azure AD identity governance.
     entitlementManagement?: NullableOption<RbacApplication>;
     // The RbacApplication for Device Management
     deviceManagement?: NullableOption<RbacApplicationMultiple>;
@@ -13435,15 +13453,15 @@ export interface Permission extends Entity {
      * indicates there is no expiration set for this permission. Optional.
      */
     expirationDateTime?: NullableOption<string>;
-    // For user type permissions, the details of the users &amp; applications for this permission. Read-only.
     grantedTo?: NullableOption<IdentitySet>;
-    // For link type permissions, the details of the users to whom permission was granted. Read-only.
     grantedToIdentities?: NullableOption<IdentitySet[]>;
+    // For link type permissions, the details of the users to whom permission was granted. Read-only.
     grantedToIdentitiesV2?: NullableOption<SharePointIdentitySet[]>;
+    // For user type permissions, the details of the users and applications for this permission. Read-only.
     grantedToV2?: NullableOption<SharePointIdentitySet>;
     /**
-     * This indicates whether password is set for this permission, it's only showing in response. Optional and Read-only and
-     * for OneDrive Personal only.
+     * Indicates whether the password is set for this permission. This property only appears in the response. Optional.
+     * Read-only. For OneDrive Personal only..
      */
     hasPassword?: NullableOption<boolean>;
     // Provides a reference to the ancestor of the current permission, if it is inherited from an ancestor. Read-only.
@@ -13452,7 +13470,7 @@ export interface Permission extends Entity {
     invitation?: NullableOption<SharingInvitation>;
     // Provides the link details of the current permission, if it is a link type permissions. Read-only.
     link?: NullableOption<SharingLink>;
-    // The type of permission, e.g. read. See below for the full list of roles. Read-only.
+    // The type of permission, for example, read. See below for the full list of roles. Read-only.
     roles?: NullableOption<string[]>;
     // A unique token that can be used to access this shared item via the **shares** API. Read-only.
     shareId?: NullableOption<string>;
@@ -14233,10 +14251,15 @@ export interface OrganizationalBranding extends OrganizationalBrandingProperties
 export interface OrganizationSettings extends Entity {
     /**
      * Contains the properties that are configured by an administrator for the visibility of Microsoft Graph-derived insights,
-     * between a user and other items in Microsoft 365, such as documents or sites. Get itemInsightsSettings through this
-     * navigation property.
+     * between a user and other items in Microsoft 365, such as documents or sites. List itemInsights returns the settings to
+     * display or return item insights in an organization.
      */
     itemInsights?: NullableOption<InsightsSettings>;
+    /**
+     * Contains the properties that are configured by an administrator for the visibility of a list of people relevant and
+     * working with a user in Microsoft 365. List peopleInsights returns the settings to display or return people insights in
+     * an organization.
+     */
     peopleInsights?: NullableOption<InsightsSettings>;
     /**
      * Contains a collection of the properties an administrator has defined as visible on the Microsoft 365 profile card. Get
@@ -14330,6 +14353,10 @@ export interface TenantReference extends DirectoryObject {
     tenantId?: string;
 }
 export interface PermissionGrantConditionSet extends Entity {
+    /**
+     * Set to true to only match on client applications that are Microsoft 365 certified. Set to false to match on any other
+     * client app. Default is false.
+     */
     certifiedClientApplicationsOnly?: NullableOption<boolean>;
     /**
      * A list of appId values for the client applications to match with, or a list with the single value all to match any
@@ -17205,11 +17232,12 @@ export interface AccessPackageAssignmentRequest extends Entity {
     // More information on the request processing status. Read-only.
     requestStatus?: NullableOption<string>;
     /**
-     * One of UserAdd, UserRemove, AdminAdd, AdminRemove or SystemRemove. A request from the user themselves would have
-     * requestType of UserAdd or UserRemove. Read-only.
+     * The type of the request. The possible values are: notSpecified, userAdd, userUpdate, userRemove, adminAdd, adminUpdate,
+     * adminRemove, systemAdd, systemUpdate, systemRemove, onBehalfAdd, unknownFutureValue. A request from the user themselves
+     * would have requestType of UserAdd or UserRemove. This property cannot be changed once set.
      */
     requestType?: NullableOption<string>;
-    // The range of dates that access is to be assigned to the requestor. Read-only.
+    // The range of dates that access is to be assigned to the requestor. This property cannot be changed once set.
     schedule?: NullableOption<RequestSchedule>;
     /**
      * The access package associated with the accessPackageAssignmentRequest. An access package defines the collections of
@@ -17268,7 +17296,7 @@ export interface AccessPackageAssignment extends Entity {
     catalogId?: NullableOption<string>;
     /**
      * The Timestamp type represents date and time information using ISO 8601 format and is always in UTC time. For example,
-     * midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z
+     * midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
      */
     expiredDateTime?: NullableOption<string>;
     // Indicates whether the access package assignment is extended. Read-only.
@@ -17290,7 +17318,10 @@ export interface AccessPackageAssignment extends Entity {
 export interface AccessPackageCatalog extends Entity {
     // Has the value Published if the access packages are available for management.
     catalogStatus?: NullableOption<string>;
-    // One of UserManaged or ServiceDefault.
+    /**
+     * Whether the catalog is created by a user or entitlement management. The possible values are: userManaged,
+     * serviceDefault, serviceManaged, unknownFutureValue.
+     */
     catalogType?: NullableOption<string>;
     // UPN of the user who created this resource. Read-only.
     createdBy?: NullableOption<string>;
@@ -17491,6 +17522,10 @@ export interface ConnectedOrganization extends Entity {
     description?: NullableOption<string>;
     // The display name of the connected organization.
     displayName?: NullableOption<string>;
+    /**
+     * The identity sources in this connected organization, one of azureActiveDirectoryTenant, domainIdentitySource or
+     * externalDomainFederation. Nullable.
+     */
     identitySources?: NullableOption<IdentitySource[]>;
     // UPN of the user who last modified this resource. Read-only.
     modifiedBy?: NullableOption<string>;
@@ -17501,7 +17536,8 @@ export interface ConnectedOrganization extends Entity {
     modifiedDateTime?: NullableOption<string>;
     /**
      * The state of a connected organization defines whether assignment policies with requestor scope type
-     * AllConfiguredConnectedOrganizationSubjects are applicable or not. Possible values are: configured, proposed.
+     * AllConfiguredConnectedOrganizationSubjects are applicable or not. The possible values are: configured, proposed,
+     * unknownFutureValue.
      */
     state?: NullableOption<ConnectedOrganizationState>;
     // Nullable.
@@ -17515,7 +17551,10 @@ export interface EntitlementManagementSettings extends Entity {
      * in before their account is deleted.
      */
     daysUntilExternalUserDeletedAfterBlocked?: NullableOption<number>;
-    // One of None, BlockSignIn, or BlockSignInAndDelete.
+    /**
+     * Automatic action that the service should take when an external user's last access package assignment is removed. The
+     * possible values are: none, blockSignIn, blockSignInAndDelete, unknownFutureValue.
+     */
     externalUserLifecycleAction?: NullableOption<string>;
 }
 export interface Program extends Entity {
@@ -17791,6 +17830,10 @@ export interface AccessPackageSubject extends Entity {
     email?: NullableOption<string>;
     // The object identifier of the subject. null if the subject is not yet a user in the tenant.
     objectId?: NullableOption<string>;
+    /**
+     * A string representation of the principal's security identifier, if known, or null if the subject does not have a
+     * security identifier.
+     */
     onPremisesSecurityIdentifier?: NullableOption<string>;
     // The principal name, if known, of the subject.
     principalName?: NullableOption<string>;
@@ -27113,7 +27156,7 @@ export interface WindowsWifiEnterpriseEAPConfiguration extends WindowsWifiConfig
     // Specify trusted server certificate names.
     trustedServerCertificateNames?: NullableOption<string[]>;
     /**
-     * Specifiy whether to change the virtual LAN used by the device based on the user’s credentials. Cannot be used when
+     * Specifiy whether to change the virtual LAN used by the device based on the user's credentials. Cannot be used when
      * NetworkSingleSignOnType is set to Disabled.
      */
     userBasedVirtualLan?: NullableOption<boolean>;
@@ -31047,7 +31090,15 @@ export interface EducationalActivity extends ItemFacet {
 }
 // tslint:disable-next-line: interface-name
 export interface InsightsSettings extends Entity {
+    /**
+     * The ID of an Azure AD group, of which the specified type of insights are disabled for its members. Default is empty.
+     * Optional.
+     */
     disabledForGroup?: NullableOption<string>;
+    /**
+     * true if the specified type of insights are enabled for the organization; false if the specified type of insights are
+     * disabled for all users without exceptions. Default is true. Optional.
+     */
     isEnabledInOrganization?: NullableOption<boolean>;
 }
 // tslint:disable-next-line: interface-name
@@ -32425,7 +32476,7 @@ export interface ChatMessage extends Entity {
     etag?: NullableOption<string>;
     /**
      * Read-only. If present, represents details of an event that happened in a chat, a channel, or a team, for example,
-     * members were added, and so on. For event messages, the messageType property will be set to systemEventMessage.
+     * adding new members. For event messages, the messageType property will be set to systemEventMessage.
      */
     eventDetail?: NullableOption<EventMessageDetail>;
     // Details of the sender of the chat message. Can only be set during migration.
@@ -34142,7 +34193,13 @@ export interface CloudPcSourceDeviceImage {
     id?: NullableOption<string>;
 }
 export interface MicrosoftManagedDesktop {
+    // The name of the Microsoft Managed Desktop profile that the Windows 365 Cloud PC is associated with.
     profile?: NullableOption<string>;
+    /**
+     * Indicates whether the provisioning policy enables Microsoft Managed Desktop. It indicates the type of plan under which
+     * the device is managed if the provisioning policy is enabled. Possible values are: notManaged, premiumManaged,
+     * standardManaged, starterManaged, unknownFutureValue.
+     */
     type?: NullableOption<MicrosoftManagedDesktopType>;
 }
 export interface UnifiedRolePermission {
@@ -37010,11 +37067,15 @@ export interface StoragePlanInformation {
     upgradeAvailable?: NullableOption<boolean>;
 }
 export interface SharePointIdentity extends Identity {
+    // The sign in name of the SharePoint identity.
     loginName?: NullableOption<string>;
 }
 export interface SharePointIdentitySet extends IdentitySet {
+    // The group associated with this action. Optional.
     group?: NullableOption<Identity>;
+    // The SharePoint group associated with this action. Optional.
     siteGroup?: NullableOption<SharePointIdentity>;
+    // The SharePoint user associated with this action. Optional.
     siteUser?: NullableOption<SharePointIdentity>;
 }
 export interface SharingInvitation {
@@ -38245,7 +38306,7 @@ export interface AssignmentReviewSettings {
     startDateTime?: NullableOption<string>;
 }
 export interface ConnectedOrganizationMembers extends UserSet {
-    // The name of the connected organization. Read only.
+    // The name of the connected organization.
     description?: NullableOption<string>;
     // The ID of the connected organization in entitlement management.
     id?: NullableOption<string>;
@@ -38266,7 +38327,10 @@ export interface ExpirationPattern {
      * Jan 1, 2014 is 2014-01-01T00:00:00Z.
      */
     endDateTime?: NullableOption<string>;
-    // The requestor's desired expiration pattern type.
+    /**
+     * The requestor's desired expiration pattern type. The possible values are: notSpecified, noExpiration, afterDateTime,
+     * afterDuration.
+     */
     type?: NullableOption<ExpirationPatternType>;
 }
 // tslint:disable-next-line: no-empty-interface
@@ -45461,7 +45525,7 @@ export interface MembersAddedEventMessageDetail extends EventMessageDetail {
     initiator?: NullableOption<IdentitySet>;
     // List of members added.
     members?: NullableOption<TeamworkUserIdentity[]>;
-    // The timestamp denoting how far back a conversation's history is shared with the conversation members.
+    // The timestamp that denotes how far back a conversation's history is shared with the conversation members.
     visibleHistoryStartDateTime?: NullableOption<string>;
 }
 export interface MembersDeletedEventMessageDetail extends EventMessageDetail {
@@ -47483,6 +47547,10 @@ export namespace ManagedTenants {
          * unknownFutureValue. Optional. Read-only.
          */
         onboardingStatus?: NullableOption<TenantOnboardingStatus>;
+        /**
+         * Organization's onboarding eligibility reason in Microsoft 365 Lighthouse.. Possible values are: none, contractType,
+         * delegatedAdminPrivileges,usersCount,license and unknownFutureValue. Optional. Read-only.
+         */
         tenantOnboardingEligibilityReason?: NullableOption<TenantOnboardingEligibilityReason>;
         // The collection of workload statues for the managed tenant. Optional. Read-only.
         workloadStatuses?: NullableOption<WorkloadStatus[]>;
