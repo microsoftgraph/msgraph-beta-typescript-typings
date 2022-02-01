@@ -892,6 +892,7 @@ export type AccessReviewInstanceFilterByCurrentUserOptions = "reviewer" | "unkno
 export type AccessReviewScheduleDefinitionFilterByCurrentUserOptions = "reviewer" | "unknownFutureValue";
 export type ApprovalFilterByCurrentUserOptions = "target" | "createdBy" | "approver" | "unknownFutureValue";
 export type ConsentRequestFilterByCurrentUserOptions = "reviewer" | "unknownFutureValue";
+export type DecisionItemPrincipalResourceMembershipType = "direct" | "indirect" | "unknownFutureValue";
 export type UserSignInRecommendationScope = "tenant" | "application" | "unknownFutureValue";
 export type AgreementAcceptanceState = "accepted" | "declined" | "unknownFutureValue";
 export type ActivityType = "signin" | "user" | "unknownFutureValue";
@@ -4241,7 +4242,6 @@ export type PrintTaskProcessingState = "pending" | "processing" | "completed" | 
 export type Status = "active" | "updated" | "deleted" | "ignored" | "unknownFutureValue";
 export type DataPolicyOperationStatus = "notStarted" | "running" | "complete" | "failed" | "unknownFutureValue";
 export type PayloadDeliveryPlatform = "unknown" | "sms" | "email" | "teams" | "unknownFutureValue";
-export type PayloadSource = "unknown" | "global" | "tenant" | "unknownFutureValue";
 export type SimulationAttackTechnique =
     | "unknown"
     | "credentialHarvesting"
@@ -4251,21 +4251,30 @@ export type SimulationAttackTechnique =
     | "linkToMalwareFile"
     | "unknownFutureValue";
 export type SimulationAttackType = "unknown" | "social" | "cloud" | "endpoint" | "unknownFutureValue";
+export type SimulationAutomationRunStatus =
+    | "unknown"
+    | "running"
+    | "succeeded"
+    | "failed"
+    | "skipped"
+    | "unknownFutureValue";
+export type SimulationAutomationStatus =
+    | "unknown"
+    | "draft"
+    | "notRunning"
+    | "running"
+    | "completed"
+    | "unknownFutureValue";
 export type SimulationStatus =
     | "unknown"
     | "draft"
-    | "inProgress"
+    | "running"
     | "scheduled"
-    | "completed"
-    | "partiallyCompleted"
+    | "succeeded"
     | "failed"
     | "cancelled"
     | "excluded"
-    | "deleted"
-    | "included"
     | "unknownFutureValue";
-export type TrainingAssignmentPreference = "unknown" | "auto" | "manual" | "unknownFutureValue";
-export type TrainingContentPreference = "unknown" | "microsoft" | "custom" | "noTraining" | "unknownFutureValue";
 export type TrainingStatus = "unknown" | "assigned" | "inProgress" | "completed" | "overdue" | "unknownFutureValue";
 export type AccountStatus = "unknown" | "staged" | "active" | "suspended" | "deleted" | "unknownFutureValue";
 export type AlertFeedback = "unknown" | "truePositive" | "falsePositive" | "benignPositive" | "unknownFutureValue";
@@ -6514,7 +6523,7 @@ export interface ManagedDevice extends Entity {
     serialNumber?: NullableOption<string>;
     // Device sku family
     skuFamily?: NullableOption<string>;
-    // Device sku number, see also: GetProductInfo. Valid values 0 to 2147483647. This property is read-only.
+    // Device sku number, see also: GetProductInfo function. Valid values 0 to 2147483647. This property is read-only.
     skuNumber?: number;
     // Specification version. This property is read-only.
     specificationVersion?: NullableOption<string>;
@@ -6740,6 +6749,7 @@ export interface UserSettings extends Entity {
      * Microsoft 365, such as documents or sites. Get userInsightsSettings through this navigation property.
      */
     itemInsights?: NullableOption<UserInsightsSettings>;
+    contactMergeSuggestions?: NullableOption<ContactMergeSuggestions>;
     // The user's preferences for languages, regional locale and date/time formatting.
     regionalAndLanguageSettings?: NullableOption<RegionalAndLanguageSettings>;
     // The shift preferences for the user.
@@ -8547,8 +8557,14 @@ export interface ConnectorGroup extends Entity {
     members?: NullableOption<Connector[]>;
 }
 export interface Synchronization extends Entity {
+    // Represents a collection of credentials to access provisioned cloud applications.
     secrets?: NullableOption<SynchronizationSecretKeyStringValuePair[]>;
+    /**
+     * Performs synchronization by periodically running in the background, polling for changes in one directory, and pushing
+     * them to another directory.
+     */
     jobs?: NullableOption<SynchronizationJob[]>;
+    // Pre-configured synchronization settings for a particular application.
     templates?: NullableOption<SynchronizationTemplate[]>;
 }
 export interface ApplicationTemplate extends Entity {
@@ -8630,7 +8646,10 @@ export interface AuthenticationMethodsPolicy extends Entity {
      * methods.
      */
     registrationEnforcement?: NullableOption<RegistrationEnforcement>;
-    // Represents the settings for each authentication method.
+    /**
+     * Represents the settings for each authentication method. Automatically expanded on GET
+     * /policies/authenticationMethodsPolicy.
+     */
     authenticationMethodConfigurations?: NullableOption<AuthenticationMethodConfiguration[]>;
 }
 export interface AuthenticationMethodTarget extends Entity {
@@ -9539,13 +9558,13 @@ export interface CloudPcOnPremisesConnection extends Entity {
 }
 export interface CloudPcOrganizationSettings extends Entity {
     /**
-     * The account type of the user on provisioned Cloud PCs. The possible values are: windows10, windows11,
+     * The version of the operating system (OS) to provision on Cloud PCs. The possible values are: windows10, windows11,
      * unknownFutureValue.
      */
     osVersion?: NullableOption<CloudPcOperatingSystem>;
     /**
-     * The version of the operating system (OS) to provision on Cloud PCs. The possible values are: standardUser,
-     * administrator, unknownFutureValue.
+     * The account type of the user on provisioned Cloud PCs. The possible values are: standardUser, administrator,
+     * unknownFutureValue.
      */
     userAccountType?: NullableOption<CloudPcUserAccountType>;
 }
@@ -10682,7 +10701,7 @@ export interface DeviceManagementConfigurationCategory extends Entity {
     parentCategoryId?: NullableOption<string>;
     /**
      * Platforms types, which settings in the category have. Possible values are: none, android, iOS, macOS, windows10X,
-     * windows10.
+     * windows10, linux, unknownFutureValue.
      */
     platforms?: DeviceManagementConfigurationPlatforms;
     // Root id of the category.
@@ -10711,7 +10730,10 @@ export interface DeviceManagementCompliancePolicy extends Entity {
     lastModifiedDateTime?: string;
     // Policy name
     name?: NullableOption<string>;
-    // Platforms for this policy. Possible values are: none, android, iOS, macOS, windows10X, windows10.
+    /**
+     * Platforms for this policy. Possible values are: none, android, iOS, macOS, windows10X, windows10, linux,
+     * unknownFutureValue.
+     */
     platforms?: DeviceManagementConfigurationPlatforms;
     // List of Scope Tags for this Entity instance.
     roleScopeTagIds?: NullableOption<string[]>;
@@ -10783,7 +10805,10 @@ export interface DeviceManagementConfigurationPolicy extends Entity {
     lastModifiedDateTime?: string;
     // Policy name
     name?: NullableOption<string>;
-    // Platforms for this policy. Possible values are: none, android, iOS, macOS, windows10X, windows10.
+    /**
+     * Platforms for this policy. Possible values are: none, android, iOS, macOS, windows10X, windows10, linux,
+     * unknownFutureValue.
+     */
     platforms?: DeviceManagementConfigurationPlatforms;
     // List of Scope Tags for this Entity instance.
     roleScopeTagIds?: NullableOption<string[]>;
@@ -10817,7 +10842,10 @@ export interface DeviceManagementConfigurationPolicyTemplate extends Entity {
      * retired.
      */
     lifecycleState?: DeviceManagementTemplateLifecycleState;
-    // Platforms for this template. Possible values are: none, android, iOS, macOS, windows10X, windows10.
+    /**
+     * Platforms for this template. Possible values are: none, android, iOS, macOS, windows10X, windows10, linux,
+     * unknownFutureValue.
+     */
     platforms?: DeviceManagementConfigurationPlatforms;
     // Number of setting templates. Valid values 0 to 2147483647. This property is read-only.
     settingTemplateCount?: number;
@@ -11732,7 +11760,10 @@ export interface UserExperienceAnalyticsBatteryHealthDevicePerformance extends E
      * 2147483647
      */
     estimatedRuntimeInMinutes?: number;
-    // The overall battery health status of the device.
+    /**
+     * The overall battery health status of the device. Possible values are: unknown, insufficientData, needsAttention,
+     * meetingGoals.
+     */
     healthStatus?: NullableOption<string>;
     /**
      * Ratio of current capacity and design capacity of the battery with the lowest capacity. Unit in percentage and values
@@ -11837,7 +11868,7 @@ export interface UserExperienceAnalyticsDevicePerformance extends Entity {
     deviceCount?: number;
     // The user experience analytics device name.
     deviceName?: NullableOption<string>;
-    // The user experience analytics device disk type. Possible values are: unkown, hdd, ssd.
+    // The user experience analytics device disk type. Possible values are: hdd, ssd, unknown.
     diskType?: DiskType;
     // The user experience analytics device group policy boot time in milliseconds.
     groupPolicyBootTimeInMs?: number;
@@ -12581,7 +12612,7 @@ export interface GroupPolicyUploadedDefinitionFile extends GroupPolicyDefinition
     content?: NullableOption<number>;
     // The default language of the uploaded ADMX file.
     defaultLanguageCode?: NullableOption<string>;
-    // The file name of the uploaded ADML file.
+    // The file name of the ADMX file without the path. For example: edge.admx Inherited from groupPolicyDefinitionFile
     fileName?: NullableOption<string>;
     // The list of ADML files associated with the uploaded ADMX file.
     groupPolicyUploadedLanguageFiles?: NullableOption<GroupPolicyUploadedLanguageFile[]>;
@@ -12602,7 +12633,7 @@ export interface MicrosoftTunnelConfiguration extends Entity {
     defaultDomainSuffix?: NullableOption<string>;
     // The MicrosoftTunnelConfiguration's description
     description?: NullableOption<string>;
-    // When DisableUDPConnections is set, the clients and VPN server will not use DTLS connctions to tansfer data.
+    // When DisableUdpConnections is set, the clients and VPN server will not use DTLS connections to tansfer data.
     disableUDPConnections?: boolean;
     // The MicrosoftTunnelConfiguration's display name
     displayName?: NullableOption<string>;
@@ -15914,6 +15945,7 @@ export interface Workbook extends Entity {
 export interface ListItem extends BaseItem {
     // The content type of this list item
     contentType?: NullableOption<ContentTypeInfo>;
+    deleted?: NullableOption<Deleted>;
     // Returns identifiers useful for SharePoint REST compatibility. Read-only.
     sharepointIds?: NullableOption<SharepointIds>;
     // The list of recent activities that took place on this item.
@@ -16989,6 +17021,9 @@ export interface UserInsightsSettings extends Entity {
      */
     isEnabled?: boolean;
 }
+export interface ContactMergeSuggestions extends Entity {
+    isEnabled?: NullableOption<boolean>;
+}
 export interface RegionalAndLanguageSettings extends Entity {
     // Prioritized list of languages the user reads and authors in.Returned by default. Not nullable.
     authoringLanguages?: NullableOption<LocaleInfo[]>;
@@ -17414,34 +17449,63 @@ export interface AccessReviewHistoryDefinition extends Entity {
     decisions?: NullableOption<AccessReviewHistoryDecisionFilter[]>;
     // Name for the access review history data collection. Required.
     displayName?: string;
-    // Uri which can be used to retrieve review history data. This URI will be active for 24 hours after being generated.
     downloadUri?: NullableOption<string>;
-    /**
-     * Timestamp when all of the available data for this definition was collected. This will be set after this definition's
-     * status is set to done.
-     */
     fulfilledDateTime?: NullableOption<string>;
-    // Timestamp, reviews starting on or after this date will be included in the fetched history data. Required.
+    /**
+     * A timestamp. Reviews ending on or before this date will be included in the fetched history data. Only required if
+     * scheduleSettings is not defined.
+     */
     reviewHistoryPeriodEndDateTime?: string;
-    // Timestamp, reviews starting on or before this date will be included in the fetched history data. Required.
+    /**
+     * A timestamp. Reviews starting on or before this date will be included in the fetched history data. Only required if
+     * scheduleSettings is not defined.
+     */
     reviewHistoryPeriodStartDateTime?: string;
+    /**
+     * The settings for a recurring access review history definition series. Only required if reviewHistoryPeriodStartDateTime
+     * or reviewHistoryPeriodEndDateTime are not defined.
+     */
     scheduleSettings?: NullableOption<AccessReviewHistoryScheduleSettings>;
     /**
      * Used to scope what reviews are included in the fetched history data. Fetches reviews whose scope matches with this
      * provided scope. Required.
      */
     scopes?: AccessReviewScope[];
-    // Represents the status of the review history data collection. Possible values are: done, inprogress, error, requested.
+    /**
+     * Represents the status of the review history data collection. The possible values are: done, inProgress, error,
+     * requested, unknownFutureValue.
+     */
     status?: NullableOption<AccessReviewHistoryStatus>;
+    /**
+     * If the accessReviewHistoryDefinition is a recurring definition, instances represent each recurrence. A definition that
+     * does not recur will have exactly one instance.
+     */
     instances?: NullableOption<AccessReviewHistoryInstance[]>;
 }
 export interface AccessReviewHistoryInstance extends Entity {
+    /**
+     * Uri which can be used to retrieve review history data. This URI will be active for 24 hours after being generated.
+     * Required.
+     */
     downloadUri?: NullableOption<string>;
+    // Timestamp when this instance and associated data expires and the history is deleted. Required.
     expirationDateTime?: string;
+    /**
+     * Timestamp when all of the available data for this instance was collected. This will be set after this instance's status
+     * is set to done. Required.
+     */
     fulfilledDateTime?: NullableOption<string>;
+    // Timestamp, reviews ending on or before this date will be included in the fetched history data.
     reviewHistoryPeriodEndDateTime?: NullableOption<string>;
+    // Timestamp, reviews starting on or after this date will be included in the fetched history data.
     reviewHistoryPeriodStartDateTime?: NullableOption<string>;
+    // Timestamp when the instance's history data is scheduled to be generated.
     runDateTime?: string;
+    /**
+     * Represents the status of the review history data collection. The possible values are: done, inProgress, error,
+     * requested, unknownFutureValue. Once the status has been marked as done, a link can be generated to retrieve the
+     * instance's data by calling generateDownloadUri method.
+     */
     status?: NullableOption<AccessReviewHistoryStatus>;
 }
 export interface AccessReviewInstanceDecisionItem extends Entity {
@@ -17480,6 +17544,7 @@ export interface AccessReviewInstanceDecisionItem extends Entity {
      * Read-only.
      */
     principalLink?: NullableOption<string>;
+    principalResourceMembership?: NullableOption<DecisionItemPrincipalResourceMembership>;
     /**
      * A system-generated recommendation for the approval decision based off last interactive sign-in to tenant. Recommend
      * approve if sign-in is within thirty days of start of review. Recommend deny if sign-in is greater than thirty days of
@@ -23175,7 +23240,7 @@ export interface IosEnterpriseWiFiConfiguration extends IosWiFiConfiguration {
     eapFastConfiguration?: NullableOption<EapFastConfiguration>;
     /**
      * Extensible Authentication Protocol (EAP). Indicates the type of EAP protocol set on the Wi-Fi endpoint (router).
-     * Possible values are: eapTls, leap, eapSim, eapTtls, peap, eapFast.
+     * Possible values are: eapTls, leap, eapSim, eapTtls, peap, eapFast, teap.
      */
     eapType?: EapType;
     /**
@@ -24292,7 +24357,7 @@ export interface MacOSEnterpriseWiFiConfiguration extends MacOSWiFiConfiguration
     eapFastConfiguration?: NullableOption<EapFastConfiguration>;
     /**
      * Extensible Authentication Protocol (EAP). Indicates the type of EAP protocol set on the Wi-Fi endpoint (router).
-     * Possible values are: eapTls, leap, eapSim, eapTtls, peap, eapFast.
+     * Possible values are: eapTls, leap, eapSim, eapTtls, peap, eapFast, teap.
      */
     eapType?: EapType;
     /**
@@ -24676,7 +24741,7 @@ export interface MacOSWiredNetworkConfiguration extends DeviceConfiguration {
     eapFastConfiguration?: NullableOption<EapFastConfiguration>;
     /**
      * Extensible Authentication Protocol (EAP). Indicates the type of EAP protocol set on the wired network. Possible values
-     * are: eapTls, leap, eapSim, eapTtls, peap, eapFast.
+     * are: eapTls, leap, eapSim, eapTtls, peap, eapFast, teap.
      */
     eapType?: EapType;
     /**
@@ -25563,7 +25628,7 @@ export interface Windows10EndpointProtectionConfiguration extends DeviceConfigur
     localSecurityOptionsRestrictAnonymousAccessToNamedPipesAndShares?: boolean;
     /**
      * This security setting determines what happens when the smart card for a logged-on user is removed from the smart card
-     * reader. Possible values are: lockWorkstation, noAction, forceLogoff, disconnectRemoteDesktopSession.
+     * reader. Possible values are: noAction, lockWorkstation, forceLogoff, disconnectRemoteDesktopSession.
      */
     localSecurityOptionsSmartCardRemovalBehavior?: LocalSecurityOptionsSmartCardRemovalBehaviorType;
     /**
@@ -27622,7 +27687,7 @@ export interface WindowsWifiEnterpriseEAPConfiguration extends WindowsWifiConfig
     eapolStartPeriodInSeconds?: NullableOption<number>;
     /**
      * Extensible Authentication Protocol (EAP). Indicates the type of EAP protocol set on the Wi-Fi endpoint (router).
-     * Possible values are: eapTls, leap, eapSim, eapTtls, peap, eapFast.
+     * Possible values are: eapTls, leap, eapSim, eapTtls, peap, eapFast, teap.
      */
     eapType?: EapType;
     // Specify whether the wifi connection should enable pairwise master key caching.
@@ -29366,6 +29431,7 @@ export interface Security extends Entity {
     userSecurityProfiles?: NullableOption<UserSecurityProfile[]>;
 }
 export interface AttackSimulationRoot extends Entity {
+    simulationAutomations?: NullableOption<SimulationAutomation[]>;
     // Represent attack simulation and training campaign of a tenant.
     simulations?: NullableOption<Simulation[]>;
 }
@@ -32191,6 +32257,18 @@ export interface DataPolicyOperation extends Entity {
     // The id for the user on whom the operation is performed.
     userId?: string;
 }
+export interface SimulationAutomation extends Entity {
+    createdBy?: NullableOption<EmailIdentity>;
+    createdDateTime?: NullableOption<string>;
+    description?: NullableOption<string>;
+    displayName?: NullableOption<string>;
+    lastModifiedBy?: NullableOption<EmailIdentity>;
+    lastModifiedDateTime?: NullableOption<string>;
+    lastRunDateTime?: NullableOption<string>;
+    nextRunDateTime?: NullableOption<string>;
+    status?: NullableOption<SimulationAutomationStatus>;
+    runs?: NullableOption<SimulationAutomationRun[]>;
+}
 export interface Simulation extends Entity {
     /**
      * The social engineering technique used in the attack simulation and training campaign. Supports $filter and $orderby.
@@ -32203,8 +32281,7 @@ export interface Simulation extends Entity {
      * unknown, social, cloud, endpoint, unknownFutureValue.
      */
     attackType?: NullableOption<SimulationAttackType>;
-    // Flag representing if artifacts were cleaned up in the attack simulation and training campaign.
-    cleanupArtifacts?: NullableOption<boolean>;
+    automationId?: NullableOption<string>;
     // Date and time of completion of the attack simulation and training campaign. Supports $filter and $orderby.
     completionDateTime?: NullableOption<string>;
     // Identity of the user who created the attack simulation and training campaign.
@@ -32215,13 +32292,6 @@ export interface Simulation extends Entity {
     description?: NullableOption<string>;
     // Display name of the attack simulation and training campaign. Supports $filter and $orderby.
     displayName?: NullableOption<string>;
-    /**
-     * Flag representing whether to enable or disable timezone-aware delivery of phishing payload in the attack simulation and
-     * training campaign.
-     */
-    enableRegionTimezoneDelivery?: NullableOption<boolean>;
-    // Flag representing inclusion of all the users of a tenant in the attack simulation and training campaign.
-    includeAllAccountTargets?: NullableOption<boolean>;
     /**
      * Flag representing if the attack simulation and training campaign was created from a simulation automation flow.
      * Supports $filter and $orderby.
@@ -32238,11 +32308,6 @@ export interface Simulation extends Entity {
      * unknown, sms, email, teams, unknownFutureValue.
      */
     payloadDeliveryPlatform?: NullableOption<PayloadDeliveryPlatform>;
-    /**
-     * Source of phishing payload in the attack simulation and training campaign. Possible values are: unknown, global,
-     * tenant, unknownFutureValue.
-     */
-    payloadSource?: NullableOption<PayloadSource>;
     // Report of the attack simulation and training campaign.
     report?: NullableOption<SimulationReport>;
     /**
@@ -32251,18 +32316,12 @@ export interface Simulation extends Entity {
      * unknownFutureValue.
      */
     status?: NullableOption<SimulationStatus>;
-    /**
-     * Preference of the tenant admin to assign training to users in the attack simulation and training campaign. Possible
-     * values are: unknown, auto, manual, unknownFutureValue.
-     */
-    trainingAssignmentPreference?: NullableOption<TrainingAssignmentPreference>;
-    /**
-     * Preference of the tenant admin for the source of training content to assign to users in the attack simulation and
-     * training campaign. Possible values are: unknown, microsoft, custom, noTraining, unknownFutureValue.
-     */
-    trainingContentPreference?: NullableOption<TrainingContentPreference>;
-    // Date and time before which the trainings need to be completed by users in the attack simulation and training campaign.
-    trainingDueDateTime?: NullableOption<string>;
+}
+export interface SimulationAutomationRun extends Entity {
+    endDateTime?: NullableOption<string>;
+    simulationId?: NullableOption<string>;
+    startDateTime?: NullableOption<string>;
+    status?: NullableOption<SimulationAutomationRunStatus>;
 }
 export interface AttendanceRecord extends Entity {
     // List of time periods between joining and leaving a meeting.
@@ -32660,8 +32719,11 @@ export interface WellKnownTaskList extends BaseTaskList {
     wellKnownListName?: WellKnownListName_v2;
 }
 export interface TeamworkPeripheral extends Entity {
+    // Display name for the peripheral.
     displayName?: NullableOption<string>;
+    // The product ID of the device. Each product from a vendor has its own ID.
     productId?: NullableOption<string>;
+    // The unique identifier for the vendor of the device. Each vendor has a unique ID.
     vendorId?: NullableOption<string>;
 }
 export interface AadUserConversationMember extends ConversationMember {
@@ -32865,7 +32927,9 @@ export interface TeamsAppIcon extends Entity {
     hostedContent?: NullableOption<TeamworkHostedContent>;
 }
 export interface Teamwork extends Entity {
+    // A workforce integration with shifts.
     workforceIntegrations?: NullableOption<WorkforceIntegration[]>;
+    // The Teams devices provisioned for the tenant.
     devices?: NullableOption<TeamworkDevice[]>;
 }
 export interface WorkforceIntegration extends ChangeTrackedEntity {
@@ -32901,63 +32965,128 @@ export interface WorkforceIntegration extends ChangeTrackedEntity {
     url?: NullableOption<string>;
 }
 export interface TeamworkDevice extends Entity {
+    // The activity state of the device. The possible values are: unknown, busy, idle, unavailable, unknownFutureValue.
     activityState?: NullableOption<TeamworkDeviceActivityState>;
+    // The company asset tag assigned by the admin on the device.
     companyAssetTag?: NullableOption<string>;
+    // Identity of the user who enrolled the device to the tenant.
     createdBy?: NullableOption<IdentitySet>;
+    // The UTC date and time when the device was enrolled to the tenant.
     createdDateTime?: NullableOption<string>;
+    // The signed-in user on the device.
     currentUser?: NullableOption<TeamworkUserIdentity>;
+    /**
+     * The type of device. The possible values are: unknown, ipPhone, teamsRoom, surfaceHub, collaborationBar, teamsDisplay,
+     * touchConsole, lowCostPhone, teamsPanel, sip, unknownFutureValue.
+     */
     deviceType?: TeamworkDeviceType;
+    // A collection of hardware-related properties. For example, oemSerialNumber and model.
     hardwareDetail?: TeamworkHardwareDetail;
+    /**
+     * The health status of the device. The possible values are: unknown, offline, critical, nonUrgent, healthy,
+     * unknownFutureValue.
+     */
     healthStatus?: NullableOption<TeamworkDeviceHealthStatus>;
+    // Identity of the user who last modified the device details.
     lastModifiedBy?: NullableOption<IdentitySet>;
+    // The UTC date and time when the device detail was last modified.
     lastModifiedDateTime?: NullableOption<string>;
+    // The notes added by the admin to the device.
     notes?: NullableOption<string>;
+    // The activity properties that change based on the device usage.
     activity?: NullableOption<TeamworkDeviceActivity>;
+    // The configuration properties of the device.
     configuration?: NullableOption<TeamworkDeviceConfiguration>;
+    // The health properties of the device.
     health?: NullableOption<TeamworkDeviceHealth>;
+    // The async operations on the device.
     operations?: NullableOption<TeamworkDeviceOperation[]>;
 }
 export interface TeamworkDeviceActivity extends Entity {
+    // The active peripheral devices attached to the device.
     activePeripherals?: NullableOption<TeamworkActivePeripherals>;
+    // Identity of the user who created the device activity document.
     createdBy?: NullableOption<IdentitySet>;
+    // The UTC date and time when the device activity document was created.
     createdDateTime?: NullableOption<string>;
+    // Identity of the user who last modified the device activity details.
     lastModifiedBy?: NullableOption<IdentitySet>;
+    // The UTC date and time when the device activity detail was last modified.
     lastModifiedDateTime?: NullableOption<string>;
 }
 export interface TeamworkDeviceConfiguration extends Entity {
+    // The camera configuration. Applicable only for Microsoft Teams Rooms-enabled devices.
     cameraConfiguration?: NullableOption<TeamworkCameraConfiguration>;
+    // Identity of the user who created the device configuration document.
     createdBy?: NullableOption<IdentitySet>;
+    // The UTC date and time when the device configuration document was created.
     createdDateTime?: NullableOption<string>;
+    // The display configuration.
     displayConfiguration?: NullableOption<TeamworkDisplayConfiguration>;
+    // The hardware configuration. Applicable only for Teams Rooms-enabled devices.
     hardwareConfiguration?: NullableOption<TeamworkHardwareConfiguration>;
+    // Identity of the user who last modified the device configuration.
     lastModifiedBy?: NullableOption<IdentitySet>;
+    // The UTC date and time when the device configuration was last modified.
     lastModifiedDateTime?: NullableOption<string>;
+    // The microphone configuration. Applicable only for Teams Rooms-enabled devices.
     microphoneConfiguration?: NullableOption<TeamworkMicrophoneConfiguration>;
+    /**
+     * Information related to software versions for the device, such as firmware, operating system, Teams client, and admin
+     * agent.
+     */
     softwareVersions?: NullableOption<TeamworkDeviceSoftwareVersions>;
+    // The speaker configuration. Applicable only for Teams Rooms-enabled devices.
     speakerConfiguration?: NullableOption<TeamworkSpeakerConfiguration>;
+    // The system configuration. Not applicable for Teams Rooms-enabled devices.
     systemConfiguration?: NullableOption<TeamworkSystemConfiguration>;
+    // The Teams client configuration. Applicable only for Teams Rooms-enabled devices.
     teamsClientConfiguration?: NullableOption<TeamworkTeamsClientConfiguration>;
 }
 export interface TeamworkDeviceHealth extends Entity {
+    // Information about the connection status.
     connection?: TeamworkConnection;
+    // Identity of the user who created the device health document.
     createdBy?: NullableOption<IdentitySet>;
+    // The UTC date and time when the device health document was created.
     createdDateTime?: NullableOption<string>;
+    // Health details about the device hardware.
     hardwareHealth?: NullableOption<TeamworkHardwareHealth>;
+    // Identity of the user who last modified the device health details.
     lastModifiedBy?: NullableOption<IdentitySet>;
+    // The UTC date and time when the device health detail was last modified.
     lastModifiedDateTime?: NullableOption<string>;
+    // The login status of Microsoft Teams, Skype for Business, and Exchange.
     loginStatus?: NullableOption<TeamworkLoginStatus>;
+    // Health details about all peripherals (for example, speaker and microphone) attached to a device.
     peripheralsHealth?: NullableOption<TeamworkPeripheralsHealth>;
+    // Software updates available for the device.
     softwareUpdateHealth?: NullableOption<TeamworkSoftwareUpdateHealth>;
 }
 export interface TeamworkDeviceOperation extends Entity {
+    // Time at which the operation reached a final state (for example, Successful, Failed, and Cancelled).
     completedDateTime?: NullableOption<string>;
+    // Identity of the user who created the device operation.
     createdBy?: NullableOption<IdentitySet>;
+    // The UTC date and time when the device operation was created.
     createdDateTime?: NullableOption<string>;
+    // Error details are available only in case of a failed status.
     error?: NullableOption<OperationError>;
+    // Identity of the user who last modified the device operation.
     lastActionBy?: NullableOption<IdentitySet>;
+    // The UTC date and time when the device operation was last modified.
     lastActionDateTime?: NullableOption<string>;
+    /**
+     * Type of async operation on a device. The possible values are: deviceRestart, configUpdate, deviceDiagnostics,
+     * softwareUpdate, deviceManagementAgentConfigUpdate, remoteLogin, remoteLogout, unknownFutureValue.
+     */
     operationType?: TeamworkDeviceOperationType;
+    // Time at which the operation was started.
     startedDateTime?: NullableOption<string>;
+    /**
+     * The current status of the async operation, for example, Queued, Scheduled, InProgress, Successful, Cancelled, and
+     * Failed.
+     */
     status?: string;
 }
 export interface TeamworkTagMember extends Entity {
@@ -38213,7 +38342,18 @@ export interface AccessReviewApplyAction {}
 // tslint:disable-next-line: no-empty-interface
 export interface AccessReviewError extends GenericError {}
 export interface AccessReviewHistoryScheduleSettings {
+    /**
+     * Detailed settings for recurrence using the standard Outlook recurrence object. Note: Only dayOfMonth, interval, and
+     * type (weekly, absoluteMonthly) properties are supported. Use the property startDate on recurrenceRange to determine the
+     * day the review starts. Required.
+     */
     recurrence?: PatternedRecurrence;
+    /**
+     * A duration string in ISO 8601 duration format specifying the lookback period of the generated review history data. For
+     * example, if a history definition is scheduled to run on the 1st of every month, the reportRange is P1M. In this case,
+     * on the first of every month, access review history data will be collected containing only the previous month's review
+     * data. Note: Only years, months, and days ISO 8601 properties are supported. Required.
+     */
     reportRange?: string;
 }
 // tslint:disable-next-line: no-empty-interface
@@ -38413,6 +38553,9 @@ export interface AppConsentRequestScope {
 export interface BusinessFlowSettings extends AccessReviewSettings {
     durationInDays?: number;
 }
+export interface DecisionItemPrincipalResourceMembership {
+    membershipType?: DecisionItemPrincipalResourceMembershipType;
+}
 // tslint:disable-next-line: no-empty-interface
 export interface DisableAndDeleteUserApplyAction extends AccessReviewApplyAction {}
 // tslint:disable-next-line: no-empty-interface
@@ -38515,12 +38658,18 @@ export interface ConditionalAccessApplications {
     includeUserActions?: string[];
 }
 export interface ConditionalAccessClientApplications {
+    // Service principal IDs excluded from the policy scope.
     excludeServicePrincipals?: string[];
+    // Service principal IDs included in the policy scope, or ServicePrincipalsInMyTenant.
     includeServicePrincipals?: string[];
 }
 export interface ConditionalAccessConditionSet {
     // Applications and user actions included in and excluded from the policy. Required.
     applications?: NullableOption<ConditionalAccessApplications>;
+    /**
+     * Client applications (service principals and workload identities) included in and excluded from the policy. Either users
+     * or clientApplications is required.
+     */
     clientApplications?: NullableOption<ConditionalAccessClientApplications>;
     /**
      * Client application types included in the policy. Possible values are: all, browser, mobileAppsAndDesktopClients,
@@ -38545,7 +38694,7 @@ export interface ConditionalAccessConditionSet {
      * Required.
      */
     userRiskLevels?: RiskLevel[];
-    // Users, groups, and roles included in and excluded from the policy. Required.
+    // Users, groups, and roles included in and excluded from the policy. Either users or clientApplications is required.
     users?: NullableOption<ConditionalAccessUsers>;
 }
 export interface ConditionalAccessDevices {
@@ -42162,7 +42311,10 @@ export interface DeviceManagementConfigurationSettingApplicability {
     description?: NullableOption<string>;
     // Device Mode that setting can be applied on. Possible values are: none, kiosk.
     deviceMode?: DeviceManagementConfigurationDeviceMode;
-    // Platform setting can be applied on. Possible values are: none, android, iOS, macOS, windows10X, windows10.
+    /**
+     * Platform setting can be applied on. Possible values are: none, android, iOS, macOS, windows10X, windows10, linux,
+     * unknownFutureValue.
+     */
     platform?: DeviceManagementConfigurationPlatforms;
     /**
      * Which technology channels this setting can be deployed through. Possible values are: none, mdm, windows10XManagement,
@@ -43636,6 +43788,10 @@ export interface SearchRequest {
     from?: number;
     // Contains the query terms. Required.
     query?: SearchQuery;
+    /**
+     * Query alteration options formatted in a JSON blob that contains two optional flags related to spelling correction.
+     * Optional.
+     */
     queryAlterationOptions?: NullableOption<SearchAlterationOptions>;
     // Provides the search result templates options for rendering connectors search results.
     resultTemplateOptions?: NullableOption<ResultTemplateOption>;
@@ -43660,6 +43816,10 @@ export interface SearchResponse {
     hitsContainers?: NullableOption<SearchHitsContainer[]>;
     // Provides details of query alteration response for spelling correction.
     queryAlterationResponse?: NullableOption<AlterationResponse>;
+    /**
+     * A dictionary of resultTemplateIds and associated values, which include the name and JSON schema of the result
+     * templates.
+     */
     resultTemplates?: NullableOption<ResultTemplateDictionary>;
     // Contains the search terms sent in the initial search query.
     searchTerms?: NullableOption<string[]>;
@@ -46226,12 +46386,27 @@ export interface TeamUnarchivedEventMessageDetail extends EventMessageDetail {
     teamId?: NullableOption<string>;
 }
 export interface TeamworkAccountConfiguration {
+    // The account used to sync the calendar.
     onPremisesCalendarSyncConfiguration?: NullableOption<TeamworkOnPremisesCalendarSyncConfiguration>;
+    /**
+     * The supported client for Teams Rooms devices. The possible values are: unknown, skypeDefaultAndTeams,
+     * teamsDefaultAndSkype, skypeOnly, teamsOnly, unknownFutureValue.
+     */
     supportedClient?: NullableOption<TeamworkSupportedClient>;
 }
 export interface TeamworkOnPremisesCalendarSyncConfiguration {
+    /**
+     * The fully qualified domain name (FQDN) of the Skype for Business Server. Use the Exchange domain if the Skype for
+     * Business SIP domain is different from the Exchange domain of the user.
+     */
     domain?: NullableOption<string>;
+    // The domain and username of the console device, for example, Seattle/RanierConf.
     domainUserName?: NullableOption<string>;
+    /**
+     * The Simple Mail Transfer Protocol (SMTP) address of the user account. This is only required if a different user
+     * principal name (UPN) is used to sign in to Exchange other than Microsoft Teams and Skype for Business. This is a common
+     * scenario in a hybrid environment where an on-premises Exchange server is used.
+     */
     smtpAddress?: NullableOption<string>;
 }
 export interface TeamworkActivePeripherals {
@@ -46266,98 +46441,169 @@ export interface TeamworkApplicationIdentity extends Identity {
     applicationIdentityType?: NullableOption<TeamworkApplicationIdentityType>;
 }
 export interface TeamworkCameraConfiguration {
+    // The configuration for the content camera.
     contentCameraConfiguration?: NullableOption<TeamworkContentCameraConfiguration>;
     cameras?: NullableOption<TeamworkPeripheral[]>;
     defaultContentCamera?: NullableOption<TeamworkPeripheral>;
 }
 export interface TeamworkContentCameraConfiguration {
+    // True if the content camera is inverted.
     isContentCameraInverted?: NullableOption<boolean>;
+    // True if the content camera is optional.
     isContentCameraOptional?: NullableOption<boolean>;
+    // True if the content enhancement is enabled.
     isContentEnhancementEnabled?: NullableOption<boolean>;
 }
 export interface TeamworkConfiguredPeripheral {
+    /**
+     * True if the current peripheral is optional. If set to false, this property is also used as part of the calculation of
+     * the health state for the device.
+     */
     isOptional?: NullableOption<boolean>;
     peripheral?: NullableOption<TeamworkPeripheral>;
 }
 export interface TeamworkConnection {
+    /**
+     * Indicates whether a component/peripheral is connected/disconnected or its state is unknown. The possible values are:
+     * unknown, connected, disconnected, unknownFutureValue.
+     */
     connectionStatus?: NullableOption<TeamworkConnectionStatus>;
+    /**
+     * Time at which the state was last changed. For example, indicates connected since when the state is connected and
+     * disconnected since when the state is disconnected.
+     */
     lastModifiedDateTime?: NullableOption<string>;
 }
 export interface TeamworkDateTimeConfiguration {
+    // The date format for the device.
     dateFormat?: NullableOption<string>;
+    // The time of the day when the device is turned off.
     officeHoursEndTime?: NullableOption<string>;
+    // The time of the day when the device is turned on.
     officeHoursStartTime?: NullableOption<string>;
+    // The time format for the device.
     timeFormat?: NullableOption<string>;
+    // The time zone to which the office hours apply.
     timeZone?: NullableOption<string>;
 }
 export interface TeamworkDeviceSoftwareVersions {
+    // The software version for the admin agent running on the device.
     adminAgentSoftwareVersion?: NullableOption<string>;
+    // The software version for the firmware running on the device.
     firmwareSoftwareVersion?: NullableOption<string>;
+    // The software version for the operating system on the device.
     operatingSystemSoftwareVersion?: NullableOption<string>;
+    // The software version for the partner agent running on the device.
     partnerAgentSoftwareVersion?: NullableOption<string>;
+    // The software version for the Teams client running on the device.
     teamsClientSoftwareVersion?: NullableOption<string>;
 }
 export interface TeamworkDisplayConfiguration {
+    // The list of configured displays. Applicable only for Microsoft Teams Rooms devices.
     configuredDisplays?: NullableOption<TeamworkConfiguredPeripheral[]>;
+    // Total number of connected displays, including the inbuilt display. Applicable only for Teams Rooms devices.
     displayCount?: NullableOption<number>;
+    // Configuration for the inbuilt display. Not applicable for Teams Rooms devices.
     inBuiltDisplayScreenConfiguration?: NullableOption<TeamworkDisplayScreenConfiguration>;
+    // True if content duplication is allowed. Applicable only for Teams Rooms devices.
     isContentDuplicationAllowed?: NullableOption<boolean>;
+    /**
+     * True if dual display mode is enabled. If isDualDisplayModeEnabled is true, then the content will be displayed on both
+     * front of room screens instead of just the one screen, when it is shared via the HDMI ingest module on the Microsoft
+     * Teams Rooms device. Applicable only for Teams Rooms devices.
+     */
     isDualDisplayModeEnabled?: NullableOption<boolean>;
 }
 export interface TeamworkDisplayScreenConfiguration {
+    // The brightness level on the device (0-100). Not applicable for Microsoft Teams Rooms devices.
     backlightBrightness?: NullableOption<number>;
+    // Timeout for backlight (30-3600 secs). Not applicable for Teams Rooms devices.
     backlightTimeout?: NullableOption<string>;
+    // True if high contrast mode is enabled. Not applicable for Teams Rooms devices.
     isHighContrastEnabled?: NullableOption<boolean>;
+    // True if screensaver is enabled. Not applicable for Teams Rooms devices.
     isScreensaverEnabled?: NullableOption<boolean>;
+    // Screensaver timeout from 30 to 3600 secs. Not applicable for Teams Rooms devices.
     screensaverTimeout?: NullableOption<string>;
 }
 export interface TeamworkFeaturesConfiguration {
+    // Email address to send logs and feedback.
     emailToSendLogsAndFeedback?: NullableOption<string>;
+    // True if auto screen shared is enabled.
     isAutoScreenShareEnabled?: NullableOption<boolean>;
+    // True if Bluetooth beaconing is enabled.
     isBluetoothBeaconingEnabled?: NullableOption<boolean>;
+    // True if hiding meeting names is enabled.
     isHideMeetingNamesEnabled?: NullableOption<boolean>;
+    // True if sending logs and feedback is enabled.
     isSendLogsAndFeedbackEnabled?: NullableOption<boolean>;
 }
 export interface TeamworkHardwareConfiguration {
+    // The CPU model on the device.
     processorModel?: NullableOption<string>;
     compute?: NullableOption<TeamworkPeripheral>;
     hdmiIngest?: NullableOption<TeamworkPeripheral>;
 }
 export interface TeamworkHardwareDetail {
+    // MAC address.
     macAddresses?: NullableOption<string[]>;
+    // Device manufacturer.
     manufacturer?: NullableOption<string>;
+    // Devie model.
     model?: NullableOption<string>;
+    // Device serial number.
     serialNumber?: NullableOption<string>;
+    // The unique identifier for the device.
     uniqueId?: NullableOption<string>;
 }
 export interface TeamworkHardwareHealth {
+    // The system health details for a teamworkDevice.
     computeHealth?: NullableOption<TeamworkPeripheralHealth>;
+    // The health details about the HDMI ingest of a device.
     hdmiIngestHealth?: NullableOption<TeamworkPeripheralHealth>;
 }
 export interface TeamworkPeripheralHealth {
+    // The connected state and time since the peripheral device was connected.
     connection?: NullableOption<TeamworkConnection>;
+    // True if the peripheral is optional. Used for health computation.
     isOptional?: NullableOption<boolean>;
     peripheral?: NullableOption<TeamworkPeripheral>;
 }
 export interface TeamworkLoginStatus {
+    // Information about the Exchange connection.
     exchangeConnection?: NullableOption<TeamworkConnection>;
+    // Information about the Skype for Business connection.
     skypeConnection?: NullableOption<TeamworkConnection>;
+    // Information about the Teams connection.
     teamsConnection?: NullableOption<TeamworkConnection>;
 }
 export interface TeamworkMicrophoneConfiguration {
+    /**
+     * True if the configured microphone is optional. False if the microphone is not optional and the health state of the
+     * device should be computed.
+     */
     isMicrophoneOptional?: NullableOption<boolean>;
     defaultMicrophone?: NullableOption<TeamworkPeripheral>;
     microphones?: NullableOption<TeamworkPeripheral[]>;
 }
 export interface TeamworkNetworkConfiguration {
+    // The default gateway is the path used to pass information when the destination is unknown to the device.
     defaultGateway?: NullableOption<string>;
+    // The network domain of the device, for example, contoso.com.
     domainName?: NullableOption<string>;
+    // The device name on a network.
     hostName?: NullableOption<string>;
+    // The IP address is a numerical label that uniquely identifies every device connected to the internet.
     ipAddress?: NullableOption<string>;
+    // True if DHCP is enabled.
     isDhcpEnabled?: NullableOption<boolean>;
+    // True if the PC port is enabled.
     isPCPortEnabled?: NullableOption<boolean>;
+    // A primary DNS is the first point of contact for a device that translates the hostname into an IP address.
     primaryDns?: NullableOption<string>;
+    // A secondary DNS is used when the primary DNS is not available.
     secondaryDns?: NullableOption<string>;
+    // A subnet mask is a number that distinguishes the network address and the host address within an IP address.
     subnetMask?: NullableOption<string>;
 }
 export interface TeamworkOnlineMeetingInfo {
@@ -46369,49 +46615,83 @@ export interface TeamworkOnlineMeetingInfo {
     organizer?: NullableOption<TeamworkUserIdentity>;
 }
 export interface TeamworkPeripheralsHealth {
+    // The health details about the communication speaker.
     communicationSpeakerHealth?: NullableOption<TeamworkPeripheralHealth>;
+    // The health details about the content camera.
     contentCameraHealth?: NullableOption<TeamworkPeripheralHealth>;
+    // The health details about displays.
     displayHealthCollection?: NullableOption<TeamworkPeripheralHealth[]>;
+    // The health details about the microphone.
     microphoneHealth?: NullableOption<TeamworkPeripheralHealth>;
+    // The health details about the room camera.
     roomCameraHealth?: NullableOption<TeamworkPeripheralHealth>;
+    // The health details about the speaker.
     speakerHealth?: NullableOption<TeamworkPeripheralHealth>;
 }
 export interface TeamworkSoftwareUpdateHealth {
+    // The software update available for the admin agent.
     adminAgentSoftwareUpdateStatus?: NullableOption<TeamworkSoftwareUpdateStatus>;
+    // The software update available for the company portal.
     companyPortalSoftwareUpdateStatus?: NullableOption<TeamworkSoftwareUpdateStatus>;
+    // The software update available for the firmware.
     firmwareSoftwareUpdateStatus?: NullableOption<TeamworkSoftwareUpdateStatus>;
+    // The software update available for the operating system.
     operatingSystemSoftwareUpdateStatus?: NullableOption<TeamworkSoftwareUpdateStatus>;
+    // The software update available for the partner agent.
     partnerAgentSoftwareUpdateStatus?: NullableOption<TeamworkSoftwareUpdateStatus>;
+    // The software update available for the Teams client.
     teamsClientSoftwareUpdateStatus?: NullableOption<TeamworkSoftwareUpdateStatus>;
 }
 export interface TeamworkSoftwareUpdateStatus {
+    // The available software version to update.
     availableVersion?: NullableOption<string>;
+    // The current software version.
     currentVersion?: NullableOption<string>;
+    // The update status of the software. The possible values are: unknown, latest, updateAvailable, unknownFutureValue.
     softwareFreshness?: NullableOption<TeamworkSoftwareFreshness>;
 }
 export interface TeamworkSpeakerConfiguration {
+    /**
+     * True if the communication speaker is optional. Used to compute the health state if the communication speaker is not
+     * optional.
+     */
     isCommunicationSpeakerOptional?: NullableOption<boolean>;
+    // True if the configured speaker is optional. Used to compute the health state if the speaker is not optional.
     isSpeakerOptional?: NullableOption<boolean>;
     defaultCommunicationSpeaker?: NullableOption<TeamworkPeripheral>;
     defaultSpeaker?: NullableOption<TeamworkPeripheral>;
     speakers?: NullableOption<TeamworkPeripheral[]>;
 }
 export interface TeamworkSystemConfiguration {
+    // The date and time configurations for a device.
     dateTimeConfiguration?: NullableOption<TeamworkDateTimeConfiguration>;
+    // The default password for the device. Write-Only.
     defaultPassword?: NullableOption<string>;
+    // The device lock timeout in seconds.
     deviceLockTimeout?: NullableOption<string>;
+    // True if the device lock is enabled.
     isDeviceLockEnabled?: NullableOption<boolean>;
+    // True if logging is enabled.
     isLoggingEnabled?: NullableOption<boolean>;
+    // True if power saving is enabled.
     isPowerSavingEnabled?: NullableOption<boolean>;
+    // True if screen capture is enabled.
     isScreenCaptureEnabled?: NullableOption<boolean>;
+    // True if silent mode is enabled.
     isSilentModeEnabled?: NullableOption<boolean>;
+    // The language option for the device.
     language?: NullableOption<string>;
+    // The pin that unlocks the device. Write-Only.
     lockPin?: NullableOption<string>;
+    // The logging level for the device.
     loggingLevel?: NullableOption<string>;
+    // The network configuration for the device.
     networkConfiguration?: NullableOption<TeamworkNetworkConfiguration>;
 }
 export interface TeamworkTeamsClientConfiguration {
+    // The configuration of the Microsoft Teams client user account for a device.
     accountConfiguration?: NullableOption<TeamworkAccountConfiguration>;
+    // The configuration of Microsoft Teams client features for a device.
     featuresConfiguration?: NullableOption<TeamworkFeaturesConfiguration>;
 }
 export interface ScheduleEntity {
@@ -46522,12 +46802,14 @@ export namespace Ediscovery {
         | "index"
         | "estimateStatistics"
         | "addToReviewSet"
+        | "holdUpdate"
         | "unknownFutureValue";
     type CaseOperationStatus = "notStarted" | "submissionFailed" | "running" | "succeeded" | "partiallySucceeded" | "failed";
     type CaseStatus = "unknown" | "active" | "pendingDelete" | "closing" | "closed" | "closedWithError";
     type ChildSelectability = "One" | "Many";
     type CustodianStatus = "active" | "released";
     type DataSourceContainerStatus = "Active" | "Released" | "UnknownFutureValue";
+    type DataSourceHoldStatus = "notApplied" | "applied" | "applying" | "removing" | "partial" | "unknownFutureValue";
     type DataSourceScopes =
         | "none"
         | "allTenantMailboxes"
@@ -46670,6 +46952,7 @@ export namespace Ediscovery {
         createdDateTime?: NullableOption<string>;
         // Display name of the dataSourceContainer entity.
         displayName?: NullableOption<string>;
+        holdStatus?: NullableOption<DataSourceHoldStatus>;
         // Last modified date and time of the dataSourceContainer.
         lastModifiedDateTime?: NullableOption<string>;
         // Date and time that the dataSourceContainer was released from the case.
@@ -46782,6 +47065,8 @@ export namespace Ediscovery {
         reviewSet?: NullableOption<ReviewSet>;
     }
 // tslint:disable-next-line: no-empty-interface
+    interface CaseHoldOperation extends CaseOperation {}
+// tslint:disable-next-line: no-empty-interface
     interface CaseIndexOperation extends CaseOperation {}
     interface DataSource extends microsoftgraphbeta.Entity {
         // The user who created the dataSource.
@@ -46790,6 +47075,7 @@ export namespace Ediscovery {
         createdDateTime?: NullableOption<string>;
         // The display name of the dataSource. This will be the name of the SharePoint site.
         displayName?: NullableOption<string>;
+        holdStatus?: NullableOption<DataSourceHoldStatus>;
     }
     interface SiteSource extends DataSource {
         // The SharePoint site associated with the siteSource.
@@ -47610,6 +47896,7 @@ export namespace ManagedTenants {
     interface ManagedTenant extends microsoftgraphbeta.Entity {
         // Aggregate view of device compliance policies across managed tenants.
         aggregatedPolicyCompliances?: NullableOption<AggregatedPolicyCompliance[]>;
+        auditEvents?: NullableOption<AuditEvent[]>;
         // The collection of cloud PC connections across managed tenants.
         cloudPcConnections?: NullableOption<CloudPcConnection[]>;
         // The collection of cloud PC devices across managed tenants.
@@ -47681,6 +47968,21 @@ export namespace ManagedTenants {
         tenantDisplayName?: NullableOption<string>;
         // The Azure Active Directory tenant identifier for the managed tenant. Optional. Read-only.
         tenantId?: NullableOption<string>;
+    }
+    interface AuditEvent extends microsoftgraphbeta.Entity {
+        activity?: NullableOption<string>;
+        activityDateTime?: NullableOption<string>;
+        activityId?: NullableOption<string>;
+        category?: NullableOption<string>;
+        httpVerb?: NullableOption<string>;
+        initiatedByAppId?: NullableOption<string>;
+        initiatedByUpn?: NullableOption<string>;
+        initiatedByUserId?: NullableOption<string>;
+        ipAddress?: NullableOption<string>;
+        requestBody?: NullableOption<string>;
+        requestUrl?: NullableOption<string>;
+        tenantIds?: NullableOption<string>;
+        tenantNames?: NullableOption<string>;
     }
     interface CloudPcConnection extends microsoftgraphbeta.Entity {
         // The display name of the cloud PC connection. Required. Read-only.
