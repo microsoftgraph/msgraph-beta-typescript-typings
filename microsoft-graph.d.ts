@@ -6263,6 +6263,11 @@ export interface AccessReviewInstance extends Entity {
      * the definition.
      */
     definition?: NullableOption<AccessReviewScheduleDefinition>;
+    /**
+     * If the instance has multiple stages, this returns the collection of stages. A new stage will only be created when the
+     * previous stage ends. The existence, number, and settings of stages on a review instance are created based on the
+     * accessReviewStageSettings on the parent accessReviewScheduleDefinition.
+     */
     stages?: NullableOption<AccessReviewStage[]>;
 }
 export interface AgreementAcceptance extends Entity {
@@ -7062,6 +7067,7 @@ export interface OnlineMeeting extends Entity {
      * Read-only.
      */
     joinInformation?: NullableOption<ItemBody>;
+    joinMeetingIdSettings?: NullableOption<JoinMeetingIdSettings>;
     joinUrl?: NullableOption<string>;
     // Specifies which participants can bypass the meeting lobby.
     lobbyBypassSettings?: NullableOption<LobbyBypassSettings>;
@@ -7207,7 +7213,7 @@ export interface Team extends Entity {
      * parsed.
      */
     webUrl?: NullableOption<string>;
-    // The collection of channels &amp; messages associated with the team.
+    // The collection of channels and messages associated with the team.
     channels?: NullableOption<Channel[]>;
     group?: NullableOption<Group>;
     // The apps installed in this team.
@@ -7762,9 +7768,9 @@ export interface AdministrativeUnit extends DirectoryObject {
      */
     displayName?: NullableOption<string>;
     /**
-     * Controls whether the administrative unit and its members are hidden or public. Can be set to HiddenMembership or
-     * Public. If not set, default behavior is Public. When set to HiddenMembership, only members of the administrative unit
-     * can list other members of the administrative unit.
+     * Controls whether the administrative unit and its members are hidden or public. Can be set to HiddenMembership. If not
+     * set (value is null), the default behavior is public. When set to HiddenMembership, only members of the administrative
+     * unit can list other members of the administrative unit.
      */
     visibility?: NullableOption<string>;
     // Users and groups that are members of this administrative unit. Supports $expand.
@@ -8362,7 +8368,7 @@ export interface ServicePrincipal extends DirectoryObject {
     preferredTokenSigningKeyThumbprint?: NullableOption<string>;
     /**
      * The delegated permissions exposed by the application. For more information see the oauth2PermissionScopes property on
-     * the application entity's api property. Not nullable.
+     * the application entity's api property. Not nullable. Note: This property is named oauth2PermissionScopes in v1.0.
      */
     publishedPermissionScopes?: PermissionScope[];
     publisherName?: NullableOption<string>;
@@ -9642,9 +9648,19 @@ export interface CloudPcServicePlan extends Entity {
     vCpuCount?: number;
 }
 export interface CloudPcSnapshot extends Entity {
+    // The unique identifier for the Cloud PC.
     cloudPcId?: string;
+    /**
+     * The date and time at which the snapshot was taken. The timestamp is shown in ISO 8601 format and Coordinated Universal
+     * Time (UTC). For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
+     */
     createdDateTime?: NullableOption<string>;
+    /**
+     * The date and time at which the snapshot was last used to restore the Cloud PC device. The timestamp is shown in ISO
+     * 8601 format and Coordinated Universal Time (UTC). For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
+     */
     lastRestoredDateTime?: NullableOption<string>;
+    // The status of the Cloud PC snapshot. The possible values are: ready, unknownFutureValue.
     status?: NullableOption<CloudPcSnapshotStatus>;
 }
 export interface CloudPcSupportedRegion extends Entity {
@@ -10114,6 +10130,7 @@ export interface VirtualEndpoint extends Entity {
     provisioningPolicies?: NullableOption<CloudPcProvisioningPolicy[]>;
     // Cloud PC service plans.
     servicePlans?: NullableOption<CloudPcServicePlan[]>;
+    // Cloud PC snapshots.
     snapshots?: NullableOption<CloudPcSnapshot[]>;
     // Cloud PC supported regions.
     supportedRegions?: NullableOption<CloudPcSupportedRegion[]>;
@@ -14817,18 +14834,63 @@ export interface OrganizationalBrandingProperties extends Entity {
      * providers are used at the same time for high availability of read requests. Read-only.
      */
     cdnList?: NullableOption<string[]>;
+    /**
+     * A custom URL for resetting account credentials. This URL must be in ASCII format or non-ASCII characters must be URL
+     * encoded, and not exceed 128 characters.
+     */
     customAccountResetCredentialsUrl?: NullableOption<string>;
+    /**
+     * A string to replace the default 'Can't access your account?' self-service password reset (SSPR) hyperlink text on the
+     * sign-in page. This text must be in Unicode format and not exceed 256 characters.
+     */
     customCannotAccessYourAccountText?: NullableOption<string>;
+    /**
+     * A custom URL to replace the default URL of the self-service password reset (SSPR) 'Can't access your account?'
+     * hyperlink on the sign-in page. This URL must be in ASCII format or non-ASCII characters must be URL encoded, and not
+     * exceed 128 characters. DO NOT USE. Use customAccountResetCredentialsUrl instead.
+     */
     customCannotAccessYourAccountUrl?: NullableOption<string>;
+    /**
+     * A string to replace the default 'Forgot my password' hyperlink text on the sign-in form. This text must be in Unicode
+     * format and not exceed 256 characters.
+     */
     customForgotMyPasswordText?: NullableOption<string>;
+    /**
+     * A string to replace the default 'Privacy and Cookies' hyperlink text in the footer. This text must be in Unicode format
+     * and not exceed 256 characters.
+     */
     customPrivacyAndCookiesText?: NullableOption<string>;
+    /**
+     * A custom URL to replace the default URL of the 'Privacy and Cookies' hyperlink in the footer. This URL must be in ASCII
+     * format or non-ASCII characters must be URL encoded, and not exceed 128 characters.
+     */
     customPrivacyAndCookiesUrl?: NullableOption<string>;
+    /**
+     * A string to replace the default 'reset it now' hyperlink text on the sign-in form. This text must be in Unicode format
+     * and not exceed 256 characters. DO NOT USE: Customization of the 'reset it now' hyperlink text is currently not
+     * supported.
+     */
     customResetItNowText?: NullableOption<string>;
+    /**
+     * A string to replace the the default 'Terms of Use' hyperlink text in the footer. This text must be in Unicode format
+     * and not exceed 256 characters.
+     */
     customTermsOfUseText?: NullableOption<string>;
+    /**
+     * A custom URL to replace the default URL of the 'Terms of Use' hyperlink in the footer. This URL must be in ASCII format
+     * or non-ASCII characters must be URL encoded, and not exceed 128characters.
+     */
     customTermsOfUseUrl?: NullableOption<string>;
+    // A custom icon (favicon) to replace a default Microsoft product favicon on an Azure AD tenant.
     favicon?: NullableOption<any>;
+    /**
+     * A relative url for the favicon above that is combined with a CDN base URL from the cdnList to provide the version
+     * served by a CDN. Read-only.
+     */
     faviconRelativeUrl?: NullableOption<string>;
+    // The RGB color to apply to customize the color of the header.
     headerBackgroundColor?: NullableOption<string>;
+    // Represents the various texts that can be hidden on the login page for a tenant.
     loginPageTextVisibilitySettings?: NullableOption<LoginPageTextVisibilitySettings>;
     /**
      * Text that appears at the bottom of the sign-in box. You can use this to communicate additional information, such as the
@@ -17736,6 +17798,13 @@ export interface AccessReviewScheduleDefinition extends Entity {
     scope?: NullableOption<AccessReviewScope>;
     // The settings for an access review series, see type definition below. Supports $select. Required on create.
     settings?: NullableOption<AccessReviewScheduleSettings>;
+    /**
+     * Required only for a multi-stage access review to define the stages and their settings. You can break down each review
+     * instance into up to three sequential stages, where each stage can have a different set of reviewers, fallback
+     * reviewers, and settings. Stages will be created sequentially based on the dependsOn property. Optional. When this
+     * property is defined, its settings are used instead of the corresponding settings in the accessReviewScheduleDefinition
+     * object and its settings, reviewers, and fallbackReviewers properties.
+     */
     stageSettings?: NullableOption<AccessReviewStageSettings[]>;
     /**
      * This read-only field specifies the status of an access review. The typical states include Initializing, NotStarted,
@@ -17752,11 +17821,39 @@ export interface AccessReviewScheduleDefinition extends Entity {
     instances?: NullableOption<AccessReviewInstance[]>;
 }
 export interface AccessReviewStage extends Entity {
+    /**
+     * DateTime when review stage is scheduled to end. The DatetimeOffset type represents date and time information using ISO
+     * 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z. This property
+     * is the cumulative total of the durationInDays for all stages. Read-only.
+     */
     endDateTime?: NullableOption<string>;
+    /**
+     * This collection of reviewer scopes is used to define the list of fallback reviewers. These fallback reviewers will be
+     * notified to take action if no users are found from the list of reviewers specified. This could occur when either the
+     * group owner is specified as the reviewer but the group owner does not exist, or manager is specified as reviewer but a
+     * user's manager does not exist.
+     */
     fallbackReviewers?: NullableOption<AccessReviewReviewerScope[]>;
+    /**
+     * This collection of access review scopes is used to define who the reviewers are. For examples of options for assigning
+     * reviewers, see Assign reviewers to your access review definition using the Microsoft Graph API.
+     */
     reviewers?: NullableOption<AccessReviewReviewerScope[]>;
+    /**
+     * DateTime when review stage is scheduled to start. May be in the future. The DateTimeOffset type represents date and
+     * time information using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is
+     * 2014-01-01T00:00:00Z. Read-only.
+     */
     startDateTime?: NullableOption<string>;
+    /**
+     * Specifies the status of an accessReviewStage. Possible values: Initializing, NotStarted, Starting, InProgress,
+     * Completing, Completed, AutoReviewing, and AutoReviewed. Supports $orderby, and $filter (eq only). Read-only.
+     */
     status?: NullableOption<string>;
+    /**
+     * Each user reviewed in an accessReviewStage has a decision item representing if they were approved, denied, or not yet
+     * reviewed.
+     */
     decisions?: NullableOption<AccessReviewInstanceDecisionItem[]>;
 }
 export interface UserConsentRequest extends Request {
@@ -18090,14 +18187,14 @@ export interface AccessPackageResourceRoleScope extends Entity {
     accessPackageResourceScope?: NullableOption<AccessPackageResourceScope>;
 }
 export interface AccessPackageResource extends Entity {
-    // Read-only.
+    // The name of the user or application that first added this resource. Read-only.
     addedBy?: NullableOption<string>;
     /**
      * The Timestamp type represents date and time information using ISO 8601 format and is always in UTC time. For example,
      * midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z
      */
     addedOn?: NullableOption<string>;
-    // Contains attribute information for the resource.
+    // Contains information about the attributes to be collected from the requestor and sent to the resource application.
     attributes?: NullableOption<AccessPackageResourceAttribute[]>;
     // A description for the resource.
     description?: NullableOption<string>;
@@ -34203,7 +34300,7 @@ export interface AppRole {
     // Display name for the permission that appears in the app role assignment and consent experiences.
     displayName?: NullableOption<string>;
     /**
-     * Unique role identifier inside the appRoles collection. When creating a new app role, a new Guid identifier must be
+     * Unique role identifier inside the appRoles collection. When creating a new app role, a new GUID identifier must be
      * provided.
      */
     id?: string;
@@ -34256,13 +34353,14 @@ export interface KeyCredential {
     // Friendly name for the key. Optional.
     displayName?: NullableOption<string>;
     /**
-     * The date and time at which the credential expires.The Timestamp type represents date and time information using ISO
-     * 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
+     * The date and time at which the credential expires. The DateTimeOffset type represents date and time information using
+     * ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
      */
     endDateTime?: NullableOption<string>;
     /**
-     * The certificate's raw data in byte array converted to Base64 string; for example,
-     * [System.Convert]::ToBase64String($Cert.GetRawCertData()).
+     * The certificate's raw data in byte array converted to Base64 string. Returned only on $select for a single object, that
+     * is, GET applications/{applicationId}?$select=keyCredentials or GET
+     * servicePrincipals/{servicePrincipalId}?$select=keyCredentials; otherwise, it is always null.
      */
     key?: NullableOption<number>;
     // The unique identifier (GUID) for the key.
@@ -34272,7 +34370,7 @@ export interface KeyCredential {
      * ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
      */
     startDateTime?: NullableOption<string>;
-    // The type of key credential; for example, Symmetric.
+    // The type of key credential; for example, Symmetric, AsymmetricX509Cert.
     type?: NullableOption<string>;
     // A string that describes the purpose for which the key can be used; for example, Verify.
     usage?: NullableOption<string>;
@@ -36078,10 +36176,15 @@ export interface LicenseUnitsDetail {
     warning?: NullableOption<number>;
 }
 export interface LoginPageTextVisibilitySettings {
+    // Option to hide the self-service password reset (SSPR) 'Can't access your account?' hyperlink on the sign-in form.
     hideCannotAccessYourAccount?: NullableOption<boolean>;
+    // Option to hide the self-service password reset (SSPR) 'Forgot my password' hyperlink on the sign-in form.
     hideForgotMyPassword?: NullableOption<boolean>;
+    // Option to hide the 'Privacy &amp; Cookies' hyperlink in the footer.
     hidePrivacyAndCookies?: NullableOption<boolean>;
+    // Option to hide the self-service password reset (SSPR) 'reset it now' hyperlink on the sign-in form.
     hideResetItNow?: NullableOption<boolean>;
+    // Option to hide the 'Terms of Use' hyperlink in the footer.
     hideTermsOfUse?: NullableOption<boolean>;
 }
 export interface OathTokenMetadata {
@@ -38637,6 +38740,10 @@ export interface AccessReviewScheduleSettings {
      * review instance duration ends, whether or not the reviewers have responded. Default value is false.
      */
     autoApplyDecisionsEnabled?: boolean;
+    /**
+     * Indicates whether decisions on previous access review stages are available for reviewers on an accessReviewInstance
+     * with multiple subsequent stages. If not provided, the default is disabled (false).
+     */
     decisionHistoriesForReviewersEnabled?: NullableOption<boolean>;
     // Decision chosen if defaultDecisionEnabled is true. Can be one of Approve, Deny, or Recommendation.
     defaultDecision?: NullableOption<string>;
@@ -38648,13 +38755,19 @@ export interface AccessReviewScheduleSettings {
     justificationRequiredOnApproval?: boolean;
     // Indicates whether emails are enabled or disabled. Default value is false.
     mailNotificationsEnabled?: boolean;
-    // Optional. Describes the types of insights that aid reviewers to make access review decisions.
+    /**
+     * Optional. Describes the types of insights that aid reviewers to make access review decisions. NOTE: If the
+     * stageSettings of the accessReviewScheduleDefinition object is defined, its recommendationInsightSettings setting will
+     * be used instead of the value of this property.
+     */
     recommendationInsightSettings?: NullableOption<AccessReviewRecommendationInsightSetting[]>;
     /**
-     * Optional field. Indicates the time period of inactivity (with respect to the start date of the review instance) that
-     * recommendations will be configured from. The recommendation will be to deny if the user is inactive during the look
-     * back duration. For reviews of groups and Azure AD roles, any duration is accepted. For reviews of applications, 30 days
-     * is the maximum duration. If not specified, the duration is 30 days.
+     * Optional field. Indicates the period of inactivity (with respect to the start date of the review instance) that
+     * recommendations will be configured from. The recommendation will be to deny if the user is inactive during the
+     * look-back duration. For reviews of groups and Azure AD roles, any duration is accepted. For reviews of applications, 30
+     * days is the maximum duration. If not specified, the duration is 30 days. NOTE: If the stageSettings of the
+     * accessReviewScheduleDefinition object is defined, its recommendationLookBackDuration setting will be used instead of
+     * the value of this property.
      */
     recommendationLookBackDuration?: NullableOption<string>;
     // Indicates whether decision recommendations are enabled or disabled.
@@ -38705,14 +38818,55 @@ export interface AutoReviewSettings {
     notReviewedResult?: NullableOption<string>;
 }
 export interface AccessReviewStageSettings {
+    /**
+     * Indicate which decisions will go to the next stage. Can be a sub-set of Approve, Deny, Recommendation, or NotReviewed.
+     * If not provided, all decisions will go to the next stage. Optional.
+     */
     decisionsThatWillMoveToNextStage?: NullableOption<string[]>;
+    /**
+     * Defines the sequential or parallel order of the stages and depends on the stageId. Only sequential stages are currently
+     * supported. For example, if stageId is 2, then dependsOn must be 1. If stageId is 1, do not specify dependsOn. Required
+     * if stageId is not 1.
+     */
     dependsOn?: string[];
+    /**
+     * The duration of the stage. Required. NOTE: The cumulative value of this property across all stages 1. Will override the
+     * instanceDurationInDays setting on the accessReviewScheduleDefinition object. 2. Cannot exceed the length of one
+     * recurrence. That is, if the review recurs weekly, the cumulative durationInDays cannot exceed 7.
+     */
     durationInDays?: number;
+    /**
+     * If provided, the fallback reviewers are asked to complete a review if the primary reviewers do not exist. For example,
+     * if managers are selected as reviewers and a principal under review does not have a manager in Azure AD, the fallback
+     * reviewers are asked to review that principal. NOTE: The value of this property will override the corresponding setting
+     * on the accessReviewScheduleDefinition object.
+     */
     fallbackReviewers?: NullableOption<AccessReviewReviewerScope[]>;
     recommendationInsightSettings?: NullableOption<AccessReviewRecommendationInsightSetting[]>;
+    /**
+     * Optional field. Indicates the time period of inactivity (with respect to the start date of the review instance) that
+     * recommendations will be configured from. The recommendation will be to deny if the user is inactive during the look
+     * back duration. For reviews of groups and Azure AD roles, any duration is accepted. For reviews of applications, 30 days
+     * is the maximum duration. If not specified, the duration is 30 days. NOTE: The value of this property will override the
+     * corresponding setting on the accessReviewScheduleDefinition object.
+     */
     recommendationLookBackDuration?: NullableOption<string>;
+    /**
+     * Indicates whether showing recommendations to reviewers is enabled. Required. NOTE: The value of this property will
+     * override override the corresponding setting on the accessReviewScheduleDefinition object.
+     */
     recommendationsEnabled?: boolean;
+    /**
+     * Defines who the reviewers are. If none are specified, the review is a self-review (users review their own access). For
+     * examples of options for assigning reviewers, see Assign reviewers to your access review definition using the Microsoft
+     * Graph API. NOTE: The value of this property will override the corresponding setting on the
+     * accessReviewScheduleDefinition.
+     */
     reviewers?: NullableOption<AccessReviewReviewerScope[]>;
+    /**
+     * Unique identifier of the accessReviewStageSettings. The stageId will be used in dependsOn property to indicate the
+     * stage relationship. Required.
+     */
     stageId?: string;
 }
 export interface AppConsentRequestScope {
@@ -38853,6 +39007,7 @@ export interface ConditionalAccessConditionSet {
     locations?: NullableOption<ConditionalAccessLocations>;
     // Platforms included in and excluded from the policy.
     platforms?: NullableOption<ConditionalAccessPlatforms>;
+    // Service principal risk levels included in the policy. Possible values are: low, medium, high, none, unknownFutureValue.
     servicePrincipalRiskLevels?: RiskLevel[];
     /**
      * Sign-in risk levels included in the policy. Possible values are: low, medium, high, hidden, none, unknownFutureValue.
@@ -39090,13 +39245,20 @@ export interface AccessPackageMultipleChoiceQuestion extends AccessPackageQuesti
     choices?: NullableOption<AccessPackageAnswerChoice[]>;
 }
 export interface AccessPackageResourceAttribute {
-    // Information about how to set the attribute.
+    // Information about how to set the attribute, currently a accessPackageUserDirectoryAttributeStore object type.
     attributeDestination?: NullableOption<AccessPackageResourceAttributeDestination>;
-    // The name of the attribute in the end system.
+    /**
+     * The name of the attribute in the end system. If the destination is accessPackageUserDirectoryAttributeStore, then a
+     * user property such as jobTitle or a directory schema extension for the user object type, such as
+     * extension_2b676109c7c74ae2b41549205f1947ed_personalTitle.
+     */
     attributeName?: NullableOption<string>;
-    // Information about how to populate the attribute value when an accessPackageAssignmentRequest is being fulfilled.
+    /**
+     * Information about how to populate the attribute value when an accessPackageAssignmentRequest is being fulfilled,
+     * currently a accessPackageResourceAttributeQuestion object type.
+     */
     attributeSource?: NullableOption<AccessPackageResourceAttributeSource>;
-    // Unique identifier for the attribute.
+    // Unique identifier for the attribute on the access package resource. Read-only.
     id?: NullableOption<string>;
     // Specifies whether or not an existing attribute value can be edited by the requester.
     isEditable?: NullableOption<boolean>;
@@ -43793,20 +43955,20 @@ export interface BucketAggregationDefinition {
 export interface AlterationResponse {
     // Defines the original user query string.
     originalQueryString?: NullableOption<string>;
-    // Defines the details of alteration information for the spelling correction.
+    // Defines the details of the alteration information for the spelling correction.
     queryAlteration?: NullableOption<SearchAlteration>;
-    // Defines the type of the spelling correction. Possible values are suggestion, modification.
+    // Defines the type of the spelling correction. Possible values are: suggestion, modification.
     queryAlterationType?: NullableOption<SearchAlterationType>;
 }
 export interface SearchAlteration {
     /**
-     * Defines the altered highlighted query string with spelling correction. The annotation around the corrected segment is
-     * (/ue000, /ue001)
+     * Defines the altered highlighted query string with spelling correction. The annotation around the corrected segment is:
+     * /ue000, /ue001.
      */
     alteredHighlightedQueryString?: NullableOption<string>;
     // Defines the altered query string with spelling correction.
     alteredQueryString?: NullableOption<string>;
-    // Represents changed segments with respect to original query.
+    // Represents changed segments related to an original user query.
     alteredQueryTokens?: NullableOption<AlteredQueryToken[]>;
 }
 export interface AlteredQueryToken {
@@ -43843,7 +44005,7 @@ export interface ResultTemplateOption {
     /**
      * Indicates whether search display layouts are enabled. If enabled, the user will get the result template to render the
      * search results content in the resultTemplates property of the response. The result template is based on Adaptive Cards.
-     * This property is optional.
+     * Optional.
      */
     enableResultTemplate?: NullableOption<boolean>;
 }
@@ -43870,15 +44032,15 @@ export interface SearchBucket {
 }
 export interface SearchAlterationOptions {
     /**
-     * Indicates whether spelling modifications are enabled. If enabled, user will get the search results for corrected query
-     * when there are no results for the original query with typos and get the spelling modification information in
-     * queryAlterationResponse property of the response. Optional.
+     * Indicates whether spelling modifications are enabled. If enabled, the user will get the search results for the
+     * corrected query in case of no results for the original query with typos. The response will also include the spelling
+     * modification information in the queryAlterationResponse property. Optional.
      */
     enableModification?: NullableOption<boolean>;
     /**
-     * Indicates whether spelling suggestions are enabled. If enabled, user will get the search results for original search
-     * query and suggesting spelling correction in queryAlterationResponse property of the response for typos in query.
-     * Optional.
+     * Indicates whether spelling suggestions are enabled. If enabled, the user will get the search results for the original
+     * search query and suggestions for spelling correction in the queryAlterationResponse property of the response for the
+     * typos in the query. Optional.
      */
     enableSuggestion?: NullableOption<boolean>;
 }
@@ -43890,8 +44052,8 @@ export interface SearchHit {
     // The rank or the order of the result.
     rank?: NullableOption<number>;
     /**
-     * ID of the result template for rendering the search result. This ID must map to a display layout in the resultTemplates
-     * dictionary, included in the searchresponse as well.
+     * ID of the result template used to render the search result. This ID must map to a display layout in the resultTemplates
+     * dictionary that is also included in the searchResponse.
      */
     resultTemplateId?: NullableOption<string>;
     // A summary of the result, if a summary is available.
@@ -43999,7 +44161,7 @@ export interface SortProperty {
 export interface SearchResponse {
     // A collection of search results.
     hitsContainers?: NullableOption<SearchHitsContainer[]>;
-    // Provides details of query alteration response for spelling correction.
+    // Provides information related to spelling corrections in the alteration response.
     queryAlterationResponse?: NullableOption<AlterationResponse>;
     /**
      * A dictionary of resultTemplateIds and associated values, which include the name and JSON schema of the result
@@ -45809,6 +45971,11 @@ export interface InvitationParticipantInfo {
 export interface InviteNewBotResponse extends ParticipantJoiningResponse {
     // URI to receive new incoming call notification.
     inviteUri?: NullableOption<string>;
+}
+export interface JoinMeetingIdSettings {
+    isPasscodeRequired?: NullableOption<boolean>;
+    joinMeetingId?: NullableOption<string>;
+    passcode?: NullableOption<string>;
 }
 export interface MediaInfo {
     /**
