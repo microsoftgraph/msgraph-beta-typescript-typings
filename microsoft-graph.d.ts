@@ -196,7 +196,9 @@ export type RiskDetail =
     | "adminConfirmedSigninCompromised"
     | "hidden"
     | "adminConfirmedUserCompromised"
-    | "unknownFutureValue";
+    | "unknownFutureValue"
+    | "adminConfirmedServicePrincipalCompromised"
+    | "adminDismissedAllRiskForServicePrincipal";
 export type RiskLevel = "low" | "medium" | "high" | "hidden" | "none" | "unknownFutureValue";
 export type RiskState =
     | "none"
@@ -499,6 +501,7 @@ export type AppCredentialRestrictionType =
     | "passwordLifetime"
     | "symmetricKeyAddition"
     | "symmetricKeyLifetime"
+    | "customPasswordAddition"
     | "unknownFutureValue";
 export type AppKeyCredentialRestrictionType = "asymmetricKeyLifetime" | "unknownFutureValue";
 export type AuthenticationProtocol = "wsFed" | "saml" | "unknownFutureValue";
@@ -896,7 +899,7 @@ export type ConsentRequestFilterByCurrentUserOptions = "reviewer" | "unknownFutu
 export type DecisionItemPrincipalResourceMembershipType = "direct" | "indirect" | "unknownFutureValue";
 export type UserSignInRecommendationScope = "tenant" | "application" | "unknownFutureValue";
 export type AgreementAcceptanceState = "accepted" | "declined" | "unknownFutureValue";
-export type ActivityType = "signin" | "user" | "unknownFutureValue";
+export type ActivityType = "signin" | "user" | "unknownFutureValue" | "servicePrincipal";
 export type CloudAppSecuritySessionControlType =
     | "mcasConfigured"
     | "monitorOnly"
@@ -8806,6 +8809,8 @@ export interface PolicyRoot {
      * application.
      */
     claimsMappingPolicies?: NullableOption<ClaimsMappingPolicy[]>;
+    // The custom rules that define an access scenario when interacting with external Azure AD tenants.
+    crossTenantAccessPolicy?: NullableOption<CrossTenantAccessPolicy>;
     // The tenant-wide policy that enforces app management restrictions for all applications and service principals.
     defaultAppManagementPolicy?: NullableOption<TenantAppManagementPolicy>;
     externalIdentitiesPolicy?: NullableOption<ExternalIdentitiesPolicy>;
@@ -8899,6 +8904,18 @@ export interface AuthorizationPolicy extends PolicyBase {
      */
     permissionGrantPolicyIdsAssignedToDefaultUserRole?: NullableOption<string[]>;
     defaultUserRoleOverrides?: NullableOption<DefaultUserRoleOverride[]>;
+}
+export interface TenantRelationshipAccessPolicyBase extends PolicyBase {
+    definition?: string[];
+}
+export interface CrossTenantAccessPolicy extends TenantRelationshipAccessPolicyBase {
+    /**
+     * Defines the default configuration for how your organization interacts with external Azure Active Directory
+     * organizations.
+     */
+    default?: NullableOption<CrossTenantAccessPolicyConfigurationDefault>;
+    // Defines partner-specific configurations for external Azure Active Directory organizations.
+    partners?: NullableOption<CrossTenantAccessPolicyConfigurationPartner[]>;
 }
 export interface TenantAppManagementPolicy extends PolicyBase {
     // Restrictions that apply as default to all application objects in the tenant.
@@ -18439,8 +18456,12 @@ export interface CountryNamedLocation extends NamedLocation {
 export interface IdentityProtectionRoot {
     // Risk detection in Azure AD Identity Protection and the associated information about the detection.
     riskDetections?: NullableOption<RiskDetection[]>;
+    // Azure AD service principals that are at risk.
+    riskyServicePrincipals?: NullableOption<RiskyServicePrincipal[]>;
     // Users that are flagged as at-risk by Azure AD Identity Protection.
     riskyUsers?: NullableOption<RiskyUser[]>;
+    // Represents information about detected at-risk service principals in an Azure AD tenant.
+    servicePrincipalRiskDetections?: NullableOption<ServicePrincipalRiskDetection[]>;
 }
 export interface RiskDetection extends Entity {
     // Indicates the activity type the detected risk is linked to. . Possible values are: signin, user, unknownFutureValue.
@@ -18494,7 +18515,8 @@ export interface RiskDetection extends Entity {
      * unfamiliarFeatures, malwareInfectedIPAddress, suspiciousIPAddress, leakedCredentials, investigationsThreatIntelligence,
      * generic,adminConfirmedUserCompromised, mcasImpossibleTravel, mcasSuspiciousInboxManipulationRules,
      * investigationsThreatIntelligenceSigninLinked, maliciousIPAddressValidCredentialsBlockedIP, and unknownFutureValue. If
-     * the risk detection is a premium detection, will show generic
+     * the risk detection is a premium detection, will show generic. For more information about each value, see riskEventType
+     * values.
      */
     riskEventType?: NullableOption<string>;
     // Level of the detected risk. Possible values are: low, medium, high, hidden, none, unknownFutureValue.
@@ -18518,6 +18540,49 @@ export interface RiskDetection extends Entity {
     userId?: NullableOption<string>;
     // The user principal name (UPN) of the user.
     userPrincipalName?: NullableOption<string>;
+}
+export interface RiskyServicePrincipal extends Entity {
+    // true if the service principal account is enabled; otherwise, false.
+    accountEnabled?: NullableOption<boolean>;
+    // The globally unique identifier for the associated application (its appId property), if any.
+    appId?: NullableOption<string>;
+    // The display name for the service principal.
+    displayName?: NullableOption<string>;
+    // Indicates whether Azure AD is currently processing the service principal's risky state.
+    isProcessing?: NullableOption<boolean>;
+    /**
+     * Details of the detected risk. Note: Details for this property are only available for Azure AD Premium P2 customers. P1
+     * customers will be returned hidden. The possible values are: none, adminGeneratedTemporaryPassword,
+     * userPerformedSecuredPasswordChange, userPerformedSecuredPasswordReset, adminConfirmedSigninSafe, aiConfirmedSigninSafe,
+     * userPassedMFADrivenByRiskBasedPolicy, adminDismissedAllRiskForUser, adminConfirmedSigninCompromised, hidden,
+     * adminConfirmedUserCompromised, unknownFutureValue, adminConfirmedServicePrincipalCompromised,
+     * adminDismissedAllRiskForServicePrincipal. Note that you must use the Prefer: include-unknown-enum-members request
+     * header to get the following value(s) in this evolvable enum: adminConfirmedServicePrincipalCompromised ,
+     * adminDismissedAllRiskForServicePrincipal.
+     */
+    riskDetail?: NullableOption<RiskDetail>;
+    /**
+     * The date and time that the risk state was last updated. The DateTimeOffset type represents date and time information
+     * using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2021 is 2021-01-01T00:00:00Z.
+     * Supports $filter (eq).
+     */
+    riskLastUpdatedDateTime?: NullableOption<string>;
+    /**
+     * Level of the detected risky workload identity. The possible values are: low, medium, high, hidden, none,
+     * unknownFutureValue. Supports $filter (eq).
+     */
+    riskLevel?: NullableOption<RiskLevel>;
+    /**
+     * State of the service principal's risk. The possible values are: none, confirmedSafe, remediated, dismissed, atRisk,
+     * confirmedCompromised, unknownFutureValue.
+     */
+    riskState?: NullableOption<RiskState>;
+    /**
+     * Identifies whether the service principal represents an Application, a ManagedIdentity, or a legacy application
+     * (socialIdp). This is set by Azure AD internally and is inherited from servicePrincipal.
+     */
+    servicePrincipalType?: NullableOption<string>;
+    history?: NullableOption<RiskyServicePrincipalHistoryItem[]>;
 }
 export interface RiskyUser extends Entity {
     // Indicates whether the user is deleted. Possible values are: true, false.
@@ -18550,6 +18615,86 @@ export interface RiskyUser extends Entity {
     // The activity related to user risk level change
     history?: NullableOption<RiskyUserHistoryItem[]>;
 }
+export interface ServicePrincipalRiskDetection extends Entity {
+    /**
+     * Indicates the activity type the detected risk is linked to. The possible values are: signin, unknownFutureValue,
+     * servicePrincipal. Note that you must use the Prefer: include-unknown-enum-members request header to get the following
+     * value(s) in this evolvable enum: servicePrincipal.
+     */
+    activity?: NullableOption<ActivityType>;
+    /**
+     * Date and time when the risky activity occurred. The DateTimeOffset type represents date and time information using ISO
+     * 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z
+     */
+    activityDateTime?: NullableOption<string>;
+    /**
+     * Additional information associated with the risk detection. This string value is represented as a JSON object with the
+     * quotations escaped.
+     */
+    additionalInfo?: NullableOption<string>;
+    // The unique identifier for the associated application.
+    appId?: NullableOption<string>;
+    /**
+     * Correlation ID of the sign-in activity associated with the risk detection. This property is null if the risk detection
+     * is not associated with a sign-in activity.
+     */
+    correlationId?: NullableOption<string>;
+    /**
+     * Date and time when the risk was detected. The DateTimeOffset type represents date and time information using ISO 8601
+     * format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
+     */
+    detectedDateTime?: NullableOption<string>;
+    /**
+     * Timing of the detected risk , whether real-time or offline). The possible values are: notDefined, realtime,
+     * nearRealtime, offline, unknownFutureValue.
+     */
+    detectionTimingType?: NullableOption<RiskDetectionTimingType>;
+    // Provides the IP address of the client from where the risk occurred.
+    ipAddress?: NullableOption<string>;
+    // The unique identifier (GUID) for the key credential associated with the risk detection.
+    keyIds?: NullableOption<string[]>;
+    // Date and time when the risk detection was last updated.
+    lastUpdatedDateTime?: NullableOption<string>;
+    // Location from where the sign-in was initiated.
+    location?: NullableOption<SignInLocation>;
+    /**
+     * Request identifier of the sign-in activity associated with the risk detection. This property is null if the risk
+     * detection is not associated with a sign-in activity. Supports $filter (eq).
+     */
+    requestId?: NullableOption<string>;
+    /**
+     * Details of the detected risk. Note: Details for this property are only available for Azure AD Premium P2 customers. P1
+     * customers will be returned hidden. The possible values are: none, hidden, unknownFutureValue,
+     * adminConfirmedServicePrincipalCompromised, adminDismissedAllRiskForServicePrincipal. Note that you must use the Prefer:
+     * include-unknown-enum-members request header to get the following value(s) in this evolvable enum:
+     * adminConfirmedServicePrincipalCompromised , adminDismissedAllRiskForServicePrincipal.
+     */
+    riskDetail?: NullableOption<RiskDetail>;
+    /**
+     * The type of risk event detected. The possible values are: investigationsThreatIntelligence, generic,
+     * adminConfirmedServicePrincipalCompromised, suspiciousSignins, leakedCredentials, unknownFutureValue. Supports $filter
+     * (eq).
+     */
+    riskEventType?: NullableOption<string>;
+    /**
+     * Level of the detected risk. Note: Details for this property are only available for Azure AD Premium P2 customers. P1
+     * customers will be returned hidden. The possible values are: low, medium, high, hidden, none, unknownFutureValue.
+     */
+    riskLevel?: NullableOption<RiskLevel>;
+    /**
+     * The state of a detected risky service principal or sign-in activity. The possible values are: none, dismissed, atRisk,
+     * confirmedCompromised, unknownFutureValue.
+     */
+    riskState?: NullableOption<RiskState>;
+    // The display name for the service principal.
+    servicePrincipalDisplayName?: NullableOption<string>;
+    // The unique identifier for the service principal. Supports $filter (eq).
+    servicePrincipalId?: NullableOption<string>;
+    // Source of the risk detection. For example, identityProtection.
+    source?: NullableOption<string>;
+    // Indicates the type of token issuer for the detected sign-in risk. The possible values are: AzureAD, UnknownFutureValue.
+    tokenIssuerType?: NullableOption<TokenIssuerType>;
+}
 // tslint:disable-next-line: interface-name
 export interface IpNamedLocation extends NamedLocation {
     /**
@@ -18559,6 +18704,14 @@ export interface IpNamedLocation extends NamedLocation {
     ipRanges?: IpRange[];
     // true if this location is explicitly trusted. Optional. Default value is false.
     isTrusted?: boolean;
+}
+export interface RiskyServicePrincipalHistoryItem extends RiskyServicePrincipal {
+    // The activity related to service principal risk level change.
+    activity?: NullableOption<RiskServicePrincipalActivity>;
+    // The identifier of the actor of the operation.
+    initiatedBy?: NullableOption<string>;
+    // The identifier of the service principal.
+    servicePrincipalId?: NullableOption<string>;
 }
 export interface RiskyUserHistoryItem extends RiskyUser {
     // The activity related to user risk level change.
@@ -39144,6 +39297,20 @@ export interface IPv6CidrRange extends IpRange {
     // IPv6 address in CIDR notation. Not nullable.
     cidrAddress?: string;
 }
+export interface RiskServicePrincipalActivity {
+    /**
+     * Details of the detected risk. Note: Details for this property are only available for Azure AD Premium P2 customers. P1
+     * customers will be returned hidden. The possible values are: none, adminGeneratedTemporaryPassword,
+     * userPerformedSecuredPasswordChange, userPerformedSecuredPasswordReset, adminConfirmedSigninSafe, aiConfirmedSigninSafe,
+     * userPassedMFADrivenByRiskBasedPolicy, adminDismissedAllRiskForUser, adminConfirmedSigninCompromised, hidden,
+     * adminConfirmedUserCompromised, unknownFutureValue, adminConfirmedServicePrincipalCompromised,
+     * adminDismissedAllRiskForServicePrincipal. Note that you must use the Prefer: include-unknown-enum-members request
+     * header to get the following value(s) in this evolvable enum: adminConfirmedServicePrincipalCompromised ,
+     * adminDismissedAllRiskForServicePrincipal.
+     */
+    detail?: NullableOption<RiskDetail>;
+    riskEventTypes?: NullableOption<string[]>;
+}
 export interface RiskUserActivity {
     /**
      * Details of the detected risk. Possible values are: none, adminGeneratedTemporaryPassword,
@@ -39300,7 +39467,9 @@ export interface ApprovalStage {
     /**
      * If escalation is enabled and the primary approvers do not respond before the escalation time, the escalationApprovers
      * are the users who will be asked to approve requests. This can be a collection of singleUser, groupMembers,
-     * requestorManager, internalSponsors and externalSponsors.
+     * requestorManager, internalSponsors and externalSponsors. When creating or updating a policy, if there are no escalation
+     * approvers, or escalation approvers are not required for the stage, the value of this property should be an empty
+     * collection.
      */
     escalationApprovers?: NullableOption<UserSet[]>;
     // If escalation is required, the time a request can be pending a response from a primary approver.
@@ -39311,7 +39480,8 @@ export interface ApprovalStage {
     isEscalationEnabled?: NullableOption<boolean>;
     /**
      * The users who will be asked to approve requests. A collection of singleUser, groupMembers, requestorManager,
-     * internalSponsors and externalSponsors.
+     * internalSponsors and externalSponsors. When creating or updating a policy, include at least one userSet in this
+     * collection.
      */
     primaryApprovers?: NullableOption<UserSet[]>;
 }
