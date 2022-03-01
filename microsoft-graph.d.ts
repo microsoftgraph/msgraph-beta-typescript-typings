@@ -3209,6 +3209,40 @@ export type OnenotePatchActionType = "Replace" | "Append" | "Delete" | "Insert" 
 export type OnenotePatchInsertPosition = "After" | "Before";
 export type OnenoteSourceService = "Unknown" | "OneDrive" | "OneDriveForBusiness" | "OnPremOneDriveForBusiness";
 export type OnenoteUserRole = "None" | "Owner" | "Contributor" | "Reader";
+export type DelegatedAdminAccessAssignmentStatus =
+    | "pending"
+    | "active"
+    | "deleting"
+    | "deleted"
+    | "error"
+    | "unknownFutureValue";
+export type DelegatedAdminAccessContainerType = "securityGroup" | "unknownFutureValue";
+export type DelegatedAdminRelationshipOperationStatus =
+    | "notStarted"
+    | "running"
+    | "complete"
+    | "failed"
+    | "unknownFutureValue";
+export type DelegatedAdminRelationshipOperationType = "delegatedAdminAccessAssignmentUpdate" | "unknownFutureValue";
+export type DelegatedAdminRelationshipRequestAction = "lockForApproval" | "approve" | "terminate" | "unknownFutureValue";
+export type DelegatedAdminRelationshipRequestStatus =
+    | "created"
+    | "pending"
+    | "complete"
+    | "failed"
+    | "unknownFutureValue";
+export type DelegatedAdminRelationshipStatus =
+    | "activating"
+    | "active"
+    | "approvalPending"
+    | "approved"
+    | "created"
+    | "expired"
+    | "expiring"
+    | "terminated"
+    | "terminating"
+    | "terminationRequested"
+    | "unknownFutureValue";
 export type AllowedAudiences =
     | "me"
     | "family"
@@ -5197,6 +5231,7 @@ export interface User extends DirectoryObject {
     pendingAccessReviewInstances?: NullableOption<AccessReviewInstance[]>;
     // The user's terms of use acceptance statuses. Read-only. Nullable.
     agreementAcceptances?: NullableOption<AgreementAcceptance[]>;
+    security?: NullableOption<SecurityNamespace.Security>;
     // Get enrollment configurations targeted to the user
     deviceEnrollmentConfigurations?: NullableOption<DeviceEnrollmentConfiguration[]>;
     // The managed devices associated with the user.
@@ -7167,6 +7202,7 @@ export interface Chat extends Entity {
     operations?: NullableOption<TeamsAsyncOperation[]>;
     // A collection of permissions granted to apps for the chat.
     permissionGrants?: NullableOption<ResourceSpecificPermissionGrant[]>;
+    // A collection of all the tabs in the chat. Nullable.
     tabs?: NullableOption<TeamsTab[]>;
 }
 export interface Team extends Entity {
@@ -8218,6 +8254,8 @@ export interface Application extends DirectoryObject {
     verifiedPublisher?: NullableOption<VerifiedPublisher>;
     // Specifies settings for a web application.
     web?: NullableOption<WebApplication>;
+    // Specifies settings for apps running Microsoft Windows and published in the Microsoft Store or Xbox games store.
+    windows?: NullableOption<WindowsApplication>;
     /**
      * Represents the set of properties required for configuring Application Proxy for this application. Configuring these
      * properties allows you to publish your on-premises application for secure remote access.
@@ -9409,8 +9447,8 @@ export interface CloudPC extends Entity {
      */
     lastModifiedDateTime?: string;
     /**
-     * The last remote action result of the enterprise Cloud PCs. The supported remote actions are: Rename, Reboot,
-     * Reprovision, and Troubleshoot.
+     * The last remote action result of the enterprise Cloud PCs. The supported remote actions are: Reboot, Rename,
+     * Reprovision, Restore, and Troubleshoot.
      */
     lastRemoteActionResult?: NullableOption<CloudPcRemoteActionResult>;
     // The Intune device ID of the Cloud PC.
@@ -9436,7 +9474,7 @@ export interface CloudPC extends Entity {
     servicePlanType?: NullableOption<CloudPcServicePlanType>;
     /**
      * The status of the Cloud PC. Possible values are: notProvisioned, provisioning, provisioned, upgrading, inGracePeriod,
-     * deprovisioning, failed.
+     * deprovisioning, failed, restoring.
      */
     status?: CloudPcStatus;
     // The details of the Cloud PC status.
@@ -9703,6 +9741,11 @@ export interface CloudPcUserSetting extends Entity {
      * the setting to true. If the local admin option is enabled, the end user can be an admin of the Cloud PC device.
      */
     localAdminEnabled?: NullableOption<boolean>;
+    /**
+     * Defines how frequently a restore point is created that is, a snapshot is taken) for users' provisioned Cloud PCs
+     * (default is 12 hours), and whether the user is allowed to restore their own Cloud PCs to a backup made at a specific
+     * point in time.
+     */
     restorePointSetting?: NullableOption<CloudPcRestorePointSetting>;
     /**
      * Indicates whether the self-service option is enabled. Default value is false. To enable the self-service option, change
@@ -13436,7 +13479,12 @@ export interface RbacApplicationMultiple extends Entity {
     roleDefinitions?: NullableOption<UnifiedRoleDefinition[]>;
 }
 export interface UnifiedRbacResourceNamespace extends Entity {
+    /**
+     * Name of the resource namespace. Typically, the same name as the id property, such as microsoft.aad.b2c. Required.
+     * Supports $filter (eq, startsWith).
+     */
     name?: string;
+    // Operations that an authorized principal are allowed to perform.
     resourceActions?: NullableOption<UnifiedRbacResourceAction[]>;
 }
 export interface UnifiedRoleAssignmentMultiple extends Entity {
@@ -13535,6 +13583,7 @@ export interface RbacApplication extends Entity {
     roleAssignments?: NullableOption<UnifiedRoleAssignment[]>;
     // Resource representing the roles allowed by RBAC providers and the permissions assigned to the roles.
     roleDefinitions?: NullableOption<UnifiedRoleDefinition[]>;
+    transitiveRoleAssignments?: NullableOption<UnifiedRoleAssignment[]>;
     roleAssignmentApprovals?: NullableOption<Approval[]>;
     roleAssignmentScheduleInstances?: NullableOption<UnifiedRoleAssignmentScheduleInstance[]>;
     roleAssignmentScheduleRequests?: NullableOption<UnifiedRoleAssignmentScheduleRequest[]>;
@@ -13544,9 +13593,19 @@ export interface RbacApplication extends Entity {
     roleEligibilitySchedules?: NullableOption<UnifiedRoleEligibilitySchedule[]>;
 }
 export interface UnifiedRbacResourceAction extends Entity {
+    /**
+     * HTTP method for the action, such as DELETE, GET, PATCH, POST, PUT, or null. Supports $filter (eq) but not for null
+     * values.
+     */
     actionVerb?: NullableOption<string>;
+    // Description for the action. Supports $filter (eq).
     description?: NullableOption<string>;
+    /**
+     * Name for the action within the resource namespace, such as microsoft.insights/programs/update. Can include slash
+     * character (/). Case insensitive. Required. Supports $filter (eq).
+     */
     name?: string;
+    // Not implemented.
     resourceScopeId?: NullableOption<string>;
     resourceScope?: NullableOption<UnifiedRbacResourceScope>;
 }
@@ -14209,10 +14268,18 @@ export interface BuiltInIdentityProvider extends IdentityProviderBase {
     identityProviderType?: NullableOption<string>;
 }
 export interface CustomCalloutExtension extends Entity {
+    // Configuration for securing the API call to the logic app. For example, using OAuth client credentials flow.
     authenticationConfiguration?: NullableOption<CustomExtensionAuthenticationConfiguration>;
+    /**
+     * HTTP connection settings that define how long Azure AD can wait for a connection to a logic app, how many times you can
+     * retry a timed-out connection and the exception scenarios when retries are allowed.
+     */
     clientConfiguration?: NullableOption<CustomExtensionClientConfiguration>;
+    // Description for the customCalloutExtension object.
     description?: NullableOption<string>;
+    // Display name for the customCalloutExtension object.
     displayName?: NullableOption<string>;
+    // The type and details for configuring the endpoint to call the logic app's workflow.
     endpointConfiguration?: NullableOption<CustomExtensionEndpointConfiguration>;
 }
 // tslint:disable-next-line: interface-name
@@ -15433,6 +15500,7 @@ export interface ServicePrincipalCreationConditionSet extends Entity {
     applicationPublisherIds?: NullableOption<string[]>;
     applicationsFromVerifiedPublisherOnly?: NullableOption<boolean>;
     applicationTenantIds?: NullableOption<string[]>;
+    certifiedApplicationsOnly?: NullableOption<boolean>;
 }
 export interface StrongAuthenticationDetail extends Entity {
     encryptedPinHashHistory?: NullableOption<number>;
@@ -15480,6 +15548,28 @@ export interface SubscribedSku extends Entity {
 export interface TenantRelationship extends Entity {
     // The operations available to interact with the multi-tenant management platform.
     managedTenants?: NullableOption<ManagedTenants.ManagedTenant>;
+    delegatedAdminCustomers?: NullableOption<DelegatedAdminCustomer[]>;
+    delegatedAdminRelationships?: NullableOption<DelegatedAdminRelationship[]>;
+}
+export interface DelegatedAdminCustomer extends Entity {
+    displayName?: NullableOption<string>;
+    tenantId?: string;
+    serviceManagementDetails?: NullableOption<DelegatedAdminServiceManagementDetail[]>;
+}
+export interface DelegatedAdminRelationship extends Entity {
+    accessDetails?: DelegatedAdminAccessDetails;
+    activatedDateTime?: NullableOption<string>;
+    createdDateTime?: NullableOption<string>;
+    customer?: NullableOption<DelegatedAdminRelationshipCustomerParticipant>;
+    displayName?: string;
+    duration?: string;
+    endDateTime?: NullableOption<string>;
+    lastModifiedDateTime?: NullableOption<string>;
+    partner?: DelegatedAdminRelationshipParticipant;
+    status?: NullableOption<DelegatedAdminRelationshipStatus>;
+    accessAssignments?: NullableOption<DelegatedAdminAccessAssignment[]>;
+    operations?: NullableOption<DelegatedAdminRelationshipOperation[]>;
+    requests?: NullableOption<DelegatedAdminRelationshipRequest[]>;
 }
 export interface EducationAssignment extends Entity {
     /**
@@ -17968,6 +18058,7 @@ export interface AccessPackageAssignmentPolicy extends Entity {
     // The access package with this policy. Read-only. Nullable. Supports $expand.
     accessPackage?: NullableOption<AccessPackage>;
     accessPackageCatalog?: NullableOption<AccessPackageCatalog>;
+    // The collection of stages when to execute one or more custom access package workflow extensions. Supports $expand.
     customExtensionHandlers?: NullableOption<CustomExtensionHandler[]>;
 }
 export interface AccessPackageAssignmentRequest extends Entity {
@@ -17984,6 +18075,7 @@ export interface AccessPackageAssignmentRequest extends Entity {
      * midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z. Read-only.
      */
     createdDateTime?: NullableOption<string>;
+    // A collection of custom workflow extension instances being run on an assignment request. Read-only.
     customExtensionHandlerInstances?: NullableOption<CustomExtensionHandlerInstance[]>;
     expirationDateTime?: NullableOption<string>;
     // True if the request is not to be processed for assignment.
@@ -18112,9 +18204,11 @@ export interface AccessPackageCatalog extends Entity {
      * midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z. Read-only.
      */
     modifiedDateTime?: NullableOption<string>;
+    // The roles in each resource in a catalog. Read-only.
     accessPackageResourceRoles?: NullableOption<AccessPackageResourceRole[]>;
     // Read-only. Nullable.
     accessPackageResources?: NullableOption<AccessPackageResource[]>;
+    // Read-only.
     accessPackageResourceScopes?: NullableOption<AccessPackageResourceScope[]>;
     // The access packages in this catalog. Read-only. Nullable.
     accessPackages?: NullableOption<AccessPackage[]>;
@@ -18235,7 +18329,7 @@ export interface AccessPackageResource extends Entity {
     url?: NullableOption<string>;
     /**
      * Contains the environment information for the resource. This can be set using either the @odata.bind annotation or the
-     * environment's originId.
+     * environment's originId.Supports $expand.
      */
     accessPackageResourceEnvironment?: NullableOption<AccessPackageResourceEnvironment>;
     // Read-only. Nullable. Supports $expand.
@@ -18464,14 +18558,21 @@ export interface IdentityProtectionRoot {
     servicePrincipalRiskDetections?: NullableOption<ServicePrincipalRiskDetection[]>;
 }
 export interface RiskDetection extends Entity {
-    // Indicates the activity type the detected risk is linked to. . Possible values are: signin, user, unknownFutureValue.
+    // Indicates the activity type the detected risk is linked to. Possible values are: signin, user, unknownFutureValue.
     activity?: NullableOption<ActivityType>;
     /**
      * Date and time that the risky activity occurred. The DateTimeOffset type represents date and time information using ISO
      * 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is look like this: 2014-01-01T00:00:00Z
      */
     activityDateTime?: NullableOption<string>;
-    // Additional information associated with the risk detection in JSON format.
+    /**
+     * Additional information associated with the risk detection in JSON format. For example,
+     * '[{/'Key/':/'userAgent/',/'Value/':/'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)
+     * Chrome/68.0.3440.106 Safari/537.36/'}]'. Possible keys in the additionalInfo JSON string are: userAgent, alertUrl,
+     * relatedEventTimeInUtc, relatedUserAgent, deviceInformation, relatedLocation, requestId, correlationId,
+     * lastActivityTimeInUtc, malwareName, clientLocation, clientIp, riskReasons. For more information about riskReasons and
+     * possible values, see riskReasons values.
+     */
     additionalInfo?: NullableOption<string>;
     /**
      * Correlation ID of the sign-in associated with the risk detection. This property is null if the risk detection is not
@@ -18480,7 +18581,7 @@ export interface RiskDetection extends Entity {
     correlationId?: NullableOption<string>;
     /**
      * Date and time that the risk was detected. The DateTimeOffset type represents date and time information using ISO 8601
-     * format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is look like this: 2014-01-01T00:00:00Z
+     * format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 looks like this: 2014-01-01T00:00:00Z
      */
     detectedDateTime?: NullableOption<string>;
     /**
@@ -18513,10 +18614,10 @@ export interface RiskDetection extends Entity {
     /**
      * The type of risk event detected. The possible values are unlikelyTravel, anonymizedIPAddress, maliciousIPAddress,
      * unfamiliarFeatures, malwareInfectedIPAddress, suspiciousIPAddress, leakedCredentials, investigationsThreatIntelligence,
-     * generic,adminConfirmedUserCompromised, mcasImpossibleTravel, mcasSuspiciousInboxManipulationRules,
-     * investigationsThreatIntelligenceSigninLinked, maliciousIPAddressValidCredentialsBlockedIP, and unknownFutureValue. If
-     * the risk detection is a premium detection, will show generic. For more information about each value, see riskEventType
-     * values.
+     * generic,adminConfirmedUserCompromised, passwordSpray, impossibleTravel, newCountry, anomalousToken,
+     * tokenIssuerAnomaly,suspiciousBrowser, riskyIPAddress, mcasSuspiciousInboxManipulationRules, suspiciousInboxForwarding,
+     * and unknownFutureValue. If the risk detection is a premium detection, will show generic. For more information about
+     * each value, see riskEventType values.
      */
     riskEventType?: NullableOption<string>;
     // Level of the detected risk. Possible values are: low, medium, high, hidden, none, unknownFutureValue.
@@ -18744,7 +18845,13 @@ export interface AccessPackageSubject extends Entity {
     connectedOrganization?: NullableOption<ConnectedOrganization>;
 }
 export interface CustomExtensionHandler extends Entity {
+    /**
+     * Indicates the stage of the access package assignment request workflow when the access package custom extension runs.
+     * The possible values are: assignmentRequestCreated, assignmentRequestApproved, assignmentRequestGranted,
+     * assignmentRequestRemoved, assignmentFourteenDaysBeforeExpiration, assignmentOneDayBeforeExpiration, unknownFutureValue.
+     */
     stage?: NullableOption<AccessPackageCustomExtensionStage>;
+    // Indicates which custom workflow extension will be executed at this stage. Nullable. Supports $expand.
     customExtension?: NullableOption<CustomAccessPackageWorkflowExtension>;
 }
 export interface AccessPackageResourceRole extends Entity {
@@ -18781,7 +18888,15 @@ export interface AccessPackageResourceScope extends Entity {
     accessPackageResource?: NullableOption<AccessPackageResource>;
 }
 export interface CustomAccessPackageWorkflowExtension extends CustomCalloutExtension {
+    /**
+     * Represents date and time information using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan
+     * 1, 2014 is 2014-01-01T00:00:00Z. Read-only.
+     */
     createdDateTime?: NullableOption<string>;
+    /**
+     * Represents date and time information using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan
+     * 1, 2014 is 2014-01-01T00:00:00Z. Read-only.
+     */
     lastModifiedDateTime?: NullableOption<string>;
 }
 // tslint:disable-next-line: interface-name
@@ -18800,6 +18915,500 @@ export interface InformationProtectionLabel extends Entity {
     sensitivity?: number;
     // The tooltip that should be displayed for the label in a UI.
     tooltip?: NullableOption<string>;
+}
+export interface Security extends Entity {
+    providerStatus?: NullableOption<SecurityProviderStatus[]>;
+    informationProtection?: NullableOption<SecurityNamespace.InformationProtection>;
+    // Provides tenants capability to launch a simulated and realistic phishing attack and learn from it.
+    attackSimulation?: NullableOption<AttackSimulationRoot>;
+    // Read-only. Nullable.
+    alerts?: NullableOption<Alert[]>;
+    cloudAppSecurityProfiles?: NullableOption<CloudAppSecurityProfile[]>;
+    domainSecurityProfiles?: NullableOption<DomainSecurityProfile[]>;
+    fileSecurityProfiles?: NullableOption<FileSecurityProfile[]>;
+    hostSecurityProfiles?: NullableOption<HostSecurityProfile[]>;
+    ipSecurityProfiles?: NullableOption<IpSecurityProfile[]>;
+    providerTenantSettings?: NullableOption<ProviderTenantSetting[]>;
+    secureScoreControlProfiles?: NullableOption<SecureScoreControlProfile[]>;
+    secureScores?: NullableOption<SecureScore[]>;
+    securityActions?: NullableOption<SecurityAction[]>;
+    tiIndicators?: NullableOption<TiIndicator[]>;
+    userSecurityProfiles?: NullableOption<UserSecurityProfile[]>;
+}
+export interface AttackSimulationRoot extends Entity {
+    simulationAutomations?: NullableOption<SimulationAutomation[]>;
+    // Represent attack simulation and training campaign of a tenant.
+    simulations?: NullableOption<Simulation[]>;
+}
+export interface Alert extends Entity {
+    // Name or alias of the activity group (attacker) this alert is attributed to.
+    activityGroupName?: NullableOption<string>;
+    alertDetections?: NullableOption<AlertDetection[]>;
+    // Name of the analyst the alert is assigned to for triage, investigation, or remediation (supports update).
+    assignedTo?: NullableOption<string>;
+    // Azure subscription ID, present if this alert is related to an Azure resource.
+    azureSubscriptionId?: NullableOption<string>;
+    // Azure Active Directory tenant ID. Required.
+    azureTenantId?: string;
+    // Category of the alert (for example, credentialTheft, ransomware, etc.).
+    category?: NullableOption<string>;
+    /**
+     * Time at which the alert was closed. The Timestamp type represents date and time information using ISO 8601 format and
+     * is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z (supports update).
+     */
+    closedDateTime?: NullableOption<string>;
+    // Security-related stateful information generated by the provider about the cloud application/s related to this alert.
+    cloudAppStates?: NullableOption<CloudAppSecurityState[]>;
+    // Customer-provided comments on alert (for customer alert management) (supports update).
+    comments?: NullableOption<string[]>;
+    // Confidence of the detection logic (percentage between 1-100).
+    confidence?: NullableOption<number>;
+    /**
+     * Time at which the alert was created by the alert provider. The Timestamp type represents date and time information
+     * using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
+     * Required.
+     */
+    createdDateTime?: NullableOption<string>;
+    // Alert description.
+    description?: NullableOption<string>;
+    // Set of alerts related to this alert entity (each alert is pushed to the SIEM as a separate record).
+    detectionIds?: NullableOption<string[]>;
+    /**
+     * Time at which the event(s) that served as the trigger(s) to generate the alert occurred. The Timestamp type represents
+     * date and time information using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is
+     * 2014-01-01T00:00:00Z. Required.
+     */
+    eventDateTime?: NullableOption<string>;
+    /**
+     * Analyst feedback on the alert. Possible values are: unknown, truePositive, falsePositive, benignPositive. (supports
+     * update)
+     */
+    feedback?: NullableOption<AlertFeedback>;
+    // Security-related stateful information generated by the provider about the file(s) related to this alert.
+    fileStates?: NullableOption<FileSecurityState[]>;
+    // A collection of alertHistoryStates comprising an audit log of all updates made to an alert.
+    historyStates?: NullableOption<AlertHistoryState[]>;
+    // Security-related stateful information generated by the provider about the host(s) related to this alert.
+    hostStates?: NullableOption<HostSecurityState[]>;
+    // IDs of incidents related to current alert.
+    incidentIds?: NullableOption<string[]>;
+    investigationSecurityStates?: NullableOption<InvestigationSecurityState[]>;
+    lastEventDateTime?: NullableOption<string>;
+    /**
+     * Time at which the alert entity was last modified. The Timestamp type represents date and time information using ISO
+     * 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
+     */
+    lastModifiedDateTime?: NullableOption<string>;
+    // Threat Intelligence pertaining to malware related to this alert.
+    malwareStates?: NullableOption<MalwareState[]>;
+    messageSecurityStates?: NullableOption<MessageSecurityState[]>;
+    // Security-related stateful information generated by the provider about the network connection(s) related to this alert.
+    networkConnections?: NullableOption<NetworkConnection[]>;
+    // Security-related stateful information generated by the provider about the process or processes related to this alert.
+    processes?: NullableOption<Process[]>;
+    /**
+     * Vendor/provider recommended action(s) to take as a result of the alert (for example, isolate machine, enforce2FA,
+     * reimage host).
+     */
+    recommendedActions?: NullableOption<string[]>;
+    // Security-related stateful information generated by the provider about the registry keys related to this alert.
+    registryKeyStates?: NullableOption<RegistryKeyState[]>;
+    // Resources related to current alert. For example, for some alerts this can have the Azure Resource value.
+    securityResources?: NullableOption<SecurityResource[]>;
+    // Alert severity - set by vendor/provider. Possible values are: unknown, informational, low, medium, high. Required.
+    severity?: AlertSeverity;
+    /**
+     * Hyperlinks (URIs) to the source material related to the alert, for example, provider's user interface for alerts or log
+     * search, etc.
+     */
+    sourceMaterials?: NullableOption<string[]>;
+    /**
+     * Alert lifecycle status (stage). Possible values are: unknown, newAlert, inProgress, resolved. (supports update).
+     * Required.
+     */
+    status?: AlertStatus;
+    /**
+     * User-definable labels that can be applied to an alert and can serve as filter conditions (for example 'HVA', 'SAW',
+     * etc.) (supports update).
+     */
+    tags?: NullableOption<string[]>;
+    // Alert title. Required.
+    title?: NullableOption<string>;
+    /**
+     * Security-related information about the specific properties that triggered the alert (properties appearing in the
+     * alert). Alerts might contain information about multiple users, hosts, files, ip addresses. This field indicates which
+     * properties triggered the alert generation.
+     */
+    triggers?: NullableOption<AlertTrigger[]>;
+    uriClickSecurityStates?: NullableOption<UriClickSecurityState[]>;
+    // Security-related stateful information generated by the provider about the user accounts related to this alert.
+    userStates?: NullableOption<UserSecurityState[]>;
+    /**
+     * Complex type containing details about the security product/service vendor, provider, and subprovider (for example,
+     * vendor=Microsoft; provider=Windows Defender ATP; subProvider=AppLocker). Required.
+     */
+    vendorInformation?: NullableOption<SecurityVendorInformation>;
+    // Threat intelligence pertaining to one or more vulnerabilities related to this alert.
+    vulnerabilityStates?: NullableOption<VulnerabilityState[]>;
+}
+export interface CloudAppSecurityProfile extends Entity {
+    azureSubscriptionId?: NullableOption<string>;
+    azureTenantId?: NullableOption<string>;
+    createdDateTime?: NullableOption<string>;
+    deploymentPackageUrl?: NullableOption<string>;
+    destinationServiceName?: NullableOption<string>;
+    isSigned?: NullableOption<boolean>;
+    lastModifiedDateTime?: NullableOption<string>;
+    manifest?: NullableOption<string>;
+    name?: NullableOption<string>;
+    permissionsRequired?: NullableOption<ApplicationPermissionsRequired>;
+    platform?: NullableOption<string>;
+    policyName?: NullableOption<string>;
+    publisher?: NullableOption<string>;
+    riskScore?: NullableOption<string>;
+    tags?: NullableOption<string[]>;
+    type?: NullableOption<string>;
+    vendorInformation?: NullableOption<SecurityVendorInformation>;
+}
+export interface DomainSecurityProfile extends Entity {
+    activityGroupNames?: NullableOption<string[]>;
+    azureSubscriptionId?: NullableOption<string>;
+    azureTenantId?: string;
+    countHits?: NullableOption<number>;
+    countInOrg?: NullableOption<number>;
+    domainCategories?: NullableOption<ReputationCategory[]>;
+    domainRegisteredDateTime?: NullableOption<string>;
+    firstSeenDateTime?: NullableOption<string>;
+    lastSeenDateTime?: NullableOption<string>;
+    name?: NullableOption<string>;
+    registrant?: NullableOption<DomainRegistrant>;
+    riskScore?: NullableOption<string>;
+    tags?: NullableOption<string[]>;
+    vendorInformation?: NullableOption<SecurityVendorInformation>;
+}
+export interface FileSecurityProfile extends Entity {
+    activityGroupNames?: NullableOption<string[]>;
+    azureSubscriptionId?: NullableOption<string>;
+    azureTenantId?: string;
+    certificateThumbprint?: NullableOption<string>;
+    extensions?: NullableOption<string[]>;
+    fileType?: NullableOption<string>;
+    firstSeenDateTime?: NullableOption<string>;
+    hashes?: NullableOption<FileHash[]>;
+    lastSeenDateTime?: NullableOption<string>;
+    malwareStates?: NullableOption<MalwareState[]>;
+    names?: NullableOption<string[]>;
+    riskScore?: NullableOption<string>;
+    size?: NullableOption<number>;
+    tags?: NullableOption<string[]>;
+    vendorInformation?: NullableOption<SecurityVendorInformation>;
+    vulnerabilityStates?: NullableOption<VulnerabilityState[]>;
+}
+export interface HostSecurityProfile extends Entity {
+    azureSubscriptionId?: NullableOption<string>;
+    azureTenantId?: string;
+    firstSeenDateTime?: NullableOption<string>;
+    fqdn?: NullableOption<string>;
+    isAzureAdJoined?: NullableOption<boolean>;
+    isAzureAdRegistered?: NullableOption<boolean>;
+    isHybridAzureDomainJoined?: NullableOption<boolean>;
+    lastSeenDateTime?: NullableOption<string>;
+    logonUsers?: NullableOption<LogonUser[]>;
+    netBiosName?: NullableOption<string>;
+    networkInterfaces?: NullableOption<NetworkInterface[]>;
+    os?: NullableOption<string>;
+    osVersion?: NullableOption<string>;
+    parentHost?: NullableOption<string>;
+    relatedHostIds?: NullableOption<string[]>;
+    riskScore?: NullableOption<string>;
+    tags?: NullableOption<string[]>;
+    vendorInformation?: NullableOption<SecurityVendorInformation>;
+}
+// tslint:disable-next-line: interface-name
+export interface IpSecurityProfile extends Entity {
+    activityGroupNames?: NullableOption<string[]>;
+    address?: NullableOption<string>;
+    azureSubscriptionId?: NullableOption<string>;
+    azureTenantId?: string;
+    countHits?: NullableOption<number>;
+    countHosts?: NullableOption<number>;
+    firstSeenDateTime?: NullableOption<string>;
+    ipCategories?: NullableOption<IpCategory[]>;
+    ipReferenceData?: NullableOption<IpReferenceData[]>;
+    lastSeenDateTime?: NullableOption<string>;
+    riskScore?: NullableOption<string>;
+    tags?: NullableOption<string[]>;
+    vendorInformation?: NullableOption<SecurityVendorInformation>;
+}
+export interface ProviderTenantSetting extends Entity {
+    azureTenantId?: string;
+    enabled?: NullableOption<boolean>;
+    lastModifiedDateTime?: NullableOption<string>;
+    provider?: NullableOption<string>;
+    vendor?: NullableOption<string>;
+}
+export interface SecureScoreControlProfile extends Entity {
+    // Control action type (Config, Review, Behavior).
+    actionType?: NullableOption<string>;
+    // URL to where the control can be actioned.
+    actionUrl?: NullableOption<string>;
+    // GUID string for tenant ID.
+    azureTenantId?: string;
+    // The collection of compliance information associated with secure score control
+    complianceInformation?: NullableOption<ComplianceInformation[]>;
+    // Control action category (Identity, Data, Device, Apps, Infrastructure).
+    controlCategory?: NullableOption<string>;
+    // Flag to indicate where the tenant has marked a control (ignore, thirdParty, reviewed) (supports update).
+    controlStateUpdates?: NullableOption<SecureScoreControlStateUpdate[]>;
+    // Flag to indicate if a control is depreciated.
+    deprecated?: NullableOption<boolean>;
+    // Resource cost of implemmentating control (low, moderate, high).
+    implementationCost?: NullableOption<string>;
+    // Time at which the control profile entity was last modified. The Timestamp type represents date and time
+    lastModifiedDateTime?: NullableOption<string>;
+    // max attainable score for the control.
+    maxScore?: NullableOption<number>;
+    // Microsoft's stack ranking of control.
+    rank?: NullableOption<number>;
+    // Description of what the control will help remediate.
+    remediation?: NullableOption<string>;
+    // Description of the impact on users of the remediation.
+    remediationImpact?: NullableOption<string>;
+    // Service that owns the control (Exchange, Sharepoint, Azure AD).
+    service?: NullableOption<string>;
+    // List of threats the control mitigates (accountBreach,dataDeletion,dataExfiltration,dataSpillage,
+    threats?: NullableOption<string[]>;
+    // Control tier (Core, Defense in Depth, Advanced.)
+    tier?: NullableOption<string>;
+    // Title of the control.
+    title?: NullableOption<string>;
+    // User impact of implementing control (low, moderate, high).
+    userImpact?: NullableOption<string>;
+    vendorInformation?: NullableOption<SecurityVendorInformation>;
+}
+export interface SecureScore extends Entity {
+    // Active user count of the given tenant.
+    activeUserCount?: NullableOption<number>;
+    /**
+     * Average score by different scopes (for example, average by industry, average by seating) and control category
+     * (Identity, Data, Device, Apps, Infrastructure) within the scope.
+     */
+    averageComparativeScores?: NullableOption<AverageComparativeScore[]>;
+    // GUID string for tenant ID.
+    azureTenantId?: string;
+    // Contains tenant scores for a set of controls.
+    controlScores?: NullableOption<ControlScore[]>;
+    // The date when the entity is created.
+    createdDateTime?: NullableOption<string>;
+    // Tenant current attained score on specified date.
+    currentScore?: NullableOption<number>;
+    // Microsoft-provided services for the tenant (for example, Exchange online, Skype, Sharepoint).
+    enabledServices?: NullableOption<string[]>;
+    // Licensed user count of the given tenant.
+    licensedUserCount?: NullableOption<number>;
+    // Tenant maximum possible score on specified date.
+    maxScore?: NullableOption<number>;
+    /**
+     * Complex type containing details about the security product/service vendor, provider, and subprovider (for example,
+     * vendor=Microsoft; provider=SecureScore). Required.
+     */
+    vendorInformation?: NullableOption<SecurityVendorInformation>;
+}
+export interface SecurityAction extends Entity {
+    // Reason for invoking this action.
+    actionReason?: NullableOption<string>;
+    /**
+     * The Application ID of the calling application that submitted (POST) the action. The appId should be extracted from the
+     * auth token and not entered manually by the calling application.
+     */
+    appId?: NullableOption<string>;
+    /**
+     * Azure tenant ID of the entity to determine which tenant the entity belongs to (multi-tenancy support). The
+     * azureTenantId should be extracted from the auth token and not entered manually by the calling application.
+     */
+    azureTenantId?: NullableOption<string>;
+    clientContext?: NullableOption<string>;
+    /**
+     * Timestamp when the action was completed. The Timestamp type represents date and time information using ISO 8601 format
+     * and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
+     */
+    completedDateTime?: NullableOption<string>;
+    /**
+     * Timestamp when the action is created. The Timestamp type represents date and time information using ISO 8601 format and
+     * is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
+     */
+    createdDateTime?: NullableOption<string>;
+    // Error info when the action fails.
+    errorInfo?: NullableOption<ResultInfo>;
+    /**
+     * Timestamp when this action was last updated. The Timestamp type represents date and time information using ISO 8601
+     * format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
+     */
+    lastActionDateTime?: NullableOption<string>;
+    // Action name.
+    name?: NullableOption<string>;
+    /**
+     * Collection of parameters (key-value pairs) necessary to invoke the action, for example, URL or fileHash to block.).
+     * Required.
+     */
+    parameters?: NullableOption<KeyValuePair[]>;
+    // Collection of securityActionState to keep the history of an action.
+    states?: NullableOption<SecurityActionState[]>;
+    // Status of the action. Possible values are: NotStarted, Running, Completed, Failed.
+    status?: NullableOption<OperationStatus>;
+    /**
+     * The user principal name of the signed-in user that submitted (POST) the action. The user should be extracted from the
+     * auth token and not entered manually by the calling application.
+     */
+    user?: NullableOption<string>;
+    /**
+     * Complex Type containing details about the Security product/service vendor, provider, and sub-provider (for example,
+     * vendor=Microsoft; provider=Windows Defender ATP; sub-provider=AppLocker).
+     */
+    vendorInformation?: NullableOption<SecurityVendorInformation>;
+}
+export interface TiIndicator extends Entity {
+    /**
+     * The action to apply if the indicator is matched from within the targetProduct security tool. Possible values are:
+     * unknown, allow, block, alert. Required.
+     */
+    action?: NullableOption<TiAction>;
+    /**
+     * The cyber threat intelligence name(s) for the parties responsible for the malicious activity covered by the threat
+     * indicator.
+     */
+    activityGroupNames?: NullableOption<string[]>;
+    /**
+     * A catchall area into which extra data from the indicator not covered by the other tiIndicator properties may be placed.
+     * Data placed into additionalInformation will typically not be utilized by the targetProduct security tool.
+     */
+    additionalInformation?: NullableOption<string>;
+    /**
+     * Stamped by the system when the indicator is ingested. The Azure Active Directory tenant id of submitting client.
+     * Required.
+     */
+    azureTenantId?: NullableOption<string>;
+    /**
+     * An integer representing the confidence the data within the indicator accurately identifies malicious behavior.
+     * Acceptable values are 0 – 100 with 100 being the highest.
+     */
+    confidence?: NullableOption<number>;
+    // Brief description (100 characters or less) of the threat represented by the indicator. Required.
+    description?: NullableOption<string>;
+    /**
+     * The area of the Diamond Model in which this indicator exists. Possible values are: unknown, adversary, capability,
+     * infrastructure, victim.
+     */
+    diamondModel?: NullableOption<DiamondModel>;
+    domainName?: NullableOption<string>;
+    emailEncoding?: NullableOption<string>;
+    emailLanguage?: NullableOption<string>;
+    emailRecipient?: NullableOption<string>;
+    emailSenderAddress?: NullableOption<string>;
+    emailSenderName?: NullableOption<string>;
+    emailSourceDomain?: NullableOption<string>;
+    emailSourceIpAddress?: NullableOption<string>;
+    emailSubject?: NullableOption<string>;
+    emailXMailer?: NullableOption<string>;
+    /**
+     * DateTime string indicating when the Indicator expires. All indicators must have an expiration date to avoid stale
+     * indicators persisting in the system. The Timestamp type represents date and time information using ISO 8601 format and
+     * is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z. Required.
+     */
+    expirationDateTime?: NullableOption<string>;
+    // An identification number that ties the indicator back to the indicator provider’s system (e.g. a foreign key).
+    externalId?: NullableOption<string>;
+    fileCompileDateTime?: NullableOption<string>;
+    fileCreatedDateTime?: NullableOption<string>;
+    fileHashType?: NullableOption<FileHashType>;
+    fileHashValue?: NullableOption<string>;
+    fileMutexName?: NullableOption<string>;
+    fileName?: NullableOption<string>;
+    filePacker?: NullableOption<string>;
+    filePath?: NullableOption<string>;
+    fileSize?: NullableOption<number>;
+    fileType?: NullableOption<string>;
+    /**
+     * Stamped by the system when the indicator is ingested. The Timestamp type represents date and time information using ISO
+     * 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z
+     */
+    ingestedDateTime?: NullableOption<string>;
+    /**
+     * Used to deactivate indicators within system. By default, any indicator submitted is set as active. However, providers
+     * may submit existing indicators with this set to ‘False’ to deactivate indicators in the system.
+     */
+    isActive?: NullableOption<boolean>;
+    /**
+     * A JSON array of strings that describes which point or points on the Kill Chain this indicator targets. See ‘killChain
+     * values’ below for exact values.
+     */
+    killChain?: NullableOption<string[]>;
+    // Scenarios in which the indicator may cause false positives. This should be human-readable text.
+    knownFalsePositives?: NullableOption<string>;
+    /**
+     * The last time the indicator was seen. The Timestamp type represents date and time information using ISO 8601 format and
+     * is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z
+     */
+    lastReportedDateTime?: NullableOption<string>;
+    /**
+     * The malware family name associated with an indicator if it exists. Microsoft prefers the Microsoft malware family name
+     * if at all possible which can be found via the Windows Defender Security Intelligence threat encyclopedia.
+     */
+    malwareFamilyNames?: NullableOption<string[]>;
+    networkCidrBlock?: NullableOption<string>;
+    networkDestinationAsn?: NullableOption<number>;
+    networkDestinationCidrBlock?: NullableOption<string>;
+    networkDestinationIPv4?: NullableOption<string>;
+    networkDestinationIPv6?: NullableOption<string>;
+    networkDestinationPort?: NullableOption<number>;
+    networkIPv4?: NullableOption<string>;
+    networkIPv6?: NullableOption<string>;
+    networkPort?: NullableOption<number>;
+    networkProtocol?: NullableOption<number>;
+    networkSourceAsn?: NullableOption<number>;
+    networkSourceCidrBlock?: NullableOption<string>;
+    networkSourceIPv4?: NullableOption<string>;
+    networkSourceIPv6?: NullableOption<string>;
+    networkSourcePort?: NullableOption<number>;
+    /**
+     * Determines if the indicator should trigger an event that is visible to an end-user. When set to ‘true,’ security tools
+     * will not notify the end user that a ‘hit’ has occurred. This is most often treated as audit or silent mode by security
+     * products where they will simply log that a match occurred but will not perform the action. Default value is false.
+     */
+    passiveOnly?: NullableOption<boolean>;
+    /**
+     * An integer representing the severity of the malicious behavior identified by the data within the indicator. Acceptable
+     * values are 0 – 5 where 5 is the most severe and zero is not severe at all. Default value is 3.
+     */
+    severity?: NullableOption<number>;
+    // A JSON array of strings that stores arbitrary tags/keywords.
+    tags?: NullableOption<string[]>;
+    /**
+     * A string value representing a single security product to which the indicator should be applied. Acceptable values are:
+     * Azure Sentinel, Microsoft Defender ATP. Required
+     */
+    targetProduct?: string;
+    /**
+     * Each indicator must have a valid Indicator Threat Type. Possible values are: Botnet, C2, CryptoMining, Darknet, DDoS,
+     * MaliciousUrl, Malware, Phishing, Proxy, PUA, WatchList. Required.
+     */
+    threatType?: NullableOption<string>;
+    // Traffic Light Protocol value for the indicator. Possible values are: unknown, white, green, amber, red. Required.
+    tlpLevel?: NullableOption<TlpLevel>;
+    url?: NullableOption<string>;
+    userAgent?: NullableOption<string>;
+}
+export interface UserSecurityProfile extends Entity {
+    accounts?: NullableOption<UserAccount[]>;
+    azureSubscriptionId?: NullableOption<string>;
+    azureTenantId?: string;
+    createdDateTime?: NullableOption<string>;
+    displayName?: NullableOption<string>;
+    lastModifiedDateTime?: NullableOption<string>;
+    riskScore?: NullableOption<string>;
+    tags?: NullableOption<string[]>;
+    userPrincipalName?: NullableOption<string>;
+    vendorInformation?: NullableOption<SecurityVendorInformation>;
 }
 export interface MobileApp extends Entity {
     // The date and time the app was created.
@@ -29754,501 +30363,6 @@ export interface IntuneBrandingProfileAssignment extends Entity {
     // Assignment target that the branding profile is assigned to.
     target?: NullableOption<DeviceAndAppManagementAssignmentTarget>;
 }
-export interface Security extends Entity {
-    providerStatus?: NullableOption<SecurityProviderStatus[]>;
-    alerts_v2?: NullableOption<SecurityNamespace.Alert[]>;
-    incidents?: NullableOption<SecurityNamespace.Incident[]>;
-    // Provides tenants capability to launch a simulated and realistic phishing attack and learn from it.
-    attackSimulation?: NullableOption<AttackSimulationRoot>;
-    // Read-only. Nullable.
-    alerts?: NullableOption<Alert[]>;
-    cloudAppSecurityProfiles?: NullableOption<CloudAppSecurityProfile[]>;
-    domainSecurityProfiles?: NullableOption<DomainSecurityProfile[]>;
-    fileSecurityProfiles?: NullableOption<FileSecurityProfile[]>;
-    hostSecurityProfiles?: NullableOption<HostSecurityProfile[]>;
-    ipSecurityProfiles?: NullableOption<IpSecurityProfile[]>;
-    providerTenantSettings?: NullableOption<ProviderTenantSetting[]>;
-    secureScoreControlProfiles?: NullableOption<SecureScoreControlProfile[]>;
-    secureScores?: NullableOption<SecureScore[]>;
-    securityActions?: NullableOption<SecurityAction[]>;
-    tiIndicators?: NullableOption<TiIndicator[]>;
-    userSecurityProfiles?: NullableOption<UserSecurityProfile[]>;
-}
-export interface AttackSimulationRoot extends Entity {
-    simulationAutomations?: NullableOption<SimulationAutomation[]>;
-    // Represent attack simulation and training campaign of a tenant.
-    simulations?: NullableOption<Simulation[]>;
-}
-export interface Alert extends Entity {
-    // Name or alias of the activity group (attacker) this alert is attributed to.
-    activityGroupName?: NullableOption<string>;
-    alertDetections?: NullableOption<AlertDetection[]>;
-    // Name of the analyst the alert is assigned to for triage, investigation, or remediation (supports update).
-    assignedTo?: NullableOption<string>;
-    // Azure subscription ID, present if this alert is related to an Azure resource.
-    azureSubscriptionId?: NullableOption<string>;
-    // Azure Active Directory tenant ID. Required.
-    azureTenantId?: string;
-    // Category of the alert (for example, credentialTheft, ransomware, etc.).
-    category?: NullableOption<string>;
-    /**
-     * Time at which the alert was closed. The Timestamp type represents date and time information using ISO 8601 format and
-     * is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z (supports update).
-     */
-    closedDateTime?: NullableOption<string>;
-    // Security-related stateful information generated by the provider about the cloud application/s related to this alert.
-    cloudAppStates?: NullableOption<CloudAppSecurityState[]>;
-    // Customer-provided comments on alert (for customer alert management) (supports update).
-    comments?: NullableOption<string[]>;
-    // Confidence of the detection logic (percentage between 1-100).
-    confidence?: NullableOption<number>;
-    /**
-     * Time at which the alert was created by the alert provider. The Timestamp type represents date and time information
-     * using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
-     * Required.
-     */
-    createdDateTime?: NullableOption<string>;
-    // Alert description.
-    description?: NullableOption<string>;
-    // Set of alerts related to this alert entity (each alert is pushed to the SIEM as a separate record).
-    detectionIds?: NullableOption<string[]>;
-    /**
-     * Time at which the event(s) that served as the trigger(s) to generate the alert occurred. The Timestamp type represents
-     * date and time information using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is
-     * 2014-01-01T00:00:00Z. Required.
-     */
-    eventDateTime?: NullableOption<string>;
-    /**
-     * Analyst feedback on the alert. Possible values are: unknown, truePositive, falsePositive, benignPositive. (supports
-     * update)
-     */
-    feedback?: NullableOption<AlertFeedback>;
-    // Security-related stateful information generated by the provider about the file(s) related to this alert.
-    fileStates?: NullableOption<FileSecurityState[]>;
-    // A collection of alertHistoryStates comprising an audit log of all updates made to an alert.
-    historyStates?: NullableOption<AlertHistoryState[]>;
-    // Security-related stateful information generated by the provider about the host(s) related to this alert.
-    hostStates?: NullableOption<HostSecurityState[]>;
-    // IDs of incidents related to current alert.
-    incidentIds?: NullableOption<string[]>;
-    investigationSecurityStates?: NullableOption<InvestigationSecurityState[]>;
-    lastEventDateTime?: NullableOption<string>;
-    /**
-     * Time at which the alert entity was last modified. The Timestamp type represents date and time information using ISO
-     * 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
-     */
-    lastModifiedDateTime?: NullableOption<string>;
-    // Threat Intelligence pertaining to malware related to this alert.
-    malwareStates?: NullableOption<MalwareState[]>;
-    messageSecurityStates?: NullableOption<MessageSecurityState[]>;
-    // Security-related stateful information generated by the provider about the network connection(s) related to this alert.
-    networkConnections?: NullableOption<NetworkConnection[]>;
-    // Security-related stateful information generated by the provider about the process or processes related to this alert.
-    processes?: NullableOption<Process[]>;
-    /**
-     * Vendor/provider recommended action(s) to take as a result of the alert (for example, isolate machine, enforce2FA,
-     * reimage host).
-     */
-    recommendedActions?: NullableOption<string[]>;
-    // Security-related stateful information generated by the provider about the registry keys related to this alert.
-    registryKeyStates?: NullableOption<RegistryKeyState[]>;
-    // Resources related to current alert. For example, for some alerts this can have the Azure Resource value.
-    securityResources?: NullableOption<SecurityResource[]>;
-    // Alert severity - set by vendor/provider. Possible values are: unknown, informational, low, medium, high. Required.
-    severity?: AlertSeverity;
-    /**
-     * Hyperlinks (URIs) to the source material related to the alert, for example, provider's user interface for alerts or log
-     * search, etc.
-     */
-    sourceMaterials?: NullableOption<string[]>;
-    /**
-     * Alert lifecycle status (stage). Possible values are: unknown, newAlert, inProgress, resolved. (supports update).
-     * Required.
-     */
-    status?: AlertStatus;
-    /**
-     * User-definable labels that can be applied to an alert and can serve as filter conditions (for example 'HVA', 'SAW',
-     * etc.) (supports update).
-     */
-    tags?: NullableOption<string[]>;
-    // Alert title. Required.
-    title?: NullableOption<string>;
-    /**
-     * Security-related information about the specific properties that triggered the alert (properties appearing in the
-     * alert). Alerts might contain information about multiple users, hosts, files, ip addresses. This field indicates which
-     * properties triggered the alert generation.
-     */
-    triggers?: NullableOption<AlertTrigger[]>;
-    uriClickSecurityStates?: NullableOption<UriClickSecurityState[]>;
-    // Security-related stateful information generated by the provider about the user accounts related to this alert.
-    userStates?: NullableOption<UserSecurityState[]>;
-    /**
-     * Complex type containing details about the security product/service vendor, provider, and subprovider (for example,
-     * vendor=Microsoft; provider=Windows Defender ATP; subProvider=AppLocker). Required.
-     */
-    vendorInformation?: NullableOption<SecurityVendorInformation>;
-    // Threat intelligence pertaining to one or more vulnerabilities related to this alert.
-    vulnerabilityStates?: NullableOption<VulnerabilityState[]>;
-}
-export interface CloudAppSecurityProfile extends Entity {
-    azureSubscriptionId?: NullableOption<string>;
-    azureTenantId?: NullableOption<string>;
-    createdDateTime?: NullableOption<string>;
-    deploymentPackageUrl?: NullableOption<string>;
-    destinationServiceName?: NullableOption<string>;
-    isSigned?: NullableOption<boolean>;
-    lastModifiedDateTime?: NullableOption<string>;
-    manifest?: NullableOption<string>;
-    name?: NullableOption<string>;
-    permissionsRequired?: NullableOption<ApplicationPermissionsRequired>;
-    platform?: NullableOption<string>;
-    policyName?: NullableOption<string>;
-    publisher?: NullableOption<string>;
-    riskScore?: NullableOption<string>;
-    tags?: NullableOption<string[]>;
-    type?: NullableOption<string>;
-    vendorInformation?: NullableOption<SecurityVendorInformation>;
-}
-export interface DomainSecurityProfile extends Entity {
-    activityGroupNames?: NullableOption<string[]>;
-    azureSubscriptionId?: NullableOption<string>;
-    azureTenantId?: string;
-    countHits?: NullableOption<number>;
-    countInOrg?: NullableOption<number>;
-    domainCategories?: NullableOption<ReputationCategory[]>;
-    domainRegisteredDateTime?: NullableOption<string>;
-    firstSeenDateTime?: NullableOption<string>;
-    lastSeenDateTime?: NullableOption<string>;
-    name?: NullableOption<string>;
-    registrant?: NullableOption<DomainRegistrant>;
-    riskScore?: NullableOption<string>;
-    tags?: NullableOption<string[]>;
-    vendorInformation?: NullableOption<SecurityVendorInformation>;
-}
-export interface FileSecurityProfile extends Entity {
-    activityGroupNames?: NullableOption<string[]>;
-    azureSubscriptionId?: NullableOption<string>;
-    azureTenantId?: string;
-    certificateThumbprint?: NullableOption<string>;
-    extensions?: NullableOption<string[]>;
-    fileType?: NullableOption<string>;
-    firstSeenDateTime?: NullableOption<string>;
-    hashes?: NullableOption<FileHash[]>;
-    lastSeenDateTime?: NullableOption<string>;
-    malwareStates?: NullableOption<MalwareState[]>;
-    names?: NullableOption<string[]>;
-    riskScore?: NullableOption<string>;
-    size?: NullableOption<number>;
-    tags?: NullableOption<string[]>;
-    vendorInformation?: NullableOption<SecurityVendorInformation>;
-    vulnerabilityStates?: NullableOption<VulnerabilityState[]>;
-}
-export interface HostSecurityProfile extends Entity {
-    azureSubscriptionId?: NullableOption<string>;
-    azureTenantId?: string;
-    firstSeenDateTime?: NullableOption<string>;
-    fqdn?: NullableOption<string>;
-    isAzureAdJoined?: NullableOption<boolean>;
-    isAzureAdRegistered?: NullableOption<boolean>;
-    isHybridAzureDomainJoined?: NullableOption<boolean>;
-    lastSeenDateTime?: NullableOption<string>;
-    logonUsers?: NullableOption<LogonUser[]>;
-    netBiosName?: NullableOption<string>;
-    networkInterfaces?: NullableOption<NetworkInterface[]>;
-    os?: NullableOption<string>;
-    osVersion?: NullableOption<string>;
-    parentHost?: NullableOption<string>;
-    relatedHostIds?: NullableOption<string[]>;
-    riskScore?: NullableOption<string>;
-    tags?: NullableOption<string[]>;
-    vendorInformation?: NullableOption<SecurityVendorInformation>;
-}
-// tslint:disable-next-line: interface-name
-export interface IpSecurityProfile extends Entity {
-    activityGroupNames?: NullableOption<string[]>;
-    address?: NullableOption<string>;
-    azureSubscriptionId?: NullableOption<string>;
-    azureTenantId?: string;
-    countHits?: NullableOption<number>;
-    countHosts?: NullableOption<number>;
-    firstSeenDateTime?: NullableOption<string>;
-    ipCategories?: NullableOption<IpCategory[]>;
-    ipReferenceData?: NullableOption<IpReferenceData[]>;
-    lastSeenDateTime?: NullableOption<string>;
-    riskScore?: NullableOption<string>;
-    tags?: NullableOption<string[]>;
-    vendorInformation?: NullableOption<SecurityVendorInformation>;
-}
-export interface ProviderTenantSetting extends Entity {
-    azureTenantId?: string;
-    enabled?: NullableOption<boolean>;
-    lastModifiedDateTime?: NullableOption<string>;
-    provider?: NullableOption<string>;
-    vendor?: NullableOption<string>;
-}
-export interface SecureScoreControlProfile extends Entity {
-    // Control action type (Config, Review, Behavior).
-    actionType?: NullableOption<string>;
-    // URL to where the control can be actioned.
-    actionUrl?: NullableOption<string>;
-    // GUID string for tenant ID.
-    azureTenantId?: string;
-    // The collection of compliance information associated with secure score control
-    complianceInformation?: NullableOption<ComplianceInformation[]>;
-    // Control action category (Identity, Data, Device, Apps, Infrastructure).
-    controlCategory?: NullableOption<string>;
-    // Flag to indicate where the tenant has marked a control (ignore, thirdParty, reviewed) (supports update).
-    controlStateUpdates?: NullableOption<SecureScoreControlStateUpdate[]>;
-    // Flag to indicate if a control is depreciated.
-    deprecated?: NullableOption<boolean>;
-    // Resource cost of implemmentating control (low, moderate, high).
-    implementationCost?: NullableOption<string>;
-    // Time at which the control profile entity was last modified. The Timestamp type represents date and time
-    lastModifiedDateTime?: NullableOption<string>;
-    // max attainable score for the control.
-    maxScore?: NullableOption<number>;
-    // Microsoft's stack ranking of control.
-    rank?: NullableOption<number>;
-    // Description of what the control will help remediate.
-    remediation?: NullableOption<string>;
-    // Description of the impact on users of the remediation.
-    remediationImpact?: NullableOption<string>;
-    // Service that owns the control (Exchange, Sharepoint, Azure AD).
-    service?: NullableOption<string>;
-    // List of threats the control mitigates (accountBreach,dataDeletion,dataExfiltration,dataSpillage,
-    threats?: NullableOption<string[]>;
-    // Control tier (Core, Defense in Depth, Advanced.)
-    tier?: NullableOption<string>;
-    // Title of the control.
-    title?: NullableOption<string>;
-    // User impact of implementing control (low, moderate, high).
-    userImpact?: NullableOption<string>;
-    vendorInformation?: NullableOption<SecurityVendorInformation>;
-}
-export interface SecureScore extends Entity {
-    // Active user count of the given tenant.
-    activeUserCount?: NullableOption<number>;
-    /**
-     * Average score by different scopes (for example, average by industry, average by seating) and control category
-     * (Identity, Data, Device, Apps, Infrastructure) within the scope.
-     */
-    averageComparativeScores?: NullableOption<AverageComparativeScore[]>;
-    // GUID string for tenant ID.
-    azureTenantId?: string;
-    // Contains tenant scores for a set of controls.
-    controlScores?: NullableOption<ControlScore[]>;
-    // The date when the entity is created.
-    createdDateTime?: NullableOption<string>;
-    // Tenant current attained score on specified date.
-    currentScore?: NullableOption<number>;
-    // Microsoft-provided services for the tenant (for example, Exchange online, Skype, Sharepoint).
-    enabledServices?: NullableOption<string[]>;
-    // Licensed user count of the given tenant.
-    licensedUserCount?: NullableOption<number>;
-    // Tenant maximum possible score on specified date.
-    maxScore?: NullableOption<number>;
-    /**
-     * Complex type containing details about the security product/service vendor, provider, and subprovider (for example,
-     * vendor=Microsoft; provider=SecureScore). Required.
-     */
-    vendorInformation?: NullableOption<SecurityVendorInformation>;
-}
-export interface SecurityAction extends Entity {
-    // Reason for invoking this action.
-    actionReason?: NullableOption<string>;
-    /**
-     * The Application ID of the calling application that submitted (POST) the action. The appId should be extracted from the
-     * auth token and not entered manually by the calling application.
-     */
-    appId?: NullableOption<string>;
-    /**
-     * Azure tenant ID of the entity to determine which tenant the entity belongs to (multi-tenancy support). The
-     * azureTenantId should be extracted from the auth token and not entered manually by the calling application.
-     */
-    azureTenantId?: NullableOption<string>;
-    clientContext?: NullableOption<string>;
-    /**
-     * Timestamp when the action was completed. The Timestamp type represents date and time information using ISO 8601 format
-     * and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
-     */
-    completedDateTime?: NullableOption<string>;
-    /**
-     * Timestamp when the action is created. The Timestamp type represents date and time information using ISO 8601 format and
-     * is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
-     */
-    createdDateTime?: NullableOption<string>;
-    // Error info when the action fails.
-    errorInfo?: NullableOption<ResultInfo>;
-    /**
-     * Timestamp when this action was last updated. The Timestamp type represents date and time information using ISO 8601
-     * format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
-     */
-    lastActionDateTime?: NullableOption<string>;
-    // Action name.
-    name?: NullableOption<string>;
-    /**
-     * Collection of parameters (key-value pairs) necessary to invoke the action, for example, URL or fileHash to block.).
-     * Required.
-     */
-    parameters?: NullableOption<KeyValuePair[]>;
-    // Collection of securityActionState to keep the history of an action.
-    states?: NullableOption<SecurityActionState[]>;
-    // Status of the action. Possible values are: NotStarted, Running, Completed, Failed.
-    status?: NullableOption<OperationStatus>;
-    /**
-     * The user principal name of the signed-in user that submitted (POST) the action. The user should be extracted from the
-     * auth token and not entered manually by the calling application.
-     */
-    user?: NullableOption<string>;
-    /**
-     * Complex Type containing details about the Security product/service vendor, provider, and sub-provider (for example,
-     * vendor=Microsoft; provider=Windows Defender ATP; sub-provider=AppLocker).
-     */
-    vendorInformation?: NullableOption<SecurityVendorInformation>;
-}
-export interface TiIndicator extends Entity {
-    /**
-     * The action to apply if the indicator is matched from within the targetProduct security tool. Possible values are:
-     * unknown, allow, block, alert. Required.
-     */
-    action?: NullableOption<TiAction>;
-    /**
-     * The cyber threat intelligence name(s) for the parties responsible for the malicious activity covered by the threat
-     * indicator.
-     */
-    activityGroupNames?: NullableOption<string[]>;
-    /**
-     * A catchall area into which extra data from the indicator not covered by the other tiIndicator properties may be placed.
-     * Data placed into additionalInformation will typically not be utilized by the targetProduct security tool.
-     */
-    additionalInformation?: NullableOption<string>;
-    /**
-     * Stamped by the system when the indicator is ingested. The Azure Active Directory tenant id of submitting client.
-     * Required.
-     */
-    azureTenantId?: NullableOption<string>;
-    /**
-     * An integer representing the confidence the data within the indicator accurately identifies malicious behavior.
-     * Acceptable values are 0 – 100 with 100 being the highest.
-     */
-    confidence?: NullableOption<number>;
-    // Brief description (100 characters or less) of the threat represented by the indicator. Required.
-    description?: NullableOption<string>;
-    /**
-     * The area of the Diamond Model in which this indicator exists. Possible values are: unknown, adversary, capability,
-     * infrastructure, victim.
-     */
-    diamondModel?: NullableOption<DiamondModel>;
-    domainName?: NullableOption<string>;
-    emailEncoding?: NullableOption<string>;
-    emailLanguage?: NullableOption<string>;
-    emailRecipient?: NullableOption<string>;
-    emailSenderAddress?: NullableOption<string>;
-    emailSenderName?: NullableOption<string>;
-    emailSourceDomain?: NullableOption<string>;
-    emailSourceIpAddress?: NullableOption<string>;
-    emailSubject?: NullableOption<string>;
-    emailXMailer?: NullableOption<string>;
-    /**
-     * DateTime string indicating when the Indicator expires. All indicators must have an expiration date to avoid stale
-     * indicators persisting in the system. The Timestamp type represents date and time information using ISO 8601 format and
-     * is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z. Required.
-     */
-    expirationDateTime?: NullableOption<string>;
-    // An identification number that ties the indicator back to the indicator provider’s system (e.g. a foreign key).
-    externalId?: NullableOption<string>;
-    fileCompileDateTime?: NullableOption<string>;
-    fileCreatedDateTime?: NullableOption<string>;
-    fileHashType?: NullableOption<FileHashType>;
-    fileHashValue?: NullableOption<string>;
-    fileMutexName?: NullableOption<string>;
-    fileName?: NullableOption<string>;
-    filePacker?: NullableOption<string>;
-    filePath?: NullableOption<string>;
-    fileSize?: NullableOption<number>;
-    fileType?: NullableOption<string>;
-    /**
-     * Stamped by the system when the indicator is ingested. The Timestamp type represents date and time information using ISO
-     * 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z
-     */
-    ingestedDateTime?: NullableOption<string>;
-    /**
-     * Used to deactivate indicators within system. By default, any indicator submitted is set as active. However, providers
-     * may submit existing indicators with this set to ‘False’ to deactivate indicators in the system.
-     */
-    isActive?: NullableOption<boolean>;
-    /**
-     * A JSON array of strings that describes which point or points on the Kill Chain this indicator targets. See ‘killChain
-     * values’ below for exact values.
-     */
-    killChain?: NullableOption<string[]>;
-    // Scenarios in which the indicator may cause false positives. This should be human-readable text.
-    knownFalsePositives?: NullableOption<string>;
-    /**
-     * The last time the indicator was seen. The Timestamp type represents date and time information using ISO 8601 format and
-     * is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z
-     */
-    lastReportedDateTime?: NullableOption<string>;
-    /**
-     * The malware family name associated with an indicator if it exists. Microsoft prefers the Microsoft malware family name
-     * if at all possible which can be found via the Windows Defender Security Intelligence threat encyclopedia.
-     */
-    malwareFamilyNames?: NullableOption<string[]>;
-    networkCidrBlock?: NullableOption<string>;
-    networkDestinationAsn?: NullableOption<number>;
-    networkDestinationCidrBlock?: NullableOption<string>;
-    networkDestinationIPv4?: NullableOption<string>;
-    networkDestinationIPv6?: NullableOption<string>;
-    networkDestinationPort?: NullableOption<number>;
-    networkIPv4?: NullableOption<string>;
-    networkIPv6?: NullableOption<string>;
-    networkPort?: NullableOption<number>;
-    networkProtocol?: NullableOption<number>;
-    networkSourceAsn?: NullableOption<number>;
-    networkSourceCidrBlock?: NullableOption<string>;
-    networkSourceIPv4?: NullableOption<string>;
-    networkSourceIPv6?: NullableOption<string>;
-    networkSourcePort?: NullableOption<number>;
-    /**
-     * Determines if the indicator should trigger an event that is visible to an end-user. When set to ‘true,’ security tools
-     * will not notify the end user that a ‘hit’ has occurred. This is most often treated as audit or silent mode by security
-     * products where they will simply log that a match occurred but will not perform the action. Default value is false.
-     */
-    passiveOnly?: NullableOption<boolean>;
-    /**
-     * An integer representing the severity of the malicious behavior identified by the data within the indicator. Acceptable
-     * values are 0 – 5 where 5 is the most severe and zero is not severe at all. Default value is 3.
-     */
-    severity?: NullableOption<number>;
-    // A JSON array of strings that stores arbitrary tags/keywords.
-    tags?: NullableOption<string[]>;
-    /**
-     * A string value representing a single security product to which the indicator should be applied. Acceptable values are:
-     * Azure Sentinel, Microsoft Defender ATP. Required
-     */
-    targetProduct?: string;
-    /**
-     * Each indicator must have a valid Indicator Threat Type. Possible values are: Botnet, C2, CryptoMining, Darknet, DDoS,
-     * MaliciousUrl, Malware, Phishing, Proxy, PUA, WatchList. Required.
-     */
-    threatType?: NullableOption<string>;
-    // Traffic Light Protocol value for the indicator. Possible values are: unknown, white, green, amber, red. Required.
-    tlpLevel?: NullableOption<TlpLevel>;
-    url?: NullableOption<string>;
-    userAgent?: NullableOption<string>;
-}
-export interface UserSecurityProfile extends Entity {
-    accounts?: NullableOption<UserAccount[]>;
-    azureSubscriptionId?: NullableOption<string>;
-    azureTenantId?: string;
-    createdDateTime?: NullableOption<string>;
-    displayName?: NullableOption<string>;
-    lastModifiedDateTime?: NullableOption<string>;
-    riskScore?: NullableOption<string>;
-    tags?: NullableOption<string[]>;
-    userPrincipalName?: NullableOption<string>;
-    vendorInformation?: NullableOption<SecurityVendorInformation>;
-}
 export interface ServiceHealth extends Entity {
     /**
      * The service name. Use the list healthOverviews operation to get exact string names for services subscribed by the
@@ -30342,8 +30456,14 @@ export interface ServiceAnnouncementAttachment extends Entity {
     size?: number;
 }
 export interface SearchEntity extends Entity {
+    // Administrative answer in Microsoft Search results to define common acronyms in a organization.
     acronyms?: NullableOption<Search.Acronym[]>;
+    // Administrative answer in Microsoft Search results for common search queries in an organization.
     bookmarks?: NullableOption<Search.Bookmark[]>;
+    /**
+     * Administrative answer in Microsoft Search results which provide answers for specific search keywords in an
+     * organization.
+     */
     qnas?: NullableOption<Search.Qna[]>;
 }
 export interface Account extends Entity {
@@ -31403,7 +31523,7 @@ export interface PlannerRosterMember extends Entity {
 export interface PlannerTaskDetails extends PlannerDelta {
     // The collection of checklist items on the task.
     checklist?: NullableOption<PlannerChecklistItems>;
-    // Description of the task
+    // Description of the task.
     description?: NullableOption<string>;
     /**
      * This sets the type of preview that shows up on the task. The possible values are: automatic, noPreview, checklist,
@@ -31592,6 +31712,31 @@ export interface OnenoteResource extends OnenoteEntityBaseModel {
     content?: NullableOption<any>;
     // The URL for downloading the content
     contentUrl?: NullableOption<string>;
+}
+export interface DelegatedAdminAccessAssignment extends Entity {
+    accessContainer?: DelegatedAdminAccessContainer;
+    accessDetails?: DelegatedAdminAccessDetails;
+    createdDateTime?: NullableOption<string>;
+    lastModifiedDateTime?: NullableOption<string>;
+    status?: NullableOption<DelegatedAdminAccessAssignmentStatus>;
+}
+export interface DelegatedAdminServiceManagementDetail extends Entity {
+    serviceId?: string;
+    serviceManagementUrl?: string;
+    serviceName?: string;
+}
+export interface DelegatedAdminRelationshipOperation extends Entity {
+    createdDateTime?: string;
+    data?: string;
+    lastModifiedDateTime?: string;
+    operationType?: DelegatedAdminRelationshipOperationType;
+    status?: DelegatedAdminRelationshipOperationStatus;
+}
+export interface DelegatedAdminRelationshipRequest extends Entity {
+    action?: DelegatedAdminRelationshipRequestAction;
+    createdDateTime?: NullableOption<string>;
+    lastModifiedDateTime?: NullableOption<string>;
+    status?: NullableOption<DelegatedAdminRelationshipRequestStatus>;
 }
 // tslint:disable-next-line: interface-name
 export interface ItemFacet extends Entity {
@@ -32937,7 +33082,12 @@ export interface WindowsHelloForBusinessAuthenticationMethod extends Authenticat
     displayName?: NullableOption<string>;
     // Key strength of this Windows Hello for Business key. Possible values are: normal, weak, unknown.
     keyStrength?: NullableOption<AuthenticationMethodKeyStrength>;
-    // The registered device on which this Windows Hello for Business key resides.
+    /**
+     * The registered device on which this Windows Hello for Business key resides. Supports $expand. When you get a user's
+     * Windows Hello for Business registration information, this property is returned only on a single GET and when you
+     * specify ?$expand. For example, GET
+     * /users/admin@contoso.com/authentication/windowsHelloForBusinessMethods/_jpuR-TGZtk6aQCLF3BQjA2?$expand=device.
+     */
     device?: NullableOption<Device>;
 }
 export interface ConnectionOperation extends Entity {
@@ -32971,8 +33121,6 @@ export interface Schema extends Entity {
     properties?: NullableOption<Property[]>;
 }
 export interface BaseTask extends Entity {
-    // The task body that typically contains information about the task.
-    body?: NullableOption<ItemBody>;
     /**
      * The date and time when the task was last modified. By default, it is in UTC. You can provide a custom time zone in the
      * request header. The property value uses ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1,
@@ -32999,14 +33147,14 @@ export interface BaseTask extends Entity {
      * 2020 would look like this: '2020-01-01T00:00:00Z'.
      */
     lastModifiedDateTime?: string;
-    // Properties that are personal to a user such as reminderDateTime.
-    personalProperties?: PersonalTaskProperties;
     // The recurrence pattern for the task.
     recurrence?: NullableOption<PatternedRecurrence>;
     // The date in the specified time zone when the task is to begin.
     startDateTime?: NullableOption<DateTimeTimeZone>;
     // Indicates the state or progress of the task. Possible values are: notStarted, inProgress, completed,unknownFutureValue.
     status?: TaskStatus_v2;
+    textBody?: NullableOption<string>;
+    viewpoint?: TaskViewpoint;
     // A collection of checklistItems linked to a task.
     checklistItems?: NullableOption<ChecklistItem[]>;
     // The collection of open extensions defined for the task .
@@ -34628,6 +34776,15 @@ export interface WebApplication {
     // Specifies the index of the URLs where user tokens are sent for sign-in. This is only valid for applications using SAML.
     redirectUriSettings?: RedirectUriSettings[];
 }
+export interface WindowsApplication {
+    // The package security identifier that Microsoft has assigned the application. Optional. Read-only.
+    packageSid?: NullableOption<string>;
+    /**
+     * Specifies the URLs where user tokens are sent for sign-in or the redirect URIs where OAuth 2.0 authorization codes and
+     * access tokens are sent. Only available for applications that support the PersonalMicrosoftAccount signInAudience.
+     */
+    redirectUris?: string[];
+}
 export interface OnPremisesPublishing {
     /**
      * If you are configuring a traffic manager in front of multiple App Proxy applications, the alternateUrl is the
@@ -35059,9 +35216,13 @@ export interface CloudPcAuditResource {
     type?: string;
 }
 export interface CloudPcBulkRemoteActionResult {
+    // A list of all the Intune managed device IDs that completed the bulk action with a failure.
     failedDeviceIds?: NullableOption<string[]>;
+    // A list of all the Intune managed device IDs that were not found when the bulk action was attempted.
     notFoundDeviceIds?: NullableOption<string[]>;
+    // A list of all the Intune managed device IDs that were identified as unsupported for the bulk action.
     notSupportedDeviceIds?: NullableOption<string[]>;
+    // A list of all the Intune managed device IDs that completed the bulk action successfully.
     successfulDeviceIds?: NullableOption<string[]>;
 }
 export interface CloudPcDomainJoinConfiguration {
@@ -35133,8 +35294,8 @@ export interface CloudPcOnPremisesConnectionStatusDetails {
 }
 export interface CloudPcRemoteActionResult {
     /**
-     * The specified action. Supported values in the Microsoft Endpoint Manager portal are: Reprovision, Resize. Supported
-     * values in enterprise Cloud PC devices are: Rename, Reboot, Reprovision, Troubleshoot.
+     * The specified action. Supported values in the Microsoft Endpoint Manager portal are: Reprovision, Resize, Restore.
+     * Supported values in enterprise Cloud PC devices are: Reboot, Rename, Reprovision, Troubleshoot.
      */
     actionName?: NullableOption<string>;
     // State of the action. Possible values are: None, pending, canceled, active, done, failed, notSupported. Read-only.
@@ -35165,7 +35326,15 @@ export interface CloudPcStatusDetails {
     message?: NullableOption<string>;
 }
 export interface CloudPcRestorePointSetting {
+    /**
+     * The time interval in hours to take snapshots (restore points) of a Cloud PC automatically. Possible values are 4, 6,
+     * 12, 16, and 24. The default frequency is 12 hours.
+     */
     frequencyInHours?: NullableOption<number>;
+    /**
+     * If true, the user has the ability to use snapshots to restore Cloud PCs. If false, non-admin users cannot use snapshots
+     * to restore the Cloud PC.
+     */
     userRestoreEnabled?: NullableOption<boolean>;
 }
 export interface CloudPcSourceDeviceImage {
@@ -35808,6 +35977,10 @@ export interface AuthenticationSourceFilter {
 // tslint:disable-next-line: no-empty-interface
 export interface CustomExtensionAuthenticationConfiguration {}
 export interface AzureAdTokenAuthentication extends CustomExtensionAuthenticationConfiguration {
+    /**
+     * The appID of the Azure AD application to use to authenticate a logic app with a custom access package workflow
+     * extension.
+     */
     resourceId?: NullableOption<string>;
 }
 export interface BasicAuthentication extends ApiAuthenticationConfigurationBase {
@@ -35853,6 +36026,10 @@ export interface Pkcs12CertificateInformation {
     thumbprint?: NullableOption<string>;
 }
 export interface CustomExtensionClientConfiguration {
+    /**
+     * The max duration in milliseconds that Azure AD will wait for a response from the logic app before it shuts down the
+     * connection. The valid range is between 200 and 2000 milliseconds. Default duration is 1000.
+     */
     timeoutInMilliseconds?: number;
 }
 // tslint:disable-next-line: no-empty-interface
@@ -36054,6 +36231,8 @@ export interface DlpEvaluationWindowsDevicesInput extends DlpEvaluationInput {
     sharedBy?: NullableOption<string>;
 }
 export interface DlpPoliciesJobResult {
+    auditCorrelationId?: NullableOption<string>;
+    evaluationDateTime?: NullableOption<string>;
     matchingRules?: NullableOption<MatchingDlpRule[]>;
 }
 export interface MatchingDlpRule {
@@ -39526,9 +39705,20 @@ export interface ConnectionInfo {
     url?: NullableOption<string>;
 }
 export interface CustomExtensionHandlerInstance {
+    // Identifier of the customAccessPackageWorkflowExtension triggered at this instance.
     customExtensionId?: NullableOption<string>;
+    // The unique run ID for the logic app.
     externalCorrelationId?: NullableOption<string>;
+    /**
+     * Indicates the stage of the request workflow when the access package custom extension runs. The possible values are:
+     * assignmentRequestCreated, assignmentRequestApproved, assignmentRequestGranted, assignmentRequestRemoved,
+     * assignmentFourteenDaysBeforeExpiration, assignmentOneDayBeforeExpiration, unknownFutureValue.
+     */
     stage?: NullableOption<AccessPackageCustomExtensionStage>;
+    /**
+     * Status of the request to run the access package custom extension workflow that is associated with the logic app. The
+     * possible values are: requestSent, requestReceived, unknownFutureValue.
+     */
     status?: NullableOption<AccessPackageCustomExtensionHandlerStatus>;
 }
 export interface ExpirationPattern {
@@ -39560,8 +39750,11 @@ export interface GroupMembers extends UserSet {
 // tslint:disable-next-line: interface-name no-empty-interface
 export interface InternalSponsors extends UserSet {}
 export interface LogicAppTriggerEndpointConfiguration extends CustomExtensionEndpointConfiguration {
+    // The name of the logic app.
     logicAppWorkflowName?: NullableOption<string>;
+    // The Azure resource group name for the logic app.
     resourceGroupName?: NullableOption<string>;
+    // Identifier of the Azure subscription for the logic app.
     subscriptionId?: NullableOption<string>;
 }
 export interface RequestorManager extends UserSet {
@@ -39809,6 +40002,13 @@ export interface SigningResult {
 }
 export interface VerificationResult {
     signatureValid?: boolean;
+}
+export interface SecurityProviderStatus {
+    enabled?: NullableOption<boolean>;
+    endpoint?: NullableOption<string>;
+    provider?: NullableOption<string>;
+    region?: NullableOption<string>;
+    vendor?: NullableOption<string>;
 }
 export interface AndroidEnrollmentCompanyCode {
     // Enrollment Token used by the User to enroll their device.
@@ -44067,13 +44267,6 @@ export interface TimeSeriesParameter {
     // Start time of the series being requested.
     startDateTime?: string;
 }
-export interface SecurityProviderStatus {
-    enabled?: NullableOption<boolean>;
-    endpoint?: NullableOption<string>;
-    provider?: NullableOption<string>;
-    region?: NullableOption<string>;
-    vendor?: NullableOption<string>;
-}
 export interface ServiceHealthIssuePost {
     // The published time of the post.
     createdDateTime?: string;
@@ -44749,6 +44942,23 @@ export interface SectionLinks {
     oneNoteClientUrl?: NullableOption<ExternalLink>;
     // Opens the section in OneNote on the web.
     oneNoteWebUrl?: NullableOption<ExternalLink>;
+}
+export interface DelegatedAdminAccessContainer {
+    accessContainerId?: string;
+    accessContainerType?: DelegatedAdminAccessContainerType;
+}
+export interface DelegatedAdminAccessDetails {
+    unifiedRoles?: UnifiedRole[];
+}
+export interface UnifiedRole {
+    roleDefinitionId?: string;
+}
+export interface DelegatedAdminRelationshipCustomerParticipant {
+    displayName?: NullableOption<string>;
+    tenantId?: string;
+}
+export interface DelegatedAdminRelationshipParticipant {
+    tenantId?: string;
 }
 export interface CompanyDetail {
     // Address of the company.
@@ -46482,9 +46692,9 @@ export interface Property {
     name?: string;
     type?: PropertyType;
 }
-export interface PersonalTaskProperties {
-    // The date and time for a reminder alert of the task to occur.
-    reminderDatetime?: NullableOption<DateTimeTimeZone>;
+export interface TaskViewpoint {
+    categories?: NullableOption<string[]>;
+    reminderDateTime?: NullableOption<DateTimeTimeZone>;
 }
 export interface ActionResultPart {
     // The error that occurred, if any, during the course of the bulk operation.
@@ -47327,7 +47537,8 @@ export namespace Ediscovery {
         | "estimateStatistics"
         | "addToReviewSet"
         | "holdUpdate"
-        | "unknownFutureValue";
+        | "unknownFutureValue"
+        | "purgeData";
     type CaseOperationStatus = "notStarted" | "submissionFailed" | "running" | "succeeded" | "partiallySucceeded" | "failed";
     type CaseStatus = "unknown" | "active" | "pendingDelete" | "closing" | "closed" | "closedWithError";
     type ChildSelectability = "One" | "Many";
@@ -47635,6 +47846,8 @@ export namespace Ediscovery {
         // eDiscovery collection, commonly known as a search.
         sourceCollection?: NullableOption<SourceCollection>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface PurgeDataOperation extends CaseOperation {}
     interface ReviewSetQuery extends microsoftgraphbeta.Entity {
         // The user who created the query.
         createdBy?: NullableOption<microsoftgraphbeta.IdentitySet>;
@@ -48371,122 +48584,149 @@ export namespace CallRecords {
     }
 }
 export namespace SecurityNamespace {
-    type AlertClassification =
-        | "unknown"
-        | "falsePositive"
-        | "truePositive"
-        | "informationalExpectedActivity"
-        | "unknownFutureValue";
-    type AlertDetermination =
-        | "unknown"
-        | "apt"
-        | "malware"
-        | "securityPersonnel"
-        | "securityTesting"
-        | "unwantedSoftware"
-        | "other"
-        | "multiStagedAttack"
-        | "compromisedAccount"
-        | "phishing"
-        | "maliciousUserActivity"
-        | "notMalicious"
-        | "notEnoughDataToValidate"
-        | "confirmedActivity"
-        | "lineOfBusinessApplication"
-        | "unknownFutureValue";
-    type AlertSeverity = "unknown" | "informational" | "low" | "medium" | "high" | "unknownFutureValue";
-    type AlertStatus = "unknown" | "new" | "inProgress" | "resolved" | "unknownFutureValue";
-    type DetectionSource =
-        | "unknown"
-        | "microsoftDefenderForEndpoint"
-        | "antivirus"
-        | "smartScreen"
-        | "customTi"
-        | "microsoftDefenderForOffice365"
-        | "automatedInvestigation"
-        | "microsoftThreatExperts"
-        | "customDetection"
-        | "microsoftDefenderForIdentity"
-        | "cloudAppSecurity"
-        | "microsoft365Defender"
-        | "aadIdentityProtection"
-        | "manual"
-        | "microsoftDataLossPrevention"
-        | "appGovernancePolicy"
-        | "appGovernanceDetection"
-        | "unknownFutureValue";
-    type IncidentStatus = "active" | "resolved" | "redirected" | "unknownFutureValue";
-    type ServiceSource =
-        | "unknown"
-        | "microsoftDefenderForEndpoint"
-        | "microsoftDefenderForIdentity"
-        | "microsoftDefenderForCloudApps"
-        | "microsoftDefenderForOffice365"
-        | "microsoft365Defender"
-        | "aadIdentityProtection"
-        | "microsoftAppGovernance"
-        | "dataLossPrevention"
-        | "unknownFutureValue";
-    interface Alert extends microsoftgraphbeta.Entity {
-        actorDisplayName?: NullableOption<string>;
-        alertWebUrl?: NullableOption<string>;
-        assignedTo?: NullableOption<string>;
-        category?: NullableOption<string>;
-        classification?: NullableOption<AlertClassification>;
-        comments?: NullableOption<AlertComment[]>;
-        createdDateTime?: NullableOption<string>;
-        description?: NullableOption<string>;
-        detectionSource?: NullableOption<DetectionSource>;
-        detectorId?: NullableOption<string>;
-        determination?: NullableOption<AlertDetermination>;
-        firstActivityDateTime?: NullableOption<string>;
-        incidentId?: NullableOption<string>;
-        incidentWebUrl?: NullableOption<string>;
-        lastActivityDateTime?: NullableOption<string>;
-        lastUpdateDateTime?: NullableOption<string>;
-        mitreTechniques?: NullableOption<string[]>;
-        providerAlertId?: NullableOption<string>;
-        recommendedActions?: NullableOption<string>;
-        resolvedDateTime?: NullableOption<string>;
-        serviceSource?: ServiceSource;
-        severity?: AlertSeverity;
-        status?: AlertStatus;
-        tenantId?: NullableOption<string>;
-        threatDisplayName?: NullableOption<string>;
-        threatFamilyName?: NullableOption<string>;
-        title?: NullableOption<string>;
+    type ActionSource = "manual" | "automatic" | "recommended" | "default";
+    type AssignmentMethod = "standard" | "privileged" | "auto";
+    type ContentAlignment = "left" | "right" | "center";
+    type ContentState = "rest" | "motion" | "use";
+    type WatermarkLayout = "horizontal" | "diagonal";
+    interface Security extends microsoftgraphbeta.Entity {
+        informationProtection?: NullableOption<InformationProtection>;
     }
 // tslint:disable-next-line: interface-name
-    interface Incident extends microsoftgraphbeta.Entity {
-        assignedTo?: NullableOption<string>;
-        classification?: NullableOption<AlertClassification>;
-        comments?: NullableOption<AlertComment[]>;
-        createdDateTime?: string;
-        determination?: NullableOption<AlertDetermination>;
-        displayName?: NullableOption<string>;
-        incidentWebUrl?: NullableOption<string>;
-        lastUpdateDateTime?: string;
-        redirectIncidentId?: NullableOption<string>;
-        severity?: AlertSeverity;
-        status?: IncidentStatus;
-        tags?: NullableOption<string[]>;
-        tenantId?: NullableOption<string>;
-        alerts?: NullableOption<Alert[]>;
+    interface InformationProtection extends microsoftgraphbeta.Entity {
+        labelPolicySettings?: NullableOption<InformationProtectionPolicySetting>;
+        sensitivityLabels?: NullableOption<SensitivityLabel[]>;
     }
-    interface AlertComment {
-        comment?: NullableOption<string>;
-        createdByDisplayName?: NullableOption<string>;
-        createdDateTime?: string;
+// tslint:disable-next-line: interface-name
+    interface InformationProtectionPolicySetting extends microsoftgraphbeta.Entity {
+        defaultLabelId?: NullableOption<string>;
+        isDowngradeJustificationRequired?: boolean;
+        isMandatory?: boolean;
+        moreInfoUrl?: NullableOption<string>;
     }
-    interface HuntingQueryResults {
-        results?: NullableOption<HuntingRowResult[]>;
-        schema?: NullableOption<SinglePropertySchema[]>;
+    interface SensitivityLabel extends microsoftgraphbeta.Entity {
+        color?: NullableOption<string>;
+        contentFormats?: NullableOption<string[]>;
+        description?: NullableOption<string>;
+        hasProtection?: boolean;
+        isActive?: boolean;
+        isAppliable?: boolean;
+        name?: NullableOption<string>;
+        sensitivity?: number;
+        tooltip?: NullableOption<string>;
+        parent?: NullableOption<SensitivityLabel>;
+    }
+// tslint:disable-next-line: interface-name no-empty-interface
+    interface InformationProtectionAction {}
+    interface AddContentFooterAction extends InformationProtectionAction {
+        alignment?: ContentAlignment;
+        fontColor?: NullableOption<string>;
+        fontName?: NullableOption<string>;
+        fontSize?: number;
+        margin?: number;
+        text?: NullableOption<string>;
+        uiElementName?: NullableOption<string>;
+    }
+    interface AddContentHeaderAction extends InformationProtectionAction {
+        alignment?: ContentAlignment;
+        fontColor?: NullableOption<string>;
+        fontName?: NullableOption<string>;
+        fontSize?: number;
+        margin?: number;
+        text?: NullableOption<string>;
+        uiElementName?: NullableOption<string>;
+    }
+    interface AddWatermarkAction extends InformationProtectionAction {
+        fontColor?: NullableOption<string>;
+        fontName?: NullableOption<string>;
+        fontSize?: number;
+        layout?: WatermarkLayout;
+        text?: NullableOption<string>;
+        uiElementName?: NullableOption<string>;
+    }
+    interface ApplyLabelAction extends InformationProtectionAction {
+        actions?: NullableOption<InformationProtectionAction[]>;
+        actionSource?: ActionSource;
+        responsibleSensitiveTypeIds?: string[];
+        sensitivityLabelId?: NullableOption<string>;
+    }
+    interface BufferDecryptionResult {
+        decryptedBuffer?: NullableOption<number>;
+    }
+    interface BufferEncryptionResult {
+        encryptedBuffer?: NullableOption<number>;
+        publishingLicense?: NullableOption<number>;
+    }
+    interface ClassificationResult {
+        confidenceLevel?: number;
+        count?: number;
+        sensitiveTypeId?: string;
+    }
+    interface ContentInfo {
+        contentFormat?: NullableOption<string>;
+        identifier?: NullableOption<string>;
+        metadata?: NullableOption<KeyValuePair[]>;
+        state?: ContentState;
+    }
+    interface KeyValuePair {
+        name?: string;
+        value?: NullableOption<string>;
+    }
+    interface ContentLabel {
+        assignmentMethod?: AssignmentMethod;
+        createdDateTime?: NullableOption<string>;
+        sensitivityLabelId?: NullableOption<string>;
+    }
+    interface CustomAction extends InformationProtectionAction {
+        name?: NullableOption<string>;
+        properties?: NullableOption<KeyValuePair[]>;
+    }
+    interface DowngradeJustification {
+        isDowngradeJustified?: boolean;
+        justificationMessage?: NullableOption<string>;
     }
 // tslint:disable-next-line: no-empty-interface
-    interface HuntingRowResult {}
-    interface SinglePropertySchema {
-        name?: NullableOption<string>;
-        type?: NullableOption<string>;
+    interface JustifyAction extends InformationProtectionAction {}
+    interface LabelingOptions {
+        assignmentMethod?: AssignmentMethod;
+        downgradeJustification?: NullableOption<DowngradeJustification>;
+        extendedProperties?: NullableOption<KeyValuePair[]>;
+        labelId?: string;
+    }
+    interface MetadataAction extends InformationProtectionAction {
+        metadataToAdd?: NullableOption<KeyValuePair[]>;
+        metadataToRemove?: NullableOption<string[]>;
+    }
+// tslint:disable-next-line: no-empty-interface
+    interface ProtectAdhocAction extends InformationProtectionAction {}
+    interface ProtectByTemplateAction extends InformationProtectionAction {
+        templateId?: NullableOption<string>;
+    }
+// tslint:disable-next-line: no-empty-interface
+    interface ProtectDoNotForwardAction extends InformationProtectionAction {}
+    interface RecommendLabelAction extends InformationProtectionAction {
+        actions?: NullableOption<InformationProtectionAction[]>;
+        actionSource?: ActionSource;
+        responsibleSensitiveTypeIds?: string[];
+        sensitivityLabelId?: NullableOption<string>;
+    }
+    interface RemoveContentFooterAction extends InformationProtectionAction {
+        uiElementNames?: NullableOption<string[]>;
+    }
+    interface RemoveContentHeaderAction extends InformationProtectionAction {
+        uiElementNames?: NullableOption<string[]>;
+    }
+// tslint:disable-next-line: no-empty-interface
+    interface RemoveProtectionAction extends InformationProtectionAction {}
+    interface RemoveWatermarkAction extends InformationProtectionAction {
+        uiElementNames?: NullableOption<string[]>;
+    }
+    interface SigningResult {
+        signature?: NullableOption<number>;
+        signingKeyId?: NullableOption<string>;
+    }
+    interface VerificationResult {
+        signatureValid?: boolean;
     }
 }
 export namespace ManagedTenants {
@@ -48515,15 +48755,11 @@ export namespace ManagedTenants {
         | "unknownFutureValue";
     type ManagementProvider = "microsoft" | "community" | "indirectProvider" | "self" | "unknownFutureValue";
     type ManagementTemplateDeploymentStatus =
-        | "toAddress"
-        | "completed"
-        | "error"
-        | "timeOut"
+        | "unknown"
         | "inProgress"
-        | "planned"
-        | "resolvedBy3rdParty"
-        | "resolvedThroughAlternateMitigation"
-        | "riskAccepted"
+        | "completed"
+        | "failed"
+        | "ineligible"
         | "unknownFutureValue";
     type TenantOnboardingEligibilityReason =
         | "none"
@@ -48864,8 +49100,12 @@ export namespace ManagedTenants {
         managementTemplates?: NullableOption<ManagementTemplateDetailedInfo[]>;
     }
     interface ManagementTemplateCollection extends microsoftgraphbeta.Entity {
+        createdByUserId?: NullableOption<string>;
+        createdDateTime?: NullableOption<string>;
         description?: NullableOption<string>;
         displayName?: NullableOption<string>;
+        lastActionByUserId?: NullableOption<string>;
+        lastActionDateTime?: NullableOption<string>;
         managementTemplates?: NullableOption<ManagementTemplate[]>;
     }
     interface ManagementTemplate extends microsoftgraphbeta.Entity {
@@ -48874,12 +49114,20 @@ export namespace ManagedTenants {
          * unknownFutureValue. Required. Read-only.
          */
         category?: NullableOption<ManagementCategory>;
+        createdByUserId?: NullableOption<string>;
+        createdDateTime?: NullableOption<string>;
         // The description for the management template. Optional. Read-only.
         description?: NullableOption<string>;
         // The display name for the management template. Required. Read-only.
         displayName?: NullableOption<string>;
+        informationLinks?: NullableOption<microsoftgraphbeta.ActionUrl[]>;
+        lastActionByUserId?: NullableOption<string>;
+        lastActionDateTime?: NullableOption<string>;
         // The collection of parameters used by the management template. Optional. Read-only.
         parameters?: NullableOption<TemplateParameter[]>;
+        priority?: number;
+        provider?: ManagementProvider;
+        userImpact?: NullableOption<string>;
         version?: NullableOption<number>;
         // The collection of workload actions associated with the management template. Optional. Read-only.
         workloadActions?: NullableOption<WorkloadAction[]>;
@@ -48888,19 +49136,28 @@ export namespace ManagedTenants {
     }
     interface ManagementTemplateStep extends microsoftgraphbeta.Entity {
         category?: NullableOption<ManagementCategory>;
+        createdByUserId?: NullableOption<string>;
+        createdDateTime?: NullableOption<string>;
         description?: NullableOption<string>;
         displayName?: NullableOption<string>;
-        managementPortal?: NullableOption<string>;
-        portalLink?: NullableOption<string>;
+        lastActionByUserId?: NullableOption<string>;
+        lastActionDateTime?: NullableOption<string>;
+        portalLink?: NullableOption<microsoftgraphbeta.ActionUrl>;
         priority?: NullableOption<number>;
-        provider?: NullableOption<ManagementProvider>;
+        acceptedVersion?: NullableOption<ManagementTemplateStepVersion>;
         managementTemplate?: NullableOption<ManagementTemplate>;
-        stepVersions?: NullableOption<ManagementTemplateStepVersion[]>;
+        versions?: NullableOption<ManagementTemplateStepVersion[]>;
     }
     interface ManagementTemplateStepVersion extends microsoftgraphbeta.Entity {
-        configurationAction?: NullableOption<TemplateAction>;
-        validationAction?: NullableOption<TemplateAction>;
+        contentMarkdown?: NullableOption<string>;
+        createdByUserId?: NullableOption<string>;
+        createdDateTime?: NullableOption<string>;
+        lastActionByUserId?: NullableOption<string>;
+        lastActionDateTime?: NullableOption<string>;
+        name?: NullableOption<string>;
         version?: NullableOption<number>;
+        versionInformation?: NullableOption<string>;
+        acceptedFor?: NullableOption<ManagementTemplateStep>;
         deployments?: NullableOption<ManagementTemplateStepDeployment[]>;
         templateStep?: NullableOption<ManagementTemplateStep>;
     }
@@ -49067,8 +49324,11 @@ export namespace ManagedTenants {
         tenantId?: NullableOption<string>;
     }
     interface ManagementTemplateStepDeployment extends microsoftgraphbeta.Entity {
+        createdByUserId?: NullableOption<string>;
+        createdDateTime?: NullableOption<string>;
         error?: NullableOption<GraphAPIErrorDetails>;
-        settings?: NullableOption<Setting[]>;
+        lastActionByUserId?: NullableOption<string>;
+        lastActionDateTime?: NullableOption<string>;
         status?: ManagementTemplateDeploymentStatus;
         tenantId?: string;
         templateStepVersion?: ManagementTemplateStepVersion;
@@ -49276,50 +49536,106 @@ export namespace ManagedTenants {
 export namespace Search {
     type AnswerState = "published" | "draft" | "excluded" | "unknownFutureValue";
     interface SearchAnswer extends microsoftgraphbeta.Entity {
+        // Search answer description shown on search results page.
         description?: NullableOption<string>;
+        // Search answer name displayed in search results.
         displayName?: string;
+        // Details of the user that created or last modified the search answer. Read-only.
         lastModifiedBy?: NullableOption<IdentitySet>;
+        // Timestamp of when the search answer is created or edited. Read-only.
         lastModifiedDateTime?: NullableOption<string>;
+        // Search answer URL link. When users click this search answer in search results, they will go to this URL.
         webUrl?: NullableOption<string>;
     }
     interface Acronym extends SearchAnswer {
+        // What the acronym stands for.
         standsFor?: NullableOption<string>;
+        // State of the acronym. Possible values are: published, draft, excluded, or unknownFutureValue.
         state?: AnswerState;
     }
     interface Bookmark extends SearchAnswer {
+        // Timestamp of when the bookmark will stop to appear as a search result. Set as null for always available.
         availabilityEndDateTime?: NullableOption<string>;
+        // Timestamp of when the bookmark will start to appear as a search result. Set as null for always available.
         availabilityStartDateTime?: NullableOption<string>;
+        // Categories commonly used to describe this bookmark. For example, IT and HR.
         categories?: NullableOption<string[]>;
+        // List of security groups able to view this bookmark.
         groupIds?: NullableOption<string[]>;
+        // True if this bookmark was suggested to the admin by a user or was mined and suggested by Microsoft. Read-only.
         isSuggested?: NullableOption<boolean>;
+        // Keywords that trigger this bookmark to appear in search results.
         keywords?: NullableOption<AnswerKeyword>;
+        /**
+         * A list of language names that are geographically specific and that this bookmark can be viewed in. Each language tag
+         * value follows the pattern {language}-{REGION}. As an example, en-US is English as used in the United States. See
+         * supported language tags for the list of possible values.
+         */
         languageTags?: NullableOption<string[]>;
+        /**
+         * List of devices and operating systems able to view this bookmark. Possible values are: unknown, android,
+         * androidForWork, ios, macOS, windowsPhone81, windowsPhone81AndLater, windows10AndLater, androidWorkProfile, androidASOP.
+         */
         platforms?: microsoftgraphbeta.DevicePlatformType[];
+        /**
+         * List of Power Apps associated with this bookmark. If users add existing Power Apps to a bookmark, they can complete
+         * tasks, such as to enter vacation time or to report expenses on the search results page.
+         */
         powerAppIds?: NullableOption<string[]>;
+        // State of the bookmark. Possible values are: published, draft, excluded, or unknownFutureValue.
         state?: AnswerState;
+        /**
+         * Variations of a bookmark for different countries or devices. Use when you need to show different content to users based
+         * on their device, country/region, or both. The date and group settings will apply to all variations.
+         */
         targetedVariations?: NullableOption<AnswerVariant[]>;
     }
     interface Qna extends SearchAnswer {
+        // Timestamp of when the qna will stop to appear as a search result. Set as null for always available.
         availabilityEndDateTime?: NullableOption<string>;
+        // Timestamp of when the qna will start to appear as a search result. Set as null for always available.
         availabilityStartDateTime?: NullableOption<string>;
+        // List of security groups able to view this qna.
         groupIds?: NullableOption<string[]>;
+        // True if this qna was suggested to the admin by a user or was mined and suggested by Microsoft. Read-only.
         isSuggested?: NullableOption<boolean>;
+        // Keywords that trigger this qna to appear in search results.
         keywords?: NullableOption<AnswerKeyword>;
+        /**
+         * A list of language names that are geographically specific and that this QnA can be viewed in. Each language tag value
+         * follows the pattern {language}-{REGION}. As an example, en-US is English as used in the United States. See supported
+         * language tags for the list of possible values.
+         */
         languageTags?: NullableOption<string[]>;
+        /**
+         * List of devices and operating systems able to view this qna. Possible values are: unknown, android, androidForWork,
+         * ios, macOS, windowsPhone81, windowsPhone81AndLater, windows10AndLater, androidWorkProfile, androidASOP.
+         */
         platforms?: microsoftgraphbeta.DevicePlatformType[];
+        // State of the qna. Possible values are: published, draft, excluded, or unknownFutureValue.
         state?: AnswerState;
+        /**
+         * Variations of a qna for different countries or devices. Use when you need to show different content to users based on
+         * their device, country/region, or both. The date and group settings will apply to all variations.
+         */
         targetedVariations?: NullableOption<AnswerVariant[]>;
     }
     interface AnswerKeyword {
+        // A collection of keywords used to trigger the search answer.
         keywords?: NullableOption<string[]>;
+        // If true, indicates that the search term contains similar words to the keywords that should trigger the search answer.
         matchSimilarKeywords?: NullableOption<boolean>;
+        // Unique keywords that will guarantee the search answer is triggered.
         reservedKeywords?: NullableOption<string[]>;
     }
     interface AnswerVariant {
+        // Answer variation description shown on search results page.
         description?: NullableOption<string>;
+        // Answer variation name displayed in search results.
         displayName?: NullableOption<string>;
         languageTag?: NullableOption<string>;
         platform?: NullableOption<microsoftgraphbeta.DevicePlatformType>;
+        // Answer variation URL link. When users click this answer variation in search results, they will go to this URL.
         webUrl?: NullableOption<string>;
     }
 // tslint:disable-next-line: interface-name
