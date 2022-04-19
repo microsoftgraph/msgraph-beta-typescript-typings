@@ -6098,6 +6098,7 @@ export interface Group extends DirectoryObject {
     photo?: NullableOption<ProfilePhoto>;
     // The profile photos owned by the group. Read-only. Nullable.
     photos?: NullableOption<ProfilePhoto[]>;
+    // The team associated with this group.
     team?: NullableOption<Team>;
 }
 export interface MailFolder extends Entity {
@@ -7489,6 +7490,10 @@ export interface DirectoryAudit extends Entity {
      * Directory, B2C, Invited Users, Microsoft Identity Manager, Privileged Identity Management.
      */
     loggedByService?: NullableOption<string>;
+    /**
+     * Indicates the type of operation that was performed. The possible values include but are not limited to the following:
+     * Add, Assign, Update, Unassign, and Delete.
+     */
     operationType?: NullableOption<string>;
     // Indicates the result of the activity. Possible values are: success, failure, timeout, unknownFutureValue.
     result?: NullableOption<OperationResult>;
@@ -7591,6 +7596,12 @@ export interface SignIn extends Entity {
      * (eq operator only).
      */
     clientAppUsed?: NullableOption<string>;
+    /**
+     * Describes the credential type that a user client or service principal provided to Azure AD to authenticate itself. You
+     * may wish to review clientCredentialType to track and eliminate less secure credential types or to watch for clients and
+     * service principals using anomalous credential types. The possible values are: none, clientSecret, clientAssertion,
+     * federatedIdentityCredential, managedIdentity, certificate, unknownFutureValue.
+     */
     clientCredentialType?: NullableOption<ClientCredentialType>;
     /**
      * Reports status of an activated conditional access policy. Possible values are: success, failure, notApplied, and
@@ -7640,9 +7651,10 @@ export interface SignIn extends Entity {
     homeTenantName?: NullableOption<string>;
     /**
      * Indicates the token types that were presented to Azure AD to authenticate the actor in the sign in. The possible values
-     * are: none, primaryRefreshToken, saml11, saml20, unknownFutureValue. NOTE Azure AD may have also used token types not
-     * listed in this Enum type to authenticate the actor. Do not infer the lack of a token if it is not one of the types
-     * listed.
+     * are: none, primaryRefreshToken, saml11, saml20, unknownFutureValue, remoteDesktopToken. NOTE Azure AD may have also
+     * used token types not listed in this Enum type to authenticate the actor. Do not infer the lack of a token if it is not
+     * one of the types listed. Also, please note that you must use the Prefer: include-unknown-enum-members request header to
+     * get the following value(s) in this evolvable enum: remoteDesktopToken.
      */
     incomingTokenType?: NullableOption<IncomingTokenType>;
     // IP address of the client used to sign in. Supports $filter (eq and startsWith operators only).
@@ -15338,6 +15350,7 @@ export interface Domain extends Entity {
     supportedServices?: string[];
     // Read-only, Nullable
     domainNameReferences?: NullableOption<DirectoryObject[]>;
+    // Domain settings configured by customer when federated with Azure AD.
     federationConfiguration?: NullableOption<InternalDomainFederation[]>;
     /**
      * DNS records the customer adds to the DNS zone file of the domain before the domain can be used by Microsoft Online
@@ -15374,12 +15387,44 @@ export interface SamlOrWsFedProvider extends IdentityProviderBase {
 }
 // tslint:disable-next-line: interface-name
 export interface InternalDomainFederation extends SamlOrWsFedProvider {
+    /**
+     * URL of the endpoint used by active clients when authenticating with federated domains set up for single sign-on in
+     * Azure Active Directory (Azure AD). Corresponds to the ActiveLogOnUri property of the Set-MsolDomainFederationSettings
+     * MSOnline v1 PowerShell cmdlet.
+     */
     activeSignInUri?: NullableOption<string>;
+    /**
+     * Determines whether Azure AD accepts the MFA performed by the federated IdP when a federated user accesses an
+     * application that is governed by a conditional access policy that requires MFA. The possible values are:
+     * acceptIfMfaDoneByFederatedIdp, enforceMfaByFederatedIdp, rejectMfaByFederatedIdp, unknownFutureValue. For more
+     * information, see federatedIdpMfaBehavior values.
+     */
     federatedIdpMfaBehavior?: NullableOption<FederatedIdpMfaBehavior>;
+    /**
+     * If true, when SAML authentication requests are sent to the federated SAML IdP, Azure AD will sign those requests using
+     * the OrgID signing key. If false (default), the SAML authentication requests sent to the federated IdP are not signed.
+     */
     isSignedAuthenticationRequestRequired?: NullableOption<boolean>;
+    /**
+     * Fallback token signing certificate that is used to sign tokens when the primary signing certificate expires. Formatted
+     * as Base64 encoded strings of the public portion of the federated IdP's token signing certificate. Needs to be
+     * compatible with the X509Certificate2 class. Much like the signingCertificate, the nextSigningCertificate property is
+     * used if a rollover is required outside of the auto-rollover update, a new federation service is being set up, or if the
+     * new token signing certificate is not present in the federation properties after the federation service certificate has
+     * been updated.
+     */
     nextSigningCertificate?: NullableOption<string>;
+    /**
+     * Sets the preferred behavior for the sign-in prompt. The possible values are: translateToFreshPasswordAuthentication,
+     * nativeSupport, disabled, unknownFutureValue.
+     */
     promptLoginBehavior?: NullableOption<PromptLoginBehavior>;
+    // Provides status and timestamp of the last update of the signing certificate.
     signingCertificateUpdateStatus?: NullableOption<SigningCertificateUpdateStatus>;
+    /**
+     * URI that clients are redirected to when they sign out of Azure AD services. Corresponds to the LogOffUri property of
+     * the Set-MsolDomainFederationSettings MSOnline v1 PowerShell cmdlet.
+     */
     signOutUri?: NullableOption<string>;
 }
 export interface DomainDnsRecord extends Entity {
@@ -18284,6 +18329,7 @@ export interface Call extends Entity {
      * P2P call. This needs to be copied over from Microsoft.Graph.Call.CallChainId.
      */
     callChainId?: NullableOption<string>;
+    // Contains the optional features for the call.
     callOptions?: NullableOption<CallOptions>;
     // The routing information on how the call was retargeted. Read-only.
     callRoutes?: NullableOption<CallRoute[]>;
@@ -18317,6 +18363,7 @@ export interface Call extends Entity {
     transcription?: NullableOption<CallTranscriptionInfo>;
     // Read-only. Nullable.
     audioRoutingGroups?: NullableOption<AudioRoutingGroup[]>;
+    // Read-only. Nullable.
     contentSharingSessions?: NullableOption<ContentSharingSession[]>;
     // Read-only. Nullable.
     operations?: NullableOption<CommsOperation[]>;
@@ -18420,7 +18467,7 @@ export interface AccessReviewHistoryDefinition extends Entity {
     reviewHistoryPeriodStartDateTime?: string;
     /**
      * The settings for a recurring access review history definition series. Only required if reviewHistoryPeriodStartDateTime
-     * or reviewHistoryPeriodEndDateTime are not defined.
+     * or reviewHistoryPeriodEndDateTime are not defined. Not supported yet.
      */
     scheduleSettings?: NullableOption<AccessReviewHistoryScheduleSettings>;
     /**
@@ -37279,7 +37326,9 @@ export interface SettingValue {
     value?: NullableOption<string>;
 }
 export interface SigningCertificateUpdateStatus {
+    // Status of the last certificate update. Read-only. For a list of statuses, see certificateUpdateResult status.
     certificateUpdateResult?: NullableOption<string>;
+    // Date and time in ISO 8601 format and in UTC time when the certificate was last updated. Read-only.
     lastRunDateTime?: NullableOption<string>;
 }
 export interface VerifiedDomain {
@@ -38768,11 +38817,18 @@ export interface DriveRecipient {
 // tslint:disable-next-line: no-empty-interface
 export interface EditAction {}
 export interface ExtractSensitivityLabelsResult {
+    // List of sensitivity labels assigned to a file.
     labels?: NullableOption<SensitivityLabelAssignment[]>;
 }
 export interface SensitivityLabelAssignment {
+    /**
+     * Indicates whether the label assignment is done automatically, as a standard, or a privileged operation. The possible
+     * values are: standard, privileged, auto, unknownFutureValue.
+     */
     assignmentMethod?: SensitivityLabelAssignmentMethod;
+    // The unique identifier for the sensitivity label assigned to the file.
     sensitivityLabelId?: string;
+    // The unique identifier for the tenant that hosts the file when this label is applied.
     tenantId?: string;
 }
 export interface Hashes {
@@ -46966,6 +47022,7 @@ export interface CallMediaState {
 }
 export interface CallOptions {
     hideBotAfterEscalation?: NullableOption<boolean>;
+    // Indicates whether content sharing notifications should be enabled for the call.
     isContentSharingNotificationEnabled?: NullableOption<boolean>;
 }
 export interface CallRoute {
@@ -47669,7 +47726,7 @@ export interface ConversationMemberRoleUpdatedEventMessageDetail extends EventMe
 export interface TeamworkUserIdentity extends Identity {
     /**
      * Type of user. Possible values are: aadUser, onPremiseAadUser, anonymousGuest, federatedUser,
-     * personalMicrosoftAccountUser, skypeUser, phoneUser, and unknownFutureValue.
+     * personalMicrosoftAccountUser, skypeUser, phoneUser, unknownFutureValue and emailUser.
      */
     userIdentityType?: NullableOption<TeamworkUserIdentityType>;
 }
