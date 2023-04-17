@@ -14,8 +14,8 @@
     "url": "https://github.com/microsoftgraph/msgraph-beta-typescript-typings.git"
   },
   "devDependencies": {
+    "typescript": "^5.0.4",
     "@types/chai": "^4.3.4",
-    "typescript": "^2.2.1",
     "chai": "^4.3.7",
     "mocha": "^10.2.0",
     "@microsoft/microsoft-graph-client": "^3.0.5"
