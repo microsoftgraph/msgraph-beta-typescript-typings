@@ -6,7 +6,7 @@
 //                 Mustafa Zengin <https://github.com/zengin>
 //                 DeVere Dyett <https://github.com/ddyett>
 //                 Nikitha Udaykumar Chettiar <https://github.com/nikithauc>
-// TypeScript Version: 2.1
+// TypeScript Version: 5.0.4
 
 export as namespace microsoftgraphbeta;
 
