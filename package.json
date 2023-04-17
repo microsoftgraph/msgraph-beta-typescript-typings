@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "@types/chai": "^3.4.35",
-    "typescript": "^2.2.1",
+    "typescript": "^5.0.4",
     "chai": "^3.5.0",
     "mocha": "^10.2.0",
     "@microsoft/microsoft-graph-client": "^0.3.2"
