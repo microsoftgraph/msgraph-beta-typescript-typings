@@ -1,4 +1,3 @@
-// Type definitions for non-npm package microsoft-graph-types-beta 0.30.0-preview
 // Project: https://github.com/microsoftgraph/msgraph-beta-typescript-typings
 // Definitions by: Microsoft Graph Team <https://github.com/microsoftgraph>
 //                 Michael Mainer <https://github.com/MIchaelMainer>
@@ -6,7 +5,7 @@
 //                 Mustafa Zengin <https://github.com/zengin>
 //                 DeVere Dyett <https://github.com/ddyett>
 //                 Nikitha Udaykumar Chettiar <https://github.com/nikithauc>
-// TypeScript Version: 5.0.4
+// TypeScript Version: 2.1
 
 export as namespace microsoftgraphbeta;
 
@@ -5689,8 +5688,11 @@ export interface PolicyBase extends DirectoryObject {
     displayName?: string;
 }
 export interface AppManagementPolicy extends PolicyBase {
+    // Denotes whether the policy is enabled.
     isEnabled?: boolean;
+    // Restrictions that apply to an application or service principal object.
     restrictions?: NullableOption<AppManagementConfiguration>;
+    // Collection of application and service principals to which a policy is applied.
     appliesTo?: NullableOption<DirectoryObject[]>;
 }
 export interface ExtensionProperty extends DirectoryObject {
@@ -5890,7 +5892,8 @@ export interface User extends DirectoryObject {
      * Supports $filter (eq, ne, not, ge, le) but not with any other filterable properties. Note: Details for this property
      * require an Azure AD Premium P1/P2 license and the AuditLog.Read.All permission.When you specify $select=signInActivity
      * or $filter=signInActivity while listing users, the maximum page size is 120 users. Requests with $top set higher than
-     * 120 will fail.This property is not returned for a user who has never signed in or last signed in before April 2020.
+     * 120 will return pages with up to 120 users.This property is not returned for a user who has never signed in or last
+     * signed in before April 2020.
      */
     signInActivity?: NullableOption<SignInActivity>;
     /**
@@ -6199,6 +6202,7 @@ export interface User extends DirectoryObject {
      * $filter (eq, not, ge, le, startsWith).
      */
     securityIdentifier?: NullableOption<string>;
+    serviceProvisioningErrors?: NullableOption<ServiceProvisioningError[]>;
     /**
      * Do not use in Microsoft Graph. Manage this property through the Microsoft 365 admin center instead. Represents whether
      * the user should be included in the Outlook global address list. See Known issue.
@@ -7298,6 +7302,7 @@ export interface Group extends DirectoryObject {
     securityEnabled?: NullableOption<boolean>;
     // Security identifier of the group, used in Windows scenarios. Returned by default.
     securityIdentifier?: NullableOption<string>;
+    serviceProvisioningErrors?: NullableOption<ServiceProvisioningError[]>;
     /**
      * Specifies a Microsoft 365 group's color theme. Possible values are Teal, Purple, Green, Blue, Pink, Orange or Red.
      * Returned by default.
@@ -9541,6 +9546,7 @@ export interface MembershipOutlierInsight extends GovernanceInsight {
     outlierMemberType?: OutlierMemberType;
     // Navigation link to the container directory object. For example, to a group.
     container?: NullableOption<DirectoryObject>;
+    lastModifiedBy?: NullableOption<User>;
     // Navigation link to a member object. For example, to a user.
     member?: NullableOption<DirectoryObject>;
 }
@@ -15662,9 +15668,13 @@ export interface RbacApplication extends Entity {
     roleEligibilitySchedules?: NullableOption<UnifiedRoleEligibilitySchedule[]>;
 }
 export interface UnifiedRbacApplication extends Entity {
+    // Resource that represents a collection of related actions.
     resourceNamespaces?: NullableOption<UnifiedRbacResourceNamespace[]>;
+    // Resource to grant access to users or groups.
     roleAssignments?: NullableOption<UnifiedRoleAssignment[]>;
+    // The roles allowed by RBAC providers and the permissions assigned to the roles.
     roleDefinitions?: NullableOption<UnifiedRoleDefinition[]>;
+    // Resource to grant access to users or groups that are transitive.
     transitiveRoleAssignments?: NullableOption<UnifiedRoleAssignment[]>;
 }
 export interface UnifiedRbacResourceAction extends Entity {
@@ -16470,16 +16480,20 @@ export interface Schedule extends Entity {
     timeZone?: NullableOption<string>;
     workforceIntegrationIds?: NullableOption<string[]>;
     offerShiftRequests?: NullableOption<OfferShiftRequest[]>;
+    // The open shift requests in the schedule.
     openShiftChangeRequests?: NullableOption<OpenShiftChangeRequest[]>;
+    // The set of open shifts in a scheduling group in the schedule.
     openShifts?: NullableOption<OpenShift[]>;
     // The logical grouping of users in the schedule (usually by role).
     schedulingGroups?: NullableOption<SchedulingGroup[]>;
     // The shifts in the schedule.
     shifts?: NullableOption<Shift[]>;
+    // The swap requests for shifts in the schedule.
     swapShiftsChangeRequests?: NullableOption<SwapShiftsChangeRequest[]>;
     timeCards?: NullableOption<TimeCard[]>;
     // The set of reasons for a time off in the schedule.
     timeOffReasons?: NullableOption<TimeOffReason[]>;
+    // The time off requests in the schedule.
     timeOffRequests?: NullableOption<TimeOffRequest[]>;
     // The instances of times off in the schedule.
     timesOff?: NullableOption<TimeOff[]>;
@@ -17659,6 +17673,7 @@ export interface Organization extends DirectoryObject {
      * certificateBasedAuthConfiguration can be created in the collection.
      */
     certificateBasedAuthConfiguration?: NullableOption<CertificateBasedAuthConfiguration[]>;
+    partnerInformation?: NullableOption<PartnerInformation>;
     // The collection of open extensions defined for the organization resource. Nullable.
     extensions?: NullableOption<Extension[]>;
     // Retrieve the properties and relationships of organizationSettings object. Nullable.
@@ -17810,6 +17825,16 @@ export interface OrganizationalBranding extends OrganizationalBrandingProperties
     // Add different branding based on a locale.
     localizations?: NullableOption<OrganizationalBrandingLocalization[]>;
 }
+export interface PartnerInformation {
+    commerceUrl?: NullableOption<string>;
+    companyName?: NullableOption<string>;
+    companyType?: NullableOption<PartnerTenantType>;
+    helpUrl?: NullableOption<string>;
+    partnerTenantId?: string;
+    supportEmails?: NullableOption<string[]>;
+    supportTelephones?: NullableOption<string[]>;
+    supportUrl?: NullableOption<string>;
+}
 export interface OrganizationSettings extends Entity {
     microsoftApplicationDataAccess?: NullableOption<MicrosoftApplicationDataAccessSettings>;
     /**
@@ -17905,6 +17930,7 @@ export interface OrgContact extends DirectoryObject {
      * expressions on multi-valued properties. Supports $filter (eq, not, ge, le, startsWith, /$count eq 0, /$count ne 0).
      */
     proxyAddresses?: string[];
+    serviceProvisioningErrors?: NullableOption<ServiceProvisioningError[]>;
     /**
      * Last name for this organizational contact. Supports $filter (eq, ne, not, ge, le, in, startsWith, and eq for null
      * values)
@@ -19194,6 +19220,7 @@ export interface DriveItem extends BaseItem {
     listItem?: NullableOption<ListItem>;
     // The set of permissions for the item. Read-only. Nullable.
     permissions?: NullableOption<Permission[]>;
+    retentionLabel?: NullableOption<ItemRetentionLabel>;
     // The set of subscriptions on the item. Only supported on the root of a drive.
     subscriptions?: NullableOption<Subscription[]>;
     /**
@@ -19238,6 +19265,14 @@ export interface ListItem extends BaseItem {
     fields?: NullableOption<FieldValueSet>;
     // The list of previous versions of the list item.
     versions?: NullableOption<ListItemVersion[]>;
+}
+// tslint:disable-next-line: interface-name
+export interface ItemRetentionLabel extends Entity {
+    isLabelAppliedExplicitly?: NullableOption<boolean>;
+    labelAppliedBy?: NullableOption<IdentitySet>;
+    labelAppliedDateTime?: NullableOption<string>;
+    name?: NullableOption<string>;
+    retentionSettings?: NullableOption<RetentionLabelSettings>;
 }
 export interface Subscription extends Entity {
     // Optional. Identifier of the application used to create the subscription. Read-only.
@@ -20372,6 +20407,8 @@ export interface SharepointSettings extends Entity {
     siteCreationDefaultStorageLimitInMB?: NullableOption<number>;
     tenantDefaultTimezone?: NullableOption<string>;
 }
+// tslint:disable-next-line: no-empty-interface
+export interface Storage {}
 export interface CanvasLayout extends Entity {
     // Collection of horizontal sections on the SharePoint page.
     horizontalSections?: NullableOption<HorizontalSection[]>;
@@ -32294,9 +32331,9 @@ export interface DeviceManagementConfigurationSettingGroupDefinition extends Dev
     dependentOn?: NullableOption<DeviceManagementConfigurationDependentOn[]>;
 }
 export interface DeviceManagementConfigurationSettingGroupCollectionDefinition extends DeviceManagementConfigurationSettingGroupDefinition {
-    // Maximum number of setting group count in the collection. Valid values 1 to 100
+    // Maximum number of setting group count in the collection
     maximumCount?: number;
-    // Minimum number of setting group count in the collection. Valid values 1 to 100
+    // Minimum number of setting group count in the collection
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationSimpleSettingDefinition extends DeviceManagementConfigurationSettingDefinition {
@@ -37633,8 +37670,6 @@ export interface TodoTask extends Entity {
     // A collection of resources linked to the task.
     linkedResources?: NullableOption<LinkedResource[]>;
 }
-// tslint:disable-next-line: no-empty-interface
-export interface Storage {}
 export interface EmployeeExperience {
     // A collection of learning providers.
     learningProviders?: NullableOption<LearningProvider[]>;
@@ -38373,6 +38408,11 @@ export interface ProvisionedPlan {
     // The name of the service; for example, 'AccessControlS2S'
     service?: NullableOption<string>;
 }
+export interface ServiceProvisioningError {
+    createdDateTime?: NullableOption<string>;
+    isResolved?: NullableOption<boolean>;
+    serviceInstance?: NullableOption<string>;
+}
 export interface MailboxSettings {
     // Folder ID of an archive folder for the user. Read-only.
     archiveFolder?: NullableOption<string>;
@@ -38687,9 +38727,16 @@ export interface Initiator extends Identity {
     initiatorType?: NullableOption<InitiatorType>;
 }
 export interface KeyValue {
-    // Key.
+    /**
+     * Contains the name of the field that a value is associated with. When a sign in or domain hint is included in the
+     * sign-in request, corresponding fields are included as key-value pairs. Possible keys: Login hint present, Domain hint
+     * present.
+     */
     key?: NullableOption<string>;
-    // Value.
+    /**
+     * Contains the corresponding value for the specified key. The value is true if a sign in hint was included in the sign-in
+     * request; otherwise false. The value is true if a domain hint was included in the sign-in request; otherwise false.
+     */
     value?: NullableOption<string>;
 }
 export interface ManagedIdentity {
@@ -39034,11 +39081,11 @@ export interface SamlSingleSignOnSettings {
 }
 // tslint:disable-next-line: interface-name
 export interface IdentitySet {
-    // Optional. The application associated with this action.
+    // The Identity of the Application. This property is read-only.
     application?: NullableOption<Identity>;
-    // Optional. The device associated with this action.
+    // The Identity of the Device. This property is read-only.
     device?: NullableOption<Identity>;
-    // Optional. The user associated with this action.
+    // The Identity of the User. This property is read-only.
     user?: NullableOption<Identity>;
 }
 export interface AuthenticationMethodFeatureConfiguration {
@@ -41449,6 +41496,21 @@ export interface ServicePlanInfo {
     // The name of the service plan.
     servicePlanName?: NullableOption<string>;
 }
+export interface ServiceProvisioningResourceErrorDetail {
+    code?: NullableOption<string>;
+    details?: NullableOption<string>;
+    message?: NullableOption<string>;
+}
+export interface ServiceProvisioningLinkedResourceErrorDetail extends ServiceProvisioningResourceErrorDetail {
+    propertyName?: NullableOption<string>;
+    target?: NullableOption<string>;
+}
+export interface ServiceProvisioningResourceError extends ServiceProvisioningError {
+    errors?: NullableOption<ServiceProvisioningResourceErrorDetail[]>;
+}
+export interface ServiceProvisioningXmlError extends ServiceProvisioningError {
+    errorDetail?: NullableOption<string>;
+}
 export interface SettingTemplateValue {
     // Default value for the setting. Read-only.
     defaultValue?: NullableOption<string>;
@@ -43240,6 +43302,14 @@ export interface ReactionsFacet {
     // Count of shares.
     shareCount?: NullableOption<number>;
 }
+export interface RetentionLabelSettings {
+    behaviorDuringRetentionPeriod?: NullableOption<SecurityNamespace.BehaviorDuringRetentionPeriod>;
+    isContentUpdateAllowed?: NullableOption<boolean>;
+    isDeleteAllowed?: NullableOption<boolean>;
+    isLabelUpdateAllowed?: NullableOption<boolean>;
+    isMetadataUpdateAllowed?: NullableOption<boolean>;
+    isRecordLocked?: NullableOption<boolean>;
+}
 export interface ServerProcessedContent {
     /**
      * A key-value map where keys are string identifiers and values are component ids. SharePoint servers might decide to use
@@ -43409,6 +43479,8 @@ export interface WebPartPosition {
     // Index of the current web part. Represents the order of the web part in this column or section.
     webPartIndex?: NullableOption<number>;
 }
+// tslint:disable-next-line: no-empty-interface
+export interface Dictionary {}
 export interface VirtualAppointmentSettings {
     /**
      * Indicates whether the client can use the browser to join a virtual appointment. If set to false, the client can only
@@ -43731,6 +43803,9 @@ export interface StringKeyAttributeMappingSourceValuePair {
     // The value of the parameter.
     value?: NullableOption<AttributeMappingSource>;
 }
+export interface ContainerFilter {
+    includedContainers?: NullableOption<string[]>;
+}
 export interface ExpressionInputObject {
     // Definition of the test object.
     definition?: NullableOption<ObjectDefinition>;
@@ -43795,6 +43870,9 @@ export interface FilterClause {
 export interface FilterOperand {
     // Collection of values.
     values?: NullableOption<string[]>;
+}
+export interface GroupFilter {
+    includedGroups?: NullableOption<string[]>;
 }
 export interface ObjectMapping {
     /**
@@ -43950,8 +44028,10 @@ export interface SynchronizationQuarantine {
     seriesCount?: number;
 }
 export interface SynchronizationRule {
+    containerFilter?: NullableOption<ContainerFilter>;
     // true if the synchronization rule can be customized; false if this rule is read-only and should not be changed.
     editable?: boolean;
+    groupFilter?: NullableOption<GroupFilter>;
     /**
      * Synchronization rule identifier. Must be one of the identifiers recognized by the synchronization engine. Supported
      * rule identifiers can be found in the synchronization template returned by the API.
@@ -45679,7 +45759,10 @@ export interface MacOSIncludedApp {
     bundleVersion?: string;
 }
 export interface MacOsLobAppAssignmentSettings extends MobileAppAssignmentSettings {
-    // Whether or not to uninstall the app when device is removed from Intune.
+    /**
+     * When TRUE, indicates that the app should be uninstalled when the device is removed from Intune. When FALSE, indicates
+     * that the app will not be uninstalled when the device is removed from Intune.
+     */
     uninstallOnDeviceRemoval?: NullableOption<boolean>;
 }
 export interface MacOSLobChildApp {
@@ -46082,11 +46165,7 @@ export interface Win32LobAppReturnCode {
     type?: Win32LobAppReturnCodeType;
 }
 export interface WindowsAppXAppAssignmentSettings extends MobileAppAssignmentSettings {
-    /**
-     * When TRUE, indicates that device execution context will be used for the AppX mobile app. When FALSE, indicates that
-     * user context will be used for the AppX mobile app. By default, this property is set to FALSE. Once this property has
-     * been set to TRUE it cannot be changed.
-     */
+    // Whether or not to use device execution context for Windows AppX mobile app.
     useDeviceContext?: boolean;
 }
 export interface WindowsMinimumOperatingSystem {
@@ -46134,7 +46213,10 @@ export interface WindowsPackageInformation {
     minimumSupportedOperatingSystem?: NullableOption<WindowsMinimumOperatingSystem>;
 }
 export interface WindowsUniversalAppXAppAssignmentSettings extends MobileAppAssignmentSettings {
-    // Whether or not to use device execution context for Windows Universal AppX mobile app.
+    /**
+     * If true, uses device execution context for Windows Universal AppX mobile app. Device-context install is not allowed
+     * when this type of app is targeted with Available intent. Defaults to false.
+     */
     useDeviceContext?: boolean;
 }
 export interface WinGetAppAssignmentSettings extends MobileAppAssignmentSettings {
@@ -48552,7 +48634,8 @@ export interface DeviceManagementConfigurationSettingApplicability {
     platform?: DeviceManagementConfigurationPlatforms;
     /**
      * Which technology channels this setting can be deployed through. Possible values are: none, mdm, windows10XManagement,
-     * configManager, appleRemoteManagement, microsoftSense, exchangeOnline, linuxMdm, unknownFutureValue.
+     * configManager, appleRemoteManagement, microsoftSense, exchangeOnline, edgeMAM, linuxMdm, enrollment,
+     * endpointPrivilegeManagement, unknownFutureValue.
      */
     technologies?: DeviceManagementConfigurationTechnologies;
 }
@@ -48734,7 +48817,7 @@ export interface DeviceManagementConfigurationStringSettingValueDefinition exten
     fileTypes?: NullableOption<string[]>;
     /**
      * Pre-defined format of the string. Possible values are: none, email, guid, ip, base64, url, version, xml, date, time,
-     * binary, regEx, json, dateTime, surfaceHub.
+     * binary, regEx, json, dateTime, surfaceHub, bashScript, unknownFutureValue.
      */
     format?: DeviceManagementConfigurationStringFormat;
     // Regular expression or any xml or json schema that the input string should match
@@ -48744,9 +48827,9 @@ export interface DeviceManagementConfigurationStringSettingValueDefinition exten
      * at rest and will be displayed as asterisks when represented in the UX.
      */
     isSecret?: boolean;
-    // Maximum length of string
+    // Maximum length of string. Valid values 0 to 87516
     maximumLength?: number;
-    // Minimum length of string
+    // Minimum length of string. Valid values 0 to 87516
     minimumLength?: number;
 }
 export interface DeviceManagementConfigurationStringSettingValueTemplate extends DeviceManagementConfigurationSimpleSettingValueTemplate {
@@ -50113,8 +50196,6 @@ export interface ResultTemplate {
     // Name of the result template.
     displayName?: NullableOption<string>;
 }
-// tslint:disable-next-line: no-empty-interface
-export interface Dictionary {}
 // tslint:disable-next-line: no-empty-interface
 export interface ResultTemplateDictionary extends Dictionary {}
 export interface ResultTemplateOption {
@@ -53893,15 +53974,15 @@ export namespace CallRecords {
         speakerGlitchRate?: NullableOption<number>;
     }
     interface DirectRoutingLogRow {
-        // Number of the user or bot who received the call. E.164 format, but may include additional data.
+        // Number of the user or bot who received the call (E.164 format, but may include additional data).
         calleeNumber?: NullableOption<string>;
         // In addition to the SIP codes, Microsoft has own subcodes that indicate the specific issue.
         callEndSubReason?: NullableOption<number>;
-        // Number of the user or bot who made the call. E.164 format, but may include additional data.
+        // Number of the user or bot who made the call (E.164 format, but may include additional data).
         callerNumber?: NullableOption<string>;
         // Call type and direction.
         callType?: NullableOption<string>;
-        // Identifier for the call that you can use when calling Microsoft Support. GUID.
+        // Identifier (GUID) for the call that you can use when calling Microsoft Support.
         correlationId?: NullableOption<string>;
         // Duration of the call in seconds.
         duration?: NullableOption<number>;
@@ -53909,20 +53990,24 @@ export namespace CallRecords {
         endDateTime?: NullableOption<string>;
         // Only exists for failed (not fully established) calls.
         failureDateTime?: NullableOption<string>;
-        // The code with which the call ended, RFC 3261.
+        // The code with which the call ended (RFC 3261).
         finalSipCode?: NullableOption<number>;
         // Description of the SIP code and Microsoft subcode.
         finalSipCodePhrase?: NullableOption<string>;
-        // Unique call identifier. GUID.
+        // Unique call identifier (GUID).
         id?: NullableOption<string>;
         // When the initial invite was sent.
         inviteDateTime?: NullableOption<string>;
         // Indicates if the trunk was enabled for media bypass or not.
         mediaBypassEnabled?: NullableOption<boolean>;
-        // The datacenter used for media path in non-bypass call.
+        // The data center used for media path in non-bypass call.
         mediaPathLocation?: NullableOption<string>;
+        /**
+         * Country code of the caller in case of an incoming call, or callee in case of an outgoing call. For details, see ISO
+         * 3166-1 alpha-2.
+         */
         otherPartyCountryCode?: NullableOption<string>;
-        // The datacenter used for signaling for both bypass and non-bypass calls.
+        // The data center used for signaling for both bypass and non-bypass calls.
         signalingLocation?: NullableOption<string>;
         // Call start time.For failed and unanswered calls, this can be equal to invite or failure time.
         startDateTime?: NullableOption<string>;
@@ -53930,14 +54015,18 @@ export namespace CallRecords {
         successfulCall?: NullableOption<boolean>;
         // Fully qualified domain name of the session border controller.
         trunkFullyQualifiedDomainName?: NullableOption<string>;
+        // Country code of the user. For details, see ISO 3166-1 alpha-2.
         userCountryCode?: NullableOption<string>;
         // Display name of the user.
         userDisplayName?: NullableOption<string>;
-        // Calling user's ID in Graph. This and other user info will be null/empty for bot call types. GUID.
+        /**
+         * The unique identifier (GUID) of the user in Azure Active Directory. This and other user info will be null/empty for bot
+         * call types.
+         */
         userId?: NullableOption<string>;
         /**
-         * UserPrincipalName (sign-in name) in Azure Active Directory. This is usually the same as user's SIP Address, and can be
-         * same as user's e-mail address.
+         * The user principal name (sign-in name) in Azure Active Directory. This is usually the same as the user's SIP address,
+         * and can be same as the user's e-mail address.
          */
         userPrincipalName?: NullableOption<string>;
     }
@@ -54177,13 +54266,31 @@ export namespace CallRecords {
         tokens?: NullableOption<FeedbackTokenSet>;
     }
     interface PstnBlockedUsersLogRow {
+        /**
+         * The date and time when the user was blocked/unblocked from making PSTN calls. The Timestamp type represents date and
+         * time information using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is
+         * 2014-01-01T00:00:00Z.
+         */
         blockDateTime?: NullableOption<string>;
+        // The reason why the user is blocked/unblocked from making calls.
         blockReason?: NullableOption<string>;
+        // Unique identifier (GUID) for the blocking/unblocking action.
         remediationId?: NullableOption<string>;
+        /**
+         * Indicates whether the user is blocked or unblocked from making PSTN calls in Microsoft Teams. The possible values are:
+         * blocked, unblocked, unknownFutureValue.
+         */
         userBlockMode?: NullableOption<PstnUserBlockMode>;
+        // Display name of the user.
         userDisplayName?: NullableOption<string>;
+        // The unique identifier (GUID) of the user in Azure Active Directory.
         userId?: NullableOption<string>;
+        /**
+         * The user principal name (sign-in name) in Azure Active Directory. This is usually the same as the user's SIP address,
+         * and can be same as the user's e-mail address.
+         */
         userPrincipalName?: NullableOption<string>;
+        // User's blocked number. For details, see E.164.
         userTelephoneNumber?: NullableOption<string>;
     }
     interface PstnCallLogRow {
@@ -54193,15 +54300,15 @@ export namespace CallRecords {
          * Otherwise, the value is microsoft.
          */
         callDurationSource?: NullableOption<PstnCallDurationSource>;
-        // Number dialed in E.164 format.
+        // Number of the user or bot who received the call (E.164).
         calleeNumber?: NullableOption<string>;
-        // Number that received the call for inbound calls or the number dialed for outbound calls. E.164 format.
+        // Number of the user or bot who made the call (E.164).
         callerNumber?: NullableOption<string>;
         // Call identifier. Not guaranteed to be unique.
         callId?: NullableOption<string>;
         /**
-         * Whether the call was a PSTN outbound or inbound call and the type of call such as a call placed by a user or an audio
-         * conference.
+         * Indicates whether the call was a PSTN outbound or inbound call and the type of call such as a call placed by a user or
+         * an audio conference.
          */
         callType?: NullableOption<string>;
         // Amount of money or cost of the call that is charged to your account.
@@ -54210,11 +54317,11 @@ export namespace CallRecords {
         conferenceId?: NullableOption<string>;
         // Connection fee price.
         connectionCharge?: NullableOption<number>;
-        // Type of currency used to calculate the cost of the call. For details, see ISO 4217.
+        // Type of currency used to calculate the cost of the call (ISO 4217).
         currency?: NullableOption<string>;
         /**
-         * Whether the call was domestic (within a country or region) or international (outside a country or region) based on the
-         * user's location.
+         * Indicates whether the call was Domestic (within a country or region) or International (outside a country or region)
+         * based on the user's location.
          */
         destinationContext?: NullableOption<string>;
         // Country or region dialed.
@@ -54223,7 +54330,7 @@ export namespace CallRecords {
         duration?: NullableOption<number>;
         // Call end time.
         endDateTime?: NullableOption<string>;
-        // Unique call identifier. GUID.
+        // Unique call identifier (GUID).
         id?: NullableOption<string>;
         // User's phone number type, such as a service of toll-free number.
         inventoryType?: NullableOption<string>;
@@ -54234,6 +54341,10 @@ export namespace CallRecords {
          * third-party operator via the Operator Connect Program.
          */
         operator?: NullableOption<string>;
+        /**
+         * Country code of the caller in case of an incoming call, or callee in case of an outgoing call. For details, see ISO
+         * 3166-1 alpha-2.
+         */
         otherPartyCountryCode?: NullableOption<string>;
         // Call start time.
         startDateTime?: NullableOption<string>;
@@ -54243,7 +54354,10 @@ export namespace CallRecords {
         usageCountryCode?: NullableOption<string>;
         // Display name of the user.
         userDisplayName?: NullableOption<string>;
-        // Calling user's ID in Graph. GUID. This and other user info will be null/empty for bot call types (ucap_in, ucap_out).
+        /**
+         * The unique identifier (GUID) of the user in Azure Active Directory. This and other user info will be null/empty for bot
+         * call types (ucap_in, ucap_out).
+         */
         userId?: NullableOption<string>;
         /**
          * The user principal name (sign-in name) in Azure Active Directory. This is usually the same as the user's SIP address,
@@ -54252,14 +54366,29 @@ export namespace CallRecords {
         userPrincipalName?: NullableOption<string>;
     }
     interface PstnOnlineMeetingDialoutReport {
+        // Currency used to calculate the cost of the call. For details, see ISO 4217.
         currency?: NullableOption<string>;
+        /**
+         * Indicates whether the call was Domestic (within a country or region) or International (outside a country or region)
+         * based on the user's location.
+         */
         destinationContext?: NullableOption<string>;
+        // Total costs of all the calls within the selected time range, including call charges and connection fees.
         totalCallCharge?: NullableOption<number>;
+        // Total number of dial-out calls within the selected time range.
         totalCalls?: NullableOption<number>;
+        // Total duration of all the calls within the selected time range, in seconds.
         totalCallSeconds?: NullableOption<number>;
+        // Country code of the user. For details, see ISO 3166-1 alpha-2.
         usageLocation?: NullableOption<string>;
+        // Display name of the user.
         userDisplayName?: NullableOption<string>;
+        // The unique identifier (GUID) of the user in Azure Active Directory.
         userId?: NullableOption<string>;
+        /**
+         * The user principal name (sign-in name) in Azure Active Directory. This is usually the same as the user's SIP address,
+         * and can be same as the user's e-mail address.
+         */
         userPrincipalName?: NullableOption<string>;
     }
 // tslint:disable-next-line: no-empty-interface
@@ -54277,23 +54406,50 @@ export namespace CallRecords {
         role?: ServiceRole;
     }
     interface SmsLogRow {
+        // Amount of money or cost of the SMS that is charged.
         callCharge?: NullableOption<number>;
+        // Currency used to calculate the cost of the call. For details, see ISO 4217.
         currency?: NullableOption<string>;
+        /**
+         * Indicates whether the SMS was Domestic (within a country or region) or International (outside a country or region)
+         * based on the user's location.
+         */
         destinationContext?: NullableOption<string>;
+        // Country or region of a phone number that received the SMS.
         destinationName?: NullableOption<string>;
+        // Partially obfuscated phone number that received the SMS. For details, see E.164.
         destinationNumber?: NullableOption<string>;
+        // Unique identifier (GUID) for the SMS.
         id?: NullableOption<string>;
+        // The license used for the SMS.
         licenseCapability?: NullableOption<string>;
+        /**
+         * For an outbound SMS, the country code of the receiver; otherwise (inbound SMS) the country code of the sender. For
+         * details, see ISO 3166-1 alpha-2.
+         */
         otherPartyCountryCode?: NullableOption<string>;
+        // The date and time when the SMS was sent.
         sentDateTime?: NullableOption<string>;
+        // SMS identifier. Not guaranteed to be unique.
         smsId?: NullableOption<string>;
+        // Type of SMS such as outbound or inbound.
         smsType?: NullableOption<string>;
+        // Number of SMS units sent/received.
         smsUnits?: NullableOption<number>;
+        // Partially obfuscated phone number that sent the SMS. For details, see E.164.
         sourceNumber?: NullableOption<string>;
+        // Country code of the tenant. For details, see ISO 3166-1 alpha-2.
         tenantCountryCode?: NullableOption<string>;
+        // Country code of the user. For details, see ISO 3166-1 alpha-2.
         userCountryCode?: NullableOption<string>;
+        // Display name of the user.
         userDisplayName?: NullableOption<string>;
+        // The unique identifier (GUID) of the user in Azure Active Directory.
         userId?: NullableOption<string>;
+        /**
+         * The user principal name (sign-in name) in Azure Active Directory. This is usually the same as the user's SIP address,
+         * and can be same as the user's e-mail address.
+         */
         userPrincipalName?: NullableOption<string>;
     }
 }
@@ -54866,6 +55022,7 @@ export namespace ExternalConnectors {
     type ExternalItemContentType = "text" | "html" | "unknownFutureValue";
     type IdentitySourceType = "azureActiveDirectory" | "external" | "unknownFutureValue";
     type IdentityType = "user" | "group" | "externalGroup" | "unknownFutureValue";
+    type ImportanceScore = "low" | "medium" | "high" | "veryHigh" | "unknownFutureValue";
     type Label =
         | "title"
         | "url"
@@ -55168,10 +55325,22 @@ export namespace ExternalConnectors {
          */
         name?: string;
         /**
+         * Specifies the property ranking hint. Developers can specify which properties are most important, allowing Microsoft
+         * Search to determine the search relevance of the content.
+         */
+        rankingHint?: NullableOption<RankingHint>;
+        /**
          * The data type of the property. Possible values are: string, int64, double, dateTime, boolean, stringCollection,
          * int64Collection, doubleCollection, dateTimeCollection, unknownFutureValue. Required.
          */
         type?: PropertyType;
+    }
+    interface RankingHint {
+        /**
+         * Specifies the schema property importance. Possible values are: low, medium, high, veryHigh, unknownFutureValue.
+         * Required.
+         */
+        importanceScore?: ImportanceScore;
     }
     interface SearchSettings {
         /**
@@ -57183,6 +57352,12 @@ export namespace SecurityNamespace {
     type PurgeAreas = "mailboxes" | "teamsMessages" | "unknownFutureValue";
     type PurgeType = "recoverable" | "permanentlyDeleted" | "unknownFutureValue";
     type SourceType = "mailbox" | "site" | "unknownFutureValue";
+    type BehaviorDuringRetentionPeriod =
+        | "doNotRetain"
+        | "retain"
+        | "retainAsRecord"
+        | "retainAsRegulatoryRecord"
+        | "unknownFutureValue";
     type ActionSource = "manual" | "automatic" | "recommended" | "default";
     type AssignmentMethod = "standard" | "privileged" | "auto";
     type ContentAlignment = "left" | "right" | "center";
@@ -57284,12 +57459,6 @@ export namespace SecurityNamespace {
         | "unknownFutureValue";
     type VmCloudProvider = "unknown" | "azure" | "unknownFutureValue";
     type ActionAfterRetentionPeriod = "none" | "delete" | "startDispositionReview" | "relabel" | "unknownFutureValue";
-    type BehaviorDuringRetentionPeriod =
-        | "doNotRetain"
-        | "retain"
-        | "retainAsRecord"
-        | "retainAsRegulatoryRecord"
-        | "unknownFutureValue";
     type DefaultRecordBehavior = "startLocked" | "startUnlocked" | "unknownFutureValue";
     type EventPropagationStatus = "none" | "inProcessing" | "failed" | "success" | "unknownFutureValue";
     type EventStatusType = "pending" | "error" | "success" | "notAvaliable" | "unknownFutureValue";
