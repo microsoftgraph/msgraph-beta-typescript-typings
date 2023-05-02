@@ -1,4 +1,3 @@
-// Type definitions for non-npm package microsoft-graph-types-beta 0.31.0-preview
 // Project: https://github.com/microsoftgraph/msgraph-beta-typescript-typings
 // Definitions by: Microsoft Graph Team <https://github.com/microsoftgraph>
 //                 Michael Mainer <https://github.com/MIchaelMainer>
@@ -848,7 +847,7 @@ export type EducationAddToCalendarOptions =
     | "studentsAndTeamOwners"
     | "unknownFutureValue"
     | "studentsOnly";
-export type EducationAssignmentStatus = "draft" | "published" | "assigned" | "unknownFutureValue";
+export type EducationAssignmentStatus = "draft" | "published" | "assigned" | "unknownFutureValue" | "inactive";
 export type EducationFeedbackResourceOutcomeStatus =
     | "notPublished"
     | "pendingPublish"
@@ -1611,6 +1610,7 @@ export type AssignmentFilterEvaluationResult =
     | "inconclusive"
     | "failure"
     | "notEvaluated";
+export type AssignmentFilterManagementType = "devices" | "apps" | "unknownFutureValue";
 export type AssignmentFilterOperator =
     | "notSet"
     | "equals"
@@ -2858,7 +2858,8 @@ export type DeviceManagementConfigurationControlType =
     | "largeTextBox"
     | "toggle"
     | "multiheaderGrid"
-    | "contextPane";
+    | "contextPane"
+    | "unknownFutureValue";
 export type DeviceManagementConfigurationDeviceMode = "none" | "kiosk";
 export type DeviceManagementConfigurationPlatforms =
     | "none"
@@ -2878,8 +2879,12 @@ export type DeviceManagementConfigurationSettingAccessTypes =
     | "get"
     | "replace"
     | "execute";
-export type DeviceManagementConfigurationSettingUsage = "none" | "configuration" | "compliance";
-export type DeviceManagementConfigurationSettingVisibility = "none" | "settingsCatalog" | "template";
+export type DeviceManagementConfigurationSettingUsage = "none" | "configuration" | "compliance" | "unknownFutureValue";
+export type DeviceManagementConfigurationSettingVisibility =
+    | "none"
+    | "settingsCatalog"
+    | "template"
+    | "unknownFutureValue";
 export type DeviceManagementConfigurationStringFormat =
     | "none"
     | "email"
@@ -3285,14 +3290,13 @@ export type ManagementState =
     | "wipeCanceled"
     | "retireCanceled"
     | "discovered";
-export type OperatingSystemUpgradeEligibility = "upgraded" | "unknown" | "notCapable" | "capable";
-export type PrivilegeManagementElevationType =
-    | "undetermined"
-    | "unmanagedElevation"
-    | "zeroTouchElevation"
-    | "userConfirmedElevation"
-    | "supportApprovedElevation"
+export type ObliterationBehavior =
+    | "default"
+    | "doNotObliterate"
+    | "obliterateWithWarning"
+    | "always"
     | "unknownFutureValue";
+export type OperatingSystemUpgradeEligibility = "upgraded" | "unknown" | "notCapable" | "capable";
 export type PrivilegeManagementEndUserType = "undetermined" | "azureAd" | "hybrid" | "local" | "unknownFutureValue";
 export type RemediationState =
     | "unknown"
@@ -5498,6 +5502,8 @@ export type ThreatAssessmentStatus = "pending" | "completed";
 export type ThreatCategory = "undefined" | "spam" | "phishing" | "malware" | "unknownFutureValue";
 export type ThreatExpectedAssessment = "block" | "unblock";
 export type WellknownListName = "none" | "defaultList" | "flaggedEmails" | "unknownFutureValue";
+export type AssignmentType = "required" | "recommended" | "unknownFutureValue";
+export type CourseStatus = "notStarted" | "inProgress" | "completed" | "unknownFutureValue";
 export interface Entity {
     // The unique identifier for an entity. Read-only.
     id?: string;
@@ -6417,6 +6423,7 @@ export interface User extends DirectoryObject {
     teamwork?: NullableOption<UserTeamwork>;
     // Represents the To Do services available to a user.
     todo?: NullableOption<Todo>;
+    employeeExperience?: NullableOption<EmployeeExperienceUser>;
 }
 export interface UserAnalytics extends Entity {
     // The current settings for a user to use the analytics API.
@@ -8223,6 +8230,8 @@ export interface MobileAppIntentAndState extends Entity {
 export interface MobileAppTroubleshootingEvent extends DeviceManagementTroubleshootingEvent {
     // Intune application identifier.
     applicationId?: NullableOption<string>;
+    // Device identifier created or collected by Intune.
+    deviceId?: NullableOption<string>;
     // Intune Mobile Application Troubleshooting History Item
     history?: NullableOption<MobileAppTroubleshootingHistoryItem[]>;
     // Device identifier created or collected by Intune.
@@ -8822,6 +8831,9 @@ export interface UserTeamwork extends Entity {
 export interface Todo extends Entity {
     // The task lists in the users mailbox.
     lists?: NullableOption<TodoTaskList[]>;
+}
+export interface EmployeeExperienceUser extends Entity {
+    learningCourseActivities?: NullableOption<LearningCourseActivity[]>;
 }
 export interface ApplicationSignInDetailedSummary extends Entity {
     /**
@@ -10250,6 +10262,8 @@ export interface DeviceRegistrationPolicy extends Entity {
     description?: NullableOption<string>;
     // The name of the device registration policy. It is always set to Device Registration Policy. Read-only.
     displayName?: NullableOption<string>;
+    // Specifies the setting for Local Admin Password Solution (LAPS) within your organization.
+    localAdminPassword?: NullableOption<LocalAdminPasswordSettings>;
     /**
      * Specifies the authentication policy for a user to complete registration using Azure AD Join or Azure AD registered
      * within your organization. The possible values are: 0 (meaning notRequired), 1 (meaning required), and 2 (meaning
@@ -11582,6 +11596,8 @@ export interface DeviceManagement extends Entity {
     reusablePolicySettings?: NullableOption<DeviceManagementReusablePolicySetting[]>;
     // List of all reusable settings
     reusableSettings?: NullableOption<DeviceManagementConfigurationSettingDefinition[]>;
+    // List of setting insights in a template
+    templateInsights?: NullableOption<DeviceManagementTemplateInsightsDefinition[]>;
     // List of all TemplateSettings
     templateSettings?: NullableOption<DeviceManagementConfigurationSettingTemplate[]>;
     // The list of Compliance Management Partners configured by the tenant.
@@ -11641,10 +11657,6 @@ export interface DeviceManagement extends Entity {
     managedDevices?: NullableOption<ManagedDevice[]>;
     // The collection property of MobileAppTroubleshootingEvent.
     mobileAppTroubleshootingEvents?: NullableOption<MobileAppTroubleshootingEvent[]>;
-    // List of OEM Warranty Statuses
-    oemWarrantyInformationOnboarding?: NullableOption<OemWarrantyInformationOnboarding[]>;
-    // The endpoint privilege management elevation event entity contains elevation details.
-    privilegeManagementElevations?: NullableOption<PrivilegeManagementElevation[]>;
     // The list of device remote action audits with the tenant.
     remoteActionAudits?: NullableOption<RemoteActionAudit[]>;
     // TenantAttach RBAC Enablement
@@ -12063,6 +12075,11 @@ export interface AuditEvent extends Entity {
     resources?: NullableOption<AuditResource[]>;
 }
 export interface DeviceAndAppManagementAssignmentFilter extends Entity {
+    /**
+     * Indicates filter is applied to either 'devices' or 'apps' management type. Possible values are devices, apps. Default
+     * filter will be applied to 'devices'. Possible values are: devices, apps, unknownFutureValue.
+     */
+    assignmentFilterManagementType?: AssignmentFilterManagementType;
     /**
      * The creation time of the assignment filter. The value cannot be modified and is automatically populated during new
      * assignment filter process. The timestamp type represents date and time information using ISO 8601 format and is always
@@ -12787,6 +12804,10 @@ export interface DeviceManagementReusablePolicySetting extends Entity {
     // configuration policies referencing the current reusable setting. This property is read-only.
     referencingConfigurationPolicies?: NullableOption<DeviceManagementConfigurationPolicy[]>;
 }
+export interface DeviceManagementTemplateInsightsDefinition extends Entity {
+    // Setting insights in a template
+    settingInsights?: NullableOption<DeviceManagementSettingInsightsDefinition[]>;
+}
 export interface DeviceManagementConfigurationSettingTemplate extends Entity {
     // Setting Instance Template
     settingInstanceTemplate?: DeviceManagementConfigurationSettingInstanceTemplate;
@@ -13404,70 +13425,6 @@ export interface ManagedDeviceOverview extends Entity {
     managedDeviceModelsAndManufacturers?: NullableOption<ManagedDeviceModelsAndManufacturers>;
     // The number of devices enrolled in MDM
     mdmEnrolledCount?: number;
-}
-export interface OemWarrantyInformationOnboarding extends Entity {
-    // Specifies whether warranty API is available. This property is read-only.
-    available?: boolean;
-    // Specifies whether warranty query is enabled for given OEM. This property is read-only.
-    enabled?: boolean;
-    // OEM name. This property is read-only.
-    oemName?: NullableOption<string>;
-}
-export interface PrivilegeManagementElevation extends Entity {
-    /**
-     * The certificate payload of the application. This is computed by hashing the certificate information on the client.
-     * Example: `32c220482c68413fbf8290e3b1e49b0a85901cfcd62ab0738760568a2a6e8a50`
-     */
-    certificatePayload?: NullableOption<string>;
-    /**
-     * The company name of the application. This value is set by the creator of the application. Example: `Microsoft
-     * Corporation`
-     */
-    companyName?: NullableOption<string>;
-    // The Intune deviceId. Unique identifier for the managed device. Example: `92ce5047-9553-4731-817f-9b401a999a1b`
-    deviceId?: NullableOption<string>;
-    // The name associated with the device in the intune database. Example: `JOHNDOE-LAPTOP`.
-    deviceName?: NullableOption<string>;
-    /**
-     * Indicates the type of elevation on the application. Possible values are `undetermined`, `unmanagedElevation`,
-     * `zeroTouchElevation`, `userConfirmedElevation`, and `supportApprovedElevation`. Defaults to `undetermined`
-     */
-    elevationType?: PrivilegeManagementElevationType;
-    // The date and time when the application was elevated. Example:`2014-01-01T00:00:00Z`
-    eventDateTime?: string;
-    /**
-     * The file description of the application. This value is set by the creator of the application. Example: `Editor of
-     * multiple coding languages.`
-     */
-    fileDescription?: NullableOption<string>;
-    // The full file path of the application including the filename and file extension. Example: `C:\Program Files\vscode.exe`
-    filePath?: NullableOption<string>;
-    // The version of the application. This value is set by the creator of the application. Example: `6.2211.1035.1000`
-    fileVersion?: NullableOption<string>;
-    // The sha256 hash of the application. Example: `32c220482c68413fbf8290e3b1e49b0a85901cfcd62ab0738760568a2a6e8a57`
-    hash?: NullableOption<string>;
-    // The internal name of the application. This value is set by the creator of the application. Example: `VS code`
-    internalName?: NullableOption<string>;
-    /**
-     * The justification to elevate the application. This is an input by the user when the privilegeManagementElevationType is
-     * of type userConfirmedElevation or support approved elevation. This will be null in all other scenarios. The length is
-     * capped at 256 char, enforced on the client side. Example: `To install debug tool.`.
-     */
-    justification?: NullableOption<string>;
-    // The product name of the application. This value is set by the creator of the application. Example: `Visual Studio`
-    productName?: NullableOption<string>;
-    /**
-     * The result of the elevation action with 0 being success, and everything else being exit code if the elevation was
-     * unsuccessful. The value will always be 0 on all unmanaged elevation. Example: `0`. Valid values 0 to 2147483647
-     */
-    result?: number;
-    // The User Principal Name of the user who performed the elevation. Example: `john@domain.com`
-    upn?: NullableOption<string>;
-    /**
-     * The type of account performed the elevation on Windows. Possible values are: `undetermined`, `azureAd`, `hybrid`, and
-     * `local`. Defaults to `undetermined`.
-     */
-    userType?: PrivilegeManagementEndUserType;
 }
 export interface RemoteActionAudit extends Entity {
     /**
@@ -14665,6 +14622,8 @@ export interface ZebraFotaDeployment extends Entity {
     description?: NullableOption<string>;
     // A human readable name of the deployment.
     displayName?: string;
+    // List of Scope Tags for this Entity instance
+    roleScopeTagIds?: NullableOption<string[]>;
 }
 export interface GroupPolicyMigrationReport extends Entity {
     // The date and time at which the GroupPolicyMigrationReport was created.
@@ -15733,6 +15692,7 @@ export interface RbacApplication extends Entity {
     roleEligibilitySchedules?: NullableOption<UnifiedRoleEligibilitySchedule[]>;
 }
 export interface UnifiedRbacApplication extends Entity {
+    customAppScopes?: NullableOption<CustomAppScope[]>;
     // Resource that represents a collection of related actions.
     resourceNamespaces?: NullableOption<UnifiedRbacResourceNamespace[]>;
     // Resource to grant access to users or groups.
@@ -17304,6 +17264,16 @@ export interface TextClassificationRequest extends Entity {
     scopesToRun?: NullableOption<SensitiveTypeScope>;
     sensitiveTypeIds?: NullableOption<string[]>;
     text?: NullableOption<string>;
+}
+export interface DeviceLocalCredentialInfo extends Entity {
+    // The credentials of the device's local administrator account backed up to Azure Active Directory.
+    credentials?: DeviceLocalCredential[];
+    // Display name of the device that the local credentials are associated with.
+    deviceName?: string;
+    // When the local administrator account credential was backed up to Azure Active Directory.
+    lastBackupDateTime?: string;
+    // When the local administrator account credential will be refreshed and backed up to Azure Active Directory.
+    refreshDateTime?: string;
 }
 export interface AllowedDataLocation extends Entity {
     appId?: NullableOption<string>;
@@ -20056,6 +20026,9 @@ export interface Workspace extends Place {
     nickname?: string;
     // Specifies additional features of the workspace, for example, details like the type of view or furniture type.
     tags?: NullableOption<string[]>;
+}
+export interface CustomAppScope extends AppScope {
+    customAttributes?: CustomAppScopeAttributesDictionary;
 }
 export interface Attachment extends Entity {
     // The MIME type.
@@ -24978,28 +24951,6 @@ export interface WindowsAutopilotDeploymentProfileAssignment extends Entity {
 }
 // tslint:disable-next-line: no-empty-interface
 export interface WindowsAutopilotDeploymentProfilePolicySetItem extends PolicySetItem {}
-export interface OfficeClientConfiguration extends Entity {
-    checkinStatuses?: NullableOption<OfficeClientCheckinStatus[]>;
-    description?: NullableOption<string>;
-    displayName?: NullableOption<string>;
-    policyPayload?: NullableOption<any>;
-    priority?: number;
-    userCheckinSummary?: NullableOption<OfficeUserCheckinSummary>;
-    userPreferencePayload?: NullableOption<any>;
-    assignments?: NullableOption<OfficeClientConfigurationAssignment[]>;
-}
-export interface OfficeClientConfigurationAssignment extends Entity {
-    target?: NullableOption<OfficeConfigurationAssignmentTarget>;
-}
-export interface OfficeConfiguration {
-    tenantCheckinStatuses?: NullableOption<OfficeClientCheckinStatus[]>;
-    tenantUserCheckinSummary?: NullableOption<OfficeUserCheckinSummary>;
-    clientConfigurations?: NullableOption<OfficeClientConfiguration[]>;
-}
-// tslint:disable-next-line: no-empty-interface
-export interface WindowsOfficeClientConfiguration extends OfficeClientConfiguration {}
-// tslint:disable-next-line: no-empty-interface
-export interface WindowsOfficeClientSecurityConfiguration extends OfficeClientConfiguration {}
 export interface TermsAndConditionsAcceptanceStatus extends Entity {
     // DateTime when the terms were last accepted by the user.
     acceptedDateTime?: string;
@@ -32447,15 +32398,15 @@ export interface DeviceManagementConfigurationSetting extends Entity {
     settingDefinitions?: NullableOption<DeviceManagementConfigurationSettingDefinition[]>;
 }
 export interface DeviceManagementConfigurationChoiceSettingDefinition extends DeviceManagementConfigurationSettingDefinition {
-    // Default option for the choice setting.
+    // Default option for choice setting
     defaultOptionId?: NullableOption<string>;
-    // Options for the setting that can be selected.
+    // Options for the setting that can be selected
     options?: NullableOption<DeviceManagementConfigurationOptionDefinition[]>;
 }
 export interface DeviceManagementConfigurationChoiceSettingCollectionDefinition extends DeviceManagementConfigurationChoiceSettingDefinition {
-    // Maximum number of choices in the collection
+    // Maximum number of choices in the collection. Valid values 1 to 100
     maximumCount?: number;
-    // Minimum number of choices in the collection
+    // Minimum number of choices in the collection. Valid values 1 to 100
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationRedirectSettingDefinition extends DeviceManagementConfigurationSettingDefinition {
@@ -32985,6 +32936,8 @@ export interface MalwareStateForWindowsDevice extends Entity {
      */
     threatState?: NullableOption<WindowsMalwareThreatState>;
 }
+// tslint:disable-next-line: no-empty-interface
+export interface OemWarrantyInformationOnboarding extends Entity {}
 export interface UserExperienceAnalyticsMetric extends Entity {
     // The unit of the user experience analytics metric.
     unit?: NullableOption<string>;
@@ -33478,8 +33431,6 @@ export interface DepMacOSEnrollmentProfile extends DepEnrollmentBaseProfile {
     primaryAccountUserName?: NullableOption<string>;
     // Indicates if registration is disabled
     registrationDisabled?: boolean;
-    // Indicates if the device is network-tethered to run the command
-    requestRequiresNetworkTether?: boolean;
     // Indicates whether Setup Assistant will set the account as a regular user
     setPrimarySetupAccountAsRegularUser?: boolean;
     // Indicates whether Setup Assistant will skip the user interface for primary account setup
@@ -36777,9 +36728,11 @@ export interface Participant extends Entity {
     metadata?: NullableOption<string>;
     // Information on whether the participant has recording capability.
     recordingInfo?: NullableOption<RecordingInfo>;
+    // Indicates the reason why the participant was removed from the roster.
     removedState?: NullableOption<RemovedState>;
     // Indicates the reason or reasons why media content from this participant is restricted.
     restrictedExperience?: NullableOption<OnlineMeetingRestricted>;
+    // Indicates the roster sequence number the participant was last updated in.
     rosterSequenceNumber?: NullableOption<number>;
 }
 // tslint:disable-next-line: no-empty-interface
@@ -36789,6 +36742,7 @@ export interface CommsApplication {
     onlineMeetings?: NullableOption<OnlineMeeting[]>;
 }
 export interface DeltaParticipants extends Entity {
+    // The sequence number for the roster update that is used to identify the notification order.
     sequenceNumber?: NullableOption<number>;
     participants?: NullableOption<Participant[]>;
 }
@@ -37516,7 +37470,7 @@ export interface TimeCard extends ChangeTrackedEntity {
     clockInEvent?: NullableOption<TimeCardEvent>;
     // The clock-out event of the timeCard.
     clockOutEvent?: NullableOption<TimeCardEvent>;
-    // Indicate if this timeCard entry is confirmed. Possible values are none, user, manager, unknownFutureValue.
+    // Indicates whether this timeCard entry is confirmed. Possible values are none, user, manager, unknownFutureValue.
     confirmedBy?: NullableOption<ConfirmedBy>;
     // Notes about the timeCard.
     notes?: NullableOption<ItemBody>;
@@ -37734,8 +37688,25 @@ export interface TodoTask extends Entity {
     linkedResources?: NullableOption<LinkedResource[]>;
 }
 export interface EmployeeExperience {
+    learningCourseActivities?: NullableOption<LearningCourseActivity[]>;
     // A collection of learning providers.
     learningProviders?: NullableOption<LearningProvider[]>;
+}
+export interface LearningCourseActivity extends Entity {
+    // Date and time when the assignment was completed. Optional.
+    completedDateTime?: NullableOption<string>;
+    // The percentage completion value of the course activity. Optional.
+    completionPercentage?: NullableOption<number>;
+    // A course activity ID generated by the provider. Optional.
+    externalcourseActivityId?: NullableOption<string>;
+    // The user ID of the learner to whom the activity is assigned. Required.
+    learnerUserId?: string;
+    // The ID of the learning content created in Viva Learning. Required.
+    learningContentId?: string;
+    // The registration ID of the provider. Required.
+    learningProviderId?: NullableOption<string>;
+    // The status of the course activity. Possible values are: notStarted, inProgress, completed. Required.
+    status?: NullableOption<CourseStatus>;
 }
 export interface LearningProvider extends Entity {
     // The display name that appears in Viva Learning. Required.
@@ -37764,6 +37735,19 @@ export interface LearningProvider extends Entity {
     squareLogoWebUrlForLightTheme?: string;
     // Learning catalog items for the provider.
     learningContents?: NullableOption<LearningContent[]>;
+    learningCourseActivities?: NullableOption<LearningCourseActivity[]>;
+}
+export interface LearningAssignment extends LearningCourseActivity {
+    // Assigned date for the course activity. Optional.
+    assignedDateTime?: NullableOption<string>;
+    // The user ID of the assigner. Optional.
+    assignerUserId?: NullableOption<string>;
+    // The assignment type for the course activity. Possible values are: required, recommended, unknownFutureValue. Required.
+    assignmentType?: AssignmentType;
+    // Due date for the course activity. Optional.
+    dueDateTime?: NullableOption<DateTimeTimeZone>;
+    // Notes for the course activity. Optional.
+    notes?: NullableOption<ItemBody>;
 }
 export interface LearningContent extends Entity {
     // Keywords, topics, and other tags associated with the learning content. Optional.
@@ -37815,6 +37799,10 @@ export interface LearningContent extends Entity {
     thumbnailWebUrl?: NullableOption<string>;
     // The title of the learning content. Required.
     title?: string;
+}
+export interface LearningSelfInitiatedCourse extends LearningCourseActivity {
+    // The date time value on which the self-initiated course was started by the learner. Optional.
+    startedDateTime?: NullableOption<string>;
 }
 export interface AdminWindowsUpdates extends Entity {
     // Catalog of content that can be approved for deployment by the deployment service. Read-only.
@@ -37897,9 +37885,13 @@ export interface EmailSettings {
 }
 // tslint:disable-next-line: interface-name
 export interface Identity {
-    // The display name of the identity. This property is read-only.
+    /**
+     * The display name of the identity. Note that this might not always be available or up to date. For example, if a user
+     * changes their display name, the API might show the new value in a future response, but the items associated with the
+     * user won't show up as having changed when using delta.
+     */
     displayName?: NullableOption<string>;
-    // The identifier of the identity. This property is read-only.
+    // Unique identifier for the identity.
     id?: NullableOption<string>;
 }
 export interface KeyValuePair {
@@ -38278,23 +38270,23 @@ export interface OnPremisesPublishing {
 export interface SignInActivity {
     /**
      * The last non-interactive sign-in date for a specific user. You can use this field to calculate the last time a client
-     * signed in to the directory on behalf of a user. Because some users may use clients to access tenant resources rather
-     * than signing into your tenant directly, you can use the non-interactive sign-in date to along with lastSignInDateTime
-     * to identify inactive users. The timestamp represents date and time information using ISO 8601 format and is always in
-     * UTC time. For example, midnight UTC on Jan 1, 2014 is: '2014-01-01T00:00:00Z'. Azure AD maintains non-interactive
-     * sign-ins going back to May 2020. For more information about using the value of this property, see Manage inactive user
-     * accounts in Azure AD.
+     * attempted to sign into the directory the directory on behalf of a user. Because some users may use clients to access
+     * tenant resources rather than signing into your tenant directly, you can use the non-interactive sign-in date to along
+     * with lastSignInDateTime to identify inactive users. The timestamp represents date and time information using ISO 8601
+     * format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is: '2014-01-01T00:00:00Z'. Azure AD
+     * maintains non-interactive sign-ins going back to May 2020. For more information about using the value of this property,
+     * see Manage inactive user accounts in Azure AD.
      */
     lastNonInteractiveSignInDateTime?: NullableOption<string>;
     // Request identifier of the last non-interactive sign-in performed by this user.
     lastNonInteractiveSignInRequestId?: NullableOption<string>;
     /**
      * The last interactive sign-in date and time for a specific user. You can use this field to calculate the last time a
-     * user signed in to the directory with an interactive authentication method. This field can be used to build reports,
-     * such as inactive users. The timestamp represents date and time information using ISO 8601 format and is always in UTC
-     * time. For example, midnight UTC on Jan 1, 2014 is: '2014-01-01T00:00:00Z'. Azure AD maintains interactive sign-ins
-     * going back to April 2020. For more information about using the value of this property, see Manage inactive user
-     * accounts in Azure AD.
+     * user attempted to sign into the directory the directory with an interactive authentication method. This field can be
+     * used to build reports, such as inactive users. The timestamp represents date and time information using ISO 8601 format
+     * and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is: '2014-01-01T00:00:00Z'. Azure AD maintains
+     * interactive sign-ins going back to April 2020. For more information about using the value of this property, see Manage
+     * inactive user accounts in Azure AD.
      */
     lastSignInDateTime?: NullableOption<string>;
     // Request identifier of the last interactive sign-in performed by this user.
@@ -38786,9 +38778,16 @@ export interface Initiator extends Identity {
     initiatorType?: NullableOption<InitiatorType>;
 }
 export interface KeyValue {
-    // Key.
+    /**
+     * Contains the name of the field that a value is associated with. When a sign in or domain hint is included in the
+     * sign-in request, corresponding fields are included as key-value pairs. Possible keys: Login hint present, Domain hint
+     * present.
+     */
     key?: NullableOption<string>;
-    // Value.
+    /**
+     * Contains the corresponding value for the specified key. The value is true if a sign in hint was included in the sign-in
+     * request; otherwise false. The value is true if a domain hint was included in the sign-in request; otherwise false.
+     */
     value?: NullableOption<string>;
 }
 export interface ManagedIdentity {
@@ -39133,11 +39132,11 @@ export interface SamlSingleSignOnSettings {
 }
 // tslint:disable-next-line: interface-name
 export interface IdentitySet {
-    // The Identity of the Application. This property is read-only.
+    // Optional. The application associated with this action.
     application?: NullableOption<Identity>;
-    // The Identity of the Device. This property is read-only.
+    // Optional. The device associated with this action.
     device?: NullableOption<Identity>;
-    // The Identity of the User. This property is read-only.
+    // Optional. The user associated with this action.
     user?: NullableOption<Identity>;
 }
 export interface AuthenticationMethodFeatureConfiguration {
@@ -41088,6 +41087,19 @@ export interface WatermarkProtectionValues {
     // Indicates whether to apply a watermark to everyone's video feed.
     isEnabledForVideo?: NullableOption<boolean>;
 }
+export interface DeviceLocalCredential extends Entity {
+    // The name of the local admin account for which LAPS is enabled.
+    accountName?: string;
+    // The SID of the local admin account for which LAPS is enabled.
+    accountSid?: string;
+    // When the local adminstrator account credential for the device object was backed up to Azure Active Directory.
+    backupDateTime?: string;
+    /**
+     * The password for the local administrator account that is backed up to Azure Active Directory and returned as a base 64
+     * encoded value.
+     */
+    passwordBase64?: string;
+}
 export interface AzureAdJoinPolicy {
     /**
      * The identifiers of the groups that are in the scope of the policy. Required when the appliesTo property is set to
@@ -41132,6 +41144,13 @@ export interface AzureADRegistrationPolicy {
      * Intune (MEM) to manage devices, this property is set to false and appliesTo defaults to 1 (meaning all).
      */
     isAdminConfigurable?: NullableOption<boolean>;
+}
+export interface LocalAdminPasswordSettings {
+    /**
+     * Specifies whether this policy scope is configurable by the admin. The default value is false. An admin can set it to
+     * true to enable Local Admin Password Solution (LAPS) within their organzation.
+     */
+    isEnabled?: NullableOption<boolean>;
 }
 export interface PreAuthorizedApplication {
     // The unique identifier for the client application.
@@ -42443,6 +42462,10 @@ export interface TimeConstraint {
     activityDomain?: NullableOption<ActivityDomain>;
     timeSlots?: NullableOption<TimeSlot[]>;
 }
+// tslint:disable-next-line: no-empty-interface
+export interface Dictionary {}
+// tslint:disable-next-line: no-empty-interface
+export interface CustomAppScopeAttributesDictionary extends Dictionary {}
 export interface AttachmentItem {
     // The type of attachment. Possible values are: file, item, reference. Required.
     attachmentType?: NullableOption<AttachmentType>;
@@ -43550,8 +43573,6 @@ export interface WebPartPosition {
     // Index of the current web part. Represents the order of the web part in this column or section.
     webPartIndex?: NullableOption<number>;
 }
-// tslint:disable-next-line: no-empty-interface
-export interface Dictionary {}
 export interface VirtualAppointmentSettings {
     /**
      * Indicates whether the client can use the browser to join a virtual appointment. If set to false, the client can only
@@ -45810,7 +45831,10 @@ export interface IosMinimumOperatingSystem {
 }
 // tslint:disable-next-line: interface-name
 export interface IosStoreAppAssignmentSettings extends MobileAppAssignmentSettings {
-    // Whether or not the app can be removed by the user.
+    /**
+     * When TRUE, indicates that the app can be uninstalled by the user. When FALSE, indicates that the app cannot be
+     * uninstalled by the user. By default, this property is set to null which internally is treated as TRUE.
+     */
     isRemovable?: NullableOption<boolean>;
     /**
      * When TRUE, indicates that the app should not be backed up to iCloud. When FALSE, indicates that the app may be backed
@@ -45875,10 +45899,7 @@ export interface MacOSIncludedApp {
     bundleVersion?: string;
 }
 export interface MacOsLobAppAssignmentSettings extends MobileAppAssignmentSettings {
-    /**
-     * When TRUE, indicates that the app should be uninstalled when the device is removed from Intune. When FALSE, indicates
-     * that the app will not be uninstalled when the device is removed from Intune.
-     */
+    // Whether or not to uninstall the app when device is removed from Intune.
     uninstallOnDeviceRemoval?: NullableOption<boolean>;
 }
 export interface MacOSLobChildApp {
@@ -46591,26 +46612,6 @@ export interface OutOfBoxExperienceSettings {
     skipKeyboardSelectionPage?: boolean;
     // Type of user. Possible values are: administrator, standard.
     userType?: WindowsUserType;
-}
-export interface OfficeClientCheckinStatus {
-    appliedPolicies?: NullableOption<string[]>;
-    checkinDateTime?: string;
-    deviceName?: NullableOption<string>;
-    devicePlatform?: NullableOption<string>;
-    devicePlatformVersion?: NullableOption<string>;
-    errorMessage?: NullableOption<string>;
-    userId?: string;
-    userPrincipalName?: NullableOption<string>;
-    wasSuccessful?: boolean;
-}
-// tslint:disable-next-line: no-empty-interface
-export interface OfficeConfigurationAssignmentTarget {}
-export interface OfficeConfigurationGroupAssignmentTarget extends OfficeConfigurationAssignmentTarget {
-    groupId?: NullableOption<string>;
-}
-export interface OfficeUserCheckinSummary {
-    failedUserCount?: number;
-    succeededUserCount?: number;
 }
 // tslint:disable-next-line: no-empty-interface
 export interface ServiceNowAuthenticationMethod {}
@@ -48651,6 +48652,28 @@ export interface WindowsUpdateScheduledInstall extends WindowsUpdateInstallSched
     // Scheduled Install Time during day
     scheduledInstallTime?: string;
 }
+export interface DeviceManagementConfigurationSettingApplicability {
+    // description of the setting
+    description?: NullableOption<string>;
+    // Device Mode that setting can be applied on. Possible values are: none, kiosk.
+    deviceMode?: DeviceManagementConfigurationDeviceMode;
+    /**
+     * Platform setting can be applied on. Posible values are: none, android, androidEnterprise, iOs, macOs, windows10X,
+     * windows10, aosp, and linux. Possible values are: none, android, iOS, macOS, windows10X, windows10, linux,
+     * unknownFutureValue.
+     */
+    platform?: DeviceManagementConfigurationPlatforms;
+    /**
+     * Which technology channels this setting can be deployed through. Posible values are: none, mdm, configManager,
+     * intuneManagementExtension, thirdParty, documentGateway, appleRemoteManagement, microsoftSense, exchangeOnline, edgeMam,
+     * linuxMdm, extensibility, enrollment, endpointPrivilegeManagement. Possible values are: none, mdm, windows10XManagement,
+     * configManager, appleRemoteManagement, microsoftSense, exchangeOnline, mobileApplicationManagement, linuxMdm,
+     * enrollment, endpointPrivilegeManagement, unknownFutureValue.
+     */
+    technologies?: DeviceManagementConfigurationTechnologies;
+}
+// tslint:disable-next-line: no-empty-interface
+export interface DeviceManagementConfigurationApplicationSettingApplicability extends DeviceManagementConfigurationSettingApplicability {}
 export interface DeviceManagementConfigurationSettingInstance {
     // Setting Definition Id
     settingDefinitionId?: string;
@@ -48726,26 +48749,6 @@ export interface DeviceManagementConfigurationDependentOn {
     dependentOn?: NullableOption<string>;
     // Identifier of parent setting/ parent setting id dependent on
     parentSettingId?: NullableOption<string>;
-}
-export interface DeviceManagementConfigurationSettingApplicability {
-    // description of the setting
-    description?: NullableOption<string>;
-    // Device Mode that setting can be applied on. Possible values are: none, kiosk.
-    deviceMode?: DeviceManagementConfigurationDeviceMode;
-    /**
-     * Platform setting can be applied on. Posible values are: none, android, androidEnterprise, iOs, macOs, windows10X,
-     * windows10, aosp, and linux. Possible values are: none, android, iOS, macOS, windows10X, windows10, linux,
-     * unknownFutureValue.
-     */
-    platform?: DeviceManagementConfigurationPlatforms;
-    /**
-     * Which technology channels this setting can be deployed through. Posible values are: none, mdm, configManager,
-     * intuneManagementExtension, thirdParty, documentGateway, appleRemoteManagement, microsoftSense, exchangeOnline, edgeMam,
-     * linuxMdm, extensibility, enrollment, endpointPrivilegeManagement. Possible values are: none, mdm, windows10XManagement,
-     * configManager, appleRemoteManagement, microsoftSense, exchangeOnline, mobileApplicationManagement, linuxMdm,
-     * enrollment, endpointPrivilegeManagement, unknownFutureValue.
-     */
-    technologies?: DeviceManagementConfigurationTechnologies;
 }
 // tslint:disable-next-line: no-empty-interface
 export interface DeviceManagementConfigurationExchangeOnlineSettingApplicability extends DeviceManagementConfigurationSettingApplicability {}
@@ -48961,6 +48964,12 @@ export interface DeviceManagementConfigurationWindowsSettingApplicability extend
 export interface DeviceManagementPriorityMetaData {
     // Priority of the policy. Valid values 1 to 500
     priority?: number;
+}
+export interface DeviceManagementSettingInsightsDefinition {
+    // Setting definition id that is being referred to a setting.
+    settingDefinitionId?: NullableOption<string>;
+    // Data Insights Target Value
+    settingInsight?: NullableOption<DeviceManagementConfigurationSettingValue>;
 }
 export interface CompanyPortalBlockedAction {
     // Device Action. Possible values are: unknown, remove, reset.
@@ -49723,6 +49732,12 @@ export interface SuggestedEnrollmentLimit {
     suggestedDailyLimit?: number;
 }
 export interface AndroidFotaDeploymentAssignment {
+    /**
+     * The Azure Active Directory (Azure AD) we are deploying firmware updates to (e.g.:
+     * d93c8f48-bd42-4514-ba40-bc6b84780930). NOTE: Use this property moving forward because the existing property, target, is
+     * deprecated.
+     */
+    assignmentTarget?: NullableOption<DeviceAndAppManagementAssignmentTarget>;
     // The display name of the Azure AD security group used for the assignment.
     displayName?: NullableOption<string>;
     // A unique identifier assigned to each Android FOTA Assignment entity
@@ -49730,7 +49745,7 @@ export interface AndroidFotaDeploymentAssignment {
     // The AAD Group we are deploying firmware updates to
     target?: NullableOption<AndroidFotaDeploymentAssignmentTarget>;
 }
-export interface AndroidFotaDeploymentAssignmentTarget {
+export interface AndroidFotaDeploymentAssignmentTarget extends DeviceAndAppManagementAssignmentTarget {
     // AAD Group Id.
     groupId?: string;
 }
@@ -52692,6 +52707,7 @@ export interface RejectJoinResponse extends ParticipantJoiningResponse {
     reason?: RejectReason;
 }
 export interface RemovedState {
+    // The removal reason for the participant resource.
     reason?: NullableOption<string>;
 }
 export interface ServiceHostedMediaConfig extends MediaConfig {
@@ -53954,6 +53970,8 @@ export namespace CallRecords {
         endDateTime?: string;
         // Failure information associated with the session if the session failed.
         failureInfo?: NullableOption<FailureInfo>;
+        // Specifies whether the session is a test.
+        isTest?: NullableOption<boolean>;
         /**
          * List of modalities present in the session. Possible values are: unknown, audio, video, videoBasedScreenSharing, data,
          * screenSharing, unknownFutureValue.
@@ -54263,6 +54281,8 @@ export namespace CallRecords {
         averageAudioNetworkJitter?: NullableOption<string>;
         // Average estimated bandwidth available between two endpoints in bits per second.
         averageBandwidthEstimate?: NullableOption<number>;
+        // Average of the received freeze duration related to the video stream.
+        averageFreezeDuration?: NullableOption<string>;
         /**
          * Average jitter for the stream computed as specified in [RFC 3550][], denoted in [ISO 8601][] format. For example, 1
          * second is denoted as 'PT1S', where 'P' is the duration designator, 'T' is the time designator, and 'S' is the second
@@ -54295,6 +54315,11 @@ export namespace CallRecords {
          * is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z
          */
         endDateTime?: NullableOption<string>;
+        /**
+         * Indicates whether the forward error correction (FEC) was used at some point during the session. The default value is
+         * null.
+         */
+        isAudioForwardErrorCorrectionUsed?: NullableOption<boolean>;
         // Fraction of the call where frame rate is less than 7.5 frames per second.
         lowFrameRateRatio?: NullableOption<number>;
         // Fraction of the call that the client is running less than 70% expected video processing capability.
@@ -54325,6 +54350,8 @@ export namespace CallRecords {
         packetUtilization?: NullableOption<number>;
         // Packet loss rate after FEC has been applied aggregated across all video streams and codecs.
         postForwardErrorCorrectionPacketLossRate?: NullableOption<number>;
+        // Root mean square of the received freeze duration related to the video stream.
+        rmsFreezeDuration?: NullableOption<string>;
         /**
          * UTC time when the stream started. The DateTimeOffset type represents date and time information using ISO 8601 format
          * and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z
@@ -54358,10 +54385,18 @@ export namespace CallRecords {
         roundTripTime?: NullableOption<string>;
     }
     interface ParticipantEndpoint extends Endpoint {
+        // CPU number of cores used by the media endpoint.
+        cpuCoresCount?: NullableOption<number>;
+        // CPU name used by the media endpoint.
+        cpuName?: NullableOption<string>;
+        // CPU processor speed used by the media endpoint.
+        cpuProcessorSpeedInMhz?: NullableOption<number>;
         // The feedback provided by the user of this endpoint about the quality of the session.
         feedback?: NullableOption<UserFeedback>;
         // Identity associated with the endpoint.
         identity?: NullableOption<microsoftgraphbeta.IdentitySet>;
+        // Name of the device used by the media endpoint.
+        name?: NullableOption<string>;
     }
     interface UserFeedback {
         /**
