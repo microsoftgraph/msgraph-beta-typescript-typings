@@ -6049,6 +6049,11 @@ export interface User extends DirectoryObject {
     imAddresses?: NullableOption<string[]>;
     // Identifies the info segments assigned to the user. Supports $filter (eq, not, ge, le, startsWith).
     infoCatalogs?: string[];
+    /**
+     * Indicates whether the user is pending an exchange mailbox license assignment. Read-only. Supports $filter (eq where
+     * true only).
+     */
+    isLicenseReconciliationNeeded?: NullableOption<boolean>;
     isManagementRestricted?: NullableOption<boolean>;
     // Do not use – reserved for future use.
     isResourceAccount?: NullableOption<boolean>;
@@ -6213,6 +6218,10 @@ export interface User extends DirectoryObject {
      * $filter (eq, not, ge, le, startsWith).
      */
     securityIdentifier?: NullableOption<string>;
+    /**
+     * Errors published by a federated service describing a non-transient, service-specific error regarding the properties or
+     * link from a user object . Supports $filter (eq, not, for isResolved and serviceInstance).
+     */
     serviceProvisioningErrors?: NullableOption<ServiceProvisioningError[]>;
     /**
      * Do not use in Microsoft Graph. Manage this property through the Microsoft 365 admin center instead. Represents whether
@@ -7319,6 +7328,10 @@ export interface Group extends DirectoryObject {
     securityEnabled?: NullableOption<boolean>;
     // Security identifier of the group, used in Windows scenarios. Returned by default.
     securityIdentifier?: NullableOption<string>;
+    /**
+     * Errors published by a federated service describing a non-transient, service-specific error regarding the properties or
+     * link from a group object . Supports $filter (eq, not, for isResolved and serviceInstance).
+     */
     serviceProvisioningErrors?: NullableOption<ServiceProvisioningError[]>;
     /**
      * Specifies a Microsoft 365 group's color theme. Possible values are Teal, Purple, Green, Blue, Pink, Orange or Red.
@@ -9296,7 +9309,7 @@ export interface CredentialUsageSummary extends Entity {
     successfulActivityCount?: number;
 }
 export interface CredentialUserRegistrationCount extends Entity {
-    // Provides the total user count in the tenant.
+    // Provides the count of users with accountEnabled set to true in the tenant.
     totalUserCount?: number;
     // A collection of registration count and status information for users in your tenant.
     userRegistrationCounts?: UserRegistrationCount[];
@@ -10286,7 +10299,7 @@ export interface ActivityBasedTimeoutPolicy extends StsPolicy {}
 export interface AuthorizationPolicy extends PolicyBase {
     // Indicates whether users can sign up for email based subscriptions.
     allowedToSignUpEmailBasedSubscriptions?: boolean;
-    // Indicates whether the Self-Serve Password Reset feature can be used by users on the tenant.
+    // Indicates whether the Admin Self-Serve Password Reset feature is enabled on the tenant.
     allowedToUseSSPR?: boolean;
     // Indicates whether a user can join the tenant by email validation.
     allowEmailVerifiedUsersToJoinOrganization?: boolean;
@@ -10296,7 +10309,10 @@ export interface AuthorizationPolicy extends PolicyBase {
      * Government. See more in the table below.
      */
     allowInvitesFrom?: NullableOption<AllowInvitesFrom>;
-    // Indicates whether user consent for risky apps is allowed. We recommend to keep this as false.
+    /**
+     * Indicates whether user consent for risky apps is allowed. Default value is false. We recommend that you keep the value
+     * set to false.
+     */
     allowUserConsentForRiskyApps?: NullableOption<boolean>;
     /**
      * To disable the use of the MSOnline PowerShell module set this property to true. This will also disable user-based
@@ -12673,19 +12689,19 @@ export interface DeviceManagementCompliancePolicy extends Entity {
 export interface DeviceManagementConfigurationSettingDefinition extends Entity {
     // Read/write access mode of the setting. Possible values are: none, add, copy, delete, get, replace, execute.
     accessTypes?: DeviceManagementConfigurationSettingAccessTypes;
-    // Details which device setting is applicable on
+    // Details which device setting is applicable on. Supports: $filters.
     applicability?: NullableOption<DeviceManagementConfigurationSettingApplicability>;
     // Base CSP Path
     baseUri?: NullableOption<string>;
-    // Specifies the area group under which the setting is configured in a specified configuration service provider (CSP)
+    // Specify category in which the setting is under. Support $filters.
     categoryId?: NullableOption<string>;
-    // Description of the item
+    // Description of the setting.
     description?: NullableOption<string>;
-    // Display name of the item
+    // Name of the setting. For example: Allow Toast.
     displayName?: NullableOption<string>;
-    // Help text of the item
+    // Help text of the setting. Give more details of the setting.
     helpText?: NullableOption<string>;
-    // List of links more info for the setting can be found at
+    // List of links more info for the setting can be found at.
     infoUrls?: NullableOption<string[]>;
     // Tokens which to search settings on
     keywords?: NullableOption<string[]>;
@@ -12697,18 +12713,25 @@ export interface DeviceManagementConfigurationSettingDefinition extends Entity {
     offsetUri?: NullableOption<string>;
     // List of referred setting information.
     referredSettingInformationList?: NullableOption<DeviceManagementConfigurationReferredSettingInformation[]>;
-    // Root setting definition if the setting is a child setting.
+    // Root setting definition id if the setting is a child setting.
     rootDefinitionId?: NullableOption<string>;
-    // Setting type, for example, configuration and compliance. Possible values are: none, configuration, compliance.
+    /**
+     * Indicate setting type for the setting. Possible values are: configuration, compliance, reusableSetting. Each setting
+     * usage has separate API end-point to call. Possible values are: none, configuration, compliance, unknownFutureValue.
+     */
     settingUsage?: DeviceManagementConfigurationSettingUsage;
     /**
      * Setting control type representation in the UX. Possible values are: default, dropdown, smallTextBox, largeTextBox,
-     * toggle, multiheaderGrid, contextPane.
+     * toggle, multiheaderGrid, contextPane. Possible values are: default, dropdown, smallTextBox, largeTextBox, toggle,
+     * multiheaderGrid, contextPane, unknownFutureValue.
      */
     uxBehavior?: DeviceManagementConfigurationControlType;
     // Item Version
     version?: NullableOption<string>;
-    // Setting visibility scope to UX. Possible values are: none, settingsCatalog, template.
+    /**
+     * Setting visibility scope to UX. Possible values are: none, settingsCatalog, template. Possible values are: none,
+     * settingsCatalog, template, unknownFutureValue.
+     */
     visibility?: DeviceManagementConfigurationSettingVisibility;
 }
 export interface DeviceManagementConfigurationPolicy extends Entity {
@@ -16480,17 +16503,35 @@ export interface TeamworkTag extends Entity {
 // tslint:disable-next-line: no-empty-interface
 export interface TeamsTemplate extends Entity {}
 export interface TeamTemplateDefinition extends Entity {
+    /**
+     * Describes the audience the team template is available to. The possible values are: organization, user, public,
+     * unknownFutureValue.
+     */
     audience?: NullableOption<TeamTemplateAudience>;
+    // The assigned categories for the team template.
     categories?: NullableOption<string[]>;
+    // A brief description of the team template as it will appear to the users in Microsoft Teams.
     description?: NullableOption<string>;
+    // The user defined name of the team template.
     displayName?: NullableOption<string>;
+    // The icon url for the team template.
     iconUrl?: NullableOption<string>;
+    // Language the template is available in.
     languageTag?: NullableOption<string>;
+    // The identity of the user who last modified the team template.
     lastModifiedBy?: NullableOption<IdentitySet>;
+    // The date time of when the team template was last modified.
     lastModifiedDateTime?: NullableOption<string>;
+    // The templateId for the team template
     parentTemplateId?: NullableOption<string>;
+    // The organization which published the team template.
     publisherName?: NullableOption<string>;
+    // A short-description of the team template as it will appear to the users in Microsoft Teams.
     shortDescription?: NullableOption<string>;
+    /**
+     * Collection of channel objects. A channel represents a topic, and therefore a logical isolation of discussion, within a
+     * team.
+     */
     teamDefinition?: NullableOption<Team>;
 }
 export interface Schedule extends Entity {
@@ -16848,11 +16889,13 @@ export interface Permission extends Entity {
     shareId?: NullableOption<string>;
 }
 export interface AuthenticationConditionApplication {
+    // The identifier for an application corresponding to a condition which will trigger an authenticationEventListener.
     appId?: string;
 }
 // tslint:disable-next-line: no-empty-interface
 export interface CustomAuthenticationExtension extends CustomCalloutExtension {}
 export interface OnTokenIssuanceStartCustomExtension extends CustomAuthenticationExtension {
+    // Collection of claims to be returned by the API called by this custom authentication extension.
     claimsForTokenConfiguration?: NullableOption<OnTokenIssuanceStartReturnClaim[]>;
 }
 // tslint:disable-next-line: interface-name
@@ -16878,8 +16921,11 @@ export interface AppleManagedIdentityProvider extends IdentityProviderBase {
     serviceId?: NullableOption<string>;
 }
 export interface AuthenticationEventListener extends Entity {
+    // The identifier of the authenticationEventsFlow object.
     authenticationEventsFlowId?: NullableOption<string>;
+    // The conditions on which this authenticationEventListener should trigger.
     conditions?: NullableOption<AuthenticationConditions>;
+    // The priority of this handler. Between 0 (lower priority) and 1000 (higher priority).
     priority?: number;
 }
 export interface AuthenticationEventsPolicy extends Entity {
@@ -17086,6 +17132,7 @@ export interface InvokeUserFlowListener extends AuthenticationListener {
     userFlow?: NullableOption<B2xIdentityUserFlow>;
 }
 export interface OnTokenIssuanceStartListener extends AuthenticationEventListener {
+    // The handler to invoke when conditions are met for this onTokenIssuanceStartListener.
     handler?: NullableOption<OnTokenIssuanceStartHandler>;
 }
 export interface OpenIdConnectIdentityProvider extends IdentityProviderBase {
@@ -17307,15 +17354,31 @@ export interface CertificateBasedAuthConfiguration extends Entity {
     certificateAuthorities?: CertificateAuthority[];
 }
 export interface Contract extends DirectoryObject {
+    /**
+     * Type of contract. Possible values are: SyndicationPartner, BreadthPartner, ResellerPartner. See more in the table
+     * below.
+     */
     contractType?: NullableOption<string>;
+    /**
+     * The unique identifier for the customer tenant referenced by this partnership. Corresponds to the id property of the
+     * customer tenant's organization resource.
+     */
     customerId?: NullableOption<string>;
+    /**
+     * A copy of the customer tenant's default domain name. The copy is made when the partnership with the customer is
+     * established. It is not automatically updated if the customer tenant's default domain name changes.
+     */
     defaultDomainName?: NullableOption<string>;
+    /**
+     * A copy of the customer tenant's display name. The copy is made when the partnership with the customer is established.
+     * It is not automatically updated if the customer tenant's display name changes.
+     */
     displayName?: NullableOption<string>;
 }
 export interface CrossTenantAccessPolicyConfigurationDefault extends Entity {
     /**
-     * Determines the default configuration for automatic user consent settings. inboundAllowed and outboundAllowed will
-     * always be false and cannot be updated in the default configuration. Read only.
+     * Determines the default configuration for automatic user consent settings. The inboundAllowed and outboundAllowed
+     * properties are always false and cannot be updated in the default configuration. Read-only.
      */
     automaticUserConsentSettings?: NullableOption<InboundOutboundPolicyConfiguration>;
     /**
@@ -17350,8 +17413,7 @@ export interface CrossTenantAccessPolicyConfigurationDefault extends Entity {
 export interface CrossTenantAccessPolicyConfigurationPartner {
     /**
      * Determines the partner-specific configuration for automatic user consent settings. Unless specifically configured, the
-     * inboundAllowed and outboundAllowed properties will be null and inherit from the default settings, which is always
-     * false.
+     * inboundAllowed and outboundAllowed properties are null and inherit from the default settings, which is always false.
      */
     automaticUserConsentSettings?: NullableOption<InboundOutboundPolicyConfiguration>;
     /**
@@ -17385,16 +17447,16 @@ export interface CrossTenantAccessPolicyConfigurationPartner {
     tenantId?: string;
     tenantRestrictions?: NullableOption<CrossTenantAccessPolicyTenantRestrictions>;
     /**
-     * Defines the cross-tenant policy for synchronization of users from a partner tenant. Use this user synchronization
-     * policy to streamline collaboration between users in a multi-tenant organization by automating creating, updating, and
-     * deleting users from one tenant to another.
+     * Defines the cross-tenant policy for the synchronization of users from a partner tenant. Use this user synchronization
+     * policy to streamline collaboration between users in a multi-tenant organization by automating the creation, update, and
+     * deletion of users from one tenant to another.
      */
     identitySynchronization?: NullableOption<CrossTenantIdentitySyncPolicyPartner>;
 }
 export interface CrossTenantIdentitySyncPolicyPartner {
     /**
-     * Display name for the cross-tenant user synchronization policy. Use the name of the partner Azure AD tenant to easily
-     * identify the policy. Optional.
+     * Display name for the cross-tenant user synchronization policy. Use the name of the partner Azure AD (Azure Active
+     * Directory) tenant to easily identify the policy. Optional.
      */
     displayName?: NullableOption<string>;
     // Tenant identifier for the partner Azure AD organization. Read-only.
@@ -17975,6 +18037,10 @@ export interface OrgContact extends DirectoryObject {
      * expressions on multi-valued properties. Supports $filter (eq, not, ge, le, startsWith, /$count eq 0, /$count ne 0).
      */
     proxyAddresses?: string[];
+    /**
+     * Errors published by a federated service describing a non-transient, service-specific error regarding the properties or
+     * link from an orgContact object . Supports $filter (eq, not, for isResolved and serviceInstance).
+     */
     serviceProvisioningErrors?: NullableOption<ServiceProvisioningError[]>;
     /**
      * Last name for this organizational contact. Supports $filter (eq, ne, not, ge, le, in, startsWith, and eq for null
@@ -18753,7 +18819,9 @@ export interface EducationCategory extends Entity {
     displayName?: NullableOption<string>;
 }
 export interface EducationGradingCategory extends Entity {
+    // The name of the grading category.
     displayName?: string;
+    // The weight of the category; an integer between 0 and 100.
     percentageWeight?: number;
 }
 export interface EducationAssignmentResource extends Entity {
@@ -18858,8 +18926,8 @@ export interface EducationAssignmentDefaults extends Entity {
 }
 export interface EducationAssignmentSettings extends Entity {
     /**
-     * Indicates whether turn-in celebration animation will be shown. A value of true indicates that the animation will not be
-     * shown. Default value is false.
+     * Indicates whether turn-in celebration animation will be shown. If true, the animation will not be shown. The default
+     * value is false.
      */
     submissionAnimationDisabled?: NullableOption<boolean>;
     gradingCategories?: NullableOption<EducationGradingCategory[]>;
@@ -32662,9 +32730,9 @@ export interface DeviceManagementConfigurationChoiceSettingDefinition extends De
     options?: NullableOption<DeviceManagementConfigurationOptionDefinition[]>;
 }
 export interface DeviceManagementConfigurationChoiceSettingCollectionDefinition extends DeviceManagementConfigurationChoiceSettingDefinition {
-    // Maximum number of choices in the collection
+    // Maximum number of choices in the collection. Valid values 1 to 100
     maximumCount?: number;
-    // Minimum number of choices in the collection
+    // Minimum number of choices in the collection. Valid values 1 to 100
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationRedirectSettingDefinition extends DeviceManagementConfigurationSettingDefinition {
@@ -32679,7 +32747,7 @@ export interface DeviceManagementConfigurationRedirectSettingDefinition extends 
     redirectReason?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationSettingGroupDefinition extends DeviceManagementConfigurationSettingDefinition {
-    // Dependent child settings to this group of settings.
+    // Dependent child settings to this group of settings
     childIds?: NullableOption<string[]>;
     // List of child settings that depend on this setting
     dependedOnBy?: NullableOption<DeviceManagementConfigurationSettingDependedOnBy[]>;
@@ -32687,25 +32755,25 @@ export interface DeviceManagementConfigurationSettingGroupDefinition extends Dev
     dependentOn?: NullableOption<DeviceManagementConfigurationDependentOn[]>;
 }
 export interface DeviceManagementConfigurationSettingGroupCollectionDefinition extends DeviceManagementConfigurationSettingGroupDefinition {
-    // Maximum number of setting group count in the collection. Valid values 1 to 100
+    // Maximum number of setting group count in the collection
     maximumCount?: number;
-    // Minimum number of setting group count in the collection. Valid values 1 to 100
+    // Minimum number of setting group count in the collection
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationSimpleSettingDefinition extends DeviceManagementConfigurationSettingDefinition {
-    // Default setting value for this setting
+    // Default setting value for this setting.
     defaultValue?: NullableOption<DeviceManagementConfigurationSettingValue>;
-    // list of child settings that depend on this setting
+    // list of child settings that depend on this setting.
     dependedOnBy?: NullableOption<DeviceManagementConfigurationSettingDependedOnBy[]>;
-    // list of parent settings this setting is dependent on
+    // list of parent settings this setting is dependent on.
     dependentOn?: NullableOption<DeviceManagementConfigurationDependentOn[]>;
-    // Definition of the value for this setting
+    // Definition of the value for this setting.
     valueDefinition?: NullableOption<DeviceManagementConfigurationSettingValueDefinition>;
 }
 export interface DeviceManagementConfigurationSimpleSettingCollectionDefinition extends DeviceManagementConfigurationSimpleSettingDefinition {
-    // Maximum number of simple settings in the collection. Valid values 1 to 100
+    // Maximum number of simple settings in the collection
     maximumCount?: number;
-    // Minimum number of simple settings in the collection. Valid values 1 to 100
+    // Minimum number of simple settings in the collection
     minimumCount?: number;
 }
 export interface DeviceComanagementAuthorityConfiguration extends DeviceEnrollmentConfiguration {
@@ -37385,6 +37453,7 @@ export interface TeamsAppSettings extends Entity {
     isChatResourceSpecificConsentEnabled?: NullableOption<boolean>;
 }
 export interface TeamTemplate extends Entity {
+    // A generic representation of a team template definition for a team with a specific structure and configuration.
     definitions?: NullableOption<TeamTemplateDefinition[]>;
 }
 export interface Teamwork extends Entity {
@@ -38022,7 +38091,7 @@ export interface CustomExtensionCalloutResponse {
 }
 export interface CustomExtensionClientConfiguration {
     /**
-     * The max duration in milliseconds that Azure AD will wait for a response from the logic app before it shuts down the
+     * The max duration in milliseconds that Azure AD will wait for a response from the external app before it shuts down the
      * connection. The valid range is between 200 and 2000 milliseconds. Default duration is 1000.
      */
     timeoutInMilliseconds?: NullableOption<number>;
@@ -38046,15 +38115,25 @@ export interface EmailSettings {
 }
 // tslint:disable-next-line: interface-name
 export interface Identity {
-    // The display name of the identity. This property is read-only.
+    /**
+     * The display name of the identity. Note that this might not always be available or up to date. For example, if a user
+     * changes their display name, the API might show the new value in a future response, but the items associated with the
+     * user won't show up as having changed when using delta.
+     */
     displayName?: NullableOption<string>;
-    // The identifier of the identity. This property is read-only.
+    // Unique identifier for the identity.
     id?: NullableOption<string>;
 }
 export interface KeyValuePair {
-    // Name for this key-value pair
+    /**
+     * Name for this key-value pair. For more information about possible names for each resource type that uses this
+     * configuration, see keyValuePair names and values.
+     */
     name?: string;
-    // Value for this key-value pair
+    /**
+     * Value for this key-value pair. For more information about possible values for each resource type that uses this
+     * configuration, see keyValuePair names and values.
+     */
     value?: NullableOption<string>;
 }
 export interface LogicAppTriggerEndpointConfiguration extends CustomExtensionEndpointConfiguration {
@@ -38195,9 +38274,13 @@ export interface KeyCredential {
      * ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
      */
     startDateTime?: NullableOption<string>;
-    // The type of key credential; for example, Symmetric, AsymmetricX509Cert.
+    // The type of key credential; for example, Symmetric, AsymmetricX509Cert, or X509CertAndPassword.
     type?: NullableOption<string>;
-    // A string that describes the purpose for which the key can be used; for example, Verify.
+    /**
+     * A string that describes the purpose for which the key can be used; for example, None​, Verify​, PairwiseIdentifier​,
+     * Delegation​, Decrypt​, Encrypt​, HashedIdentifier​, SelfSignedTls, or Sign. If usage is Sign​, the type should be
+     * X509CertAndPassword​, and the passwordCredentials​ for signing should be defined.
+     */
     usage?: NullableOption<string>;
 }
 export interface OptionalClaims {
@@ -38617,8 +38700,11 @@ export interface ProvisionedPlan {
     service?: NullableOption<string>;
 }
 export interface ServiceProvisioningError {
+    // The date and time at which the error occurred.
     createdDateTime?: NullableOption<string>;
+    // Indicates whether the Error has been attended to.
     isResolved?: NullableOption<boolean>;
+    // Qualified service instance (e.g., 'SharePoint/Dublin') that published the service error information.
     serviceInstance?: NullableOption<string>;
 }
 export interface MailboxSettings {
@@ -38699,7 +38785,7 @@ export interface AppliedConditionalAccessPolicy {
      * Note that you must use the Prefer: include-unknown-enum-members request header to get the following values in this
      * evolvable enum: servicePrincipals,servicePrincipalRisk.
      */
-    conditionsNotSatisfied?: NullableOption<ConditionalAccessConditions>;
+    conditionsNotSatisfied?: NullableOption<ConditionalAccessConditions[]>;
     /**
      * Refers to the conditional access policy conditions that are satisfied. The possible values are: none, application,
      * users, devicePlatform, location, clientType, signInRisk, userRisk, time, deviceState,
@@ -38707,7 +38793,7 @@ export interface AppliedConditionalAccessPolicy {
      * Note that you must use the Prefer: include-unknown-enum-members request header to get the following values in this
      * evolvable enum: servicePrincipals,servicePrincipalRisk.
      */
-    conditionsSatisfied?: NullableOption<ConditionalAccessConditions>;
+    conditionsSatisfied?: NullableOption<ConditionalAccessConditions[]>;
     // Name of the conditional access policy.
     displayName?: NullableOption<string>;
     /**
@@ -38935,9 +39021,16 @@ export interface Initiator extends Identity {
     initiatorType?: NullableOption<InitiatorType>;
 }
 export interface KeyValue {
-    // Key.
+    /**
+     * Contains the name of the field that a value is associated with. When a sign in or domain hint is included in the
+     * sign-in request, corresponding fields are included as key-value pairs. Possible keys: Login hint present, Domain hint
+     * present.
+     */
     key?: NullableOption<string>;
-    // Value.
+    /**
+     * Contains the corresponding value for the specified key. The value is true if a sign in hint was included in the sign-in
+     * request; otherwise false. The value is true if a domain hint was included in the sign-in request; otherwise false.
+     */
     value?: NullableOption<string>;
 }
 export interface ManagedIdentity {
@@ -39282,11 +39375,11 @@ export interface SamlSingleSignOnSettings {
 }
 // tslint:disable-next-line: interface-name
 export interface IdentitySet {
-    // Optional. The application associated with this action.
+    // The Identity of the Application. This property is read-only.
     application?: NullableOption<Identity>;
-    // Optional. The device associated with this action.
+    // The Identity of the Device. This property is read-only.
     device?: NullableOption<Identity>;
-    // Optional. The user associated with this action.
+    // The Identity of the User. This property is read-only.
     user?: NullableOption<Identity>;
 }
 export interface AuthenticationMethodFeatureConfiguration {
@@ -40836,14 +40929,21 @@ export interface AssignmentOrder {
     order?: NullableOption<string[]>;
 }
 export interface AuthenticationConditions {
+    // Applications which will trigger a custom authentication extension.
     applications?: NullableOption<AuthenticationConditionsApplications>;
 }
 export interface AuthenticationConditionsApplications {
+    /**
+     * Whether the custom authentication extension should trigger for all applications with appIds specified in the
+     * includeApplications relationship. This property must be set to false for listener of type onTokenIssuanceStartListener.
+     */
     includeAllApplications?: boolean;
     includeApplications?: NullableOption<AuthenticationConditionApplication[]>;
 }
 export interface AuthenticationConfigurationValidation {
+    // Errors in the validation result of a customAuthenticationExtension.
     errors?: NullableOption<GenericError[]>;
+    // Warnings in the validation result of a customAuthenticationExtension.
     warnings?: NullableOption<GenericError[]>;
 }
 export interface GenericError {
@@ -40903,6 +41003,7 @@ export interface Pkcs12CertificateInformation {
     thumbprint?: NullableOption<string>;
 }
 export interface HttpRequestEndpoint extends CustomExtensionEndpointConfiguration {
+    // The HTTP endpoint that a custom extension calls.
     targetUrl?: NullableOption<string>;
 }
 // tslint:disable-next-line: no-empty-interface
@@ -40911,6 +41012,7 @@ export interface OnTokenIssuanceStartCustomExtensionHandler extends OnTokenIssua
     customExtension?: NullableOption<OnTokenIssuanceStartCustomExtension>;
 }
 export interface OnTokenIssuanceStartReturnClaim {
+    // The identifier of the claim returned by an API that is to be add to a token being issued.
     claimIdInApiResponse?: NullableOption<string>;
 }
 export interface Pkcs12Certificate extends ApiAuthenticationConfigurationBase {
@@ -41420,9 +41522,9 @@ export interface DevicesFilter {
 }
 export interface CrossTenantUserSyncInbound {
     /**
-     * Defines whether user objects should be synchronized from the partner tenant. If set to false, any current user
-     * synchronization from the source tenant to the target tenant will stop. There is no impact on existing users that have
-     * already been synchronized.
+     * Defines whether user objects should be synchronized from the partner tenant. false causes any current user
+     * synchronization from the source tenant to the target tenant to stop. This property has no impact on existing users who
+     * have already been synchronized.
      */
     isSyncAllowed?: NullableOption<boolean>;
 }
@@ -41544,13 +41646,56 @@ export interface OnPremisesAccidentalDeletionPrevention {
      */
     synchronizationPreventionType?: NullableOption<OnPremisesDirectorySynchronizationDeletionPreventionType>;
 }
+export interface OnPremisesCurrentExportData {
+    // The name of the onPremises client machine which ran the last export.
+    clientMachineName?: NullableOption<string>;
+    // The count of pending adds from on-premises directory.
+    pendingObjectsAddition?: NullableOption<number>;
+    // The count of pending deletes from on-premises directory.
+    pendingObjectsDeletion?: NullableOption<number>;
+    // The count of pending updates from on-premises directory.
+    pendingObjectsUpdate?: NullableOption<number>;
+    // The name of the dirsync service account which is configured to connect to the directory.
+    serviceAccount?: NullableOption<string>;
+    // The count of updated links during the current directory sync export run.
+    successfulLinksProvisioningCount?: NullableOption<number>;
+    // The count of objects which were successfully provisioned during the current directory sync export run.
+    successfulObjectsProvisioningCount?: NullableOption<number>;
+    // The total number of objects in the AAD Connector Space.
+    totalConnectorSpaceObjects?: NullableOption<number>;
+}
 export interface OnPremisesDirectorySynchronizationConfiguration {
     // Contains the accidental deletion prevention configuration for a tenant.
     accidentalDeletionPrevention?: NullableOption<OnPremisesAccidentalDeletionPrevention>;
+    /**
+     * The anchor attribute allows customers to customize the property used to create source anchors for synchronization
+     * enabled objects.
+     */
+    anchorAttribute?: NullableOption<string>;
+    // The identifier of the on-premises directory synchronization client application that is configured for the tenant.
+    applicationId?: NullableOption<string>;
+    // Data for the current export run.
+    currentExportData?: NullableOption<OnPremisesCurrentExportData>;
     // Interval of time that the customer requested the sync client waits between sync cycles.
     customerRequestedSynchronizationInterval?: NullableOption<string>;
+    // Indicates the version of the on-premises directory synchronization application.
+    synchronizationClientVersion?: NullableOption<string>;
     // Interval of time the sync client should honor between sync cycles
     synchronizationInterval?: NullableOption<string>;
+    // Configuration to control how cloud created or owned objects are synchronized back to the on-premises directory.
+    writebackConfiguration?: NullableOption<OnPremisesWritebackConfiguration>;
+}
+export interface OnPremisesWritebackConfiguration {
+    /**
+     * The distinguished name of the on-premises container that the customer is using to store unified groups which are
+     * created in the cloud.
+     */
+    unifiedGroupContainer?: NullableOption<string>;
+    /**
+     * The distinguished name of the on-premises container that the customer is using to store users which are created in the
+     * cloud.
+     */
+    userContainer?: NullableOption<string>;
 }
 export interface OnPremisesDirectorySynchronizationFeature {
     // Used to block cloud object takeover via source anchor hard match if enabled.
@@ -41749,6 +41894,7 @@ export interface ServiceProvisioningResourceError extends ServiceProvisioningErr
     errors?: NullableOption<ServiceProvisioningResourceErrorDetail[]>;
 }
 export interface ServiceProvisioningXmlError extends ServiceProvisioningError {
+    // Error Information published by the Federated Service as an xml string .
     errorDetail?: NullableOption<string>;
 }
 export interface SettingTemplateValue {
@@ -42124,11 +42270,17 @@ export interface EducationIdentityMatchingOptions {
     targetPropertyName?: string;
 }
 export interface EducationOneRosterApiDataProvider extends EducationSynchronizationDataProvider {
+    // The [OAuth 1.0][onerosteroauth1] or [OAuth 2.0][onerosteroauth2] settings for the OneRoster instance.
     connectionSettings?: EducationSynchronizationConnectionSettings;
+    // The connection URL to the OneRoster instance.
     connectionUrl?: string;
+    // Optional customization to be applied to the synchronization profile.
     customizations?: NullableOption<EducationSynchronizationCustomizations>;
+    // The OneRoster Service Provider name as defined by the [OneRoster specification][oneroster].
     providerName?: NullableOption<string>;
+    // The list of [School/Org][orgs] sourcedId to sync.
     schoolsIds?: NullableOption<string[]>;
+    // The list of [academic sessions][terms] to sync.
     termIds?: NullableOption<string[]>;
 }
 export interface EducationSynchronizationConnectionSettings {
@@ -44470,6 +44622,7 @@ export interface AccessReviewInstanceDecisionItemAzureRoleResource extends Acces
     scope?: NullableOption<AccessReviewInstanceDecisionItemResource>;
 }
 export interface AccessReviewInstanceDecisionItemServicePrincipalResource extends AccessReviewInstanceDecisionItemResource {
+    // The globally unique identifier of the application to which access has been granted.
     appId?: NullableOption<string>;
 }
 // tslint:disable-next-line: no-empty-interface
@@ -49024,7 +49177,7 @@ export interface DeviceManagementConfigurationReferenceSettingValue extends Devi
     note?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationReferredSettingInformation {
-    // Setting definition id that is being referred to a setting. Applicable for reusable setting.
+    // Setting definition id that is being referred to a setting. Applicable for reusable setting
     settingDefinitionId?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationSecretSettingValue extends DeviceManagementConfigurationSimpleSettingValue {
@@ -51937,7 +52090,8 @@ export interface AttackSimulationUser {
     displayName?: NullableOption<string>;
     // Email address of the user.
     email?: NullableOption<string>;
-    // This is the id property value of the user resource that represents the user in the Azure Active Directory tenant.
+    outOfOfficeDays?: NullableOption<number>;
+    // id property value of the user resource that represents the user in the Azure Active Directory tenant.
     userId?: NullableOption<string>;
 }
 export interface AttackSimulationSimulationUserCoverage {
@@ -52070,6 +52224,8 @@ export interface UserSimulationDetails {
     inProgressTrainingsCount?: NullableOption<number>;
     // Indicates whether a user was compromised in an attack simulation and training campaign.
     isCompromised?: NullableOption<boolean>;
+    // Indicates latest user activity.
+    latestSimulationActivity?: NullableOption<string>;
     // Date and time when a user reported the delivered payload as phishing in the attack simulation and training campaign.
     reportedPhishDateTime?: NullableOption<string>;
     // List of simulation events of a user in the attack simulation and training campaign.
