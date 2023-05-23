@@ -1,7 +1,7 @@
 {
   "name": "@microsoft/microsoft-graph-types-beta",
   "description": "Beta version of Typings for Microsoft Graph objects",
-  "version": "0.34.0-preview",
+  "version": "0.35.0-preview",
   "types": "microsoft-graph.d.ts",
   "scripts": {
     "test": "tsc && mocha spec/"
