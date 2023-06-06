@@ -699,6 +699,12 @@ export type SubjectRightsRequestStage =
 export type SubjectRightsRequestStageStatus = "notStarted" | "current" | "completed" | "failed" | "unknownFutureValue";
 export type SubjectRightsRequestStatus = "active" | "closed" | "unknownFutureValue";
 export type SubjectRightsRequestType = "export" | "delete" | "access" | "tagForAction" | "unknownFutureValue";
+export type AuthenticationAttributeCollectionInputType =
+    | "text"
+    | "radioSingleSelect"
+    | "checkboxMultiSelect"
+    | "boolean"
+    | "unknownFutureValue";
 export type IdentityProviderState = "enabled" | "disabled" | "unknownFutureValue";
 export type IdentityUserFlowAttributeDataType =
     | "string"
@@ -725,6 +731,7 @@ export type UserFlowType =
     | "profileUpdate"
     | "resourceOwner"
     | "unknownFutureValue";
+export type UserType = "member" | "guest" | "unknownFutureValue";
 export type Alignment = "left" | "right" | "center";
 export type ApplicationMode = "manual" | "automatic" | "recommended";
 export type ClassificationMethod = "patternMatch" | "exactDataMatch" | "fingerprint" | "machineLearning";
@@ -5331,6 +5338,14 @@ export type MicrosoftAuthenticatorAuthenticationMethodClientAppName =
     | "microsoftAuthenticator"
     | "outlookMobile"
     | "unknownFutureValue";
+export type UserDefaultAuthenticationMethodType =
+    | "push"
+    | "oath"
+    | "voiceMobile"
+    | "voiceAlternateMobile"
+    | "voiceOffice"
+    | "sms"
+    | "unknownFutureValue";
 export type LifecycleEventType = "missed" | "subscriptionRemoved" | "reauthorizationRequired";
 export type BinaryOperator = "or" | "and";
 export type AccessType = "grant" | "deny";
@@ -5779,8 +5794,7 @@ export interface ExtensionProperty extends DirectoryObject {
     dataType?: string;
     /**
      * Defines the directory extension as a multi-valued property. When true, the directory extension property can store a
-     * collection of objects of the dataType; for example, a collection of integers. The default value is false. Supports
-     * $filter (eq).
+     * collection of objects of the dataType; for example, a collection of integers. The default value is false.
      */
     isMultiValued?: boolean;
     // Indicates if this extension property was synced from on-premises active directory using Azure AD Connect. Read-only.
@@ -7662,7 +7676,7 @@ export interface Person extends Entity {
     emailAddresses?: NullableOption<RankedEmailAddress[]>;
     // The person's given name.
     givenName?: NullableOption<string>;
-    // true if the user has flagged this person as a favorite.
+    // True if the user has flagged this person as a favorite.
     isFavorite?: NullableOption<boolean>;
     // The type of mailbox that is represented by the person's email address.
     mailboxType?: NullableOption<string>;
@@ -7806,6 +7820,7 @@ export interface AppConsentRequest extends Entity {
     userConsentRequests?: NullableOption<UserConsentRequest[]>;
 }
 export interface Approval extends Entity {
+    // Used to represent the decision associated with a single step in the approval process configured in approvalStage.
     steps?: NullableOption<ApprovalStep[]>;
 }
 export interface AccessReviewInstance extends Entity {
@@ -8678,6 +8693,7 @@ export interface OnlineMeeting extends Entity {
     attendeeReport?: NullableOption<any>;
     // The phone access (dial-in) information for an online meeting. Read-only.
     audioConferencing?: NullableOption<AudioConferencing>;
+    broadcastRecording?: NullableOption<any>;
     // Settings related to a live event.
     broadcastSettings?: NullableOption<BroadcastMeetingSettings>;
     capabilities?: NullableOption<MeetingCapabilities[]>;
@@ -8731,6 +8747,7 @@ export interface OnlineMeeting extends Entity {
      * enabled.
      */
     registration?: NullableOption<MeetingRegistration>;
+    recordings?: NullableOption<CallRecording[]>;
     // The transcripts of an online meeting. Read-only.
     transcripts?: NullableOption<CallTranscript[]>;
 }
@@ -9589,7 +9606,7 @@ export interface CustomSecurityAttributeDefinition extends Entity {
      */
     isCollection?: boolean;
     /**
-     * Indicates whether custom security attribute values will be indexed for searching on objects that are assigned attribute
+     * Indicates whether custom security attribute values are indexed for searching on objects that are assigned attribute
      * values. Cannot be changed later.
      */
     isSearchable?: NullableOption<boolean>;
@@ -9599,13 +9616,13 @@ export interface CustomSecurityAttributeDefinition extends Entity {
      */
     name?: string;
     /**
-     * Specifies whether the custom security attribute is active or deactivated. Acceptable values are Available and
+     * Specifies whether the custom security attribute is active or deactivated. Acceptable values are: Available and
      * Deprecated. Can be changed later.
      */
     status?: string;
     /**
-     * Data type for the custom security attribute values. Supported types are Boolean, Integer, and String. Cannot be changed
-     * later.
+     * Data type for the custom security attribute values. Supported types are: Boolean, Integer, and String. Cannot be
+     * changed later.
      */
     type?: string;
     /**
@@ -9615,7 +9632,7 @@ export interface CustomSecurityAttributeDefinition extends Entity {
      */
     usePreDefinedValuesOnly?: NullableOption<boolean>;
     /**
-     * Values that are predefined for this custom security attribute.This navigation property is not returned by default and
+     * Values that are predefined for this custom security attribute. This navigation property is not returned by default and
      * must be specified in an $expand query. For example,
      * /directory/customSecurityAttributeDefinitions?$expand=allowedValues.
      */
@@ -15800,6 +15817,7 @@ export interface RbacApplication extends Entity {
     roleEligibilitySchedules?: NullableOption<UnifiedRoleEligibilitySchedule[]>;
 }
 export interface UnifiedRbacApplication extends Entity {
+    // Workload-specific scope object that represents the resources for which the principal has been granted access.
     customAppScopes?: NullableOption<CustomAppScope[]>;
     // Resource that represents a collection of related actions.
     resourceNamespaces?: NullableOption<UnifiedRbacResourceNamespace[]>;
@@ -16514,10 +16532,10 @@ export interface ConversationMember extends Entity {
     // The display name of the user.
     displayName?: NullableOption<string>;
     /**
-     * The roles for that user. This property only contains additional qualifiers when relevant - for example, if the member
-     * has owner privileges, the roles property contains owner as one of the values. Similarly, if the member is a guest, the
-     * roles property contains guest as one of the values. A basic member should not have any values specified in the roles
-     * property.
+     * The roles for that user. This property contains additional qualifiers only when relevant - for example, if the member
+     * has owner privileges, the roles property contains owner as one of the values. Similarly, if the member is an in-tenant
+     * guest, the roles property contains guest as one of the values. A basic member should not have any values specified in
+     * the roles property. An Out-of-tenant external member is assigned the owner role.
      */
     roles?: NullableOption<string[]>;
     /**
@@ -16968,6 +16986,23 @@ export interface AuthenticationConditionApplication {
     // The identifier for an application corresponding to a condition which will trigger an authenticationEventListener.
     appId?: string;
 }
+// tslint:disable-next-line: interface-name
+export interface IdentityUserFlowAttribute extends Entity {
+    /**
+     * The data type of the user flow attribute. This cannot be modified after the custom user flow attribute is created. The
+     * supported values for dataType are: string , boolean , int64 , stringCollection , dateTime.
+     */
+    dataType?: IdentityUserFlowAttributeDataType;
+    // The description of the user flow attribute that's shown to the user at the time of sign-up.
+    description?: NullableOption<string>;
+    // The display name of the user flow attribute.
+    displayName?: NullableOption<string>;
+    /**
+     * The type of the user flow attribute. This is a read-only attribute that is automatically set. Depending on the type of
+     * attribute, the values for this property will be builtIn, custom, or required.
+     */
+    userFlowAttributeType?: IdentityUserFlowAttributeType;
+}
 // tslint:disable-next-line: no-empty-interface
 export interface CustomAuthenticationExtension extends CustomCalloutExtension {}
 export interface OnTokenIssuanceStartCustomExtension extends CustomAuthenticationExtension {
@@ -17002,6 +17037,22 @@ export interface AuthenticationEventListener extends Entity {
     // The conditions on which this authenticationEventListener should trigger.
     conditions?: NullableOption<AuthenticationConditions>;
     // The priority of this handler. Between 0 (lower priority) and 1000 (higher priority).
+    priority?: number;
+}
+export interface AuthenticationEventsFlow extends Entity {
+    /**
+     * The conditions representing the context of the authentication request which will be used to decide whether the events
+     * policy will be invoked.
+     */
+    conditions?: NullableOption<AuthenticationConditions>;
+    // The description of the events policy.
+    description?: NullableOption<string>;
+    // Required. The display name for the events policy.
+    displayName?: string;
+    /**
+     * The priority to use for each individual event of the events policy. If multiple competing listeners for an event have
+     * the same priority, one is chosen and an error is silently logged. Defaults to 500.
+     */
     priority?: number;
 }
 export interface AuthenticationEventsPolicy extends Entity {
@@ -17135,22 +17186,18 @@ export interface BuiltInIdentityProvider extends IdentityProviderBase {
     identityProviderType?: NullableOption<string>;
     state?: NullableOption<IdentityProviderState>;
 }
-// tslint:disable-next-line: interface-name
-export interface IdentityUserFlowAttribute extends Entity {
+export interface ExternalUsersSelfServiceSignUpEventsFlow extends AuthenticationEventsFlow {
+    // The configuration for what to invoke when attributes are ready to be collected from the user.
+    onAttributeCollection?: NullableOption<OnAttributeCollectionHandler>;
     /**
-     * The data type of the user flow attribute. This cannot be modified after the custom user flow attribute is created. The
-     * supported values for dataType are: string , boolean , int64 , stringCollection , dateTime.
+     * Required. The configuration for what to invoke when authentication methods are ready to be presented to the user. Must
+     * have at least one identity provider linked.
      */
-    dataType?: IdentityUserFlowAttributeDataType;
-    // The description of the user flow attribute that's shown to the user at the time of sign-up.
-    description?: NullableOption<string>;
-    // The display name of the user flow attribute.
-    displayName?: NullableOption<string>;
-    /**
-     * The type of the user flow attribute. This is a read-only attribute that is automatically set. Depending on the type of
-     * attribute, the values for this property will be builtIn, custom, or required.
-     */
-    userFlowAttributeType?: IdentityUserFlowAttributeType;
+    onAuthenticationMethodLoadStart?: NullableOption<OnAuthenticationMethodLoadStartHandler>;
+    // Required. The configuration for what to invoke when an authentication flow is ready to be initiated.
+    onInteractiveAuthFlowStart?: NullableOption<OnInteractiveAuthFlowStartHandler>;
+    // The configuration for what to invoke during user creation.
+    onUserCreateStart?: NullableOption<OnUserCreateStartHandler>;
 }
 // tslint:disable-next-line: interface-name no-empty-interface
 export interface IdentityBuiltInUserFlowAttribute extends IdentityUserFlowAttribute {}
@@ -17159,6 +17206,11 @@ export interface IdentityContainer {
     // Represents entry point for API connectors.
     apiConnectors?: NullableOption<IdentityApiConnector[]>;
     authenticationEventListeners?: NullableOption<AuthenticationEventListener[]>;
+    /**
+     * Represents the entry point for self-service sign up and sign in user flows in both Azure AD workforce and customer
+     * tenants.
+     */
+    authenticationEventsFlows?: NullableOption<AuthenticationEventsFlow[]>;
     // Represents entry point for B2C identity userflows.
     b2cUserFlows?: NullableOption<B2cIdentityUserFlow[]>;
     // Represents entry point for B2X and self-service sign-up identity userflows.
@@ -17207,9 +17259,37 @@ export interface InvokeUserFlowListener extends AuthenticationListener {
     // The user flow that is invoked when this action executes.
     userFlow?: NullableOption<B2xIdentityUserFlow>;
 }
+export interface OnAttributeCollectionListener extends AuthenticationEventListener {
+    /**
+     * Required. Configuration for what to invoke if the event resolves to this listener. This lets us define potential
+     * handler configurations per-event.
+     */
+    handler?: NullableOption<OnAttributeCollectionHandler>;
+}
+export interface OnAuthenticationMethodLoadStartListener extends AuthenticationEventListener {
+    /**
+     * Required. Configuration for what to invoke if the event resolves to this listener. This lets us define potential
+     * handler configurations per-event.
+     */
+    handler?: NullableOption<OnAuthenticationMethodLoadStartHandler>;
+}
+export interface OnInteractiveAuthFlowStartListener extends AuthenticationEventListener {
+    /**
+     * Required. Configuration for what to invoke if the event resolves to this listener. This lets us define potential
+     * handler configurations per-event.
+     */
+    handler?: NullableOption<OnInteractiveAuthFlowStartHandler>;
+}
 export interface OnTokenIssuanceStartListener extends AuthenticationEventListener {
     // The handler to invoke when conditions are met for this onTokenIssuanceStartListener.
     handler?: NullableOption<OnTokenIssuanceStartHandler>;
+}
+export interface OnUserCreateStartListener extends AuthenticationEventListener {
+    /**
+     * Required. Configuration for what to invoke if the event resolves to this listener. This lets us define potential
+     * handler configurations per-event.
+     */
+    handler?: NullableOption<OnUserCreateStartHandler>;
 }
 export interface OpenIdConnectIdentityProvider extends IdentityProviderBase {
     /**
@@ -17497,6 +17577,10 @@ export interface CrossTenantAccessPolicyConfigurationDefault extends Entity {
      * customized.
      */
     isServiceDefault?: NullableOption<boolean>;
+    /**
+     * Defines the default tenant restrictions configuration for your organization users accessing an external organization on
+     * your network or devices.
+     */
     tenantRestrictions?: NullableOption<CrossTenantAccessPolicyTenantRestrictions>;
 }
 export interface CrossTenantAccessPolicyConfigurationPartner {
@@ -17534,6 +17618,10 @@ export interface CrossTenantAccessPolicyConfigurationPartner {
     isServiceProvider?: NullableOption<boolean>;
     // The tenant identifier for the partner Azure AD organization. Read-only. Key.
     tenantId?: string;
+    /**
+     * Defines the partner-specific tenant restrictions configuration for your organization users accessing a partner
+     * organization using partner supplied idenities on your network or devices.
+     */
     tenantRestrictions?: NullableOption<CrossTenantAccessPolicyTenantRestrictions>;
     /**
      * Defines the cross-tenant policy for the synchronization of users from a partner tenant. Use this user synchronization
@@ -17907,6 +17995,7 @@ export interface OrganizationalBrandingProperties extends Entity {
      * providers are used at the same time for high availability of read requests. Read-only.
      */
     cdnList?: NullableOption<string[]>;
+    contentCustomization?: NullableOption<ContentCustomization>;
     /**
      * A custom URL for resetting account credentials. This URL must be in ASCII format or non-ASCII characters must be URL
      * encoded, and not exceed 128 characters.
@@ -18034,6 +18123,13 @@ export interface PartnerInformation {
 export interface OrganizationSettings extends Entity {
     microsoftApplicationDataAccess?: NullableOption<MicrosoftApplicationDataAccessSettings>;
     /**
+     * Contains a collection of the properties an administrator has defined as visible on the Microsoft 365 profile card. Get
+     * organization settings returns the properties configured for profile cards for the organization.
+     */
+    profileCardProperties?: NullableOption<ProfileCardProperty[]>;
+    // Represents administrator settings that manage the support of pronouns in an organization.
+    pronouns?: NullableOption<PronounsSettings>;
+    /**
      * Contains the properties that are configured by an administrator as a tenant-level privacy control whether to identify
      * duplicate contacts among a user's contacts list and suggest the user to merge those contacts to have a cleaner contacts
      * list. List contactInsights returns the settings to display or return contact insights in an organization.
@@ -18051,13 +18147,6 @@ export interface OrganizationSettings extends Entity {
      * an organization.
      */
     peopleInsights?: NullableOption<InsightsSettings>;
-    /**
-     * Contains a collection of the properties an administrator has defined as visible on the Microsoft 365 profile card. Get
-     * organization settings returns the properties configured for profile cards for the organization.
-     */
-    profileCardProperties?: NullableOption<ProfileCardProperty[]>;
-    // Represents administrator settings that manage the support of pronouns in an organization.
-    pronouns?: NullableOption<PronounsSettings>;
 }
 // tslint:disable-next-line: no-empty-interface
 export interface OrganizationalBrandingLocalization extends OrganizationalBrandingProperties {}
@@ -18971,9 +19060,9 @@ export interface EducationSubmission extends Entity {
      */
     returnedDateTime?: NullableOption<string>;
     /**
-     * Read-only. Possible values are: working, submitted, released, returned, unknownFutureValue and reassigned. Note that
-     * you must use the Prefer: include-unknown-enum-members request header to get the following value(s) in this evolvable
-     * enum: reassigned.
+     * Read-only. Possible values are: working, submitted, returned, unknownFutureValue and reassigned. Note that you must use
+     * the Prefer: include-unknown-enum-members request header to get the following value(s) in this evolvable enum:
+     * reassigned.
      */
     status?: NullableOption<EducationSubmissionStatus>;
     // User who moved the resource into the submitted state.
@@ -20207,6 +20296,7 @@ export interface Workspace extends Place {
     tags?: NullableOption<string[]>;
 }
 export interface CustomAppScope extends AppScope {
+    // An open dictionary type that holds workload-specific properties for the scope object.
     customAttributes?: CustomAppScopeAttributesDictionary;
 }
 export interface Attachment extends Entity {
@@ -20845,6 +20935,10 @@ export interface MeetingRegistration extends MeetingRegistrationBase {
     // Custom registration questions.
     customQuestions?: NullableOption<MeetingRegistrationQuestion[]>;
 }
+export interface CallRecording extends Entity {
+    content?: NullableOption<any>;
+    createdDateTime?: NullableOption<string>;
+}
 export interface CallTranscript extends Entity {
     // A field that represents the content of the transcript. Read-only.
     content?: NullableOption<any>;
@@ -20910,6 +21004,7 @@ export interface ApplicationSegment extends Entity {}
 export interface IpApplicationSegment extends ApplicationSegment {
     destinationHost?: NullableOption<string>;
     port?: NullableOption<number>;
+    ports?: NullableOption<string[]>;
 }
 export interface WebApplicationSegment extends ApplicationSegment {
     /**
@@ -20931,6 +21026,7 @@ export interface Connector extends Entity {
     machineName?: string;
     // Indicates the status of the connector. Possible values are: active, inactive. Read-only.
     status?: ConnectorStatus;
+    version?: string;
     // The connectorGroup that the connector is a member of. Read-only.
     memberOf?: NullableOption<ConnectorGroup[]>;
 }
@@ -22429,8 +22525,8 @@ export interface RiskDetection extends Entity {
      * The type of risk event detected. The possible values are unlikelyTravel, anonymizedIPAddress, maliciousIPAddress,
      * unfamiliarFeatures, malwareInfectedIPAddress, suspiciousIPAddress, leakedCredentials, investigationsThreatIntelligence,
      * generic,adminConfirmedUserCompromised, mcasImpossibleTravel, mcasSuspiciousInboxManipulationRules,
-     * investigationsThreatIntelligenceSigninLinked, maliciousIPAddressValidCredentialsBlockedIP, and anomalousUserActivity.
-     * For more information about each value, see riskEventType values.
+     * investigationsThreatIntelligenceSigninLinked, maliciousIPAddressValidCredentialsBlockedIP, anomalousUserActivity,
+     * userReportedSuspiciousActivity. For more information about each value, see riskEventType values.
      */
     riskEventType?: NullableOption<string>;
     /**
@@ -32820,15 +32916,15 @@ export interface DeviceManagementConfigurationSetting extends Entity {
     settingDefinitions?: NullableOption<DeviceManagementConfigurationSettingDefinition[]>;
 }
 export interface DeviceManagementConfigurationChoiceSettingDefinition extends DeviceManagementConfigurationSettingDefinition {
-    // Default option for the choice setting.
+    // Default option for choice setting
     defaultOptionId?: NullableOption<string>;
-    // Options for the setting that can be selected.
+    // Options for the setting that can be selected
     options?: NullableOption<DeviceManagementConfigurationOptionDefinition[]>;
 }
 export interface DeviceManagementConfigurationChoiceSettingCollectionDefinition extends DeviceManagementConfigurationChoiceSettingDefinition {
-    // Maximum number of choices in the collection. Valid values 1 to 100
+    // Maximum number of choices in the collection
     maximumCount?: number;
-    // Minimum number of choices in the collection. Valid values 1 to 100
+    // Minimum number of choices in the collection
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationRedirectSettingDefinition extends DeviceManagementConfigurationSettingDefinition {
@@ -32843,7 +32939,7 @@ export interface DeviceManagementConfigurationRedirectSettingDefinition extends 
     redirectReason?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationSettingGroupDefinition extends DeviceManagementConfigurationSettingDefinition {
-    // Dependent child settings to this group of settings
+    // Dependent child settings to this group of settings.
     childIds?: NullableOption<string[]>;
     // List of child settings that depend on this setting
     dependedOnBy?: NullableOption<DeviceManagementConfigurationSettingDependedOnBy[]>;
@@ -32867,9 +32963,9 @@ export interface DeviceManagementConfigurationSimpleSettingDefinition extends De
     valueDefinition?: NullableOption<DeviceManagementConfigurationSettingValueDefinition>;
 }
 export interface DeviceManagementConfigurationSimpleSettingCollectionDefinition extends DeviceManagementConfigurationSimpleSettingDefinition {
-    // Maximum number of simple settings in the collection. Valid values 1 to 100
+    // Maximum number of simple settings in the collection
     maximumCount?: number;
-    // Minimum number of simple settings in the collection. Valid values 1 to 100
+    // Minimum number of simple settings in the collection
     minimumCount?: number;
 }
 export interface DeviceComanagementAuthorityConfiguration extends DeviceEnrollmentConfiguration {
@@ -35644,19 +35740,6 @@ export interface UsedInsight extends Entity {
      */
     resource?: NullableOption<Entity>;
 }
-// tslint:disable-next-line: interface-name
-export interface InsightsSettings extends Entity {
-    /**
-     * The ID of an Azure Active Directory group, of which the specified type of insights are disabled for its members.
-     * Default is empty. Optional.
-     */
-    disabledForGroup?: NullableOption<string>;
-    /**
-     * true if the specified type of insights are enabled for the organization; false if the specified type of insights are
-     * disabled for all users without exceptions. Default is true. Optional.
-     */
-    isEnabledInOrganization?: NullableOption<boolean>;
-}
 export interface ProfileCardProperty extends Entity {
     /**
      * Allows an administrator to set a custom display label for the directory property and localize it for the users in their
@@ -35677,6 +35760,19 @@ export interface ProfileCardProperty extends Entity {
 export interface PronounsSettings extends Entity {
     // true to enable pronouns in the organization, false otherwise. The default is false, and pronouns are disabled.
     isEnabledInOrganization?: boolean;
+}
+// tslint:disable-next-line: interface-name
+export interface InsightsSettings extends Entity {
+    /**
+     * The ID of an Azure Active Directory group, of which the specified type of insights are disabled for its members.
+     * Default is empty. Optional.
+     */
+    disabledForGroup?: NullableOption<string>;
+    /**
+     * true if the specified type of insights are enabled for the organization; false if the specified type of insights are
+     * disabled for all users without exceptions. Default is true. Optional.
+     */
+    isEnabledInOrganization?: NullableOption<boolean>;
 }
 export interface OnenoteEntityBaseModel extends Entity {
     self?: NullableOption<string>;
@@ -37053,6 +37149,7 @@ export interface Participant extends Entity {
     mediaStreams?: NullableOption<MediaStream[]>;
     // A blob of data provided by the participant in the roster.
     metadata?: NullableOption<string>;
+    preferredDisplayName?: NullableOption<string>;
     // Information on whether the participant has recording capability.
     recordingInfo?: NullableOption<RecordingInfo>;
     // Indicates the reason why the participant was removed from the roster.
@@ -37153,47 +37250,77 @@ export interface UnmuteParticipantOperation extends CommsOperation {}
 // tslint:disable-next-line: no-empty-interface
 export interface UpdateRecordingStatusOperation extends CommsOperation {}
 export interface VirtualEvent extends Entity {
+    // Identity information of who created the virtual event. Inherited from virtualEvent.
     createdBy?: NullableOption<CommunicationsIdentitySet>;
+    // Description of the virtual event.
     description?: NullableOption<string>;
+    // Display name of the virtual event
     displayName?: NullableOption<string>;
+    // End time of the virtual event.
     endDateTime?: NullableOption<DateTimeTimeZone>;
+    // Start time of the virtual event.
     startDateTime?: NullableOption<DateTimeTimeZone>;
+    // Status of the virtual event. The possible values are: draft, published, canceled, unknownFutureValue.
     status?: NullableOption<VirtualEventStatus>;
+    // Presenters' information of the virtual event.
     presenters?: NullableOption<VirtualEventPresenter[]>;
+    // Sessions of the virtual event.
     sessions?: NullableOption<VirtualEventSession[]>;
 }
 export interface VirtualEventPresenter extends Entity {
+    // Email address of the presenter.
     email?: NullableOption<string>;
+    // Identity information of the presenter.
     identity?: NullableOption<CommunicationsUserIdentity>;
+    // Other detail information of the presenter.
     presenterDetails?: NullableOption<VirtualEventPresenterDetails>;
 }
 // tslint:disable-next-line: no-empty-interface
 export interface VirtualEventSession extends OnlineMeeting {}
 export interface VirtualEventRegistrant extends Entity {
+    // Time in UTC when the registrant cancels their registration for the virtual event. Only appears when applicable.
     cancelationDateTime?: NullableOption<string>;
+    // Email address of the registrant.
     email?: NullableOption<string>;
+    // First name of the registrant.
     firstName?: NullableOption<string>;
+    // Last name of the registrant.
     lastName?: NullableOption<string>;
+    // Time in UTC when the registrant registers for the virtual event.
     registrationDateTime?: NullableOption<string>;
+    // The registrant's answer to the registration questions.
     registrationQuestionAnswers?: NullableOption<VirtualEventRegistrationQuestionAnswer[]>;
+    // Registration status of the registrant. Read-only.
     status?: NullableOption<VirtualEventAttendeeRegistrationStatus>;
+    // The registrant's AAD user ID. Only appears when the registrant is registered in AAD.
     userId?: NullableOption<string>;
 }
 export interface VirtualEventRegistration extends Entity {
+    // Total capacity of the virtual event.
     capacity?: NullableOption<number>;
+    // Registration URL of the virtual event.
     registrationWebUrl?: NullableOption<string>;
+    // Registration questions.
     questions?: NullableOption<VirtualEventRegistrationQuestion[]>;
+    // Information of attendees who have registered for the virtual event.
     registrants?: NullableOption<VirtualEventRegistrant[]>;
 }
 export interface VirtualEventRegistrationQuestion extends Entity {
+    // Answer choices when answerInputType is singleChoice or multiChoice.
     answerChoices?: NullableOption<string[]>;
+    // Input type of the registration question answer.
     answerInputType?: NullableOption<VirtualEventRegistrationQuestionAnswerInputType>;
+    // Display name of the registration question.
     displayName?: NullableOption<string>;
+    // Indicates whether the question is required to answer. Default value is false.
     isRequired?: NullableOption<boolean>;
 }
 export interface VirtualEventWebinar extends VirtualEvent {
+    // To whom the webinar is visible.
     audience?: NullableOption<MeetingAudience>;
+    // Identity information of co-organizers of the webinar.
     coOrganizers?: NullableOption<CommunicationsUserIdentity[]>;
+    // Registration configuration of the webinar.
     registration?: NullableOption<VirtualEventRegistration>;
 }
 // tslint:disable-next-line: no-empty-interface
@@ -38257,9 +38384,13 @@ export interface EmailSettings {
 }
 // tslint:disable-next-line: interface-name
 export interface Identity {
-    // The display name of the identity. This property is read-only.
+    /**
+     * The display name of the identity. Note that this might not always be available or up to date. For example, if a user
+     * changes their display name, the API might show the new value in a future response, but the items associated with the
+     * user won't show up as having changed when using delta.
+     */
     displayName?: NullableOption<string>;
-    // The identifier of the identity. This property is read-only.
+    // Unique identifier for the identity.
     id?: NullableOption<string>;
 }
 export interface KeyValuePair {
@@ -38400,7 +38531,8 @@ export interface KeyCredential {
     /**
      * Value for the key credential. Should be a Base64 encoded value. Returned only on $select for a single object, that is,
      * GET applications/{applicationId}?$select=keyCredentials or GET
-     * servicePrincipals/{servicePrincipalId}?$select=keyCredentials; otherwise, it is always null.
+     * servicePrincipals/{servicePrincipalId}?$select=keyCredentials; otherwise, it is always null. From a .cer certificate,
+     * you can read the key using the Convert.ToBase64String() method. For more information, see Get the certificate key.
      */
     key?: NullableOption<string>;
     // The unique identifier for the key.
@@ -38581,6 +38713,7 @@ export interface OnPremisesPublishing {
     externalUrl?: NullableOption<string>;
     // The internal url of the application. For example, https://intranet/.
     internalUrl?: NullableOption<string>;
+    isAccessibleViaZTNAClient?: NullableOption<boolean>;
     /**
      * Indicates whether backend SSL certificate validation is enabled for the application. For all new Application Proxy
      * apps, the property will be set to true by default. For all existing apps, the property will be set to false.
@@ -39157,9 +39290,16 @@ export interface Initiator extends Identity {
     initiatorType?: NullableOption<InitiatorType>;
 }
 export interface KeyValue {
-    // Key.
+    /**
+     * Contains the name of the field that a value is associated with. When a sign in or domain hint is included in the
+     * sign-in request, corresponding fields are included as key-value pairs. Possible keys: Login hint present, Domain hint
+     * present.
+     */
     key?: NullableOption<string>;
-    // Value.
+    /**
+     * Contains the corresponding value for the specified key. The value is true if a sign in hint was included in the sign-in
+     * request; otherwise false. The value is true if a domain hint was included in the sign-in request; otherwise false.
+     */
     value?: NullableOption<string>;
 }
 export interface ManagedIdentity {
@@ -39504,11 +39644,11 @@ export interface SamlSingleSignOnSettings {
 }
 // tslint:disable-next-line: interface-name
 export interface IdentitySet {
-    // Optional. The application associated with this action.
+    // The Identity of the Application. This property is read-only.
     application?: NullableOption<Identity>;
-    // Optional. The device associated with this action.
+    // The Identity of the Device. This property is read-only.
     device?: NullableOption<Identity>;
-    // Optional. The user associated with this action.
+    // The Identity of the User. This property is read-only.
     user?: NullableOption<Identity>;
 }
 export interface AuthenticationMethodFeatureConfiguration {
@@ -41072,6 +41212,50 @@ export interface AssignmentOrder {
      */
     order?: NullableOption<string[]>;
 }
+export interface AuthenticationAttributeCollectionInputConfiguration {
+    // The built-in or custom attribute for which a value is being collected.
+    attribute?: string;
+    // The default value of the attribute displayed to the end user.
+    defaultValue?: NullableOption<string>;
+    // Whether the attribute is editable by the end user.
+    editable?: NullableOption<boolean>;
+    // Whether the attribute is displayed to the end user.
+    hidden?: NullableOption<boolean>;
+    /**
+     * The type of input field. The possible values are: text, radioSingleSelect, checkboxMultiSelect, boolean,
+     * checkboxSingleSelect, unknownFutureValue.
+     */
+    inputType?: AuthenticationAttributeCollectionInputType;
+    // The label of the attribute field that will be displayed to end user, unless overridden.
+    label?: string;
+    // The option values for certain multiple-option input types.
+    options?: NullableOption<AuthenticationAttributeCollectionOptionConfiguration[]>;
+    // Whether the field is required.
+    required?: NullableOption<boolean>;
+    // The regex for the value of the field.
+    validationRegEx?: NullableOption<string>;
+    // Whether the value collected will be stored.
+    writeToDirectory?: NullableOption<boolean>;
+}
+export interface AuthenticationAttributeCollectionOptionConfiguration {
+    // The label of the option that will be displayed to user, unless overridden.
+    label?: string;
+    // The value of the option that will be stored.
+    value?: string;
+}
+export interface AuthenticationAttributeCollectionPage {
+    customStringsFileId?: NullableOption<string>;
+    // A collection of displays of the attribute collection page.
+    views?: NullableOption<AuthenticationAttributeCollectionPageViewConfiguration[]>;
+}
+export interface AuthenticationAttributeCollectionPageViewConfiguration {
+    // The description of the page.
+    description?: NullableOption<string>;
+    // The display configuration of attributes being collected on the attribute collection page.
+    inputs?: NullableOption<AuthenticationAttributeCollectionInputConfiguration[]>;
+    // The title of the attribute collection page.
+    title?: NullableOption<string>;
+}
 export interface AuthenticationConditions {
     // Applications which will trigger a custom authentication extension.
     applications?: NullableOption<AuthenticationConditionsApplications>;
@@ -41151,6 +41335,30 @@ export interface HttpRequestEndpoint extends CustomExtensionEndpointConfiguratio
     targetUrl?: NullableOption<string>;
 }
 // tslint:disable-next-line: no-empty-interface
+export interface OnAttributeCollectionHandler {}
+export interface OnAttributeCollectionExternalUsersSelfServiceSignUp extends OnAttributeCollectionHandler {
+    /**
+     * Required. The configuration for how attributes are displayed in the sign up experience defined by a user flow, like the
+     * externalUsersSelfServiceSignupEventsFlow, specifically on the attribute collection page.
+     */
+    attributeCollectionPage?: NullableOption<AuthenticationAttributeCollectionPage>;
+    attributes?: NullableOption<IdentityUserFlowAttribute[]>;
+}
+// tslint:disable-next-line: no-empty-interface
+export interface OnAuthenticationMethodLoadStartHandler {}
+export interface OnAuthenticationMethodLoadStartExternalUsersSelfServiceSignUp extends OnAuthenticationMethodLoadStartHandler {
+    identityProviders?: NullableOption<IdentityProviderBase[]>;
+}
+// tslint:disable-next-line: no-empty-interface
+export interface OnInteractiveAuthFlowStartHandler {}
+export interface OnInteractiveAuthFlowStartExternalUsersSelfServiceSignUp extends OnInteractiveAuthFlowStartHandler {
+    /**
+     * Optional. Specifes whether the authentication flow includes an option to sign up (create account) as well as sign in.
+     * Default value is false meaning only sign in is enabled.
+     */
+    isSignUpAllowed?: boolean;
+}
+// tslint:disable-next-line: no-empty-interface
 export interface OnTokenIssuanceStartHandler {}
 export interface OnTokenIssuanceStartCustomExtensionHandler extends OnTokenIssuanceStartHandler {
     customExtension?: NullableOption<OnTokenIssuanceStartCustomExtension>;
@@ -41158,6 +41366,12 @@ export interface OnTokenIssuanceStartCustomExtensionHandler extends OnTokenIssua
 export interface OnTokenIssuanceStartReturnClaim {
     // The identifier of the claim returned by an API that is to be add to a token being issued.
     claimIdInApiResponse?: NullableOption<string>;
+}
+// tslint:disable-next-line: no-empty-interface
+export interface OnUserCreateStartHandler {}
+export interface OnUserCreateStartExternalUsersSelfServiceSignUp extends OnUserCreateStartHandler {
+    // The type of user object to create. The possible values are: member, guest, unknownFutureValue.
+    userTypeToCreate?: NullableOption<UserType>;
 }
 export interface Pkcs12Certificate extends ApiAuthenticationConfigurationBase {
     // This is the password for the pfx file. Required. If no password is used, must still provide a value of ''.
@@ -41629,6 +41843,10 @@ export interface CertificateAuthority {
 }
 // tslint:disable-next-line: no-empty-interface
 export interface ComplexExtensionValue {}
+export interface ContentCustomization {
+    attributeCollection?: KeyValue[];
+    attributeCollectionRelativeUrl?: NullableOption<string>;
+}
 export interface CrossTenantAccessPolicyB2BSetting {
     // The list of applications targeted with your cross-tenant access policy.
     applications?: NullableOption<CrossTenantAccessPolicyTargetConfiguration>;
@@ -41651,18 +41869,31 @@ export interface CrossTenantAccessPolicyInboundTrust {
 }
 export interface CrossTenantAccessPolicyTarget {
     /**
-     * The unique identifier of the user, group, or application; one of the following keywords: AllUsers and AllApplications;
-     * or for targets that are applications, you may use reserved values.
+     * Can be one of the following values: The unique identifier of the user, group, or application AllUsers AllApplications -
+     * Refers to any Microsoft cloud application. Office365 - Includes the applications mentioned as part of the Office365
+     * suite.
      */
     target?: NullableOption<string>;
     // The type of resource that you want to target. The possible values are: user, group, application, unknownFutureValue.
     targetType?: NullableOption<CrossTenantAccessPolicyTargetType>;
 }
 export interface CrossTenantAccessPolicyTenantRestrictions extends CrossTenantAccessPolicyB2BSetting {
+    /**
+     * Defines the rule for filtering devices and whether devices satisfying the rule should be allowed or blocked. Not
+     * implemented.
+     */
     devices?: NullableOption<DevicesFilter>;
 }
 export interface DevicesFilter {
+    /**
+     * Determines whether devices satisfying the rule should be allowed or blocked.The possible values are: allowed, blocked,
+     * unknownFutureValue.Not implemented yet
+     */
     mode?: NullableOption<CrossTenantAccessPolicyTargetConfigurationAccessType>;
+    /**
+     * Defines the rule to filter the devices. An example would be device.deviceAttribute2 -eq 'PrivilegedAccessWorkstation'
+     * Not implemented yet
+     */
     rule?: NullableOption<string>;
 }
 export interface CrossTenantUserSyncInbound {
@@ -41674,11 +41905,22 @@ export interface CrossTenantUserSyncInbound {
     isSyncAllowed?: NullableOption<boolean>;
 }
 export interface DefaultUserRolePermissions {
-    // Indicates whether the default user role can create applications.
+    /**
+     * Indicates whether the default user role can create applications. This setting corresponds to the Users can register
+     * applications setting in the User settings menu in the Azure portal.
+     */
     allowedToCreateApps?: boolean;
-    // Indicates whether the default user role can create security groups.
+    /**
+     * Indicates whether the default user role can create security groups. This setting corresponds to the following menus in
+     * the Azure portal: The Users can create security groups in Azure portals, API or PowerShell setting in the Group
+     * settings menu. Users can create security groups setting in the User settings menu.
+     */
     allowedToCreateSecurityGroups?: boolean;
-    // Indicates whether the default user role can create tenants.
+    /**
+     * Indicates whether the default user role can create tenants. This setting corresponds to the Restrict non-admin users
+     * from creating tenants setting in the User settings menu in the Azure portal. When this setting is false, users assigned
+     * the Tenant Creator role can still create tenants.
+     */
     allowedToCreateTenants?: NullableOption<boolean>;
     // Indicates whether the registered owners of a device can read their own BitLocker recovery keys with default user role.
     allowedToReadBitlockerKeysForOwnedDevice?: NullableOption<boolean>;
@@ -41731,6 +41973,7 @@ export interface ResourcePermission {
 export interface LicenseUnitsDetail {
     // The number of units that are enabled for the active subscription of the service SKU.
     enabled?: NullableOption<number>;
+    lockedOut?: NullableOption<number>;
     /**
      * The number of units that are suspended because the subscription of the service SKU has been cancelled. The units cannot
      * be assigned but can still be reactivated before they are deleted.
@@ -44240,7 +44483,7 @@ export interface AttributeDefinition {
     defaultValue?: NullableOption<string>;
     // 'true' to allow null values for attributes.
     flowNullValues?: boolean;
-    // Additional extension properties. Unless mentioned explicitly, metadata values should not be changed.
+    // Metadata for the given object.
     metadata?: NullableOption<AttributeDefinitionMetadataEntry[]>;
     // true if an attribute can have multiple values. Default is false.
     multivalued?: boolean;
@@ -44269,7 +44512,12 @@ export interface StringKeyStringValuePair {
     value?: NullableOption<string>;
 }
 export interface AttributeDefinitionMetadataEntry {
+    /**
+     * Possible values are: BaseAttributeName, ComplexObjectDefinition, IsContainer, IsCustomerDefined, IsDomainQualified,
+     * LinkPropertyNames, LinkTypeName, MaximumLength, ReferencedProperty.
+     */
     key?: NullableOption<AttributeDefinitionMetadata>;
+    // Value of the metadata property.
     value?: NullableOption<string>;
 }
 export interface ReferencedObject {
@@ -44405,7 +44653,12 @@ export interface GroupFilter {
     includedGroups?: NullableOption<string[]>;
 }
 export interface ObjectDefinitionMetadataEntry {
+    /**
+     * Possible values are: PropertyNameAccountEnabled, PropertyNameSoftDeleted, IsSoftDeletionSupported,
+     * IsSynchronizeAllSupported, ConnectorDataStorageRequired, Extensions, LinkTypeName.
+     */
     key?: NullableOption<ObjectDefinitionMetadata>;
+    // Value of the metadata property.
     value?: NullableOption<string>;
 }
 export interface ObjectMapping {
@@ -44439,7 +44692,12 @@ export interface ObjectMapping {
     targetObjectName?: NullableOption<string>;
 }
 export interface ObjectMappingMetadataEntry {
+    /**
+     * Possible values are: EscrowBehavior, DisableMonitoringForChanges, OriginalJoiningProperty, Disposition,
+     * IsCustomerDefined, ExcludeFromReporting, Unsynchronized.
+     */
     key?: NullableOption<ObjectMappingMetadata>;
+    // Value of the metadata property.
     value?: NullableOption<string>;
 }
 export interface ParseExpressionResponse {
@@ -44523,7 +44781,13 @@ export interface SynchronizationLinkedObjects {
     owners?: NullableOption<SynchronizationJobSubject[]>;
 }
 export interface SynchronizationMetadataEntry {
+    /**
+     * Possible values are: GalleryApplicationIdentifier, GalleryApplicationKey, IsOAuthEnabled,
+     * IsSynchronizationAgentAssignmentRequired, IsSynchronizationAgentRequired, IsSynchronizationInPreview, OAuthSettings,
+     * SynchronizationLearnMoreIbizaFwLink, ConfigurationFields.
+     */
     key?: NullableOption<SynchronizationMetadata>;
+    // Value of the metadata property.
     value?: NullableOption<string>;
 }
 export interface SynchronizationProgress {
@@ -46350,7 +46614,10 @@ export interface MacOSIncludedApp {
     bundleVersion?: string;
 }
 export interface MacOsLobAppAssignmentSettings extends MobileAppAssignmentSettings {
-    // Whether or not to uninstall the app when device is removed from Intune.
+    /**
+     * When TRUE, indicates that the app should be uninstalled when the device is removed from Intune. When FALSE, indicates
+     * that the app will not be uninstalled when the device is removed from Intune.
+     */
     uninstallOnDeviceRemoval?: NullableOption<boolean>;
 }
 export interface MacOSLobChildApp {
@@ -46801,7 +47068,10 @@ export interface WindowsPackageInformation {
     minimumSupportedOperatingSystem?: NullableOption<WindowsMinimumOperatingSystem>;
 }
 export interface WindowsUniversalAppXAppAssignmentSettings extends MobileAppAssignmentSettings {
-    // Whether or not to use device execution context for Windows Universal AppX mobile app.
+    /**
+     * If true, uses device execution context for Windows Universal AppX mobile app. Device-context install is not allowed
+     * when this type of app is targeted with Available intent. Defaults to false.
+     */
     useDeviceContext?: boolean;
 }
 export interface WinGetAppAssignmentSettings extends MobileAppAssignmentSettings {
@@ -49311,7 +49581,7 @@ export interface DeviceManagementConfigurationReferenceSettingValue extends Devi
     note?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationReferredSettingInformation {
-    // Setting definition id that is being referred to a setting. Applicable for reusable setting.
+    // Setting definition id that is being referred to a setting. Applicable for reusable setting
     settingDefinitionId?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationSecretSettingValue extends DeviceManagementConfigurationSimpleSettingValue {
@@ -49372,7 +49642,7 @@ export interface DeviceManagementConfigurationStringSettingValueDefinition exten
     fileTypes?: NullableOption<string[]>;
     /**
      * Pre-defined format of the string. Possible values are: none, email, guid, ip, base64, url, version, xml, date, time,
-     * binary, regEx, json, dateTime, surfaceHub.
+     * binary, regEx, json, dateTime, surfaceHub, bashScript, unknownFutureValue.
      */
     format?: DeviceManagementConfigurationStringFormat;
     // Regular expression or any xml or json schema that the input string should match
@@ -49382,9 +49652,9 @@ export interface DeviceManagementConfigurationStringSettingValueDefinition exten
      * at rest and will be displayed as asterisks when represented in the UX.
      */
     isSecret?: boolean;
-    // Maximum length of string
+    // Maximum length of string. Valid values 0 to 87516
     maximumLength?: number;
-    // Minimum length of string
+    // Minimum length of string. Valid values 0 to 87516
     minimumLength?: number;
 }
 export interface DeviceManagementConfigurationStringSettingValueTemplate extends DeviceManagementConfigurationSimpleSettingValueTemplate {
@@ -50910,7 +51180,7 @@ export interface SearchRequest {
     resultTemplateOptions?: NullableOption<ResultTemplateOption>;
     // Indicates the kind of contents to be searched when a search is performed using application permissions. Optional.
     sharePointOneDriveOptions?: NullableOption<SharePointOneDriveOptions>;
-    // The size of the page to be retrieved. Optional.
+    // The size of the page to be retrieved. The maximum value is 500. Optional.
     size?: number;
     /**
      * Contains the ordered collection of fields and direction to sort results. There can be at most 5 sort properties in the
@@ -51224,7 +51494,7 @@ export interface PlannerPlanContextDetails {
     /**
      * Specifies how an application should display the link to the associated plannerPlanContext. Applications may choose to
      * provide customized text, description, icons, or other experiences based on the type of the link. Possible values are:
-     * teamsTab, sharePointPage, meetingNotes, other, unknownFutureValue.
+     * teamsTab, sharePointPage, meetingNotes, loopPage, project, other, unknownFutureValue.
      */
     displayLinkType?: NullableOption<PlannerPlanContextType>;
     // Indicates the state of the associated plannerPlanContext.
@@ -51550,6 +51820,19 @@ export interface DelegatedAdminRelationshipCustomerParticipant {
     // The Azure AD-assigned tenant ID of the customer tenant.
     tenantId?: string;
 }
+export interface ProfileCardAnnotation {
+    /**
+     * If present, the value of this field is used by the profile card as the default property label in the experience (for
+     * example, 'Cost Center').
+     */
+    displayName?: NullableOption<string>;
+    /**
+     * Each resource in this collection represents the localized value of the attribute name for a given language, used as the
+     * default label for that locale. For example, a user with a no-NB client gets 'Kostnads Senter' as the attribute label,
+     * rather than 'Cost Center.'
+     */
+    localizations?: NullableOption<DisplayNameLocalization[]>;
+}
 export interface CompanyDetail {
     // Address of the company.
     address?: NullableOption<PhysicalAddress>;
@@ -51627,19 +51910,6 @@ export interface PositionDetail {
     startMonthYear?: NullableOption<string>;
     // Short summary of the position.
     summary?: NullableOption<string>;
-}
-export interface ProfileCardAnnotation {
-    /**
-     * If present, the value of this field is used by the profile card as the default property label in the experience (for
-     * example, 'Cost Center').
-     */
-    displayName?: NullableOption<string>;
-    /**
-     * Each resource in this collection represents the localized value of the attribute name for a given language, used as the
-     * default label for that locale. For example, a user with a no-NB client gets 'Kostnads Senter' as the attribute label,
-     * rather than 'Cost Center.'
-     */
-    localizations?: NullableOption<DisplayNameLocalization[]>;
 }
 export interface RegionalFormatOverrides {
     // The calendar to use, e.g., Gregorian Calendar.Returned by default.
@@ -53285,21 +53555,35 @@ export interface ToneInfo {
     tone?: Tone;
 }
 export interface VirtualEventPresenterDetails {
+    // Bio of the presenter.
     bio?: NullableOption<ItemBody>;
+    // The presenter's company name.
     company?: NullableOption<string>;
+    // The presenter's job title.
     jobTitle?: NullableOption<string>;
+    // The presenter's LinkedIn profile URL.
     linkedInProfileWebUrl?: NullableOption<string>;
+    // The presenter's personal website URL.
     personalSiteWebUrl?: NullableOption<string>;
+    // The presenter's Twitter profile URL.
     twitterProfileWebUrl?: NullableOption<string>;
 }
 export interface VirtualEventPresenterInfo extends MeetingParticipantInfo {
     presenterDetails?: NullableOption<VirtualEventPresenterDetails>;
 }
 export interface VirtualEventRegistrationQuestionAnswer {
+    // Boolean answer of the virtualEventRegistrationQuestion. Only appears when answerInputType is boolean.
     booleanValue?: NullableOption<boolean>;
+    // Display name of the registration question.
     displayName?: NullableOption<string>;
+    // Collection of text answer of the virtualEventRegistrationQuestion. Only appears when answerInputType is multiChoice.
     multiChoiceValues?: NullableOption<string[]>;
+    // id of the virtualEventRegistrationQuestion.
     questionId?: NullableOption<string>;
+    /**
+     * Text answer of the virtualEventRegistrationQuestion. Appears when answerInputType is text, multilineText or
+     * singleChoice.
+     */
     value?: NullableOption<string>;
 }
 export interface PasswordResetResponse {
@@ -53308,6 +53592,7 @@ export interface PasswordResetResponse {
 export interface SignInPreferences {
     // Indicates whether the credential preferences of the system are enabled.
     isSystemPreferredAuthenticationMethodEnabled?: NullableOption<boolean>;
+    userPreferredMethodForSecondaryAuthentication?: NullableOption<UserDefaultAuthenticationMethodType>;
 }
 export interface ChangeNotification {
     /**
@@ -54742,7 +55027,7 @@ export namespace CallRecords {
         /**
          * Codec name used to encode audio for transmission on the network. Possible values are: unknown, invalid, cn, pcma, pcmu,
          * amrWide, g722, g7221, g7221c, g729, multiChannelAudio, muchv2, opus, satin, satinFullband, rtAudio8, rtAudio16, silk,
-         * silkNarrow, silkWide, siren, xmsRTA, unknownFutureValue.
+         * silkNarrow, silkWide, siren, xmsRta, unknownFutureValue.
          */
         audioCodec?: NullableOption<AudioCodec>;
         /**
@@ -58053,7 +58338,8 @@ export namespace SecurityNamespace {
         | "microsoftDataLossPrevention"
         | "appGovernancePolicy"
         | "appGovernanceDetection"
-        | "unknownFutureValue";
+        | "unknownFutureValue"
+        | "microsoftDefenderForCloud";
     type DetectionStatus = "detected" | "blocked" | "prevented" | "unknownFutureValue";
     type DeviceHealthStatus =
         | "active"
@@ -58083,7 +58369,8 @@ export namespace SecurityNamespace {
         | "policyViolator"
         | "unknownFutureValue";
     type EvidenceVerdict = "unknown" | "suspicious" | "malicious" | "noThreatsFound" | "unknownFutureValue";
-    type IncidentStatus = "active" | "resolved" | "inProgress" | "redirected" | "unknownFutureValue";
+    type GoogleCloudLocationType = "unknown" | "regional" | "zonal" | "global" | "unknownFutureValue";
+    type IncidentStatus = "active" | "resolved" | "inProgress" | "redirected" | "unknownFutureValue" | "awaitingAction";
     type OnboardingStatus = "insufficientInfo" | "onboarded" | "canBeOnboarded" | "unsupported" | "unknownFutureValue";
     type ServiceSource =
         | "unknown"
@@ -58095,7 +58382,8 @@ export namespace SecurityNamespace {
         | "azureAdIdentityProtection"
         | "microsoftAppGovernance"
         | "dataLossPrevention"
-        | "unknownFutureValue";
+        | "unknownFutureValue"
+        | "microsoftDefenderForCloud";
     type VmCloudProvider = "unknown" | "azure" | "unknownFutureValue";
     type ActionAfterRetentionPeriod = "none" | "delete" | "startDispositionReview" | "relabel" | "unknownFutureValue";
     type DefaultRecordBehavior = "startLocked" | "startUnlocked" | "unknownFutureValue";
@@ -58239,7 +58527,14 @@ export namespace SecurityNamespace {
         createdDateTime?: NullableOption<string>;
         // String value describing each alert.
         description?: NullableOption<string>;
-        // Detection technology or sensor that identified the notable component or activity.
+        /**
+         * Detection technology or sensor that identified the notable component or activity. Possible values are: unknown,
+         * microsoftDefenderForEndpoint, antivirus, smartScreen, customTi, microsoftDefenderForOffice365, automatedInvestigation,
+         * microsoftThreatExperts, customDetection, microsoftDefenderForIdentity, cloudAppSecurity, microsoft365Defender,
+         * azureAdIdentityProtection, manual, microsoftDataLossPrevention, appGovernancePolicy, appGovernanceDetection,
+         * unknownFutureValue, microsoftDefenderForCloud. Note that you must use the Prefer: include-unknown-enum-members request
+         * header to get the following value(s) in this evolvable enum: microsoftDefenderForCloud.
+         */
         detectionSource?: NullableOption<DetectionSource>;
         // The ID of the detector that triggered the alert.
         detectorId?: NullableOption<string>;
@@ -58271,9 +58566,11 @@ export namespace SecurityNamespace {
         // Time when the alert was resolved.
         resolvedDateTime?: NullableOption<string>;
         /**
-         * The service or product that created this alert. Possible values are: microsoftDefenderForEndpoint,
-         * microsoftDefenderForIdentity, microsoftCloudAppSecurity, microsoftDefenderForOffice365, microsoft365Defender,
-         * aadIdentityProtection, appGovernance, dataLossPrevention.
+         * The service or product that created this alert. Possible values are: unknown, microsoftDefenderForEndpoint,
+         * microsoftDefenderForIdentity, microsoftDefenderForCloudApps, microsoftDefenderForOffice365, microsoft365Defender,
+         * azureAdIdentityProtection, microsoftAppGovernance, dataLossPrevention, unknownFutureValue, microsoftDefenderForCloud.
+         * Note that you must use the Prefer: include-unknown-enum-members request header to get the following value(s) in this
+         * evolvable enum: microsoftDefenderForCloud.
          */
         serviceSource?: ServiceSource;
         /**
@@ -59477,8 +59774,13 @@ export namespace SecurityNamespace {
         createdDateTime?: string;
     }
     interface AlertEvidence {
-        // The time the evidence was created and added to the alert.
+        /**
+         * The date and time when the evidence was created and added to the alert. The Timestamp type represents date and time
+         * information using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is
+         * 2014-01-01T00:00:00Z.
+         */
         createdDateTime?: string;
+        detailedRoles?: NullableOption<string[]>;
         /**
          * Status of the remediation action taken. The possible values are: none, remediated, prevented, blocked, notFound,
          * unknownFutureValue.
@@ -59487,13 +59789,13 @@ export namespace SecurityNamespace {
         // Details about the remediation status.
         remediationStatusDetails?: NullableOption<string>;
         /**
-         * The role/s that an evidence entity represents in an alert, e.g., an IP address that is associated with an attacker will
-         * have the evidence role 'Attacker'.
+         * One or more roles that an evidence entity represents in an alert. For example, an IP address that is associated with an
+         * attacker has the evidence role Attacker.
          */
         roles?: EvidenceRole[];
         /**
-         * Array of custom tags associated with an evidence instance, for example to denote a group of devices, high value assets,
-         * etc.
+         * Array of custom tags associated with an evidence instance. For example, to denote a group of devices or high value
+         * assets.
          */
         tags?: NullableOption<string[]>;
         /**
@@ -59501,6 +59803,16 @@ export namespace SecurityNamespace {
          * noThreatsFound, unknownFutureValue.
          */
         verdict?: EvidenceVerdict;
+    }
+    interface AmazonResourceEvidence extends AlertEvidence {
+        // The unique identifier for the Amazon account.
+        amazonAccountId?: NullableOption<string>;
+        // The Amazon resource identifier (ARN) for the cloud resource.
+        amazonResourceId?: NullableOption<string>;
+        // The name of the resource.
+        resourceName?: NullableOption<string>;
+        // The type of the resource.
+        resourceType?: NullableOption<string>;
     }
     interface AnalyzedMessageEvidence extends AlertEvidence {
         // Direction of the email relative to your network. The possible values are: inbound, outbound or intraorg.
@@ -59551,6 +59863,14 @@ export namespace SecurityNamespace {
         // Sender email address.
         emailAddress?: NullableOption<string>;
     }
+    interface AzureResourceEvidence extends AlertEvidence {
+        // The unique identifier for the Azure resource.
+        resourceId?: NullableOption<string>;
+        // The name of the resource.
+        resourceName?: NullableOption<string>;
+        // The type of the resource.
+        resourceType?: NullableOption<string>;
+    }
     interface CloudApplicationEvidence extends AlertEvidence {
         // Unique identifier of the application.
         appId?: NullableOption<number>;
@@ -59580,6 +59900,7 @@ export namespace SecurityNamespace {
          * noSensorDataImpairedCommunication, unknown, unknownFutureValue.
          */
         healthStatus?: NullableOption<DeviceHealthStatus>;
+        ipInterfaces?: NullableOption<string[]>;
         // Users that were logged on the machine during the time of the alert.
         loggedOnUsers?: NullableOption<LoggedOnUser[]>;
         // A unique identifier assigned to a device by Microsoft Defender for Endpoint.
@@ -59649,6 +59970,20 @@ export namespace SecurityNamespace {
         // A unique identifier assigned to a device by Microsoft Defender for Endpoint.
         mdeDeviceId?: NullableOption<string>;
     }
+    interface GoogleCloudResourceEvidence extends AlertEvidence {
+        // The zone or region where the resource is located.
+        location?: NullableOption<string>;
+        // The type of location. Possible values are: unknown, regional, zonal, global, unknownFutureValue.
+        locationType?: NullableOption<GoogleCloudLocationType>;
+        // The Google project ID as defined by the user.
+        projectId?: NullableOption<string>;
+        // The project number assigned by Google.
+        projectNumber?: NullableOption<number>;
+        // The name of the resource.
+        resourceName?: NullableOption<string>;
+        // The type of the resource.
+        resourceType?: NullableOption<string>;
+    }
     interface HuntingQueryResults {
         // The results of the hunting query.
         results?: NullableOption<HuntingRowResult[]>;
@@ -59679,10 +60014,11 @@ export namespace SecurityNamespace {
         userAccount?: NullableOption<UserAccount>;
     }
     interface UserAccount {
-        // The user account's displayed name.
+        // The displayed name of the user account.
         accountName?: NullableOption<string>;
-        // The user object identifier in Azure AD.
+        // The user object identifier in Azure Active Directory (Azure AD).
         azureAdUserId?: NullableOption<string>;
+        // The user display name in Azure AD.
         displayName?: NullableOption<string>;
         // The name of the Active Directory domain of which the user is a member.
         domainName?: NullableOption<string>;
@@ -59747,6 +60083,7 @@ export namespace SecurityNamespace {
         registryKey?: NullableOption<string>;
     }
     interface RegistryValueEvidence extends AlertEvidence {
+        mdeDeviceId?: NullableOption<string>;
         // Registry hive of the key that the recorded action was applied to.
         registryHive?: NullableOption<string>;
         // Registry key that the recorded action was applied to.
