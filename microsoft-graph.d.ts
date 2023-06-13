@@ -557,6 +557,8 @@ export type CloudPcOnPremisesConnectionHealthCheckErrorType =
     | "permissionCheckNoResourceGroupOwnerRole"
     | "permissionCheckNoVNetContributorRole"
     | "permissionCheckNoResourceGroupNetworkContributorRole"
+    | "permissionCheckNoWindows365NetworkUserRole"
+    | "permissionCheckNoWindows365NetworkInterfaceContributorRole"
     | "permissionCheckTransientServiceError"
     | "permissionCheckUnknownError"
     | "udpConnectivityCheckStunUrlNotAllowListed"
@@ -630,7 +632,8 @@ export type CloudPcReportName =
     | "totalAggregatedRemoteConnectionReports"
     | "sharedUseLicenseUsageReport"
     | "sharedUseLicenseUsageRealTimeReport"
-    | "unknownFutureValue";
+    | "unknownFutureValue"
+    | "noLicenseAvailableConnectivityFailureReport";
 export type CloudPcResizeValidationCode =
     | "success"
     | "cloudPcNotFound"
@@ -3224,6 +3227,7 @@ export type DeviceGuardVirtualizationBasedSecurityState =
     | "notConfigured"
     | "doesNotMeetHardwareRequirements"
     | "other";
+export type DeviceHealthScriptType = "deviceHealthScript" | "managedInstallerScript";
 export type DeviceLicensingStatus =
     | "unknown"
     | "licenseRefreshStarted"
@@ -3346,7 +3350,14 @@ export type ObliterationBehavior =
     | "obliterateWithWarning"
     | "always"
     | "unknownFutureValue";
-export type OperatingSystemUpgradeEligibility = "upgraded" | "unknown" | "notCapable" | "capable";
+export type OperatingSystemUpgradeEligibility = "upgraded" | "unknown" | "notCapable" | "capable" | "unknownFutureValue";
+export type PrivilegeManagementElevationType =
+    | "undetermined"
+    | "unmanagedElevation"
+    | "zeroTouchElevation"
+    | "userConfirmedElevation"
+    | "supportApprovedElevation"
+    | "unknownFutureValue";
 export type PrivilegeManagementEndUserType = "undetermined" | "azureAd" | "hybrid" | "local" | "unknownFutureValue";
 export type RemediationState =
     | "unknown"
@@ -3387,6 +3398,14 @@ export type RemoteAction =
     | "initiateMobileDeviceManagementKeyRecovery"
     | "initiateOnDemandProactiveRemediation"
     | "rotateLocalAdminPassword";
+export type UserExperienceAnalyticsAnomalyCorrelationGroupPrevalence = "high" | "medium" | "low" | "unknownFutureValue";
+export type UserExperienceAnalyticsAnomalyDeviceFeatureType =
+    | "manufacturer"
+    | "model"
+    | "osVersion"
+    | "application"
+    | "driver"
+    | "unknownFutureValue";
 export type UserExperienceAnalyticsAnomalySeverity =
     | "high"
     | "medium"
@@ -3408,13 +3427,19 @@ export type UserExperienceAnalyticsAnomalyType =
     | "driver"
     | "other"
     | "unknownFutureValue";
+export type UserExperienceAnalyticsDeviceStatus = "anomalous" | "affected" | "atRisk" | "unknownFutureValue";
 export type UserExperienceAnalyticsHealthState =
     | "unknown"
     | "insufficientData"
     | "needsAttention"
     | "meetingGoals"
     | "unknownFutureValue";
-export type UserExperienceAnalyticsInsightSeverity = "none" | "informational" | "warning" | "error";
+export type UserExperienceAnalyticsInsightSeverity =
+    | "none"
+    | "informational"
+    | "warning"
+    | "error"
+    | "unknownFutureValue";
 export type UserExperienceAnalyticsOperatingSystemRestartCategory =
     | "unknown"
     | "restartWithUpdate"
@@ -3424,15 +3449,16 @@ export type UserExperienceAnalyticsOperatingSystemRestartCategory =
     | "shutdownWithoutUpdate"
     | "longPowerButtonPress"
     | "bootError"
-    | "update";
+    | "update"
+    | "unknownFutureValue";
 export type UserExperienceAnalyticsSummarizedBy =
     | "none"
     | "model"
     | "allRegressions"
     | "modelRegression"
     | "manufacturerRegression"
-    | "operatingSystemVersionRegression";
-export type WarrantyType = "unknown" | "manufacturer" | "contractual" | "unknownFutureValue";
+    | "operatingSystemVersionRegression"
+    | "unknownFutureValue";
 export type WindowsDefenderProductStatus =
     | "noStatus"
     | "serviceNotRunning"
@@ -6134,6 +6160,10 @@ export interface User extends DirectoryObject {
      * true only).
      */
     isLicenseReconciliationNeeded?: NullableOption<boolean>;
+    /**
+     * true if the user is a member of a restricted management administrative unit, in which case it requires a role scoped to
+     * the restricted administrative unit to manage. Default value is false. Read-only.
+     */
     isManagementRestricted?: NullableOption<boolean>;
     // Do not use – reserved for future use.
     isResourceAccount?: NullableOption<boolean>;
@@ -6175,7 +6205,7 @@ export interface User extends DirectoryObject {
     mailNickname?: NullableOption<string>;
     /**
      * The primary cellular telephone number for the user. Read-only for users synced from on-premises directory. Supports
-     * $filter (eq, ne, not, ge, le, in, startsWith, and eq on null values).
+     * $filter (eq, ne, not, ge, le, in, startsWith, and eq on null values) and $search.
      */
     mobilePhone?: NullableOption<string>;
     /**
@@ -7293,6 +7323,10 @@ export interface Group extends DirectoryObject {
      * Azure AD Premium P1 license. Returned by default. Supports $filter (eq, ne, not).
      */
     isAssignableToRole?: NullableOption<boolean>;
+    /**
+     * Indicates whether the group is a member of a restricted management administrative unit, in which case it requires a
+     * role scoped to the restricted administrative unit to manage. Default value is false. Read-only.
+     */
     isManagementRestricted?: NullableOption<boolean>;
     /**
      * Indicates status of the group license assignment to all members of the group. Possible values: QueuedForProcessing,
@@ -8584,6 +8618,10 @@ export interface Device extends DirectoryObject {
      * Intune for any device OS type or by an approved MDM app for Windows OS devices. Supports $filter (eq, ne, not).
      */
     isManaged?: NullableOption<boolean>;
+    /**
+     * true if the device is a member of a restricted management administrative unit, in which case it requires a role scoped
+     * to the restricted administrative unit to manage. Default value is false. Read-only.
+     */
     isManagementRestricted?: NullableOption<boolean>;
     // true if device is rooted; false if device is jail-broken. This can only be updated by Intune.
     isRooted?: NullableOption<boolean>;
@@ -8682,9 +8720,11 @@ export interface OnlineMeeting extends Entity {
     allowMeetingChat?: NullableOption<MeetingChatMode>;
     // Specifies if participants are allowed to rename themselves in an instance of the meeting.
     allowParticipantsToChangeName?: NullableOption<boolean>;
+    // Indicates whether recording is enabled for the meeting.
     allowRecording?: NullableOption<boolean>;
     // Indicates if Teams reactions are enabled for the meeting.
     allowTeamworkReactions?: NullableOption<boolean>;
+    // Indicates whether transcription is enabled for the meeting.
     allowTranscription?: NullableOption<boolean>;
     // The content stream of the alternative recording of a Microsoft Teams live event. Read-only.
     alternativeRecording?: NullableOption<any>;
@@ -9364,6 +9404,10 @@ export interface UserRegistrationDetails extends Entity {
      * may not necessarily be allowed to perform self-service password reset by policy. Supports $filter (eq).
      */
     isSsprRegistered?: boolean;
+    /**
+     * The date and time (UTC) when the record was last updated. The DateTimeOffset type represents date and time information
+     * using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
+     */
     lastUpdatedDateTime?: string;
     // Collection of authentication methods registered, such as mobilePhone, email, fido2. Supports $filter (any with eq).
     methodsRegistered?: NullableOption<string[]>;
@@ -9563,6 +9607,12 @@ export interface AdministrativeUnit extends DirectoryObject {
      * values), $search, and $orderBy.
      */
     displayName?: NullableOption<string>;
+    /**
+     * true if members of this administrative unit should be treated as sensitive, which requires specific permissions to
+     * manage. Default value is false. Use this property to define administrative units whose roles don't inherit from
+     * tenant-level administrators, and management of individual member objects is limited to administrators scoped to a
+     * restricted management administrative unit. Immutable, so cannot be changed later.
+     */
     isMemberManagementRestricted?: NullableOption<boolean>;
     /**
      * Controls whether the administrative unit and its members are hidden or public. Can be set to HiddenMembership or
@@ -10541,7 +10591,7 @@ export interface UnifiedRoleManagementPolicy extends Entity {
     lastModifiedDateTime?: NullableOption<string>;
     // The identifier of the scope where the policy is created. Can be / for the tenant or a group ID. Required.
     scopeId?: string;
-    // The type of the scope where the policy is created. One of Directory, DirectoryRole. Required.
+    // The type of the scope where the policy is created. One of Directory, DirectoryRole, Group. Required.
     scopeType?: string;
     /**
      * The list of effective rules like approval rules and expiration rules evaluated based on inherited referenced rules. For
@@ -10556,13 +10606,13 @@ export interface UnifiedRoleManagementPolicyAssignment extends Entity {
     // The id of the policy. Inherited from entity.
     policyId?: string;
     /**
-     * The identifier of the role definition object where the policy applies. If not specified, the policy applies to all
-     * roles. Supports $filter (eq).
+     * For Azure AD roles policy, it's the identifier of the role definition object where the policy applies. For PIM for
+     * groups membership and ownership, it's either member or owner. Supports $filter (eq).
      */
     roleDefinitionId?: NullableOption<string>;
     // The identifier of the scope where the policy is assigned. Can be / for the tenant or a group ID. Required.
     scopeId?: string;
-    // The type of the scope where the policy is assigned. One of Directory, DirectoryRole. Required.
+    // The type of the scope where the policy is assigned. One of Directory, DirectoryRole, Group. Required.
     scopeType?: string;
     /**
      * The policy that's associated with a policy assignment. Supports $expand and a nested $expand of the rules and
@@ -11077,6 +11127,11 @@ export interface PlannerTask extends PlannerDelta {
     recurrence?: NullableOption<PlannerTaskRecurrence>;
     // Number of external references that exist on the task.
     referenceCount?: NullableOption<number>;
+    /**
+     * Indicates all the requirements specified on the plannerTask. Possible values are: none, checklistCompletion,
+     * unknownFutureValue. Read-only. The plannerTaskCompletionRequirementDetails in plannerTaskDetails has details of the
+     * requirements specified, if any.
+     */
     specifiedCompletionRequirements?: NullableOption<PlannerTaskCompletionRequirements>;
     /**
      * Date and time at which the task starts. The Timestamp type represents date and time information using ISO 8601 format
@@ -11148,6 +11203,16 @@ export interface CloudPcAuditEvent extends Entity {
     // List of cloudPcAuditResource objects. Read-only.
     resources?: CloudPcAuditResource[];
 }
+export interface CloudPcBulkAction extends Entity {
+    actionSummary?: NullableOption<CloudPcBulkActionSummary>;
+    cloudPcIds?: string[];
+    createdDateTime?: NullableOption<string>;
+    displayName?: string;
+}
+// tslint:disable-next-line: no-empty-interface
+export interface CloudPcBulkPowerOff extends CloudPcBulkAction {}
+// tslint:disable-next-line: no-empty-interface
+export interface CloudPcBulkPowerOn extends CloudPcBulkAction {}
 export interface CloudPcCrossCloudGovernmentOrganizationMapping extends Entity {
     /**
      * The tenant ID in the Azure Government cloud corresponding to the GCC tenant in the public cloud. Currently, 1:1
@@ -11781,12 +11846,19 @@ export interface DeviceManagement extends Entity {
     managedDevices?: NullableOption<ManagedDevice[]>;
     // The collection property of MobileAppTroubleshootingEvent.
     mobileAppTroubleshootingEvents?: NullableOption<MobileAppTroubleshootingEvent[]>;
+    // The endpoint privilege management elevation event entity contains elevation details.
+    privilegeManagementElevations?: NullableOption<PrivilegeManagementElevation[]>;
     // The list of device remote action audits with the tenant.
     remoteActionAudits?: NullableOption<RemoteActionAudit[]>;
     // TenantAttach RBAC Enablement
     tenantAttachRBAC?: NullableOption<TenantAttachRBAC>;
     // The user experience analytics anomaly entity contains anomaly details.
     userExperienceAnalyticsAnomaly?: NullableOption<UserExperienceAnalyticsAnomaly[]>;
+    /**
+     * The user experience analytics anomaly correlation group overview entity contains the information for each correlation
+     * group of an anomaly.
+     */
+    userExperienceAnalyticsAnomalyCorrelationGroupOverview?: NullableOption<UserExperienceAnalyticsAnomalyCorrelationGroupOverview[]>;
     // The user experience analytics anomaly entity contains device details.
     userExperienceAnalyticsAnomalyDevice?: NullableOption<UserExperienceAnalyticsAnomalyDevice[]>;
     // User experience analytics appHealth Application Performance
@@ -11975,6 +12047,7 @@ export interface DeviceManagement extends Entity {
 export interface VirtualEndpoint extends Entity {
     // Cloud PC audit event.
     auditEvents?: NullableOption<CloudPcAuditEvent[]>;
+    bulkActions?: NullableOption<CloudPcBulkAction[]>;
     // Cloud managed virtual desktops.
     cloudPCs?: NullableOption<CloudPC[]>;
     // Cloud PC organization mapping between public and US Government Community Cloud (GCC) organizations.
@@ -13437,6 +13510,8 @@ export interface DeviceHealthScript extends Entity {
     detectionScriptContent?: NullableOption<string>;
     // List of ComplexType DetectionScriptParameters objects.
     detectionScriptParameters?: NullableOption<DeviceHealthScriptParameter[]>;
+    // DeviceHealthScriptType for the script policy
+    deviceHealthScriptType?: DeviceHealthScriptType;
     // Name of the device health script
     displayName?: NullableOption<string>;
     // Indicate whether the script signature needs be checked
@@ -13550,6 +13625,62 @@ export interface ManagedDeviceOverview extends Entity {
     // The number of devices enrolled in MDM
     mdmEnrolledCount?: number;
 }
+export interface PrivilegeManagementElevation extends Entity {
+    /**
+     * The certificate payload of the application. This is computed by hashing the certificate information on the client.
+     * Example: `32c220482c68413fbf8290e3b1e49b0a85901cfcd62ab0738760568a2a6e8a50`
+     */
+    certificatePayload?: NullableOption<string>;
+    /**
+     * The company name of the application. This value is set by the creator of the application. Example: `Microsoft
+     * Corporation`
+     */
+    companyName?: NullableOption<string>;
+    // The Intune deviceId. Unique identifier for the managed device. Example: `92ce5047-9553-4731-817f-9b401a999a1b`
+    deviceId?: NullableOption<string>;
+    // The name associated with the device in the intune database. Example: `JOHNDOE-LAPTOP`.
+    deviceName?: NullableOption<string>;
+    /**
+     * Indicates the type of elevation on the application. Possible values are `undetermined`, `unmanagedElevation`,
+     * `zeroTouchElevation`, `userConfirmedElevation`, and `supportApprovedElevation`. Defaults to `undetermined`
+     */
+    elevationType?: PrivilegeManagementElevationType;
+    // The date and time when the application was elevated. Example:`2014-01-01T00:00:00Z`
+    eventDateTime?: string;
+    /**
+     * The file description of the application. This value is set by the creator of the application. Example: `Editor of
+     * multiple coding languages.`
+     */
+    fileDescription?: NullableOption<string>;
+    // The full file path of the application including the filename and file extension. Example: `C:\Program Files\vscode.exe`
+    filePath?: NullableOption<string>;
+    // The version of the application. This value is set by the creator of the application. Example: `6.2211.1035.1000`
+    fileVersion?: NullableOption<string>;
+    // The sha256 hash of the application. Example: `32c220482c68413fbf8290e3b1e49b0a85901cfcd62ab0738760568a2a6e8a57`
+    hash?: NullableOption<string>;
+    // The internal name of the application. This value is set by the creator of the application. Example: `VS code`
+    internalName?: NullableOption<string>;
+    /**
+     * The justification to elevate the application. This is an input by the user when the privilegeManagementElevationType is
+     * of type userConfirmedElevation or support approved elevation. This will be null in all other scenarios. The length is
+     * capped at 256 char, enforced on the client side. Example: `To install debug tool.`.
+     */
+    justification?: NullableOption<string>;
+    // The product name of the application. This value is set by the creator of the application. Example: `Visual Studio`
+    productName?: NullableOption<string>;
+    /**
+     * The result of the elevation action with 0 being success, and everything else being exit code if the elevation was
+     * unsuccessful. The value will always be 0 on all unmanaged elevation. Example: `0`. Valid values 0 to 2147483647
+     */
+    result?: number;
+    // The User Principal Name of the user who performed the elevation. Example: `john@domain.com`
+    upn?: NullableOption<string>;
+    /**
+     * The type of account performed the elevation on Windows. Possible values are: `undetermined`, `azureAd`, `hybrid`, and
+     * `local`. Defaults to `undetermined`.
+     */
+    userType?: PrivilegeManagementEndUserType;
+}
 export interface RemoteActionAudit extends Entity {
     /**
      * The action name. Possible values are: unknown, factoryReset, removeCompanyData, resetPasscode, remoteLock,
@@ -13617,6 +13748,42 @@ export interface UserExperienceAnalyticsAnomaly extends Entity {
      */
     state?: UserExperienceAnalyticsAnomalyState;
 }
+export interface UserExperienceAnalyticsAnomalyCorrelationGroupOverview extends Entity {
+    // Indicates the number of correlation groups in the anomaly. Valid values -2147483648 to 2147483647
+    anomalyCorrelationGroupCount?: number;
+    /**
+     * The unique identifier of the anomaly. Anomaly details such as name and type can be found in the
+     * UserExperienceAnalyticsAnomalySeverityOverview entity.
+     */
+    anomalyId?: NullableOption<string>;
+    /**
+     * Indicates the total number of devices affected by the anomaly in the correlation group. Valid values -2147483648 to
+     * 2147483647
+     */
+    correlationGroupAnomalousDeviceCount?: number;
+    // Indicates the total number of devices at risk in the correlation group. Valid values -2147483648 to 2147483647
+    correlationGroupAtRiskDeviceCount?: number;
+    // Indicates the total number of devices in a correlation group. Valid values -2147483648 to 2147483647
+    correlationGroupDeviceCount?: number;
+    // Describes the features of a device that are shared between all devices in a correlation group.
+    correlationGroupFeatures?: NullableOption<UserExperienceAnalyticsAnomalyCorrelationGroupFeature[]>;
+    /**
+     * The unique identifier for the correlation group which will uniquely identify one of the correlation group within an
+     * anomaly. The correlation Id can be mapped to the correlation group name by concatinating the correlation group
+     * features. Example of correlation group name which is the indicative of concatenated features names are for names,
+     * Contoso manufacture 4.4.1 and Windows 11.22621.1485.
+     */
+    correlationGroupId?: NullableOption<string>;
+    // The prevalence of the correlation group. Possible values are: high, medium or low.
+    correlationGroupPrevalence?: UserExperienceAnalyticsAnomalyCorrelationGroupPrevalence;
+    /**
+     * The percentage of the devices in the correlation group that are anomalous. Valid values -1.79769313486232E+308 to
+     * 1.79769313486232E+308
+     */
+    correlationGroupPrevalencePercentage?: number;
+    // Indicates the total number of devices in the tenant. Valid values -2147483648 to 2147483647
+    totalDeviceCount?: number;
+}
 export interface UserExperienceAnalyticsAnomalyDevice extends Entity {
     // The unique identifier of the anomaly.
     anomalyId?: NullableOption<string>;
@@ -13624,6 +13791,8 @@ export interface UserExperienceAnalyticsAnomalyDevice extends Entity {
     anomalyOnDeviceFirstOccurrenceDateTime?: string;
     // Indicates the latest occurance date and time for the anomaly on the device.
     anomalyOnDeviceLatestOccurrenceDateTime?: string;
+    // The unique identifier of the correlation group.
+    correlationGroupId?: NullableOption<string>;
     // The unique identifier of the device.
     deviceId?: NullableOption<string>;
     // The manufacturer name of the device.
@@ -13632,6 +13801,14 @@ export interface UserExperienceAnalyticsAnomalyDevice extends Entity {
     deviceModel?: NullableOption<string>;
     // The name of the device.
     deviceName?: NullableOption<string>;
+    /**
+     * Indicates the device status with respect to the correlation group. At risk devices are devices that share correlation
+     * group features but may not yet be affected by an anomaly, such as when a device is experiencing crashes on an
+     * application but that application has not been used on the device but is currently installed. This could lead to the
+     * device becoming anomalous if the application in question were to be used. Possible values are: anomolous, affected or
+     * atRisk
+     */
+    deviceStatus?: UserExperienceAnalyticsDeviceStatus;
     // The name of the OS installed on the device.
     osName?: NullableOption<string>;
     // The OS version installed on the device.
@@ -13648,8 +13825,6 @@ export interface UserExperienceAnalyticsAppHealthApplicationPerformance extends 
     appHangCount?: number;
     // The health score of the app. Valid values -1.79769313486232E+308 to 1.79769313486232E+308
     appHealthScore?: number;
-    // The overall health status of the app.
-    appHealthStatus?: NullableOption<string>;
     // The name of the application.
     appName?: NullableOption<string>;
     // The publisher of the application.
@@ -13750,8 +13925,6 @@ export interface UserExperienceAnalyticsAppHealthDeviceModelPerformance extends 
     meanTimeToFailureInMinutes?: number;
     // The app health score of the device model. Valid values -1.79769313486232E+308 to 1.79769313486232E+308
     modelAppHealthScore?: number;
-    // The overall app health status of the device model.
-    modelAppHealthStatus?: NullableOption<string>;
 }
 export interface UserExperienceAnalyticsAppHealthDevicePerformance extends Entity {
     // The number of app crashes for the device. Valid values -2147483648 to 2147483647
@@ -13762,8 +13935,6 @@ export interface UserExperienceAnalyticsAppHealthDevicePerformance extends Entit
     crashedAppCount?: number;
     // The app health score of the device. Valid values -1.79769313486232E+308 to 1.79769313486232E+308
     deviceAppHealthScore?: number;
-    // The overall app health status of the device.
-    deviceAppHealthStatus?: NullableOption<string>;
     // The name of the device.
     deviceDisplayName?: NullableOption<string>;
     // The id of the device.
@@ -13809,8 +13980,6 @@ export interface UserExperienceAnalyticsAppHealthOSVersionPerformance extends En
     osVersion?: NullableOption<string>;
     // The app health score of the OS version. Valid values -1.79769313486232E+308 to 1.79769313486232E+308
     osVersionAppHealthScore?: number;
-    // The overall app health status of the OS version.
-    osVersionAppHealthStatus?: NullableOption<string>;
 }
 export interface UserExperienceAnalyticsCategory extends Entity {
     // The insights for the user experience analytics category.
@@ -18123,18 +18292,18 @@ export interface PartnerInformation {
 export interface OrganizationSettings extends Entity {
     microsoftApplicationDataAccess?: NullableOption<MicrosoftApplicationDataAccessSettings>;
     /**
+     * Contains the properties that are configured by an administrator as a tenant-level privacy control whether to identify
+     * duplicate contacts among a user's contacts list and suggest the user to merge those contacts to have a cleaner contacts
+     * list. List contactInsights returns the settings to display or return contact insights in an organization.
+     */
+    contactInsights?: NullableOption<InsightsSettings>;
+    /**
      * Contains a collection of the properties an administrator has defined as visible on the Microsoft 365 profile card. Get
      * organization settings returns the properties configured for profile cards for the organization.
      */
     profileCardProperties?: NullableOption<ProfileCardProperty[]>;
     // Represents administrator settings that manage the support of pronouns in an organization.
     pronouns?: NullableOption<PronounsSettings>;
-    /**
-     * Contains the properties that are configured by an administrator as a tenant-level privacy control whether to identify
-     * duplicate contacts among a user's contacts list and suggest the user to merge those contacts to have a cleaner contacts
-     * list. List contactInsights returns the settings to display or return contact insights in an organization.
-     */
-    contactInsights?: NullableOption<InsightsSettings>;
     /**
      * Contains the properties that are configured by an administrator for the visibility of Microsoft Graph-derived insights,
      * between a user and other items in Microsoft 365, such as documents or sites. List itemInsights returns the settings to
@@ -20810,6 +20979,61 @@ export interface DocumentSetVersion extends ListItemVersion {
      */
     shouldCaptureMinorVersion?: NullableOption<boolean>;
 }
+export interface EmployeeExperience {
+    learningCourseActivities?: NullableOption<LearningCourseActivity[]>;
+    // A collection of learning providers.
+    learningProviders?: NullableOption<LearningProvider[]>;
+}
+export interface LearningCourseActivity extends Entity {
+    // Date and time when the assignment was completed. Optional.
+    completedDateTime?: NullableOption<string>;
+    // The percentage completion value of the course activity. Optional.
+    completionPercentage?: NullableOption<number>;
+    // A course activity ID generated by the provider. Optional.
+    externalcourseActivityId?: NullableOption<string>;
+    // The user ID of the learner to whom the activity is assigned. Required.
+    learnerUserId?: string;
+    // The ID of the learning content created in Viva Learning. Required.
+    learningContentId?: string;
+    // The registration ID of the provider. Required.
+    learningProviderId?: NullableOption<string>;
+    // The status of the course activity. Possible values are: notStarted, inProgress, completed. Required.
+    status?: NullableOption<CourseStatus>;
+}
+export interface LearningProvider extends Entity {
+    // The display name that appears in Viva Learning. Required.
+    displayName?: string;
+    /**
+     * Indicates whether a provider can ingest learning course activity records. The default value is false. Set to true to
+     * make learningCourseActivities available for this provider.
+     */
+    isCourseActivitySyncEnabled?: NullableOption<boolean>;
+    // Authentication URL to access the courses for the provider. Optional.
+    loginWebUrl?: NullableOption<string>;
+    /**
+     * The long logo URL for the dark mode that needs to be a publicly accessible image. This image would be saved to the blob
+     * storage of Viva Learning for rendering within the Viva Learning app. Required.
+     */
+    longLogoWebUrlForDarkTheme?: string;
+    /**
+     * The long logo URL for the light mode that needs to be a publicly accessible image. This image would be saved to the
+     * blob storage of Viva Learning for rendering within the Viva Learning app. Required.
+     */
+    longLogoWebUrlForLightTheme?: string;
+    /**
+     * The square logo URL for the dark mode that needs to be a publicly accessible image. This image would be saved to the
+     * blob storage of Viva Learning for rendering within the Viva Learning app. Required.
+     */
+    squareLogoWebUrlForDarkTheme?: string;
+    /**
+     * The square logo URL for the light mode that needs to be a publicly accessible image. This image would be saved to the
+     * blob storage of Viva Learning for rendering within the Viva Learning app. Required.
+     */
+    squareLogoWebUrlForLightTheme?: string;
+    // Learning catalog items for the provider.
+    learningContents?: NullableOption<LearningContent[]>;
+    learningCourseActivities?: NullableOption<LearningCourseActivity[]>;
+}
 // tslint:disable-next-line: no-empty-interface
 export interface FieldValueSet extends Entity {}
 export interface HorizontalSectionColumn extends Entity {
@@ -22886,14 +23110,8 @@ export interface MobileApp extends Entity {
     assignments?: NullableOption<MobileAppAssignment[]>;
     // The list of categories for this app.
     categories?: NullableOption<MobileAppCategory[]>;
-    // The list of installation states for this mobile app.
-    deviceStatuses?: NullableOption<MobileAppInstallStatus[]>;
-    // Mobile App Install Summary.
-    installSummary?: NullableOption<MobileAppInstallSummary>;
     // List of relationships for this mobile app.
     relationships?: NullableOption<MobileAppRelationship[]>;
-    // The list of installation states for this mobile app.
-    userStatuses?: NullableOption<UserAppInstallStatus[]>;
 }
 export interface AndroidForWorkApp extends MobileApp {
     // The Identity Name.
@@ -24450,6 +24668,23 @@ export interface MacOSMicrosoftEdgeApp extends MobileApp {
 }
 // tslint:disable-next-line: no-empty-interface
 export interface MacOSOfficeSuiteApp extends MobileApp {}
+export interface MacOSPkgApp extends MobileLobApp {
+    /**
+     * A value indicating whether the app's version will be used to detect the app after it is installed on a device. Set this
+     * to true for apps that use a self-update feature. Set this to false to install the app when it is not already installed
+     * on the device, or if the deploying app's version number does not match the version that's already installed on the
+     * device. The default value is false.
+     */
+    ignoreVersionDetection?: boolean;
+    // The list of apps expected to be installed by the .pkg.
+    includedApps?: MacOSIncludedApp[];
+    // The value for the minimum applicable operating system.
+    minimumSupportedOperatingSystem?: NullableOption<MacOSMinimumOperatingSystem>;
+    // The primary CFBundleIdentifier of the .pkg.
+    primaryBundleId?: string;
+    // The primary CFBundleVersion of the .pkg.
+    primaryBundleVersion?: string;
+}
 export interface MacOsVppApp extends MobileApp {
     // The store URL.
     appStoreUrl?: NullableOption<string>;
@@ -24638,6 +24873,56 @@ export interface MobileAppAssignment extends Entity {
     // The target group assignment defined by the admin.
     target?: NullableOption<DeviceAndAppManagementAssignmentTarget>;
 }
+export interface MobileAppRelationship extends Entity {
+    // The target mobile app's display name.
+    targetDisplayName?: NullableOption<string>;
+    // The target mobile app's display version.
+    targetDisplayVersion?: NullableOption<string>;
+    // The target mobile app's app id.
+    targetId?: NullableOption<string>;
+    // The target mobile app's publisher.
+    targetPublisher?: NullableOption<string>;
+    // The type of relationship indicating whether the target is a parent or child. Possible values are: child, parent.
+    targetType?: MobileAppRelationshipType;
+}
+export interface MobileAppContentFile extends Entity {
+    // The Azure Storage URI.
+    azureStorageUri?: NullableOption<string>;
+    // The time the Azure storage Uri expires.
+    azureStorageUriExpirationDateTime?: NullableOption<string>;
+    // The time the file was created.
+    createdDateTime?: string;
+    // A value indicating whether the file is committed.
+    isCommitted?: boolean;
+    // Whether the content file is a dependency for the main content file.
+    isDependency?: boolean;
+    // A value indicating whether the file is a framework file.
+    isFrameworkFile?: boolean;
+    // The manifest information.
+    manifest?: NullableOption<string>;
+    // the file name.
+    name?: NullableOption<string>;
+    // The size of the file prior to encryption.
+    size?: number;
+    // The size of the file after encryption.
+    sizeEncrypted?: number;
+    /**
+     * The state of the current upload request. Possible values are: success, transientError, error, unknown,
+     * azureStorageUriRequestSuccess, azureStorageUriRequestPending, azureStorageUriRequestFailed,
+     * azureStorageUriRequestTimedOut, azureStorageUriRenewalSuccess, azureStorageUriRenewalPending,
+     * azureStorageUriRenewalFailed, azureStorageUriRenewalTimedOut, commitFileSuccess, commitFilePending, commitFileFailed,
+     * commitFileTimedOut.
+     */
+    uploadState?: MobileAppContentFileUploadState;
+}
+export interface MobileAppDependency extends MobileAppRelationship {
+    // The type of dependency relationship between the parent and child apps. Possible values are: detect, autoInstall.
+    dependencyType?: MobileAppDependencyType;
+    // The total number of apps that directly or indirectly depend on the parent app.
+    dependentAppCount?: number;
+    // The total number of apps the child app directly or indirectly depends on.
+    dependsOnAppCount?: number;
+}
 export interface MobileAppInstallStatus extends Entity {
     // Device ID
     deviceId?: NullableOption<string>;
@@ -24708,72 +24993,6 @@ export interface MobileAppInstallSummary extends Entity {
      */
     pendingInstallUserCount?: number;
 }
-export interface MobileAppRelationship extends Entity {
-    // The target mobile app's display name.
-    targetDisplayName?: NullableOption<string>;
-    // The target mobile app's display version.
-    targetDisplayVersion?: NullableOption<string>;
-    // The target mobile app's app id.
-    targetId?: NullableOption<string>;
-    // The target mobile app's publisher.
-    targetPublisher?: NullableOption<string>;
-    // The type of relationship indicating whether the target is a parent or child. Possible values are: child, parent.
-    targetType?: MobileAppRelationshipType;
-}
-export interface UserAppInstallStatus extends Entity {
-    // Failed Device Count.
-    failedDeviceCount?: number;
-    // Installed Device Count.
-    installedDeviceCount?: number;
-    // Not installed device count.
-    notInstalledDeviceCount?: number;
-    // User name.
-    userName?: NullableOption<string>;
-    // User Principal Name.
-    userPrincipalName?: NullableOption<string>;
-    // The navigation link to the mobile app.
-    app?: NullableOption<MobileApp>;
-    // The install state of the app on devices.
-    deviceStatuses?: NullableOption<MobileAppInstallStatus[]>;
-}
-export interface MobileAppContentFile extends Entity {
-    // The Azure Storage URI.
-    azureStorageUri?: NullableOption<string>;
-    // The time the Azure storage Uri expires.
-    azureStorageUriExpirationDateTime?: NullableOption<string>;
-    // The time the file was created.
-    createdDateTime?: string;
-    // A value indicating whether the file is committed.
-    isCommitted?: boolean;
-    // Whether the content file is a dependency for the main content file.
-    isDependency?: boolean;
-    // A value indicating whether the file is a framework file.
-    isFrameworkFile?: boolean;
-    // The manifest information.
-    manifest?: NullableOption<string>;
-    // the file name.
-    name?: NullableOption<string>;
-    // The size of the file prior to encryption.
-    size?: number;
-    // The size of the file after encryption.
-    sizeEncrypted?: number;
-    /**
-     * The state of the current upload request. Possible values are: success, transientError, error, unknown,
-     * azureStorageUriRequestSuccess, azureStorageUriRequestPending, azureStorageUriRequestFailed,
-     * azureStorageUriRequestTimedOut, azureStorageUriRenewalSuccess, azureStorageUriRenewalPending,
-     * azureStorageUriRenewalFailed, azureStorageUriRenewalTimedOut, commitFileSuccess, commitFilePending, commitFileFailed,
-     * commitFileTimedOut.
-     */
-    uploadState?: MobileAppContentFileUploadState;
-}
-export interface MobileAppDependency extends MobileAppRelationship {
-    // The type of dependency relationship between the parent and child apps. Possible values are: detect, autoInstall.
-    dependencyType?: MobileAppDependencyType;
-    // The total number of apps that directly or indirectly depend on the parent app.
-    dependentAppCount?: number;
-    // The total number of apps the child app directly or indirectly depends on.
-    dependsOnAppCount?: number;
-}
 export interface MobileAppSupersedence extends MobileAppRelationship {
     // The total number of apps directly or indirectly superseded by the child app.
     supersededAppCount?: number;
@@ -24830,6 +25049,22 @@ export interface OfficeSuiteApp extends MobileApp {
     updateVersion?: NullableOption<string>;
     // The property to represent that whether the shared computer activation is used not for Office365 app suite.
     useSharedComputerActivation?: boolean;
+}
+export interface UserAppInstallStatus extends Entity {
+    // Failed Device Count.
+    failedDeviceCount?: number;
+    // Installed Device Count.
+    installedDeviceCount?: number;
+    // Not installed device count.
+    notInstalledDeviceCount?: number;
+    // User name.
+    userName?: NullableOption<string>;
+    // User Principal Name.
+    userPrincipalName?: NullableOption<string>;
+    // The navigation link to the mobile app.
+    app?: NullableOption<MobileApp>;
+    // The install state of the app on devices.
+    deviceStatuses?: NullableOption<MobileAppInstallStatus[]>;
 }
 export interface WebApp extends MobileApp {
     // The web app URL. This property cannot be PATCHed.
@@ -32916,15 +33151,15 @@ export interface DeviceManagementConfigurationSetting extends Entity {
     settingDefinitions?: NullableOption<DeviceManagementConfigurationSettingDefinition[]>;
 }
 export interface DeviceManagementConfigurationChoiceSettingDefinition extends DeviceManagementConfigurationSettingDefinition {
-    // Default option for choice setting
+    // Default option for the choice setting.
     defaultOptionId?: NullableOption<string>;
-    // Options for the setting that can be selected
+    // Options for the setting that can be selected.
     options?: NullableOption<DeviceManagementConfigurationOptionDefinition[]>;
 }
 export interface DeviceManagementConfigurationChoiceSettingCollectionDefinition extends DeviceManagementConfigurationChoiceSettingDefinition {
-    // Maximum number of choices in the collection
+    // Maximum number of choices in the collection. Valid values 1 to 100
     maximumCount?: number;
-    // Minimum number of choices in the collection
+    // Minimum number of choices in the collection. Valid values 1 to 100
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationRedirectSettingDefinition extends DeviceManagementConfigurationSettingDefinition {
@@ -32939,7 +33174,7 @@ export interface DeviceManagementConfigurationRedirectSettingDefinition extends 
     redirectReason?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationSettingGroupDefinition extends DeviceManagementConfigurationSettingDefinition {
-    // Dependent child settings to this group of settings.
+    // Dependent child settings to this group of settings
     childIds?: NullableOption<string[]>;
     // List of child settings that depend on this setting
     dependedOnBy?: NullableOption<DeviceManagementConfigurationSettingDependedOnBy[]>;
@@ -32947,19 +33182,19 @@ export interface DeviceManagementConfigurationSettingGroupDefinition extends Dev
     dependentOn?: NullableOption<DeviceManagementConfigurationDependentOn[]>;
 }
 export interface DeviceManagementConfigurationSettingGroupCollectionDefinition extends DeviceManagementConfigurationSettingGroupDefinition {
-    // Maximum number of setting group count in the collection. Valid values 1 to 100
+    // Maximum number of setting group count in the collection
     maximumCount?: number;
-    // Minimum number of setting group count in the collection. Valid values 1 to 100
+    // Minimum number of setting group count in the collection
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationSimpleSettingDefinition extends DeviceManagementConfigurationSettingDefinition {
-    // Default setting value for this setting
+    // Default setting value for this setting.
     defaultValue?: NullableOption<DeviceManagementConfigurationSettingValue>;
-    // list of child settings that depend on this setting
+    // list of child settings that depend on this setting.
     dependedOnBy?: NullableOption<DeviceManagementConfigurationSettingDependedOnBy[]>;
-    // list of parent settings this setting is dependent on
+    // list of parent settings this setting is dependent on.
     dependentOn?: NullableOption<DeviceManagementConfigurationDependentOn[]>;
-    // Definition of the value for this setting
+    // Definition of the value for this setting.
     valueDefinition?: NullableOption<DeviceManagementConfigurationSettingValueDefinition>;
 }
 export interface DeviceManagementConfigurationSimpleSettingCollectionDefinition extends DeviceManagementConfigurationSimpleSettingDefinition {
@@ -33034,6 +33269,8 @@ export interface DeviceEnrollmentWindowsHelloForBusinessConfiguration extends De
      * use anti-spoofing. Possible values are: notConfigured, enabled, disabled.
      */
     enhancedBiometricsState?: Enablement;
+    // Setting to configure Enahcned sign-in security. Default is enabled on one secure modality (face or fingerprint)
+    enhancedSignInSecurity?: number;
     /**
      * Controls the period of time (in days) that a PIN can be used before the system requires the user to change it. This
      * must be set between 0 and 730, inclusive. If set to 0, the user's PIN will never expire
@@ -33454,8 +33691,6 @@ export interface MalwareStateForWindowsDevice extends Entity {
      */
     threatState?: NullableOption<WindowsMalwareThreatState>;
 }
-// tslint:disable-next-line: no-empty-interface
-export interface OemWarrantyInformationOnboarding extends Entity {}
 export interface UserExperienceAnalyticsMetric extends Entity {
     // The unit of the user experience analytics metric.
     unit?: NullableOption<string>;
@@ -33949,6 +34184,8 @@ export interface DepMacOSEnrollmentProfile extends DepEnrollmentBaseProfile {
     primaryAccountUserName?: NullableOption<string>;
     // Indicates if registration is disabled
     registrationDisabled?: boolean;
+    // Indicates if the device is network-tethered to run the command
+    requestRequiresNetworkTether?: boolean;
     // Indicates whether Setup Assistant will set the account as a regular user
     setPrimarySetupAccountAsRegularUser?: boolean;
     // Indicates whether Setup Assistant will skip the user interface for primary account setup
@@ -34659,41 +34896,47 @@ export interface ServiceAnnouncementAttachment extends Entity {
     name?: NullableOption<string>;
     size?: number;
 }
-export interface Account extends Entity {
+export interface Account {
     blocked?: NullableOption<boolean>;
     category?: NullableOption<string>;
     displayName?: NullableOption<string>;
+    id?: string;
     lastModifiedDateTime?: NullableOption<string>;
     number?: NullableOption<string>;
     subCategory?: NullableOption<string>;
 }
-export interface AgedAccountsPayable extends Entity {
+export interface AgedAccountsPayable {
     agedAsOfDate?: NullableOption<string>;
     balanceDue?: NullableOption<number>;
     currencyCode?: NullableOption<string>;
     currentAmount?: NullableOption<number>;
+    id?: string;
     name?: NullableOption<string>;
     period1Amount?: NullableOption<number>;
     period2Amount?: NullableOption<number>;
     period3Amount?: NullableOption<number>;
     periodLengthFilter?: NullableOption<string>;
+    vendorId?: string;
     vendorNumber?: NullableOption<string>;
 }
-export interface AgedAccountsReceivable extends Entity {
+export interface AgedAccountsReceivable {
     agedAsOfDate?: NullableOption<string>;
     balanceDue?: NullableOption<number>;
     currencyCode?: NullableOption<string>;
     currentAmount?: NullableOption<number>;
+    customerId?: string;
     customerNumber?: NullableOption<string>;
+    id?: string;
     name?: NullableOption<string>;
     period1Amount?: NullableOption<number>;
     period2Amount?: NullableOption<number>;
     period3Amount?: NullableOption<number>;
     periodLengthFilter?: NullableOption<string>;
 }
-export interface Company extends Entity {
+export interface Company {
     businessProfileId?: NullableOption<string>;
     displayName?: NullableOption<string>;
+    id?: string;
     name?: NullableOption<string>;
     systemVersion?: NullableOption<string>;
     accounts?: NullableOption<Account[]>;
@@ -34732,13 +34975,14 @@ export interface Company extends Entity {
     unitsOfMeasure?: NullableOption<UnitOfMeasure[]>;
     vendors?: NullableOption<Vendor[]>;
 }
-export interface CompanyInformation extends Entity {
+export interface CompanyInformation {
     address?: NullableOption<PostalAddressType>;
     currencyCode?: NullableOption<string>;
     currentFiscalYearStartDate?: NullableOption<string>;
     displayName?: NullableOption<string>;
     email?: NullableOption<string>;
     faxNumber?: NullableOption<string>;
+    id?: string;
     industry?: NullableOption<string>;
     lastModifiedDateTime?: NullableOption<string>;
     phoneNumber?: NullableOption<string>;
@@ -34746,30 +34990,33 @@ export interface CompanyInformation extends Entity {
     taxRegistrationNumber?: NullableOption<string>;
     website?: NullableOption<string>;
 }
-export interface CountryRegion extends Entity {
+export interface CountryRegion {
     addressFormat?: NullableOption<string>;
     code?: NullableOption<string>;
     displayName?: NullableOption<string>;
+    id?: string;
     lastModifiedDateTime?: NullableOption<string>;
 }
-export interface Currency extends Entity {
+export interface Currency {
     amountDecimalPlaces?: NullableOption<string>;
     amountRoundingPrecision?: NullableOption<number>;
     code?: NullableOption<string>;
     displayName?: NullableOption<string>;
+    id?: string;
     lastModifiedDateTime?: NullableOption<string>;
     symbol?: NullableOption<string>;
 }
-export interface CustomerPaymentJournal extends Entity {
+export interface CustomerPaymentJournal {
     balancingAccountId?: NullableOption<string>;
     balancingAccountNumber?: NullableOption<string>;
     code?: NullableOption<string>;
     displayName?: NullableOption<string>;
+    id?: string;
     lastModifiedDateTime?: NullableOption<string>;
     account?: NullableOption<Account>;
     customerPayments?: NullableOption<CustomerPayment[]>;
 }
-export interface CustomerPayment extends Entity {
+export interface CustomerPayment {
     amount?: NullableOption<number>;
     appliesToInvoiceId?: NullableOption<string>;
     appliesToInvoiceNumber?: NullableOption<string>;
@@ -34780,19 +35027,21 @@ export interface CustomerPayment extends Entity {
     description?: NullableOption<string>;
     documentNumber?: NullableOption<string>;
     externalDocumentNumber?: NullableOption<string>;
+    id?: string;
     journalDisplayName?: NullableOption<string>;
     lastModifiedDateTime?: NullableOption<string>;
     lineNumber?: NullableOption<number>;
     postingDate?: NullableOption<string>;
     customer?: NullableOption<Customer>;
 }
-export interface Customer extends Entity {
+export interface Customer {
     address?: NullableOption<PostalAddressType>;
     blocked?: NullableOption<string>;
     currencyCode?: NullableOption<string>;
     currencyId?: NullableOption<string>;
     displayName?: NullableOption<string>;
     email?: NullableOption<string>;
+    id?: string;
     lastModifiedDateTime?: NullableOption<string>;
     number?: NullableOption<string>;
     paymentMethodId?: NullableOption<string>;
@@ -34811,24 +35060,27 @@ export interface Customer extends Entity {
     picture?: NullableOption<Picture[]>;
     shipmentMethod?: NullableOption<ShipmentMethod>;
 }
-export interface Dimension extends Entity {
+export interface Dimension {
     code?: NullableOption<string>;
     displayName?: NullableOption<string>;
+    id?: string;
     lastModifiedDateTime?: NullableOption<string>;
     dimensionValues?: NullableOption<DimensionValue[]>;
 }
-export interface DimensionValue extends Entity {
+export interface DimensionValue {
     code?: NullableOption<string>;
     displayName?: NullableOption<string>;
+    id?: string;
     lastModifiedDateTime?: NullableOption<string>;
 }
-export interface Employee extends Entity {
+export interface Employee {
     address?: NullableOption<PostalAddressType>;
     birthDate?: NullableOption<string>;
     displayName?: NullableOption<string>;
     email?: NullableOption<string>;
     employmentDate?: NullableOption<string>;
     givenName?: NullableOption<string>;
+    id?: string;
     jobTitle?: NullableOption<string>;
     lastModifiedDateTime?: NullableOption<string>;
     middleName?: NullableOption<string>;
@@ -34842,7 +35094,7 @@ export interface Employee extends Entity {
     terminationDate?: NullableOption<string>;
     picture?: NullableOption<Picture[]>;
 }
-export interface GeneralLedgerEntry extends Entity {
+export interface GeneralLedgerEntry {
     accountId?: NullableOption<string>;
     accountNumber?: NullableOption<string>;
     creditAmount?: NullableOption<number>;
@@ -34850,22 +35102,25 @@ export interface GeneralLedgerEntry extends Entity {
     description?: NullableOption<string>;
     documentNumber?: NullableOption<string>;
     documentType?: NullableOption<string>;
+    id?: string;
     lastModifiedDateTime?: NullableOption<string>;
     postingDate?: NullableOption<string>;
     account?: NullableOption<Account>;
 }
 // tslint:disable-next-line: interface-name
-export interface ItemCategory extends Entity {
+export interface ItemCategory {
     code?: NullableOption<string>;
     displayName?: NullableOption<string>;
+    id?: string;
     lastModifiedDateTime?: NullableOption<string>;
 }
 // tslint:disable-next-line: interface-name
-export interface Item extends Entity {
+export interface Item {
     baseUnitOfMeasureId?: NullableOption<string>;
     blocked?: NullableOption<boolean>;
     displayName?: NullableOption<string>;
     gtin?: NullableOption<string>;
+    id?: string;
     inventory?: NullableOption<number>;
     itemCategoryCode?: NullableOption<string>;
     itemCategoryId?: NullableOption<string>;
@@ -34880,7 +35135,7 @@ export interface Item extends Entity {
     itemCategory?: NullableOption<ItemCategory>;
     picture?: NullableOption<Picture[]>;
 }
-export interface JournalLine extends Entity {
+export interface JournalLine {
     accountId?: NullableOption<string>;
     accountNumber?: NullableOption<string>;
     amount?: NullableOption<number>;
@@ -34888,39 +35143,44 @@ export interface JournalLine extends Entity {
     description?: NullableOption<string>;
     documentNumber?: NullableOption<string>;
     externalDocumentNumber?: NullableOption<string>;
+    id?: string;
     journalDisplayName?: NullableOption<string>;
     lastModifiedDateTime?: NullableOption<string>;
     lineNumber?: NullableOption<number>;
     postingDate?: NullableOption<string>;
     account?: NullableOption<Account>;
 }
-export interface Journal extends Entity {
+export interface Journal {
     balancingAccountId?: NullableOption<string>;
     balancingAccountNumber?: NullableOption<string>;
     code?: NullableOption<string>;
     displayName?: NullableOption<string>;
+    id?: string;
     lastModifiedDateTime?: NullableOption<string>;
     account?: NullableOption<Account>;
     journalLines?: NullableOption<JournalLine[]>;
 }
-export interface PaymentMethod extends Entity {
+export interface PaymentMethod {
     code?: NullableOption<string>;
     displayName?: NullableOption<string>;
+    id?: string;
     lastModifiedDateTime?: NullableOption<string>;
 }
-export interface PaymentTerm extends Entity {
+export interface PaymentTerm {
     calculateDiscountOnCreditMemos?: NullableOption<boolean>;
     code?: NullableOption<string>;
     discountDateCalculation?: NullableOption<string>;
     discountPercent?: NullableOption<number>;
     displayName?: NullableOption<string>;
     dueDateCalculation?: NullableOption<string>;
+    id?: string;
     lastModifiedDateTime?: NullableOption<string>;
 }
-export interface Picture extends Entity {
+export interface Picture {
     content?: NullableOption<any>;
     contentType?: NullableOption<string>;
     height?: NullableOption<number>;
+    id?: string;
     width?: NullableOption<number>;
 }
 export interface PurchaseInvoiceLine extends Entity {
@@ -34948,13 +35208,14 @@ export interface PurchaseInvoiceLine extends Entity {
     account?: NullableOption<Account>;
     item?: NullableOption<Item>;
 }
-export interface PurchaseInvoice extends Entity {
+export interface PurchaseInvoice {
     buyFromAddress?: NullableOption<PostalAddressType>;
     currencyCode?: NullableOption<string>;
     currencyId?: NullableOption<string>;
     discountAmount?: NullableOption<number>;
     discountAppliedBeforeTax?: NullableOption<boolean>;
     dueDate?: NullableOption<string>;
+    id?: string;
     invoiceDate?: NullableOption<string>;
     lastModifiedDateTime?: NullableOption<string>;
     number?: NullableOption<string>;
@@ -35005,7 +35266,7 @@ export interface SalesCreditMemoLine extends Entity {
     account?: NullableOption<Account>;
     item?: NullableOption<Item>;
 }
-export interface SalesCreditMemo extends Entity {
+export interface SalesCreditMemo {
     billingPostalAddress?: NullableOption<PostalAddressType>;
     billToCustomerId?: NullableOption<string>;
     billToCustomerNumber?: NullableOption<string>;
@@ -35021,6 +35282,7 @@ export interface SalesCreditMemo extends Entity {
     dueDate?: NullableOption<string>;
     email?: NullableOption<string>;
     externalDocumentNumber?: NullableOption<string>;
+    id?: string;
     invoiceId?: NullableOption<string>;
     invoiceNumber?: NullableOption<string>;
     lastModifiedDateTime?: NullableOption<string>;
@@ -35065,7 +35327,7 @@ export interface SalesInvoiceLine extends Entity {
     account?: NullableOption<Account>;
     item?: NullableOption<Item>;
 }
-export interface SalesInvoice extends Entity {
+export interface SalesInvoice {
     billingPostalAddress?: NullableOption<PostalAddressType>;
     billToCustomerId?: NullableOption<string>;
     billToCustomerNumber?: NullableOption<string>;
@@ -35081,6 +35343,7 @@ export interface SalesInvoice extends Entity {
     dueDate?: NullableOption<string>;
     email?: NullableOption<string>;
     externalDocumentNumber?: NullableOption<string>;
+    id?: string;
     invoiceDate?: NullableOption<string>;
     lastModifiedDateTime?: NullableOption<string>;
     number?: NullableOption<string>;
@@ -35135,7 +35398,7 @@ export interface SalesOrderLine extends Entity {
     account?: NullableOption<Account>;
     item?: NullableOption<Item>;
 }
-export interface SalesOrder extends Entity {
+export interface SalesOrder {
     billingPostalAddress?: NullableOption<PostalAddressType>;
     billToCustomerId?: NullableOption<string>;
     billToCustomerNumber?: NullableOption<string>;
@@ -35150,6 +35413,7 @@ export interface SalesOrder extends Entity {
     email?: NullableOption<string>;
     externalDocumentNumber?: NullableOption<string>;
     fullyShipped?: NullableOption<boolean>;
+    id?: string;
     lastModifiedDateTime?: NullableOption<string>;
     number?: NullableOption<string>;
     orderDate?: NullableOption<string>;
@@ -35196,7 +35460,7 @@ export interface SalesQuoteLine extends Entity {
     account?: NullableOption<Account>;
     item?: NullableOption<Item>;
 }
-export interface SalesQuote extends Entity {
+export interface SalesQuote {
     acceptedDate?: NullableOption<string>;
     billingPostalAddress?: NullableOption<PostalAddressType>;
     billToCustomerId?: NullableOption<string>;
@@ -35212,6 +35476,7 @@ export interface SalesQuote extends Entity {
     dueDate?: NullableOption<string>;
     email?: NullableOption<string>;
     externalDocumentNumber?: NullableOption<string>;
+    id?: string;
     lastModifiedDateTime?: NullableOption<string>;
     number?: NullableOption<string>;
     paymentTermsId?: NullableOption<string>;
@@ -35234,14 +35499,16 @@ export interface SalesQuote extends Entity {
     salesQuoteLines?: NullableOption<SalesQuoteLine[]>;
     shipmentMethod?: NullableOption<ShipmentMethod>;
 }
-export interface ShipmentMethod extends Entity {
+export interface ShipmentMethod {
     code?: NullableOption<string>;
     displayName?: NullableOption<string>;
+    id?: string;
     lastModifiedDateTime?: NullableOption<string>;
 }
-export interface TaxArea extends Entity {
+export interface TaxArea {
     code?: NullableOption<string>;
     displayName?: NullableOption<string>;
+    id?: string;
     lastModifiedDateTime?: NullableOption<string>;
     taxType?: NullableOption<string>;
 }
@@ -35251,13 +35518,14 @@ export interface TaxGroup extends Entity {
     lastModifiedDateTime?: NullableOption<string>;
     taxType?: NullableOption<string>;
 }
-export interface UnitOfMeasure extends Entity {
+export interface UnitOfMeasure {
     code?: NullableOption<string>;
     displayName?: NullableOption<string>;
+    id?: string;
     internationalStandardCode?: NullableOption<string>;
     lastModifiedDateTime?: NullableOption<string>;
 }
-export interface Vendor extends Entity {
+export interface Vendor {
     address?: NullableOption<PostalAddressType>;
     balance?: NullableOption<number>;
     blocked?: NullableOption<string>;
@@ -35265,6 +35533,7 @@ export interface Vendor extends Entity {
     currencyId?: NullableOption<string>;
     displayName?: NullableOption<string>;
     email?: NullableOption<string>;
+    id?: string;
     lastModifiedDateTime?: NullableOption<string>;
     number?: NullableOption<string>;
     paymentMethodId?: NullableOption<string>;
@@ -35279,6 +35548,7 @@ export interface Vendor extends Entity {
     picture?: NullableOption<Picture[]>;
 }
 export interface Financials {
+    id?: string;
     companies?: NullableOption<Company[]>;
 }
 export interface Office365ActiveUserCounts extends Entity {
@@ -35660,6 +35930,7 @@ export interface PlannerRosterMember extends Entity {
 export interface PlannerTaskDetails extends PlannerDelta {
     // The collection of checklist items on the task.
     checklist?: NullableOption<PlannerChecklistItems>;
+    // Contains detailed information about requirements on the task.
     completionRequirements?: NullableOption<PlannerTaskCompletionRequirementDetails>;
     // Description of the task.
     description?: NullableOption<string>;
@@ -35740,6 +36011,19 @@ export interface UsedInsight extends Entity {
      */
     resource?: NullableOption<Entity>;
 }
+// tslint:disable-next-line: interface-name
+export interface InsightsSettings extends Entity {
+    /**
+     * The ID of an Azure Active Directory group, of which the specified type of insights are disabled for its members.
+     * Default is empty. Optional.
+     */
+    disabledForGroup?: NullableOption<string>;
+    /**
+     * true if the specified type of insights are enabled for the organization; false if the specified type of insights are
+     * disabled for all users without exceptions. Default is true. Optional.
+     */
+    isEnabledInOrganization?: NullableOption<boolean>;
+}
 export interface ProfileCardProperty extends Entity {
     /**
      * Allows an administrator to set a custom display label for the directory property and localize it for the users in their
@@ -35760,19 +36044,6 @@ export interface ProfileCardProperty extends Entity {
 export interface PronounsSettings extends Entity {
     // true to enable pronouns in the organization, false otherwise. The default is false, and pronouns are disabled.
     isEnabledInOrganization?: boolean;
-}
-// tslint:disable-next-line: interface-name
-export interface InsightsSettings extends Entity {
-    /**
-     * The ID of an Azure Active Directory group, of which the specified type of insights are disabled for its members.
-     * Default is empty. Optional.
-     */
-    disabledForGroup?: NullableOption<string>;
-    /**
-     * true if the specified type of insights are enabled for the organization; false if the specified type of insights are
-     * disabled for all users without exceptions. Default is true. Optional.
-     */
-    isEnabledInOrganization?: NullableOption<boolean>;
 }
 export interface OnenoteEntityBaseModel extends Entity {
     self?: NullableOption<string>;
@@ -38186,56 +38457,6 @@ export interface TodoTask extends Entity {
     // A collection of resources linked to the task.
     linkedResources?: NullableOption<LinkedResource[]>;
 }
-export interface EmployeeExperience {
-    learningCourseActivities?: NullableOption<LearningCourseActivity[]>;
-    // A collection of learning providers.
-    learningProviders?: NullableOption<LearningProvider[]>;
-}
-export interface LearningCourseActivity extends Entity {
-    // Date and time when the assignment was completed. Optional.
-    completedDateTime?: NullableOption<string>;
-    // The percentage completion value of the course activity. Optional.
-    completionPercentage?: NullableOption<number>;
-    // A course activity ID generated by the provider. Optional.
-    externalcourseActivityId?: NullableOption<string>;
-    // The user ID of the learner to whom the activity is assigned. Required.
-    learnerUserId?: string;
-    // The ID of the learning content created in Viva Learning. Required.
-    learningContentId?: string;
-    // The registration ID of the provider. Required.
-    learningProviderId?: NullableOption<string>;
-    // The status of the course activity. Possible values are: notStarted, inProgress, completed. Required.
-    status?: NullableOption<CourseStatus>;
-}
-export interface LearningProvider extends Entity {
-    // The display name that appears in Viva Learning. Required.
-    displayName?: string;
-    // Authentication URL to access the courses for the provider. Optional.
-    loginWebUrl?: NullableOption<string>;
-    /**
-     * The long logo URL for the dark mode that needs to be a publicly accessible image. This image would be saved to the blob
-     * storage of Viva Learning for rendering within the Viva Learning app. Required.
-     */
-    longLogoWebUrlForDarkTheme?: string;
-    /**
-     * The long logo URL for the light mode that needs to be a publicly accessible image. This image would be saved to the
-     * blob storage of Viva Learning for rendering within the Viva Learning app. Required.
-     */
-    longLogoWebUrlForLightTheme?: string;
-    /**
-     * The square logo URL for the dark mode that needs to be a publicly accessible image. This image would be saved to the
-     * blob storage of Viva Learning for rendering within the Viva Learning app. Required.
-     */
-    squareLogoWebUrlForDarkTheme?: string;
-    /**
-     * The square logo URL for the light mode that needs to be a publicly accessible image. This image would be saved to the
-     * blob storage of Viva Learning for rendering within the Viva Learning app. Required.
-     */
-    squareLogoWebUrlForLightTheme?: string;
-    // Learning catalog items for the provider.
-    learningContents?: NullableOption<LearningContent[]>;
-    learningCourseActivities?: NullableOption<LearningCourseActivity[]>;
-}
 export interface LearningAssignment extends LearningCourseActivity {
     // Assigned date for the course activity. Optional.
     assignedDateTime?: NullableOption<string>;
@@ -38384,13 +38605,9 @@ export interface EmailSettings {
 }
 // tslint:disable-next-line: interface-name
 export interface Identity {
-    /**
-     * The display name of the identity. Note that this might not always be available or up to date. For example, if a user
-     * changes their display name, the API might show the new value in a future response, but the items associated with the
-     * user won't show up as having changed when using delta.
-     */
+    // The display name of the identity. This property is read-only.
     displayName?: NullableOption<string>;
-    // Unique identifier for the identity.
+    // The identifier of the identity. This property is read-only.
     id?: NullableOption<string>;
 }
 export interface KeyValuePair {
@@ -39365,8 +39582,9 @@ export interface ProvisioningErrorInfo {
 // tslint:disable-next-line: no-empty-interface
 export interface ProvisioningServicePrincipal extends Identity {}
 export interface ProvisioningStatusInfo {
+    // If status is not success/ skipped details for the error are contained in this.
     errorInformation?: NullableOption<ProvisioningErrorInfo>;
-    // Possible values are: success, warning, failure, skipped, unknownFutureValue.
+    // Possible values are: success, failure, skipped, warning, unknownFutureValue.
     status?: NullableOption<ProvisioningResult>;
 }
 export interface ProvisioningStep {
@@ -39644,11 +39862,11 @@ export interface SamlSingleSignOnSettings {
 }
 // tslint:disable-next-line: interface-name
 export interface IdentitySet {
-    // The Identity of the Application. This property is read-only.
+    // Optional. The application associated with this action.
     application?: NullableOption<Identity>;
-    // The Identity of the Device. This property is read-only.
+    // Optional. The device associated with this action.
     device?: NullableOption<Identity>;
-    // The Identity of the User. This property is read-only.
+    // Optional. The user associated with this action.
     user?: NullableOption<Identity>;
 }
 export interface AuthenticationMethodFeatureConfiguration {
@@ -40070,6 +40288,10 @@ export interface PlannerTaskPropertyRule extends PlannerPropertyRule {
      * default rule and individual overrides are allow, add, remove, update, check, reorder, block.
      */
     checkLists?: NullableOption<PlannerFieldRules>;
+    /**
+     * Rules and restrictions for completion requirements of the task. Accepted values are allow, add, remove, edit, and
+     * block.
+     */
     completionRequirements?: NullableOption<string[]>;
     // Rules and restrictions for deleting the task. Accepted values are allow and block.
     delete?: NullableOption<string[]>;
@@ -40086,7 +40308,7 @@ export interface PlannerTaskPropertyRule extends PlannerPropertyRule {
     order?: NullableOption<string[]>;
     /**
      * Rules and restrictions for changing the completion percentage of the task. Accepted values are allow, setToComplete,
-     * setToNotStarted, setToInProgress, and block.
+     * overrideRequirements, setToNotStarted, setToInProgress, and block.
      */
     percentComplete?: NullableOption<string[]>;
     // Rules and restrictions for changing the preview type of the task. Accepted values are allow and block.
@@ -40150,6 +40372,13 @@ export interface CloudPcAuditResource {
     resourceId?: string;
     // The type of the audit resource.
     type?: string;
+}
+export interface CloudPcBulkActionSummary {
+    failedCount?: number;
+    inProgressCount?: number;
+    notSupportedCount?: number;
+    pendingCount?: number;
+    successfulCount?: number;
 }
 export interface CloudPcBulkRemoteActionResult {
     // A list of all the Intune managed device IDs that completed the bulk action with a failure.
@@ -40280,6 +40509,8 @@ export interface CloudPcManagementGroupAssignmentTarget extends CloudPcManagemen
 export interface CloudPcOnPremisesConnectionHealthCheck {
     // Additional details about the health check or the recommended action.
     additionalDetails?: NullableOption<string>;
+    // The unique identifier of the health check item-related activities. This identifier can be useful in troubleshooting.
+    correlationId?: NullableOption<string>;
     // The display name for this health check item.
     displayName?: NullableOption<string>;
     // The end time of the health check item. Read-only.
@@ -44557,9 +44788,19 @@ export interface AttributeMapping {
     targetAttributeName?: NullableOption<string>;
 }
 export interface AttributeMappingSource {
+    // Equivalent expression representation of this attributeMappingSource object.
     expression?: NullableOption<string>;
+    /**
+     * Name parameter of the mapping source. Depending on the type property value, this can be the name of the function, the
+     * name of the source attribute, or a constant value to be used.
+     */
     name?: NullableOption<string>;
+    /**
+     * If this object represents a function, lists function parameters. Parameters consist of attributeMappingSource objects
+     * themselves, allowing for complex expressions. If type is not Function, this property will be null/empty array.
+     */
     parameters?: NullableOption<StringKeyAttributeMappingSourceValuePair[]>;
+    // The type of this attribute mapping source. Possible values are: Attribute, Constant, Function. Default is Attribute.
     type?: AttributeMappingSourceType;
 }
 export interface AttributeMappingParameterSchema {
@@ -44591,9 +44832,13 @@ export interface ExpressionInputObject {
     properties?: NullableOption<StringKeyObjectValuePair[]>;
 }
 export interface ObjectDefinition {
+    // Defines attributes of the object.
     attributes?: NullableOption<AttributeDefinition[]>;
+    // Metadata for the given object.
     metadata?: NullableOption<ObjectDefinitionMetadataEntry[]>;
+    // Name of the object. Must be unique within a directory definition. Not nullable.
     name?: NullableOption<string>;
+    // The API that the provisioning service queries to retrieve data for synchronization.
     supportedApis?: NullableOption<string[]>;
 }
 export interface StringKeyObjectValuePair {
@@ -46741,38 +46986,6 @@ export interface MobileAppInstallTimeSettings {
     startDateTime?: NullableOption<string>;
     // Whether the local device time or UTC time should be used when determining the available and deadline times.
     useLocalTime?: boolean;
-}
-export interface MobileAppRelationshipState {
-    // The corresponding device id.
-    deviceId?: NullableOption<string>;
-    // The error code for install or uninstall failures of target app.
-    errorCode?: number;
-    /**
-     * The install state of the app of target app. Possible values are: installed, failed, notInstalled, uninstallFailed,
-     * pendingInstall, unknown, notApplicable.
-     */
-    installState?: ResultantAppState;
-    /**
-     * The install state detail of the app. Possible values are: noAdditionalDetails, dependencyFailedToInstall,
-     * dependencyWithRequirementsNotMet, dependencyPendingReboot, dependencyWithAutoInstallDisabled,
-     * supersededAppUninstallFailed, supersededAppUninstallPendingReboot, removingSupersededApps,
-     * iosAppStoreUpdateFailedToInstall, vppAppHasUpdateAvailable, userRejectedUpdate, uninstallPendingReboot,
-     * supersedingAppsDetected, supersededAppsDetected, seeInstallErrorCode, autoInstallDisabled, managedAppNoLongerPresent,
-     * userRejectedInstall, userIsNotLoggedIntoAppStore, untargetedSupersedingAppsDetected, appRemovedBySupersedence,
-     * seeUninstallErrorCode, pendingReboot, installingDependencies, contentDownloaded, supersedingAppsNotApplicable,
-     * powerShellScriptRequirementNotMet, registryRequirementNotMet, fileSystemRequirementNotMet, platformNotApplicable,
-     * minimumCpuSpeedNotMet, minimumLogicalProcessorCountNotMet, minimumPhysicalMemoryNotMet, minimumOsVersionNotMet,
-     * minimumDiskSpaceNotMet, processorArchitectureNotApplicable.
-     */
-    installStateDetail?: ResultantAppStateDetail;
-    // The collection of source mobile app's ids.
-    sourceIds?: NullableOption<string[]>;
-    // The related target app's display name.
-    targetDisplayName?: NullableOption<string>;
-    // The related target app's id.
-    targetId?: NullableOption<string>;
-    // The last sync time of the target app.
-    targetLastSyncDateTime?: string;
 }
 export interface VppLicensingType {
     // Whether the program supports the device licensing type.
@@ -49376,13 +49589,17 @@ export interface DeviceManagementConfigurationSettingApplicability {
     // Device Mode that setting can be applied on. Possible values are: none, kiosk.
     deviceMode?: DeviceManagementConfigurationDeviceMode;
     /**
-     * Platform setting can be applied on. Possible values are: none, android, iOS, macOS, windows10X, windows10, linux,
+     * Platform setting can be applied on. Posible values are: none, android, androidEnterprise, iOs, macOs, windows10X,
+     * windows10, aosp, and linux. Possible values are: none, android, iOS, macOS, windows10X, windows10, linux,
      * unknownFutureValue.
      */
     platform?: DeviceManagementConfigurationPlatforms;
     /**
-     * Which technology channels this setting can be deployed through. Possible values are: none, mdm, windows10XManagement,
-     * configManager, appleRemoteManagement, microsoftSense, exchangeOnline, linuxMdm, unknownFutureValue.
+     * Which technology channels this setting can be deployed through. Posible values are: none, mdm, configManager,
+     * intuneManagementExtension, thirdParty, documentGateway, appleRemoteManagement, microsoftSense, exchangeOnline, edgeMam,
+     * linuxMdm, extensibility, enrollment, endpointPrivilegeManagement. Possible values are: none, mdm, windows10XManagement,
+     * configManager, appleRemoteManagement, microsoftSense, exchangeOnline, mobileApplicationManagement, linuxMdm,
+     * enrollment, endpointPrivilegeManagement, unknownFutureValue.
      */
     technologies?: DeviceManagementConfigurationTechnologies;
 }
@@ -49581,7 +49798,7 @@ export interface DeviceManagementConfigurationReferenceSettingValue extends Devi
     note?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationReferredSettingInformation {
-    // Setting definition id that is being referred to a setting. Applicable for reusable setting
+    // Setting definition id that is being referred to a setting. Applicable for reusable setting.
     settingDefinitionId?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationSecretSettingValue extends DeviceManagementConfigurationSimpleSettingValue {
@@ -49642,7 +49859,7 @@ export interface DeviceManagementConfigurationStringSettingValueDefinition exten
     fileTypes?: NullableOption<string[]>;
     /**
      * Pre-defined format of the string. Possible values are: none, email, guid, ip, base64, url, version, xml, date, time,
-     * binary, regEx, json, dateTime, surfaceHub, bashScript, unknownFutureValue.
+     * binary, regEx, json, dateTime, surfaceHub.
      */
     format?: DeviceManagementConfigurationStringFormat;
     // Regular expression or any xml or json schema that the input string should match
@@ -49652,9 +49869,9 @@ export interface DeviceManagementConfigurationStringSettingValueDefinition exten
      * at rest and will be displayed as asterisks when represented in the UX.
      */
     isSecret?: boolean;
-    // Maximum length of string. Valid values 0 to 87516
+    // Maximum length of string
     maximumLength?: number;
-    // Minimum length of string. Valid values 0 to 87516
+    // Minimum length of string
     minimumLength?: number;
 }
 export interface DeviceManagementConfigurationStringSettingValueTemplate extends DeviceManagementConfigurationSimpleSettingValueTemplate {
@@ -50033,6 +50250,8 @@ export interface DeviceHealthScriptRemediationHistory {
 export interface DeviceHealthScriptRemediationHistoryData {
     // The date on which devices were remediated by the device health script.
     date?: string;
+    // The number of devices for which the detection script found an issue.
+    detectFailedDeviceCount?: number;
     // The number of devices that were found to have no issue by the device health script.
     noIssueDeviceCount?: number;
     // The number of devices remediated by the device health script.
@@ -50143,26 +50362,6 @@ export interface ManagedDeviceModelsAndManufacturers {
     // List of Models for managed devices in the account
     deviceModels?: NullableOption<string[]>;
 }
-export interface OemWarranty {
-    // List of additional warranty offers. This collection can contain a maximum of 100 elements.
-    additionalWarranties?: NullableOption<WarrantyOffer[]>;
-    // List of base warranty offers. This collection can contain a maximum of 100 elements.
-    baseWarranties?: NullableOption<WarrantyOffer[]>;
-    // Device configuration page URL
-    deviceConfigurationUrl?: NullableOption<string>;
-    // Device warranty page URL
-    deviceWarrantyUrl?: NullableOption<string>;
-}
-export interface WarrantyOffer {
-    // Warranty offer description
-    description?: NullableOption<string>;
-    // Warranty offer end date
-    endDateTime?: string;
-    // Warranty offer start date
-    startDateTime?: string;
-    // Warranty offer type
-    type?: WarrantyType;
-}
 export interface OsVersionCount {
     // Count of devices with malware for the OS version
     deviceCount?: number;
@@ -50239,6 +50438,12 @@ export interface UpdateWindowsDeviceAccountActionParameter {
 export interface WindowsDeviceAccount {
     // Not yet documented
     password?: NullableOption<string>;
+}
+export interface UserExperienceAnalyticsAnomalyCorrelationGroupFeature {
+    // The type of device feature. Possible values are: manufacturer, model, osVersion, application or driver
+    deviceFeatureType?: UserExperienceAnalyticsAnomalyDeviceFeatureType;
+    // Specific metric values that describe the features of the given device feature type.
+    values?: NullableOption<string[]>;
 }
 export interface UserExperienceAnalyticsAutopilotDevicesSummary {
     // The count of intune devices that are not autopilot registerd.
@@ -51347,6 +51552,7 @@ export interface PlannerChecklistItem {
 // tslint:disable-next-line: no-empty-interface
 export interface PlannerChecklistItems {}
 export interface PlannerChecklistRequirement {
+    // A collection of required plannerChecklistItems identifiers to complete the plannerTask.
     requiredChecklistItemIds?: NullableOption<string[]>;
 }
 export interface PlannerExternalBucketSource extends PlannerBucketCreation {
@@ -51545,6 +51751,7 @@ export interface PlannerSharedWithContainer extends PlannerPlanContainer {
     accessLevel?: PlannerPlanAccessLevel;
 }
 export interface PlannerTaskCompletionRequirementDetails {
+    // Information about the requirements for completing the checklist.
     checklistRequirement?: NullableOption<PlannerChecklistRequirement>;
 }
 export interface PlannerTeamsPublicationInfo extends PlannerTaskCreation {
@@ -53592,6 +53799,12 @@ export interface PasswordResetResponse {
 export interface SignInPreferences {
     // Indicates whether the credential preferences of the system are enabled.
     isSystemPreferredAuthenticationMethodEnabled?: NullableOption<boolean>;
+    /**
+     * The default second-factor method used by the user when signing in. If a user is enabled for system-preferred
+     * authentication, then this value is ignored except for a few scenarios where a user is authenticating via NPS extension
+     * or ADFS adapter. Possible values are push, oath, voiceMobile, voiceAlternateMobile, voiceOffice, sms, and
+     * unknownFutureValue
+     */
     userPreferredMethodForSecondaryAuthentication?: NullableOption<UserDefaultAuthenticationMethodType>;
 }
 export interface ChangeNotification {
@@ -58093,7 +58306,10 @@ export namespace ManagedTenants {
 }
 export namespace Networkaccess {
 // tslint:disable-next-line: no-empty-interface
-    interface NetworkAccessRoot {}
+    interface NetworkAccessRoot extends microsoftgraphbeta.Entity {}
+    interface PolicyRuleDelta {
+        ruleId?: string;
+    }
 }
 export namespace Search {
     type AnswerState = "published" | "draft" | "excluded" | "unknownFutureValue";
