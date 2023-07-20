@@ -599,6 +599,7 @@ export type CloudPcOnPremisesConnectionStatus =
     | "passed"
     | "failed"
     | "warning"
+    | "informational"
     | "unknownFutureValue";
 export type CloudPcOnPremisesConnectionType = "hybridAzureADJoin" | "azureADJoin" | "unknownFutureValue";
 export type CloudPcOperatingSystem = "windows10" | "windows11" | "unknownFutureValue";
@@ -655,7 +656,8 @@ export type CloudPcReportName =
     | "sharedUseLicenseUsageReport"
     | "sharedUseLicenseUsageRealTimeReport"
     | "unknownFutureValue"
-    | "noLicenseAvailableConnectivityFailureReport";
+    | "noLicenseAvailableConnectivityFailureReport"
+    | "remoteConnectionQualityReports";
 export type CloudPcResizeValidationCode =
     | "success"
     | "cloudPcNotFound"
@@ -680,7 +682,8 @@ export type CloudPcStatus =
     | "pendingProvision"
     | "unknownFutureValue"
     | "movingRegion"
-    | "resizePendingLicense";
+    | "resizePendingLicense"
+    | "updatingSingleSignOn";
 export type CloudPcSupportedRegionStatus = "available" | "restricted" | "unavailable" | "unknownFutureValue";
 export type CloudPcUserAccessLevel = "unrestricted" | "restricted" | "unknownFutureValue";
 export type CloudPcUserAccountType = "standardUser" | "administrator" | "unknownFutureValue";
@@ -6666,6 +6669,7 @@ export interface UserAnalytics extends Entity {
 export interface CloudPC extends Entity {
     // The Azure Active Directory (Azure AD) device ID of the Cloud PC.
     aadDeviceId?: NullableOption<string>;
+    connectionSettings?: NullableOption<CloudPcConnectionSettings>;
     /**
      * The connectivity health check result of a Cloud PC, including the updated timestamp and whether the Cloud PC can be
      * connected.
@@ -7947,7 +7951,7 @@ export interface Site extends BaseItem {
     lists?: NullableOption<List[]>;
     // The collection of long running operations for the site.
     operations?: NullableOption<RichLongRunningOperation[]>;
-    // The collection of pages in the SitePages list in this site.
+    // The collection of pages in the baseSitePages list in this site.
     pages?: NullableOption<SitePage[]>;
     // The permissions associated with the site. Nullable.
     permissions?: NullableOption<Permission[]>;
@@ -9230,14 +9234,15 @@ export interface DirectoryAudit extends Entity {
     activityDateTime?: string;
     /**
      * Indicates the activity name or the operation name (E.g. 'Create User', 'Add member to group'). For a list of activities
-     * logged, refer to Azure Ad activity list.
+     * logged, refer to Azure AD audit log categories and activities.
      */
     activityDisplayName?: string;
     // Indicates additional details on the activity.
     additionalDetails?: NullableOption<KeyValue[]>;
     /**
      * Indicates which resource category that's targeted by the activity. For example: UserManagement, GroupManagement,
-     * ApplicationManagement, RoleManagement.
+     * ApplicationManagement, RoleManagement. For a list of categories for activities logged, refer to Azure AD audit log
+     * categories and activities.
      */
     category?: string;
     /**
@@ -9964,10 +9969,14 @@ export interface SharedEmailDomain extends Entity {
     provisioningStatus?: NullableOption<string>;
 }
 export interface CompanySubscription extends Entity {
+    commerceSubscriptionId?: NullableOption<string>;
     createdDateTime?: NullableOption<string>;
     isTrial?: NullableOption<boolean>;
     nextLifecycleDateTime?: NullableOption<string>;
     ocpSubscriptionId?: NullableOption<string>;
+    ownerId?: NullableOption<string>;
+    ownerTenantId?: NullableOption<string>;
+    ownerType?: NullableOption<string>;
     serviceStatus?: ServicePlanInfo[];
     skuId?: NullableOption<string>;
     skuPartNumber?: NullableOption<string>;
@@ -10143,6 +10152,8 @@ export interface PrintUsage extends Entity {
 }
 export interface PrintUsageByPrinter extends PrintUsage {
     printerId?: string;
+    // The name of the printer represented by these statistics.
+    printerName?: NullableOption<string>;
 }
 export interface PrintUsageByUser extends PrintUsage {
     // The UPN of the user represented by these statistics.
@@ -11598,6 +11609,11 @@ export interface CloudPcExternalPartnerSetting extends Entity {
     // Status details message.
     statusDetails?: NullableOption<string>;
 }
+export interface CloudPcFrontLineServicePlan extends Entity {
+    displayName?: NullableOption<string>;
+    totalCount?: NullableOption<number>;
+    usedCount?: NullableOption<number>;
+}
 export interface CloudPcGalleryImage extends Entity {
     // The official display name of the gallery image. Read-only.
     displayName?: NullableOption<string>;
@@ -11925,6 +11941,7 @@ export interface CloudPcUserSetting extends Entity {
      * the setting to true. If the local admin option is enabled, the end user can be an admin of the Cloud PC device.
      */
     localAdminEnabled?: NullableOption<boolean>;
+    resetEnabled?: NullableOption<boolean>;
     /**
      * Defines how frequently a restore point is created that is, a snapshot is taken) for users' provisioned Cloud PCs
      * (default is 12 hours), and whether the user is allowed to restore their own Cloud PCs to a backup made at a specific
@@ -12356,6 +12373,7 @@ export interface VirtualEndpoint extends Entity {
     deviceImages?: NullableOption<CloudPcDeviceImage[]>;
     // The external partner settings on a Cloud PC.
     externalPartnerSettings?: NullableOption<CloudPcExternalPartnerSetting[]>;
+    frontLineServicePlans?: NullableOption<CloudPcFrontLineServicePlan[]>;
     // The gallery image resource on Cloud PC.
     galleryImages?: NullableOption<CloudPcGalleryImage[]>;
     /**
@@ -17629,16 +17647,13 @@ export interface RichLongRunningOperation extends LongRunningOperation {
     type?: NullableOption<string>;
 }
 export interface SitePage extends BaseItem {
-    // Inherited from baseItem.
     contentType?: NullableOption<ContentTypeInfo>;
-    // The name of the page layout of the page. The possible values are: microsoftReserved, article, home, unknownFutureValue.
     pageLayout?: NullableOption<PageLayoutType>;
     /**
      * Indicates the promotion kind of the sitePage. The possible values are: microsoftReserved, page, newsPost,
      * unknownFutureValue.
      */
     promotionKind?: NullableOption<PagePromotionType>;
-    // The publishing status and the MM.mm version of the page.
     publishingState?: NullableOption<PublicationFacet>;
     // Reactions information for the page.
     reactions?: NullableOption<ReactionsFacet>;
@@ -17648,13 +17663,12 @@ export interface SitePage extends BaseItem {
     showRecommendedPages?: NullableOption<boolean>;
     // Url of the sitePage's thumbnail image
     thumbnailWebUrl?: NullableOption<string>;
-    // Title of the sitePage.
     title?: NullableOption<string>;
     // Title area on the SharePoint page.
     titleArea?: NullableOption<TitleArea>;
-    // Indicates the layout of the content in a given SharePoint page, including horizontal sections and vertical section
+    // Indicates the layout of the content in a given SharePoint page, including horizontal sections and vertical sections.
     canvasLayout?: NullableOption<CanvasLayout>;
-    // Collection of webparts on the SharePoint page
+    // Collection of webparts on the SharePoint page.
     webParts?: NullableOption<WebPart[]>;
 }
 export interface Permission extends Entity {
@@ -18392,7 +18406,7 @@ export interface Domain extends Entity {
      * Indicates the configured authentication type for the domain. The value is either Managed or Federated. Managed
      * indicates a cloud managed domain where Azure AD performs user authentication. Federated indicates authentication is
      * federated with an identity provider such as the tenant's on-premises Active Directory via Active Directory Federation
-     * Services. This property is read-only and is not nullable.
+     * Services. Not nullable.
      */
     authenticationType?: string;
     /**
@@ -33789,19 +33803,19 @@ export interface DeviceManagementConfigurationSettingGroupCollectionDefinition e
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationSimpleSettingDefinition extends DeviceManagementConfigurationSettingDefinition {
-    // Default setting value for this setting.
+    // Default setting value for this setting
     defaultValue?: NullableOption<DeviceManagementConfigurationSettingValue>;
-    // list of child settings that depend on this setting.
+    // list of child settings that depend on this setting
     dependedOnBy?: NullableOption<DeviceManagementConfigurationSettingDependedOnBy[]>;
-    // list of parent settings this setting is dependent on.
+    // list of parent settings this setting is dependent on
     dependentOn?: NullableOption<DeviceManagementConfigurationDependentOn[]>;
-    // Definition of the value for this setting.
+    // Definition of the value for this setting
     valueDefinition?: NullableOption<DeviceManagementConfigurationSettingValueDefinition>;
 }
 export interface DeviceManagementConfigurationSimpleSettingCollectionDefinition extends DeviceManagementConfigurationSimpleSettingDefinition {
-    // Maximum number of simple settings in the collection
+    // Maximum number of simple settings in the collection. Valid values 1 to 100
     maximumCount?: number;
-    // Minimum number of simple settings in the collection
+    // Minimum number of simple settings in the collection. Valid values 1 to 100
     minimumCount?: number;
 }
 export interface DeviceComanagementAuthorityConfiguration extends DeviceEnrollmentConfiguration {
@@ -37490,8 +37504,8 @@ export interface UnifiedRoleManagementAlert extends Entity {
      */
     alertDefinition?: NullableOption<UnifiedRoleManagementAlertDefinition>;
     /**
-     * Represents the incidents of this alert that have been triggered in Privileged Identity Management (PIM) for Azure AD
-     * roles in the tenant. Supports $expand.
+     * Represents the incidents of this type of alert that have been triggered in Privileged Identity Management (PIM) for
+     * Azure AD roles in the tenant. Supports $expand.
      */
     alertIncidents?: NullableOption<UnifiedRoleManagementAlertIncident[]>;
 }
@@ -39436,19 +39450,21 @@ export interface EmailSettings {
 }
 // tslint:disable-next-line: interface-name
 export interface Identity {
-    /**
-     * The display name of the identity. Note that this might not always be available or up to date. For example, if a user
-     * changes their display name, the API might show the new value in a future response, but the items associated with the
-     * user won't show up as having changed when using delta.
-     */
+    // The display name of the identity. This property is read-only.
     displayName?: NullableOption<string>;
-    // Unique identifier for the identity.
+    // The identifier of the identity. This property is read-only.
     id?: NullableOption<string>;
 }
 export interface KeyValuePair {
-    // Name for this key-value pair
+    /**
+     * Name for this key-value pair. For more information about possible names for each resource type that uses this
+     * configuration, see keyValuePair names and values.
+     */
     name?: string;
-    // Value for this key-value pair
+    /**
+     * Value for this key-value pair. For more information about possible values for each resource type that uses this
+     * configuration, see keyValuePair names and values.
+     */
     value?: NullableOption<string>;
 }
 export interface LogicAppTriggerEndpointConfiguration extends CustomExtensionEndpointConfiguration {
@@ -40343,9 +40359,9 @@ export interface Initiator extends Identity {
     initiatorType?: NullableOption<InitiatorType>;
 }
 export interface KeyValue {
-    // Contains the name of the field that a value is associated with.
+    // Key.
     key?: NullableOption<string>;
-    // Contains the corresponding value for the specified key.
+    // Value.
     value?: NullableOption<string>;
 }
 export interface LastSignIn {
@@ -41250,6 +41266,9 @@ export interface CloudPcBulkRemoteActionResult {
     notSupportedDeviceIds?: NullableOption<string[]>;
     // A list of all the Intune managed device IDs that completed the bulk action successfully.
     successfulDeviceIds?: NullableOption<string[]>;
+}
+export interface CloudPcConnectionSettings {
+    enableSingleSignOn?: boolean;
 }
 export interface CloudPcConnectivityEvent {
     /**
@@ -42996,13 +43015,10 @@ export interface CrossTenantAccessPolicyTenantRestrictions extends CrossTenantAc
 export interface DevicesFilter {
     /**
      * Determines whether devices satisfying the rule should be allowed or blocked.The possible values are: allowed, blocked,
-     * unknownFutureValue.Not implemented yet
+     * unknownFutureValue.
      */
     mode?: NullableOption<CrossTenantAccessPolicyTargetConfigurationAccessType>;
-    /**
-     * Defines the rule to filter the devices. An example would be device.deviceAttribute2 -eq 'PrivilegedAccessWorkstation'
-     * Not implemented yet
-     */
+    // Defines the rule to filter the devices. For example, device.deviceAttribute2 -eq 'PrivilegedAccessWorkstation'.
     rule?: NullableOption<string>;
 }
 export interface CrossTenantUserSyncInbound {
@@ -48121,11 +48137,7 @@ export interface Win32LobAppReturnCode {
     type?: Win32LobAppReturnCodeType;
 }
 export interface WindowsAppXAppAssignmentSettings extends MobileAppAssignmentSettings {
-    /**
-     * When TRUE, indicates that device execution context will be used for the AppX mobile app. When FALSE, indicates that
-     * user context will be used for the AppX mobile app. By default, this property is set to FALSE. Once this property has
-     * been set to TRUE it cannot be changed.
-     */
+    // Whether or not to use device execution context for Windows AppX mobile app.
     useDeviceContext?: boolean;
 }
 export interface WindowsMinimumOperatingSystem {
@@ -50481,17 +50493,13 @@ export interface DeviceManagementConfigurationSettingApplicability {
     // Device Mode that setting can be applied on. Possible values are: none, kiosk.
     deviceMode?: DeviceManagementConfigurationDeviceMode;
     /**
-     * Platform setting can be applied on. Posible values are: none, android, androidEnterprise, iOs, macOs, windows10X,
-     * windows10, aosp, and linux. Possible values are: none, android, iOS, macOS, windows10X, windows10, linux,
+     * Platform setting can be applied on. Possible values are: none, android, iOS, macOS, windows10X, windows10, linux,
      * unknownFutureValue.
      */
     platform?: DeviceManagementConfigurationPlatforms;
     /**
-     * Which technology channels this setting can be deployed through. Posible values are: none, mdm, configManager,
-     * intuneManagementExtension, thirdParty, documentGateway, appleRemoteManagement, microsoftSense, exchangeOnline, edgeMam,
-     * linuxMdm, extensibility, enrollment, endpointPrivilegeManagement. Possible values are: none, mdm, windows10XManagement,
-     * configManager, appleRemoteManagement, microsoftSense, exchangeOnline, mobileApplicationManagement, linuxMdm,
-     * enrollment, endpointPrivilegeManagement, unknownFutureValue.
+     * Which technology channels this setting can be deployed through. Possible values are: none, mdm, windows10XManagement,
+     * configManager, appleRemoteManagement, microsoftSense, exchangeOnline, linuxMdm, unknownFutureValue.
      */
     technologies?: DeviceManagementConfigurationTechnologies;
 }
@@ -50691,7 +50699,7 @@ export interface DeviceManagementConfigurationReferenceSettingValue extends Devi
     note?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationReferredSettingInformation {
-    // Setting definition id that is being referred to a setting. Applicable for reusable setting
+    // Setting definition id that is being referred to a setting. Applicable for reusable setting.
     settingDefinitionId?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationSecretSettingValue extends DeviceManagementConfigurationSimpleSettingValue {
@@ -53268,6 +53276,8 @@ export interface ArchivedPrintJob {
     pageCount?: number;
     // The printer ID that the job was queued for. Read-only.
     printerId?: NullableOption<string>;
+    // The printer name that the job was queued for. Read-only.
+    printerName?: NullableOption<string>;
     // The print job's final processing state. Read-only.
     processingState?: PrintJobProcessingState;
     // The number of simplex (single-sided) pages that were printed. Read-only.
@@ -53989,7 +53999,9 @@ export interface CloudAppSecurityState {
     riskScore?: NullableOption<string>;
 }
 export interface ComplianceInformation {
+    // Collection of the certification controls associated with the certification.
     certificationControls?: NullableOption<CertificationControl[]>;
+    // The name of the compliance certification, for example, ISO 27018:2014, GDPR, FedRAMP, and NIST 800-171.
     certificationName?: NullableOption<string>;
 }
 export interface ControlScore {
@@ -56616,7 +56628,8 @@ export namespace DeviceManagementNamespace {
         | "cloudPcProvisionScenario"
         | "cloudPcImageUploadScenario"
         | "cloudPcOnPremiseNetworkConnectionCheckScenario"
-        | "unknownFutureValue";
+        | "unknownFutureValue"
+        | "cloudPcInGracePeriodScenario";
     type AlertStatusType = "active" | "resolved" | "unknownFutureValue";
     type NotificationChannelType = "portal" | "email" | "phoneCall" | "sms" | "unknownFutureValue";
     type OperatorType = "greaterOrEqual" | "equal" | "greater" | "less" | "lessOrEqual" | "notEqual" | "unknownFutureValue";
