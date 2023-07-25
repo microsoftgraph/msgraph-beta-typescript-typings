@@ -6566,6 +6566,10 @@ export interface User extends DirectoryObject {
     registeredDevices?: NullableOption<DirectoryObject[]>;
     // The scoped-role administrative unit memberships for this user. Read-only. Nullable.
     scopedRoleMemberOf?: NullableOption<ScopedRoleMembership[]>;
+    /**
+     * The users and groups that are responsible for this guest user's privileges in the tenant and keep the guest user's
+     * information and access updated. (HTTP Methods: GET, POST, DELETE.). Supports $expand.
+     */
     sponsors?: NullableOption<DirectoryObject[]>;
     // The groups, including nested groups, and directory roles that a user is a member of. Nullable.
     transitiveMemberOf?: NullableOption<DirectoryObject[]>;
@@ -7952,7 +7956,7 @@ export interface Site extends BaseItem {
     // The collection of long running operations for the site.
     operations?: NullableOption<RichLongRunningOperation[]>;
     // The collection of pages in the baseSitePages list in this site.
-    pages?: NullableOption<SitePage[]>;
+    pages?: NullableOption<BaseSitePage[]>;
     // The permissions associated with the site. Nullable.
     permissions?: NullableOption<Permission[]>;
     // The collection of the sub-sites under this site.
@@ -9727,6 +9731,7 @@ export interface Directory extends Entity {
     onPremisesSynchronization?: NullableOption<OnPremisesDirectorySynchronization[]>;
     outboundSharedUserProfiles?: NullableOption<OutboundSharedUserProfile[]>;
     sharedEmailDomains?: NullableOption<SharedEmailDomain[]>;
+    // List of commercial subscriptions that an organization has acquired.
     subscriptions?: NullableOption<CompanySubscription[]>;
     featureRolloutPolicies?: NullableOption<FeatureRolloutPolicy[]>;
 }
@@ -9969,18 +9974,37 @@ export interface SharedEmailDomain extends Entity {
     provisioningStatus?: NullableOption<string>;
 }
 export interface CompanySubscription extends Entity {
+    // The ID of this subscription in the commerce system. Alternate key.
     commerceSubscriptionId?: NullableOption<string>;
+    /**
+     * The date and time when this subscription was created. The DateTimeOffset type represents date and time information
+     * using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
+     */
     createdDateTime?: NullableOption<string>;
+    // Whether the subscription is a free trial or purchased.
     isTrial?: NullableOption<boolean>;
+    /**
+     * The date and time when the subscription will move to the next state (as defined by the status property) if not renewed
+     * by the tenant. The DateTimeOffset type represents date and time information using ISO 8601 format and is always in UTC
+     * time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.
+     */
     nextLifecycleDateTime?: NullableOption<string>;
     ocpSubscriptionId?: NullableOption<string>;
+    // The object ID of the account admin.
     ownerId?: NullableOption<string>;
+    // The unique identifier for the Microsoft partner tenant that created the subscription on a customer tenant.
     ownerTenantId?: NullableOption<string>;
+    // Indicates the entity that ownerId belongs to, for example, 'User'.
     ownerType?: NullableOption<string>;
+    // The provisioning status of each service that's included in this subscription.
     serviceStatus?: ServicePlanInfo[];
+    // The object ID of the SKU associated with this subscription.
     skuId?: NullableOption<string>;
+    // The SKU associated with this subscription.
     skuPartNumber?: NullableOption<string>;
+    // The status of this subscription. Possible values are: Enabled, Expired, Suspended, Warning, LockedOut.
     status?: NullableOption<string>;
+    // The number of seats included in this subscription.
     totalLicenses?: NullableOption<number>;
 }
 export interface FeatureRolloutPolicy extends Entity {
@@ -10199,6 +10223,11 @@ export interface Invitation extends Entity {
     status?: NullableOption<string>;
     // The user created as part of the invitation creation. Read-Only
     invitedUser?: NullableOption<User>;
+    /**
+     * The users or groups who are sponsors of the invited user. Sponsors are users and groups that are responsible for guest
+     * users' privileges in the tenant and for keeping the guest users' information and access up to date.
+     */
+    invitedUserSponsors?: NullableOption<DirectoryObject[]>;
 }
 export interface ActivityStatistics extends Entity {
     // The type of activity for which statistics are returned. The possible values are: call, chat, email, focus, and meeting.
@@ -13173,19 +13202,19 @@ export interface DeviceManagementCompliancePolicy extends Entity {
 export interface DeviceManagementConfigurationSettingDefinition extends Entity {
     // Read/write access mode of the setting. Possible values are: none, add, copy, delete, get, replace, execute.
     accessTypes?: DeviceManagementConfigurationSettingAccessTypes;
-    // Details which device setting is applicable on
+    // Details which device setting is applicable on. Supports: $filters.
     applicability?: NullableOption<DeviceManagementConfigurationSettingApplicability>;
     // Base CSP Path
     baseUri?: NullableOption<string>;
-    // Specifies the area group under which the setting is configured in a specified configuration service provider (CSP)
+    // Specify category in which the setting is under. Support $filters.
     categoryId?: NullableOption<string>;
-    // Description of the item
+    // Description of the setting.
     description?: NullableOption<string>;
-    // Display name of the item
+    // Name of the setting. For example: Allow Toast.
     displayName?: NullableOption<string>;
-    // Help text of the item
+    // Help text of the setting. Give more details of the setting.
     helpText?: NullableOption<string>;
-    // List of links more info for the setting can be found at
+    // List of links more info for the setting can be found at.
     infoUrls?: NullableOption<string[]>;
     // Tokens which to search settings on
     keywords?: NullableOption<string[]>;
@@ -13197,18 +13226,25 @@ export interface DeviceManagementConfigurationSettingDefinition extends Entity {
     offsetUri?: NullableOption<string>;
     // List of referred setting information.
     referredSettingInformationList?: NullableOption<DeviceManagementConfigurationReferredSettingInformation[]>;
-    // Root setting definition if the setting is a child setting.
+    // Root setting definition id if the setting is a child setting.
     rootDefinitionId?: NullableOption<string>;
-    // Setting type, for example, configuration and compliance. Possible values are: none, configuration, compliance.
+    /**
+     * Indicate setting type for the setting. Possible values are: configuration, compliance, reusableSetting. Each setting
+     * usage has separate API end-point to call. Possible values are: none, configuration, compliance, unknownFutureValue.
+     */
     settingUsage?: DeviceManagementConfigurationSettingUsage;
     /**
      * Setting control type representation in the UX. Possible values are: default, dropdown, smallTextBox, largeTextBox,
-     * toggle, multiheaderGrid, contextPane.
+     * toggle, multiheaderGrid, contextPane. Possible values are: default, dropdown, smallTextBox, largeTextBox, toggle,
+     * multiheaderGrid, contextPane, unknownFutureValue.
      */
     uxBehavior?: DeviceManagementConfigurationControlType;
     // Item Version
     version?: NullableOption<string>;
-    // Setting visibility scope to UX. Possible values are: none, settingsCatalog, template.
+    /**
+     * Setting visibility scope to UX. Possible values are: none, settingsCatalog, template. Possible values are: none,
+     * settingsCatalog, template, unknownFutureValue.
+     */
     visibility?: DeviceManagementConfigurationSettingVisibility;
 }
 export interface DeviceManagementConfigurationPolicy extends Entity {
@@ -17646,30 +17682,13 @@ export interface RichLongRunningOperation extends LongRunningOperation {
     // Type of the operation.
     type?: NullableOption<string>;
 }
-export interface SitePage extends BaseItem {
-    contentType?: NullableOption<ContentTypeInfo>;
+export interface BaseSitePage extends BaseItem {
+    // The name of the page layout of the page. The possible values are: microsoftReserved, article, home, unknownFutureValue.
     pageLayout?: NullableOption<PageLayoutType>;
-    /**
-     * Indicates the promotion kind of the sitePage. The possible values are: microsoftReserved, page, newsPost,
-     * unknownFutureValue.
-     */
-    promotionKind?: NullableOption<PagePromotionType>;
+    // The publishing status and the MM.mm version of the page.
     publishingState?: NullableOption<PublicationFacet>;
-    // Reactions information for the page.
-    reactions?: NullableOption<ReactionsFacet>;
-    // Determines whether or not to show comments at the bottom of the page.
-    showComments?: NullableOption<boolean>;
-    // Determines whether or not to show recommended pages at the bottom of the page.
-    showRecommendedPages?: NullableOption<boolean>;
-    // Url of the sitePage's thumbnail image
-    thumbnailWebUrl?: NullableOption<string>;
+    // Title of the sitePage.
     title?: NullableOption<string>;
-    // Title area on the SharePoint page.
-    titleArea?: NullableOption<TitleArea>;
-    // Indicates the layout of the content in a given SharePoint page, including horizontal sections and vertical sections.
-    canvasLayout?: NullableOption<CanvasLayout>;
-    // Collection of webparts on the SharePoint page.
-    webParts?: NullableOption<WebPart[]>;
 }
 export interface Permission extends Entity {
     /**
@@ -19384,13 +19403,15 @@ export interface StrongAuthenticationPhoneAppDetail extends Entity {
     tokenGenerationIntervalInSeconds?: NullableOption<number>;
 }
 export interface SubscribedSku extends Entity {
+    // The unique ID of the account this SKU belongs to.
     accountId?: NullableOption<string>;
+    // The name of the account this SKU belongs to.
     accountName?: NullableOption<string>;
-    // For example, 'User' or 'Company'.
+    // The target class for this SKU. Only SKUs with target class User are assignable. Possible values are: User, Company.
     appliesTo?: NullableOption<string>;
     /**
-     * Possible values are: Enabled, Warning, Suspended, Deleted, LockedOut. The capabilityStatus is Enabled if the
-     * prepaidUnits property has at least 1 unit that is enabled, and LockedOut if the customer cancelled their subscription.
+     * Enabled indicates that the prepaidUnits property has at least one unit that is enabled. LockedOut indicates that the
+     * customer cancelled their subscription. Possible values are: Enabled, Warning, Suspended, Deleted, LockedOut.
      */
     capabilityStatus?: NullableOption<string>;
     // The number of licenses that have been assigned.
@@ -19402,7 +19423,7 @@ export interface SubscribedSku extends Entity {
     // The unique identifier (GUID) for the service SKU.
     skuId?: NullableOption<string>;
     /**
-     * The SKU part number; for example: 'AAD_PREMIUM' or 'RMSBASIC'. To get a list of commercial subscriptions that an
+     * The SKU part number; for example, AAD_PREMIUM or RMSBASIC. To get a list of commercial subscriptions that an
      * organization has acquired, see List subscribedSkus.
      */
     skuPartNumber?: NullableOption<string>;
@@ -19534,6 +19555,7 @@ export interface AdminTodo extends Entity {
     settings?: TodoSettings;
 }
 export interface PeopleAdminSettings extends Entity {
+    profileCardProperties?: NullableOption<ProfileCardProperty[]>;
     // Represents administrator settings that manage the support of pronouns in an organization.
     pronouns?: NullableOption<PronounsSettings>;
 }
@@ -21677,7 +21699,30 @@ export interface SharedDriveItem extends BaseItem {
     // Used to access the underlying site
     site?: NullableOption<Site>;
 }
+export interface SitePage extends BaseSitePage {
+    /**
+     * Indicates the promotion kind of the sitePage. The possible values are: microsoftReserved, page, newsPost,
+     * unknownFutureValue.
+     */
+    promotionKind?: NullableOption<PagePromotionType>;
+    // Reactions information for the page.
+    reactions?: NullableOption<ReactionsFacet>;
+    // Determines whether or not to show comments at the bottom of the page.
+    showComments?: NullableOption<boolean>;
+    // Determines whether or not to show recommended pages at the bottom of the page.
+    showRecommendedPages?: NullableOption<boolean>;
+    // Url of the sitePage's thumbnail image
+    thumbnailWebUrl?: NullableOption<string>;
+    // Title area on the SharePoint page.
+    titleArea?: NullableOption<TitleArea>;
+    // Indicates the layout of the content in a given SharePoint page, including horizontal sections and vertical sections.
+    canvasLayout?: NullableOption<CanvasLayout>;
+    // Collection of webparts on the SharePoint page.
+    webParts?: NullableOption<WebPart[]>;
+}
 export interface StandardWebPart extends WebPart {
+    // The instance identifier of the container text webPart. It only works for inline standard webPart in rich text webParts.
+    containerTextWebPartId?: NullableOption<string>;
     // Data of the webPart.
     data?: NullableOption<WebPartData>;
     // A Guid that indicates the webPart type.
@@ -33797,9 +33842,9 @@ export interface DeviceManagementConfigurationSettingGroupDefinition extends Dev
     dependentOn?: NullableOption<DeviceManagementConfigurationDependentOn[]>;
 }
 export interface DeviceManagementConfigurationSettingGroupCollectionDefinition extends DeviceManagementConfigurationSettingGroupDefinition {
-    // Maximum number of setting group count in the collection. Valid values 1 to 100
+    // Maximum number of setting group count in the collection
     maximumCount?: number;
-    // Minimum number of setting group count in the collection. Valid values 1 to 100
+    // Minimum number of setting group count in the collection
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationSimpleSettingDefinition extends DeviceManagementConfigurationSettingDefinition {
@@ -39456,15 +39501,9 @@ export interface Identity {
     id?: NullableOption<string>;
 }
 export interface KeyValuePair {
-    /**
-     * Name for this key-value pair. For more information about possible names for each resource type that uses this
-     * configuration, see keyValuePair names and values.
-     */
+    // Name for this key-value pair
     name?: string;
-    /**
-     * Value for this key-value pair. For more information about possible values for each resource type that uses this
-     * configuration, see keyValuePair names and values.
-     */
+    // Value for this key-value pair
     value?: NullableOption<string>;
 }
 export interface LogicAppTriggerEndpointConfiguration extends CustomExtensionEndpointConfiguration {
@@ -39511,8 +39550,8 @@ export interface ApiApplication {
      * the client and only impacts the version of id_tokens. Resources need to explicitly configure
      * requestedAccessTokenVersion to indicate the supported access token format. Possible values for
      * requestedAccessTokenVersion are 1, 2, or null. If the value is null, this defaults to 1, which corresponds to the v1.0
-     * endpoint. If signInAudience on the application is configured as AzureADandPersonalMicrosoftAccount, the value for this
-     * property must be 2
+     * endpoint. If signInAudience on the application is configured as AzureADandPersonalMicrosoftAccount or
+     * PersonalMicrosoftAccount, the value for this property must be 2.
      */
     requestedAccessTokenVersion?: NullableOption<number>;
 }
@@ -40359,9 +40398,9 @@ export interface Initiator extends Identity {
     initiatorType?: NullableOption<InitiatorType>;
 }
 export interface KeyValue {
-    // Key.
+    // Contains the name of the field that a value is associated with.
     key?: NullableOption<string>;
-    // Value.
+    // Contains the corresponding value for the specified key.
     value?: NullableOption<string>;
 }
 export interface LastSignIn {
@@ -43101,6 +43140,7 @@ export interface ResourcePermission {
 export interface LicenseUnitsDetail {
     // The number of units that are enabled for the active subscription of the service SKU.
     enabled?: NullableOption<number>;
+    // The number of units that are locked out because the customer cancelled their subscription of the service SKU.
     lockedOut?: NullableOption<number>;
     /**
      * The number of units that are suspended because the subscription of the service SKU has been cancelled. The units cannot
@@ -46965,8 +47005,8 @@ export interface ApprovalStage {
     isEscalationEnabled?: NullableOption<boolean>;
     /**
      * The users who will be asked to approve requests. A collection of singleUser, groupMembers, requestorManager,
-     * internalSponsors and externalSponsors. When creating or updating a policy, include at least one userSet in this
-     * collection.
+     * internalSponsors, externalSponsors and targetUserSponsors. When creating or updating a policy, include at least one
+     * userSet in this collection.
      */
     primaryApprovers?: NullableOption<UserSet[]>;
 }
@@ -47763,10 +47803,7 @@ export interface MacOSIncludedApp {
     bundleVersion?: string;
 }
 export interface MacOsLobAppAssignmentSettings extends MobileAppAssignmentSettings {
-    /**
-     * When TRUE, indicates that the app should be uninstalled when the device is removed from Intune. When FALSE, indicates
-     * that the app will not be uninstalled when the device is removed from Intune.
-     */
+    // Whether or not to uninstall the app when device is removed from Intune.
     uninstallOnDeviceRemoval?: NullableOption<boolean>;
 }
 export interface MacOSLobChildApp {
@@ -48137,7 +48174,11 @@ export interface Win32LobAppReturnCode {
     type?: Win32LobAppReturnCodeType;
 }
 export interface WindowsAppXAppAssignmentSettings extends MobileAppAssignmentSettings {
-    // Whether or not to use device execution context for Windows AppX mobile app.
+    /**
+     * When TRUE, indicates that device execution context will be used for the AppX mobile app. When FALSE, indicates that
+     * user context will be used for the AppX mobile app. By default, this property is set to FALSE. Once this property has
+     * been set to TRUE it cannot be changed.
+     */
     useDeviceContext?: boolean;
 }
 export interface WindowsMinimumOperatingSystem {
@@ -48185,10 +48226,7 @@ export interface WindowsPackageInformation {
     minimumSupportedOperatingSystem?: NullableOption<WindowsMinimumOperatingSystem>;
 }
 export interface WindowsUniversalAppXAppAssignmentSettings extends MobileAppAssignmentSettings {
-    /**
-     * If true, uses device execution context for Windows Universal AppX mobile app. Device-context install is not allowed
-     * when this type of app is targeted with Available intent. Defaults to false.
-     */
+    // Whether or not to use device execution context for Windows Universal AppX mobile app.
     useDeviceContext?: boolean;
 }
 export interface WinGetAppAssignmentSettings extends MobileAppAssignmentSettings {
@@ -50499,7 +50537,8 @@ export interface DeviceManagementConfigurationSettingApplicability {
     platform?: DeviceManagementConfigurationPlatforms;
     /**
      * Which technology channels this setting can be deployed through. Possible values are: none, mdm, windows10XManagement,
-     * configManager, appleRemoteManagement, microsoftSense, exchangeOnline, linuxMdm, unknownFutureValue.
+     * configManager, appleRemoteManagement, microsoftSense, exchangeOnline, linuxMdm, enrollment,
+     * endpointPrivilegeManagement, unknownFutureValue.
      */
     technologies?: DeviceManagementConfigurationTechnologies;
 }
@@ -50699,7 +50738,7 @@ export interface DeviceManagementConfigurationReferenceSettingValue extends Devi
     note?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationReferredSettingInformation {
-    // Setting definition id that is being referred to a setting. Applicable for reusable setting.
+    // Setting definition id that is being referred to a setting. Applicable for reusable setting
     settingDefinitionId?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationSecretSettingValue extends DeviceManagementConfigurationSimpleSettingValue {
@@ -60169,6 +60208,7 @@ export namespace SecurityNamespace {
         | "unknownFutureValue";
     type AlertSeverity = "unknown" | "informational" | "low" | "medium" | "high" | "unknownFutureValue";
     type AlertStatus = "unknown" | "new" | "inProgress" | "resolved" | "unknownFutureValue";
+    type ContainerPortProtocol = "udp" | "tcp" | "sctp" | "unknownFutureValue";
     type DefenderAvStatus =
         | "notReporting"
         | "disabled"
@@ -60198,6 +60238,13 @@ export namespace SecurityNamespace {
         | "unknownFutureValue"
         | "microsoftDefenderForCloud";
     type DetectionStatus = "detected" | "blocked" | "prevented" | "unknownFutureValue";
+    type DeviceAssetIdentifier =
+        | "deviceId"
+        | "deviceName"
+        | "remoteDeviceName"
+        | "targetDeviceName"
+        | "destinationDeviceName"
+        | "unknownFutureValue";
     type DeviceHealthStatus =
         | "active"
         | "inactive"
@@ -60206,7 +60253,15 @@ export namespace SecurityNamespace {
         | "noSensorDataImpairedCommunication"
         | "unknown"
         | "unknownFutureValue";
+    type DeviceIdEntityIdentifier = "deviceId" | "unknownFutureValue";
     type DeviceRiskScore = "none" | "informational" | "low" | "medium" | "high" | "unknownFutureValue";
+    type DisableUserEntityIdentifier =
+        | "accountSid"
+        | "initiatingProcessAccountSid"
+        | "requestAccountSid"
+        | "onPremSid"
+        | "unknownFutureValue";
+    type EmailEntityIdentifier = "networkMessageId" | "recipientEmailAddress" | "unknownFutureValue";
     type EvidenceRemediationStatus = "none" | "remediated" | "prevented" | "blocked" | "notFound" | "unknownFutureValue";
     type EvidenceRole =
         | "unknown"
@@ -60226,9 +60281,60 @@ export namespace SecurityNamespace {
         | "policyViolator"
         | "unknownFutureValue";
     type EvidenceVerdict = "unknown" | "suspicious" | "malicious" | "noThreatsFound" | "unknownFutureValue";
+    type FileEntityIdentifier =
+        | "sha1"
+        | "initiatingProcessSHA1"
+        | "sha256"
+        | "initiatingProcessSHA256"
+        | "unknownFutureValue";
+    type FileHashAlgorithm = "unknown" | "md5" | "sha1" | "sha256" | "sha256ac" | "unknownFutureValue";
+    type ForceUserPasswordResetEntityIdentifier =
+        | "accountSid"
+        | "initiatingProcessAccountSid"
+        | "requestAccountSid"
+        | "onPremSid"
+        | "unknownFutureValue";
     type GoogleCloudLocationType = "unknown" | "regional" | "zonal" | "global" | "unknownFutureValue";
+    type HuntingRuleErrorCode =
+        | "queryExecutionFailed"
+        | "queryExecutionThrottling"
+        | "queryExceededResultSize"
+        | "queryLimitsExceeded"
+        | "queryTimeout"
+        | "alertCreationFailed"
+        | "alertReportNotFound"
+        | "partialRowsFailed"
+        | "unknownFutureValue";
+    type HuntingRuleRunStatus = "running" | "completed" | "failed" | "partiallyFailed" | "unknownFutureValue";
     type IncidentStatus = "active" | "resolved" | "inProgress" | "redirected" | "unknownFutureValue" | "awaitingAction";
+    type IsolationType = "full" | "selective" | "unknownFutureValue";
+    type KubernetesPlatform = "unknown" | "aks" | "eks" | "gke" | "arc" | "unknownFutureValue";
+    type KubernetesServiceType =
+        | "unknown"
+        | "clusterIP"
+        | "externalName"
+        | "nodePort"
+        | "loadBalancer"
+        | "unknownFutureValue";
+    type MailboxAssetIdentifier =
+        | "accountUpn"
+        | "fileOwnerUpn"
+        | "initiatingProcessAccountUpn"
+        | "lastModifyingAccountUpn"
+        | "targetAccountUpn"
+        | "senderFromAddress"
+        | "senderDisplayName"
+        | "recipientEmailAddress"
+        | "senderMailFromAddress"
+        | "unknownFutureValue";
+    type MarkUserAsCompromisedEntityIdentifier =
+        | "accountObjectId"
+        | "initiatingProcessAccountObjectId"
+        | "servicePrincipalId"
+        | "recipientObjectId"
+        | "unknownFutureValue";
     type OnboardingStatus = "insufficientInfo" | "onboarded" | "canBeOnboarded" | "unsupported" | "unknownFutureValue";
+    type ScopeType = "deviceGroup" | "unknownFutureValue";
     type ServiceSource =
         | "unknown"
         | "microsoftDefenderForEndpoint"
@@ -60241,6 +60347,27 @@ export namespace SecurityNamespace {
         | "dataLossPrevention"
         | "unknownFutureValue"
         | "microsoftDefenderForCloud";
+    type StopAndQuarantineFileEntityIdentifier = "deviceId" | "sha1" | "initiatingProcessSHA1" | "unknownFutureValue";
+    type UserAssetIdentifier =
+        | "accountObjectId"
+        | "accountSid"
+        | "accountUpn"
+        | "accountName"
+        | "accountDomain"
+        | "accountId"
+        | "requestAccountSid"
+        | "requestAccountName"
+        | "requestAccountDomain"
+        | "recipientObjectId"
+        | "processAccountObjectId"
+        | "initiatingAccountSid"
+        | "initiatingProcessAccountUpn"
+        | "initiatingAccountName"
+        | "initiatingAccountDomain"
+        | "servicePrincipalId"
+        | "servicePrincipalName"
+        | "targetAccountUpn"
+        | "unknownFutureValue";
     type VmCloudProvider = "unknown" | "azure" | "unknownFutureValue";
     type ActionAfterRetentionPeriod = "none" | "delete" | "startDispositionReview" | "relabel" | "unknownFutureValue";
     type DefaultRecordBehavior = "startLocked" | "startUnlocked" | "unknownFutureValue";
@@ -60867,6 +60994,20 @@ export namespace SecurityNamespace {
         tooltip?: NullableOption<string>;
         // The parent label associated with a child label. Null if the label has no parent.
         parent?: NullableOption<SensitivityLabel>;
+    }
+    interface ProtectionRule extends microsoftgraphbeta.Entity {
+        createdBy?: string;
+        createdDateTime?: string;
+        displayName?: string;
+        isEnabled?: boolean;
+        lastModifiedBy?: string;
+        lastModifiedDateTime?: string;
+    }
+    interface DetectionRule extends ProtectionRule {
+        detectionAction?: NullableOption<DetectionAction>;
+        lastRunDetails?: NullableOption<RunDetails>;
+        queryCondition?: NullableOption<QueryCondition>;
+        schedule?: NullableOption<RuleSchedule>;
     }
     interface FilePlanDescriptorTemplate extends microsoftgraphbeta.Entity {
         // Represents the user who created the filePlanDescriptorTemplate column.
@@ -61740,6 +61881,23 @@ export namespace SecurityNamespace {
          */
         verdict?: EvidenceVerdict;
     }
+    interface AlertTemplate {
+        category?: string;
+        description?: string;
+        impactedAssets?: ImpactedAsset[];
+        mitreTechniques?: NullableOption<string[]>;
+        recommendedActions?: NullableOption<string>;
+        severity?: AlertSeverity;
+        title?: string;
+    }
+// tslint:disable-next-line: interface-name no-empty-interface
+    interface ImpactedAsset {}
+// tslint:disable-next-line: no-empty-interface
+    interface ResponseAction {}
+    interface AllowFileResponseAction extends ResponseAction {
+        deviceGroupNames?: NullableOption<string[]>;
+        identifier?: FileEntityIdentifier;
+    }
     interface AmazonResourceEvidence extends AlertEvidence {
         // The unique identifier for the Amazon account.
         amazonAccountId?: NullableOption<string>;
@@ -61807,6 +61965,26 @@ export namespace SecurityNamespace {
         // The type of the resource.
         resourceType?: NullableOption<string>;
     }
+    interface BlobContainerEvidence extends AlertEvidence {
+        name?: NullableOption<string>;
+        storageResource?: NullableOption<AzureResourceEvidence>;
+        url?: NullableOption<string>;
+    }
+    interface BlobEvidence extends AlertEvidence {
+        blobContainer?: NullableOption<BlobContainerEvidence>;
+        etag?: NullableOption<string>;
+        fileHashes?: NullableOption<FileHash[]>;
+        name?: NullableOption<string>;
+        url?: NullableOption<string>;
+    }
+    interface FileHash {
+        algorithm?: FileHashAlgorithm;
+        value?: NullableOption<string>;
+    }
+    interface BlockFileResponseAction extends ResponseAction {
+        deviceGroupNames?: NullableOption<string[]>;
+        identifier?: FileEntityIdentifier;
+    }
     interface CloudApplicationEvidence extends AlertEvidence {
         // Unique identifier of the application.
         appId?: NullableOption<number>;
@@ -61818,6 +61996,46 @@ export namespace SecurityNamespace {
         instanceName?: NullableOption<string>;
         // The identifier of the SaaS application.
         saasAppId?: NullableOption<number>;
+    }
+    interface CollectInvestigationPackageResponseAction extends ResponseAction {
+        identifier?: DeviceIdEntityIdentifier;
+    }
+    interface ContainerEvidence extends AlertEvidence {
+        args?: NullableOption<string[]>;
+        command?: NullableOption<string[]>;
+        containerId?: NullableOption<string>;
+        image?: NullableOption<ContainerImageEvidence>;
+        isPrivileged?: boolean;
+        name?: NullableOption<string>;
+        pod?: NullableOption<KubernetesPodEvidence>;
+    }
+    interface ContainerImageEvidence extends AlertEvidence {
+        digestImage?: NullableOption<ContainerImageEvidence>;
+        imageId?: NullableOption<string>;
+        registry?: NullableOption<ContainerRegistryEvidence>;
+    }
+    interface KubernetesPodEvidence extends AlertEvidence {
+        containers?: NullableOption<ContainerEvidence[]>;
+        controller?: NullableOption<KubernetesControllerEvidence>;
+        ephemeralContainers?: NullableOption<ContainerEvidence[]>;
+        initContainers?: NullableOption<ContainerEvidence[]>;
+        labels?: NullableOption<Dictionary>;
+        name?: NullableOption<string>;
+        namespace?: NullableOption<KubernetesNamespaceEvidence>;
+        podIp?: NullableOption<IpEvidence>;
+        serviceAccount?: NullableOption<KubernetesServiceAccountEvidence>;
+    }
+    interface ContainerRegistryEvidence extends AlertEvidence {
+        registry?: NullableOption<string>;
+    }
+    interface DetectionAction {
+        alertTemplate?: AlertTemplate;
+        organizationalScope?: NullableOption<OrganizationalScope>;
+        responseActions?: NullableOption<ResponseAction[]>;
+    }
+    interface OrganizationalScope {
+        scopeNames?: NullableOption<string[]>;
+        scopeType?: ScopeType;
     }
     interface DeviceEvidence extends AlertEvidence {
         // A unique identifier assigned to a device by Azure Active Directory (Azure AD) when device is Azure AD-joined.
@@ -61881,6 +62099,11 @@ export namespace SecurityNamespace {
         vmId?: NullableOption<string>;
     }
 // tslint:disable-next-line: no-empty-interface
+    interface Dictionary {}
+    interface DisableUserResponseAction extends ResponseAction {
+        identifier?: DisableUserEntityIdentifier;
+    }
+// tslint:disable-next-line: no-empty-interface
     interface DynamicColumnValue {}
     interface FileDetails {
         // The name of the file.
@@ -61908,6 +62131,9 @@ export namespace SecurityNamespace {
         // A unique identifier assigned to a device by Microsoft Defender for Endpoint.
         mdeDeviceId?: NullableOption<string>;
     }
+    interface ForceUserPasswordResetResponseAction extends ResponseAction {
+        identifier?: ForceUserPasswordResetEntityIdentifier;
+    }
     interface GoogleCloudResourceEvidence extends AlertEvidence {
         // The zone or region where the resource is located.
         location?: NullableOption<string>;
@@ -61921,6 +62147,9 @@ export namespace SecurityNamespace {
         resourceName?: NullableOption<string>;
         // The type of the resource.
         resourceType?: NullableOption<string>;
+    }
+    interface HardDeleteResponseAction extends ResponseAction {
+        identifier?: EmailEntityIdentifier;
     }
     interface HuntingQueryResults {
         // The results of the hunting query.
@@ -61937,11 +62166,77 @@ export namespace SecurityNamespace {
         type?: NullableOption<string>;
     }
 // tslint:disable-next-line: interface-name
+    interface ImpactedDeviceAsset extends ImpactedAsset {
+        identifier?: DeviceAssetIdentifier;
+    }
+// tslint:disable-next-line: interface-name
+    interface ImpactedMailboxAsset extends ImpactedAsset {
+        identifier?: MailboxAssetIdentifier;
+    }
+// tslint:disable-next-line: interface-name
+    interface ImpactedUserAsset extends ImpactedAsset {
+        identifier?: UserAssetIdentifier;
+    }
+// tslint:disable-next-line: interface-name
+    interface InitiateInvestigationResponseAction extends ResponseAction {
+        identifier?: DeviceIdEntityIdentifier;
+    }
+// tslint:disable-next-line: interface-name
     interface IpEvidence extends AlertEvidence {
         // The two-letter country code according to ISO 3166 format, for example: US, UK, CA, etc..).
         countryLetterCode?: NullableOption<string>;
         // The value of the IP Address, can be either in V4 address or V6 address format.
         ipAddress?: NullableOption<string>;
+    }
+// tslint:disable-next-line: interface-name
+    interface IsolateDeviceResponseAction extends ResponseAction {
+        identifier?: DeviceIdEntityIdentifier;
+        isolationType?: IsolationType;
+    }
+    interface KubernetesClusterEvidence extends AlertEvidence {
+        cloudResource?: NullableOption<AlertEvidence>;
+        distribution?: NullableOption<string>;
+        name?: NullableOption<string>;
+        platform?: NullableOption<KubernetesPlatform>;
+        version?: NullableOption<string>;
+    }
+    interface KubernetesControllerEvidence extends AlertEvidence {
+        labels?: NullableOption<Dictionary>;
+        name?: NullableOption<string>;
+        namespace?: NullableOption<KubernetesNamespaceEvidence>;
+        type?: NullableOption<string>;
+    }
+    interface KubernetesNamespaceEvidence extends AlertEvidence {
+        cluster?: NullableOption<KubernetesClusterEvidence>;
+        labels?: NullableOption<Dictionary>;
+        name?: NullableOption<string>;
+    }
+    interface KubernetesServiceAccountEvidence extends AlertEvidence {
+        name?: NullableOption<string>;
+        namespace?: NullableOption<KubernetesNamespaceEvidence>;
+    }
+    interface KubernetesSecretEvidence extends AlertEvidence {
+        name?: NullableOption<string>;
+        namespace?: NullableOption<KubernetesNamespaceEvidence>;
+        secretType?: NullableOption<string>;
+    }
+    interface KubernetesServiceEvidence extends AlertEvidence {
+        clusterIP?: NullableOption<IpEvidence>;
+        externalIPs?: NullableOption<IpEvidence[]>;
+        labels?: NullableOption<Dictionary>;
+        name?: NullableOption<string>;
+        namespace?: NullableOption<KubernetesNamespaceEvidence>;
+        selector?: NullableOption<Dictionary>;
+        servicePorts?: NullableOption<KubernetesServicePort[]>;
+        serviceType?: KubernetesServiceType;
+    }
+    interface KubernetesServicePort {
+        appProtocol?: NullableOption<string>;
+        name?: NullableOption<string>;
+        nodePort?: number;
+        port?: number;
+        protocol?: NullableOption<ContainerPortProtocol>;
+        targetPort?: NullableOption<string>;
     }
     interface MailboxEvidence extends AlertEvidence {
         // The name associated with the mailbox.
@@ -61978,6 +62273,18 @@ export namespace SecurityNamespace {
         query?: NullableOption<string>;
         // Uniform resource name (URN) of the automated investigation where the cluster was identified.
         urn?: NullableOption<string>;
+    }
+    interface MarkUserAsCompromisedResponseAction extends ResponseAction {
+        identifier?: MarkUserAsCompromisedEntityIdentifier;
+    }
+    interface MoveToDeletedItemsResponseAction extends ResponseAction {
+        identifier?: EmailEntityIdentifier;
+    }
+    interface MoveToInboxResponseAction extends ResponseAction {
+        identifier?: EmailEntityIdentifier;
+    }
+    interface MoveToJunkResponseAction extends ResponseAction {
+        identifier?: EmailEntityIdentifier;
     }
     interface OauthApplicationEvidence extends AlertEvidence {
         // Unique identifier of the application.
@@ -62017,6 +62324,10 @@ export namespace SecurityNamespace {
         // User details of the user that ran the process.
         userAccount?: NullableOption<UserAccount>;
     }
+    interface QueryCondition {
+        lastModifiedDateTime?: NullableOption<string>;
+        queryText?: string;
+    }
     interface RecommendedHuntingQuery {
         kqlText?: NullableOption<string>;
     }
@@ -62039,11 +62350,33 @@ export namespace SecurityNamespace {
         // Data type, such as binary or string, of the registry value that the recorded action was applied to.
         registryValueType?: NullableOption<string>;
     }
+    interface RestrictAppExecutionResponseAction extends ResponseAction {
+        identifier?: DeviceIdEntityIdentifier;
+    }
+    interface RuleSchedule {
+        nextRunDateTime?: NullableOption<string>;
+        period?: string;
+    }
+    interface RunAntivirusScanResponseAction extends ResponseAction {
+        identifier?: DeviceIdEntityIdentifier;
+    }
+    interface RunDetails {
+        errorCode?: NullableOption<HuntingRuleErrorCode>;
+        failureReason?: NullableOption<string>;
+        lastRunDateTime?: NullableOption<string>;
+        status?: NullableOption<HuntingRuleRunStatus>;
+    }
     interface SecurityGroupEvidence extends AlertEvidence {
         // The name of the security group.
         displayName?: NullableOption<string>;
         // Unique identifier of the security group.
         securityGroupId?: NullableOption<string>;
+    }
+    interface SoftDeleteResponseAction extends ResponseAction {
+        identifier?: EmailEntityIdentifier;
+    }
+    interface StopAndQuarantineFileResponseAction extends ResponseAction {
+        identifier?: StopAndQuarantineFileEntityIdentifier;
     }
     interface UrlEvidence extends AlertEvidence {
         // The Unique Resource Locator (URL).
