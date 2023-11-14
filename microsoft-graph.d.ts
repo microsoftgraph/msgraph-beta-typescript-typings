@@ -264,7 +264,12 @@ export type RecommendationType =
     | "appRoleAssignmentsUsers"
     | "managedIdentity"
     | "overprivilegedApps"
-    | "unknownFutureValue";
+    | "unknownFutureValue"
+    | "longLivedCredentials"
+    | "aadConnectDeprecated"
+    | "adalToMsalMigration"
+    | "ownerlessApps"
+    | "inactiveGuests";
 export type RegistrationAuthMethod =
     | "email"
     | "mobilePhone"
@@ -535,6 +540,7 @@ export type CloudPcDiskEncryptionState =
     | "encryptedUsingPlatformManagedKey"
     | "encryptedUsingCustomerManagedKey"
     | "unknownFutureValue";
+export type CloudPcDiskEncryptionType = "platformManagedKey" | "customerManagedKey" | "unknownFutureValue";
 export type CloudPcDomainJoinType = "azureADJoin" | "hybridAzureADJoin" | "unknownFutureValue";
 export type CloudPcExportJobStatus = "notStarted" | "inProgress" | "completed" | "failed" | "unknownFutureValue";
 export type CloudPcExternalPartnerStatus = "notAvailable" | "available" | "healthy" | "unhealthy" | "unknownFutureValue";
@@ -587,6 +593,7 @@ export type CloudPcOnPremisesConnectionHealthCheckErrorType =
     | "resourceAvailabilityCheckNoIntuneReaderRoleError"
     | "resourceAvailabilityCheckIntuneDefaultWindowsRestrictionViolation"
     | "resourceAvailabilityCheckIntuneCustomWindowsRestrictionViolation"
+    | "resourceAvailabilityCheckDeploymentQuotaLimitReached"
     | "resourceAvailabilityCheckTransientServiceError"
     | "resourceAvailabilityCheckUnknownError"
     | "permissionCheckNoSubscriptionReaderRole"
@@ -626,7 +633,7 @@ export type CloudPcPartnerAgentInstallStatus =
     | "uninstallFailed"
     | "licensed"
     | "unknownFutureValue";
-export type CloudPcPartnerAgentName = "citrix" | "unknownFutureValue" | "vMware";
+export type CloudPcPartnerAgentName = "citrix" | "unknownFutureValue" | "vMware" | "hp";
 export type CloudPcPolicySettingType = "region" | "singleSignOn" | "unknownFutureValue";
 export type CloudPcPowerState = "running" | "poweredOff" | "unknownFutureValue";
 export type CloudPcProvisioningPolicyImageType = "gallery" | "custom";
@@ -663,7 +670,11 @@ export type CloudPcRemoteActionName =
     | "changeUserAccountType"
     | "troubleshoot"
     | "placeUnderReview"
-    | "unknownFutureValue";
+    | "unknownFutureValue"
+    | "createSnapshot"
+    | "powerOn"
+    | "powerOff"
+    | "moveRegion";
 export type CloudPcReportName =
     | "remoteConnectionHistoricalReports"
     | "dailyAggregatedRemoteConnectionReports"
@@ -676,7 +687,8 @@ export type CloudPcReportName =
     | "frontlineLicenseUsageRealTimeReport"
     | "remoteConnectionQualityReports"
     | "inaccessibleCloudPcReports"
-    | "rawRemoteConnectionReports";
+    | "rawRemoteConnectionReports"
+    | "cloudPcUsageCategoryReports";
 export type CloudPcResizeValidationCode =
     | "success"
     | "cloudPcNotFound"
@@ -869,6 +881,7 @@ export type MultiTenantOrganizationMemberProcessingStatus =
 export type MultiTenantOrganizationMemberRole = "owner" | "member" | "unknownFutureValue";
 export type MultiTenantOrganizationMemberState = "pending" | "active" | "removed" | "unknownFutureValue";
 export type MultiTenantOrganizationState = "active" | "inactive" | "unknownFutureValue";
+export type MultiTenantOrgLabelType = "none" | "groupName" | "customName" | "unknownFutureValue";
 export type OnPremisesDirectorySynchronizationDeletionPreventionType =
     | "disabled"
     | "enabledForCount"
@@ -5565,6 +5578,11 @@ export type RoutingPolicy =
     | "unknownFutureValue";
 export type RoutingType = "forwarded" | "lookup" | "selfFork" | "unknownFutureValue";
 export type ScreenSharingRole = "viewer" | "sharer";
+export type SendDtmfCompletionReason =
+    | "unknown"
+    | "completedSuccessfully"
+    | "mediaOperationCanceled"
+    | "unknownFutureValue";
 export type Tone =
     | "tone0"
     | "tone1"
@@ -7500,7 +7518,7 @@ export interface User extends DirectoryObject {
     securityIdentifier?: NullableOption<string>;
     /**
      * Errors published by a federated service describing a nontransient, service-specific error regarding the properties or
-     * link from a user object. Supports $filter (eq, not, for isResolved and serviceInstance).
+     * link from a user object.
      */
     serviceProvisioningErrors?: NullableOption<ServiceProvisioningError[]>;
     /**
@@ -7794,6 +7812,7 @@ export interface CloudPC extends Entity {
      * unknownFutureValue. Default value is dedicated.
      */
     provisioningType?: NullableOption<CloudPcProvisioningType>;
+    scopeIds?: NullableOption<string[]>;
     // The service plan ID of the Cloud PC.
     servicePlanId?: NullableOption<string>;
     // The service plan name of the Cloud PC.
@@ -9269,38 +9288,38 @@ export interface Device extends DirectoryObject {
     // Set of commands sent to this device.
     commands?: NullableOption<Command[]>;
 }
-export interface OnlineMeeting extends Entity {
-    // Indicates whether attendees can turn on their camera.
+export interface OnlineMeetingBase extends Entity {
     allowAttendeeToEnableCamera?: NullableOption<boolean>;
-    // Indicates whether attendees can turn on their microphone.
     allowAttendeeToEnableMic?: NullableOption<boolean>;
-    // Specifies who can be a presenter in a meeting.
     allowedPresenters?: NullableOption<OnlineMeetingPresenters>;
-    // Specifies the mode of meeting chat.
     allowMeetingChat?: NullableOption<MeetingChatMode>;
-    // Specifies if participants are allowed to rename themselves in an instance of the meeting.
     allowParticipantsToChangeName?: NullableOption<boolean>;
-    // Indicates whether recording is enabled for the meeting.
     allowRecording?: NullableOption<boolean>;
-    // Indicates if Teams reactions are enabled for the meeting.
     allowTeamworkReactions?: NullableOption<boolean>;
-    // Indicates whether transcription is enabled for the meeting.
     allowTranscription?: NullableOption<boolean>;
-    alternativeRecording?: NullableOption<any>;
-    /**
-     * Specifies whose identity will be anonymized in the meeting. Possible values are: attendee. The attendee value cannot be
-     * removed through a PATCH operation once added.
-     */
     anonymizeIdentityForRoles?: NullableOption<OnlineMeetingRole[]>;
-    attendeeReport?: NullableOption<any>;
-    // The phone access (dial-in) information for an online meeting. Read-only.
     audioConferencing?: NullableOption<AudioConferencing>;
+    chatInfo?: NullableOption<ChatInfo>;
+    chatRestrictions?: NullableOption<ChatRestrictions>;
+    isEndToEndEncryptionEnabled?: NullableOption<boolean>;
+    isEntryExitAnnounced?: NullableOption<boolean>;
+    joinInformation?: NullableOption<ItemBody>;
+    joinMeetingIdSettings?: NullableOption<JoinMeetingIdSettings>;
+    joinWebUrl?: NullableOption<string>;
+    lobbyBypassSettings?: NullableOption<LobbyBypassSettings>;
+    recordAutomatically?: NullableOption<boolean>;
+    shareMeetingChatHistoryDefault?: NullableOption<MeetingChatHistoryDefaultMode>;
+    subject?: NullableOption<string>;
+    videoTeleconferenceId?: NullableOption<string>;
+    watermarkProtection?: NullableOption<WatermarkProtectionValues>;
+    attendanceReports?: NullableOption<MeetingAttendanceReport[]>;
+}
+export interface OnlineMeeting extends OnlineMeetingBase {
+    alternativeRecording?: NullableOption<any>;
+    attendeeReport?: NullableOption<any>;
     broadcastRecording?: NullableOption<any>;
     broadcastSettings?: NullableOption<BroadcastMeetingSettings>;
     capabilities?: NullableOption<MeetingCapabilities[]>;
-    // The chat information associated with this online meeting.
-    chatInfo?: NullableOption<ChatInfo>;
-    chatRestrictions?: NullableOption<ChatRestrictions>;
     // The meeting creation time in UTC. Read-only.
     creationDateTime?: NullableOption<string>;
     // The meeting end time in UTC.
@@ -9308,39 +9327,12 @@ export interface OnlineMeeting extends Entity {
     // The external ID. A custom ID. Optional.
     externalId?: NullableOption<string>;
     isBroadcast?: NullableOption<boolean>;
-    isEndToEndEncryptionEnabled?: NullableOption<boolean>;
-    // Indicates whether to announce when callers join or leave.
-    isEntryExitAnnounced?: NullableOption<boolean>;
-    // The join information in the language and locale variant specified in 'Accept-Language' request HTTP header. Read-only.
-    joinInformation?: NullableOption<ItemBody>;
-    /**
-     * Specifies the joinMeetingId, the meeting passcode, and the requirement for the passcode. Once an onlineMeeting is
-     * created, the joinMeetingIdSettings cannot be modified. To make any changes to this property, the meeting needs to be
-     * canceled and a new one needs to be created.
-     */
-    joinMeetingIdSettings?: NullableOption<JoinMeetingIdSettings>;
     joinUrl?: NullableOption<string>;
-    // The join URL of the online meeting. Read-only.
-    joinWebUrl?: NullableOption<string>;
-    // Specifies which participants can bypass the meeting lobby.
-    lobbyBypassSettings?: NullableOption<LobbyBypassSettings>;
     // The participants associated with the online meeting. This includes the organizer and the attendees.
     participants?: NullableOption<MeetingParticipants>;
-    // Indicates whether to record the meeting automatically.
-    recordAutomatically?: NullableOption<boolean>;
     recording?: NullableOption<any>;
-    // Specifies whether meeting chat history is shared with participants. Possible values are: all, none, unknownFutureValue.
-    shareMeetingChatHistoryDefault?: NullableOption<MeetingChatHistoryDefaultMode>;
     // The meeting start time in UTC.
     startDateTime?: NullableOption<string>;
-    // The subject of the online meeting.
-    subject?: NullableOption<string>;
-    // The video teleconferencing ID. Read-only.
-    videoTeleconferenceId?: NullableOption<string>;
-    // Specifies whether a watermark should be applied to a content type by the client application.
-    watermarkProtection?: NullableOption<WatermarkProtectionValues>;
-    // The attendance reports of an online meeting. Read-only.
-    attendanceReports?: NullableOption<MeetingAttendanceReport[]>;
     meetingAttendanceReport?: NullableOption<MeetingAttendanceReport>;
     /**
      * The registration that has been enabled for an online meeting. One online meeting can only have one registration
@@ -11243,9 +11235,9 @@ export interface AuthorizationPolicy extends PolicyBase {
      */
     allowUserConsentForRiskyApps?: NullableOption<boolean>;
     /**
-     * To disable the use of the MSOnline PowerShell module set this property to true. This will also disable user-based
-     * access to the legacy service endpoint used by the MSOnline PowerShell module. This doesn't affect Microsoft Entra
-     * Connect or Microsoft Graph.
+     * To disable the use of the Microsoft Graph PowerShell module set this property to true. This will also disable
+     * user-based access to the legacy service endpoint used by the Microsoft Graph PowerShell module. This doesn't affect
+     * Microsoft Entra Connect or Microsoft Graph.
      */
     blockMsolPowerShell?: NullableOption<boolean>;
     // Specifies certain customizable permissions for default user role.
@@ -12042,6 +12034,7 @@ export interface CloudPcDeviceImage extends Entity {
     osBuildNumber?: NullableOption<string>;
     // The OS status of this image. Possible values are: supported, supportedWithWarning, unknownFutureValue.
     osStatus?: NullableOption<CloudPcDeviceImageOsStatus>;
+    scopeIds?: NullableOption<string[]>;
     /**
      * The ID of the source image resource on Azure. Required format:
      * /subscriptions/{subscription-id}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/images/{imageName}.
@@ -12075,10 +12068,11 @@ export interface CloudPcExportJob extends Entity {
      * The report name. The possible values are: remoteConnectionHistoricalReports, dailyAggregatedRemoteConnectionReports,
      * totalAggregatedRemoteConnectionReports, sharedUseLicenseUsageReport, sharedUseLicenseUsageRealTimeReport,
      * unknownFutureValue, noLicenseAvailableConnectivityFailureReport, frontlineLicenseUsageReport,
-     * frontlineLicenseUsageRealTimeReport, remoteConnectionQualityReports, inaccessibleCloudPcReports. You must use the
-     * Prefer: include-unknown-enum-members request header to get the following value(s) in this evolvable enum:
-     * noLicenseAvailableConnectivityFailureReport, frontlineLicenseUsageReport, frontlineLicenseUsageRealTimeReport,
-     * inaccessibleCloudPcReports.
+     * frontlineLicenseUsageRealTimeReport, remoteConnectionQualityReports, inaccessibleCloudPcReports,
+     * rawRemoteConnectionReports. You must use the Prefer: include-unknown-enum-members request header to get the following
+     * value(s) in this evolvable enum: noLicenseAvailableConnectivityFailureReport, frontlineLicenseUsageReport,
+     * frontlineLicenseUsageRealTimeReport, remoteConnectionQualityReports, inaccessibleCloudPcReports,
+     * rawRemoteConnectionReports.
      */
     reportName?: NullableOption<CloudPcReportName>;
     // The date and time when the export job was requested.
@@ -12202,6 +12196,7 @@ export interface CloudPcOnPremisesConnection extends Entity {
      * /subscriptions/{subscription-id}/resourceGroups/{resourceGroupName}.
      */
     resourceGroupId?: string;
+    scopeIds?: NullableOption<string[]>;
     /**
      * The ID of the target subnet. Required format:
      * /subscriptions/{subscription-id}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/virtualNetworks/{virtualNetworkId}/subnets/{subnetName}.
@@ -12318,6 +12313,7 @@ export interface CloudPcProvisioningPolicy extends Entity {
      * property after the cloudPcProvisioningPolicy was created. Possible values are: dedicated, shared, unknownFutureValue.
      */
     provisioningType?: NullableOption<CloudPcProvisioningType>;
+    scopeIds?: NullableOption<string[]>;
     // Specific Windows settings to configure while creating Cloud PCs for this provisioning policy.
     windowsSettings?: NullableOption<CloudPcWindowsSettings>;
     /**
@@ -18032,6 +18028,7 @@ export interface Schedule extends Entity {
     // Indicates the time zone of the schedule team using tz database format. Required.
     timeZone?: NullableOption<string>;
     workforceIntegrationIds?: NullableOption<string[]>;
+    dayNotes?: NullableOption<DayNote[]>;
     // The offer requests for shifts in the schedule.
     offerShiftRequests?: NullableOption<OfferShiftRequest[]>;
     // The open shift requests in the schedule.
@@ -19116,12 +19113,12 @@ export interface InternalDomainFederation extends SamlOrWsFedProvider {
      */
     isSignedAuthenticationRequestRequired?: NullableOption<boolean>;
     /**
-     * Fallback token signing certificate that is used to sign tokens when the primary signing certificate expires. Formatted
-     * as Base64 encoded strings of the public portion of the federated IdP's token signing certificate. Needs to be
-     * compatible with the X509Certificate2 class. Much like the signingCertificate, the nextSigningCertificate property is
-     * used if a rollover is required outside of the auto-rollover update, a new federation service is being set up, or if the
-     * new token signing certificate isn't present in the federation properties after the federation service certificate has
-     * been updated.
+     * Fallback token signing certificate that can also be used to sign tokens, for example when the primary signing
+     * certificate expires. Formatted as Base64 encoded strings of the public portion of the federated IdP's token signing
+     * certificate. Needs to be compatible with the X509Certificate2 class. Much like the signingCertificate, the
+     * nextSigningCertificate property is used if a rollover is required outside of the auto-rollover update, a new federation
+     * service is being set up, or if the new token signing certificate isn't present in the federation properties after the
+     * federation service certificate has been updated.
      */
     nextSigningCertificate?: NullableOption<string>;
     /**
@@ -22632,8 +22629,8 @@ export interface CallRecording extends Entity {
     // The content of the recording. Read-only.
     content?: NullableOption<any>;
     /**
-     * Date and time at which the recording was created. The Timestamp type represents date and time information using ISO
-     * 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z. Read-only.
+     * Date and time at which the recording was created. The timestamp type represents date and time information using ISO
+     * 8601 format and is always in UTC. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z. Read-only.
      */
     createdDateTime?: NullableOption<string>;
     // The unique identifier of the onlineMeeting related to this recording. Read-only.
@@ -34858,9 +34855,9 @@ export interface DeviceManagementConfigurationSetting extends Entity {
     settingDefinitions?: NullableOption<DeviceManagementConfigurationSettingDefinition[]>;
 }
 export interface DeviceManagementConfigurationChoiceSettingDefinition extends DeviceManagementConfigurationSettingDefinition {
-    // Default option for choice setting
+    // Default option for the choice setting.
     defaultOptionId?: NullableOption<string>;
-    // Options for the setting that can be selected
+    // Options for the setting that can be selected.
     options?: NullableOption<DeviceManagementConfigurationOptionDefinition[]>;
 }
 export interface DeviceManagementConfigurationChoiceSettingCollectionDefinition extends DeviceManagementConfigurationChoiceSettingDefinition {
@@ -34881,7 +34878,7 @@ export interface DeviceManagementConfigurationRedirectSettingDefinition extends 
     redirectReason?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationSettingGroupDefinition extends DeviceManagementConfigurationSettingDefinition {
-    // Dependent child settings to this group of settings.
+    // Dependent child settings to this group of settings
     childIds?: NullableOption<string[]>;
     // List of child settings that depend on this setting
     dependedOnBy?: NullableOption<DeviceManagementConfigurationSettingDependedOnBy[]>;
@@ -34889,9 +34886,9 @@ export interface DeviceManagementConfigurationSettingGroupDefinition extends Dev
     dependentOn?: NullableOption<DeviceManagementConfigurationDependentOn[]>;
 }
 export interface DeviceManagementConfigurationSettingGroupCollectionDefinition extends DeviceManagementConfigurationSettingGroupDefinition {
-    // Maximum number of setting group count in the collection. Valid values 1 to 100
+    // Maximum number of setting group count in the collection
     maximumCount?: number;
-    // Minimum number of setting group count in the collection. Valid values 1 to 100
+    // Minimum number of setting group count in the collection
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationSimpleSettingDefinition extends DeviceManagementConfigurationSettingDefinition {
@@ -39895,6 +39892,13 @@ export interface RecordOperation extends CommsOperation {
     // The location where the recording is located.
     recordingLocation?: NullableOption<string>;
 }
+export interface SendDtmfTonesOperation extends CommsOperation {
+    /**
+     * The results of the action. Possible values are: unknown, completedSuccessfully, mediaOperationCanceled,
+     * unknownfutureValue.
+     */
+    completionReason?: NullableOption<SendDtmfCompletionReason>;
+}
 // tslint:disable-next-line: no-empty-interface
 export interface StartHoldMusicOperation extends CommsOperation {}
 // tslint:disable-next-line: no-empty-interface
@@ -39909,7 +39913,7 @@ export interface VirtualEvent extends Entity {
     // Identity information of who created the virtual event. Inherited from virtualEvent.
     createdBy?: NullableOption<CommunicationsIdentitySet>;
     // Description of the virtual event.
-    description?: NullableOption<string>;
+    description?: NullableOption<ItemBody>;
     // Display name of the virtual event
     displayName?: NullableOption<string>;
     // End time of the virtual event.
@@ -39940,8 +39944,13 @@ export interface VirtualEventPresenter extends Entity {
     identity?: NullableOption<CommunicationsUserIdentity>;
     // Other detail information of the presenter.
     presenterDetails?: NullableOption<VirtualEventPresenterDetails>;
+    profilePhoto?: NullableOption<any>;
+    sessions?: NullableOption<VirtualEventSession[]>;
 }
-export interface VirtualEventSession extends OnlineMeeting {
+export interface VirtualEventSession extends OnlineMeetingBase {
+    endDateTime?: NullableOption<DateTimeTimeZone>;
+    startDateTime?: NullableOption<DateTimeTimeZone>;
+    presenters?: NullableOption<VirtualEventPresenter[]>;
     // Registration records of this virtual event session.
     registrations?: NullableOption<VirtualEventRegistration[]>;
 }
@@ -39993,6 +40002,12 @@ export interface VirtualEventRegistrationQuestion extends Entity {
     displayName?: NullableOption<string>;
     // Indicates whether the question is required to answer. Default value is false.
     isRequired?: NullableOption<boolean>;
+}
+export interface VirtualEventTownhall extends VirtualEvent {
+    audience?: NullableOption<MeetingAudience>;
+    coOrganizers?: NullableOption<CommunicationsUserIdentity[]>;
+    invitedAttendees?: NullableOption<CommunicationsUserIdentity[]>;
+    isInviteOnly?: NullableOption<boolean>;
 }
 export interface VirtualEventWebinarRegistrationConfiguration extends VirtualEventRegistrationConfiguration {
     isManualApprovalEnabled?: NullableOption<boolean>;
@@ -40611,6 +40626,11 @@ export interface TeamworkTagMember extends Entity {
 export interface UserScopeTeamsAppInstallation extends TeamsAppInstallation {
     // The chat between the user and Teams app.
     chat?: NullableOption<Chat>;
+}
+export interface DayNote extends ChangeTrackedEntity {
+    dayNoteDate?: NullableOption<string>;
+    draftDayNote?: NullableOption<ItemBody>;
+    sharedDayNote?: NullableOption<ItemBody>;
 }
 export interface ScheduleChangeRequest extends ChangeTrackedEntity {
     assignedTo?: NullableOption<ScheduleChangeRequestActor>;
@@ -42223,6 +42243,14 @@ export interface TargetResource {
     // When type is set to User, this includes the user name that initiated the action; null for other types.
     userPrincipalName?: NullableOption<string>;
 }
+export interface TenantSecureScore {
+    // When this Secure Score was created.
+    createDateTime?: string;
+    // The maximum historical Secure Score for the tenant.
+    tenantMaxScore?: number;
+    // The Secure Score.
+    tenantScore?: number;
+}
 export interface UserRegistrationCount {
     // Provides the registration count for your tenant.
     registrationCount?: number;
@@ -42403,11 +42431,11 @@ export interface SamlSingleSignOnSettings {
 }
 // tslint:disable-next-line: interface-name
 export interface IdentitySet {
-    // Optional. The application associated with this action.
+    // The Identity of the Application. This property is read-only.
     application?: NullableOption<Identity>;
-    // Optional. The device associated with this action.
+    // The Identity of the Device. This property is read-only.
     device?: NullableOption<Identity>;
-    // Optional. The user associated with this action.
+    // The Identity of the User. This property is read-only.
     user?: NullableOption<Identity>;
 }
 export interface AuthenticationMethodFeatureConfiguration {
@@ -43220,6 +43248,10 @@ export interface CloudPcReviewStatus {
     // The access level of the end user on the Cloud PC. Possible values are: unrestricted, restricted.
     userAccessLevel?: CloudPcUserAccessLevel;
 }
+export interface CloudPcScopedPermission {
+    permission?: NullableOption<string>;
+    scopeIds?: NullableOption<string[]>;
+}
 export interface CloudPcSourceDeviceImage {
     // The display name for the source image.
     displayName?: NullableOption<string>;
@@ -43235,6 +43267,10 @@ export interface CloudPcSubscription extends Entity {
     subscriptionId?: NullableOption<string>;
     // The name of the subscription.
     subscriptionName?: NullableOption<string>;
+}
+export interface CloudPcTenantEncryptionSetting {
+    lastSyncDateTime?: NullableOption<string>;
+    tenantDiskEncryptionType?: NullableOption<CloudPcDiskEncryptionType>;
 }
 export interface CloudPcWindowsSettings {
     /**
@@ -43644,7 +43680,10 @@ export interface DeviceHealthAttestationState {
     windowsPE?: NullableOption<string>;
 }
 export interface DeviceIdentityAttestationDetail {
-    // Indicates the attestation status of the managed device. And in which way. Default: Unknown. This property is read-only.
+    /**
+     * Indicates the attestation status of the managed device. And in which way. Default: Unknown. This property is read-only.
+     * Possible values are: unknown, trusted, unTrusted, notSupported, incompleteData, unknownFutureValue.
+     */
     deviceIdentityAttestationStatus?: DeviceIdentityAttestationStatus;
 }
 export interface HardwareInformation {
@@ -47181,18 +47220,6 @@ export interface WebPartPosition {
     // Index of the current web part. Represents the order of the web part in this column or section.
     webPartIndex?: NullableOption<number>;
 }
-export interface AudioConferencing {
-    // The conference id of the online meeting.
-    conferenceId?: NullableOption<string>;
-    // A URL to the externally-accessible web page that contains dial-in information.
-    dialinUrl?: NullableOption<string>;
-    tollFreeNumber?: NullableOption<string>;
-    // List of toll-free numbers that are displayed in the meeting invite.
-    tollFreeNumbers?: NullableOption<string[]>;
-    tollNumber?: NullableOption<string>;
-    // List of toll numbers that are displayed in the meeting invite.
-    tollNumbers?: NullableOption<string[]>;
-}
 export interface BroadcastMeetingSettings {
     // Defines who can join the Teams live event. Possible values are listed in the following table.
     allowedAudience?: NullableOption<BroadcastMeetingAudience>;
@@ -47206,25 +47233,6 @@ export interface BroadcastMeetingSettings {
     isRecordingEnabled?: NullableOption<boolean>;
     // Indicates whether video on demand is enabled for this Teams live event. Default value is false.
     isVideoOnDemandEnabled?: NullableOption<boolean>;
-}
-export interface ChatInfo {
-    // The unique identifier for a message in a Microsoft Teams channel.
-    messageId?: NullableOption<string>;
-    // The ID of the reply message.
-    replyChainMessageId?: NullableOption<string>;
-    // The unique identifier for a thread in Microsoft Teams.
-    threadId?: NullableOption<string>;
-}
-export interface ChatRestrictions {
-    allowTextOnly?: NullableOption<boolean>;
-}
-export interface JoinMeetingIdSettings {
-    // Indicates whether a passcode is required to join a meeting when using joinMeetingId. Optional.
-    isPasscodeRequired?: NullableOption<boolean>;
-    // The meeting ID to be used to join a meeting. Optional. Read-only.
-    joinMeetingId?: NullableOption<string>;
-    // The passcode to join a meeting. Optional. Read-only.
-    passcode?: NullableOption<string>;
 }
 export interface MeetingParticipants {
     // Information of the meeting attendees.
@@ -49556,7 +49564,10 @@ export interface MacOSIncludedApp {
     bundleVersion?: string;
 }
 export interface MacOsLobAppAssignmentSettings extends MobileAppAssignmentSettings {
-    // Whether or not to uninstall the app when device is removed from Intune.
+    /**
+     * When TRUE, indicates that the app should be uninstalled when the device is removed from Intune. When FALSE, indicates
+     * that the app will not be uninstalled when the device is removed from Intune.
+     */
     uninstallOnDeviceRemoval?: NullableOption<boolean>;
 }
 export interface MacOSLobChildApp {
@@ -49716,7 +49727,7 @@ export interface Win32CatalogAppAssignmentSettings extends Win32LobAppAssignment
 export interface Win32LobAppAutoUpdateSettings {
     /**
      * The auto-update superseded apps setting for the app assignment. Possible values are notConfigured and enabled. Default
-     * value is notConfigured.
+     * value is notConfigured. Possible values are: notConfigured, enabled, unknownFutureValue.
      */
     autoUpdateSupersededApps?: Win32LobAppAutoUpdateSupersededApps;
 }
@@ -49945,11 +49956,7 @@ export interface Win32LobAppReturnCode {
     type?: Win32LobAppReturnCodeType;
 }
 export interface WindowsAppXAppAssignmentSettings extends MobileAppAssignmentSettings {
-    /**
-     * When TRUE, indicates that device execution context will be used for the AppX mobile app. When FALSE, indicates that
-     * user context will be used for the AppX mobile app. By default, this property is set to FALSE. Once this property has
-     * been set to TRUE it cannot be changed.
-     */
+    // Whether or not to use device execution context for Windows AppX mobile app.
     useDeviceContext?: boolean;
 }
 export interface WindowsMinimumOperatingSystem {
@@ -52313,14 +52320,17 @@ export interface DeviceManagementConfigurationSettingApplicability {
     // Device Mode that setting can be applied on. Possible values are: none, kiosk.
     deviceMode?: DeviceManagementConfigurationDeviceMode;
     /**
-     * Platform setting can be applied on. Possible values are: none, android, iOS, macOS, windows10X, windows10, linux,
+     * Platform setting can be applied on. Posible values are: none, android, androidEnterprise, iOs, macOs, windows10X,
+     * windows10, aosp, and linux. Possible values are: none, android, iOS, macOS, windows10X, windows10, linux,
      * unknownFutureValue.
      */
     platform?: DeviceManagementConfigurationPlatforms;
     /**
-     * Which technology channels this setting can be deployed through. Possible values are: none, mdm, windows10XManagement,
-     * configManager, appleRemoteManagement, microsoftSense, exchangeOnline, linuxMdm, enrollment,
-     * endpointPrivilegeManagement, unknownFutureValue.
+     * Which technology channels this setting can be deployed through. Posible values are: none, mdm, configManager,
+     * intuneManagementExtension, thirdParty, documentGateway, appleRemoteManagement, microsoftSense, exchangeOnline, edgeMam,
+     * linuxMdm, extensibility, enrollment, endpointPrivilegeManagement. Possible values are: none, mdm, windows10XManagement,
+     * configManager, appleRemoteManagement, microsoftSense, exchangeOnline, mobileApplicationManagement, linuxMdm,
+     * enrollment, endpointPrivilegeManagement, unknownFutureValue.
      */
     technologies?: DeviceManagementConfigurationTechnologies;
 }
@@ -52520,7 +52530,7 @@ export interface DeviceManagementConfigurationReferenceSettingValue extends Devi
     note?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationReferredSettingInformation {
-    // Setting definition id that is being referred to a setting. Applicable for reusable setting
+    // Setting definition id that is being referred to a setting. Applicable for reusable setting.
     settingDefinitionId?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationSecretSettingValue extends DeviceManagementConfigurationSimpleSettingValue {
@@ -55136,13 +55146,15 @@ export interface PositionDetail {
     endMonthYear?: NullableOption<string>;
     // The title held when in that position.
     jobTitle?: NullableOption<string>;
+    // The place where the employee is within the organizational hierarchy.
     layer?: NullableOption<number>;
+    // The employee’s experience or management level.
     level?: NullableOption<string>;
     // The role the position entailed.
     role?: NullableOption<string>;
     // The start month and year of the position.
     startMonthYear?: NullableOption<string>;
-    // Short summary of the position.
+    // summary of the position.
     summary?: NullableOption<string>;
 }
 export interface RegionalFormatOverrides {
@@ -55169,8 +55181,9 @@ export interface RelatedPerson {
      * friend, spouse, sibling, child, parent, sponsor, emergencyContact, other, unknownFutureValue.
      */
     relationship?: NullableOption<PersonRelationship>;
+    // The user's directory object ID (Microsoft Entra ID or CID).
     userId?: NullableOption<string>;
-    // Email address or reference to person within organization.
+    // Email address or reference to person within the organization.
     userPrincipalName?: NullableOption<string>;
 }
 export interface ServiceInformation {
@@ -56465,6 +56478,18 @@ export interface AttendanceInterval {
     // The time the attendee left in UTC.
     leaveDateTime?: NullableOption<string>;
 }
+export interface AudioConferencing {
+    // The conference id of the online meeting.
+    conferenceId?: NullableOption<string>;
+    // A URL to the externally-accessible web page that contains dial-in information.
+    dialinUrl?: NullableOption<string>;
+    tollFreeNumber?: NullableOption<string>;
+    // List of toll-free numbers that are displayed in the meeting invite.
+    tollFreeNumbers?: NullableOption<string[]>;
+    tollNumber?: NullableOption<string>;
+    // List of toll numbers that are displayed in the meeting invite.
+    tollNumbers?: NullableOption<string[]>;
+}
 export interface AzureCommunicationServicesUserIdentity extends Identity {
     // The Azure Communication Services resource ID associated with the user.
     azureCommunicationServicesResourceId?: NullableOption<string>;
@@ -56500,6 +56525,17 @@ export interface CallTranscriptionInfo {
     lastModifiedDateTime?: NullableOption<string>;
     // Possible values are: notStarted, active, inactive.
     state?: CallTranscriptionState;
+}
+export interface ChatInfo {
+    // The unique identifier for a message in a Microsoft Teams channel.
+    messageId?: NullableOption<string>;
+    // The ID of the reply message.
+    replyChainMessageId?: NullableOption<string>;
+    // The unique identifier for a thread in Microsoft Teams.
+    threadId?: NullableOption<string>;
+}
+export interface ChatRestrictions {
+    allowTextOnly?: NullableOption<boolean>;
 }
 export interface CommsNotification {
     // Possible values are: created, updated, deleted.
@@ -56608,6 +56644,14 @@ export interface JoinMeetingIdMeetingInfo extends MeetingInfo {
     // The ID used to join the meeting.
     joinMeetingId?: string;
     // The passcode used to join the meeting. Optional.
+    passcode?: NullableOption<string>;
+}
+export interface JoinMeetingIdSettings {
+    // Indicates whether a passcode is required to join a meeting when using joinMeetingId. Optional.
+    isPasscodeRequired?: NullableOption<boolean>;
+    // The meeting ID to be used to join a meeting. Optional. Read-only.
+    joinMeetingId?: NullableOption<string>;
+    // The passcode to join a meeting. Optional. Read-only.
     passcode?: NullableOption<string>;
 }
 export interface MediaInfo {
@@ -58017,9 +58061,7 @@ export namespace CallRecords {
          * screenSharing, unknownFutureValue.
          */
         modalities?: Modality[];
-        // The organizing party's identity.
         organizer?: NullableOption<microsoftgraphbeta.IdentitySet>;
-        // List of distinct identities involved in the call.
         participants?: NullableOption<microsoftgraphbeta.IdentitySet[]>;
         /**
          * UTC time when the first user joined the call. The DatetimeOffset type represents date and time information using ISO
@@ -58029,16 +58071,28 @@ export namespace CallRecords {
         // Indicates the type of the call. Possible values are: unknown, groupCall, peerToPeer, unknownFutureValue.
         type?: CallType;
         /**
-         * Monotonically increasing version of the call record. Higher version call records with the same ID includes additional
+         * Monotonically increasing version of the call record. Higher version call records with the same ID include additional
          * data compared to the lower version.
          */
         version?: number;
+        // Identity of the organizer of the call. This relationship is expanded by default in callRecord methods.
+        organizer_v2?: NullableOption<Organizer>;
+        // List of distinct participants in the call.
+        participants_v2?: NullableOption<Participant[]>;
         /**
          * List of sessions involved in the call. Peer-to-peer calls typically only have one session, whereas group calls
          * typically have at least one session per participant. Read-only. Nullable.
          */
         sessions?: NullableOption<Session[]>;
     }
+    interface ParticipantBase extends microsoftgraphbeta.Entity {
+        // The identity of the call participant.
+        identity?: NullableOption<UserIdentity>;
+    }
+// tslint:disable-next-line: no-empty-interface
+    interface Organizer extends ParticipantBase {}
+// tslint:disable-next-line: no-empty-interface
+    interface Participant extends ParticipantBase {}
     interface Session extends microsoftgraphbeta.Entity {
         // Endpoint that answered the session.
         callee?: NullableOption<Endpoint>;
@@ -58468,6 +58522,8 @@ export namespace CallRecords {
         roundTripTime?: NullableOption<string>;
     }
     interface ParticipantEndpoint extends Endpoint {
+        // Identity associated with the endpoint.
+        associatedIdentity?: NullableOption<UserIdentity>;
         // CPU number of cores used by the media endpoint.
         cpuCoresCount?: NullableOption<number>;
         // CPU name used by the media endpoint.
@@ -58476,10 +58532,12 @@ export namespace CallRecords {
         cpuProcessorSpeedInMhz?: NullableOption<number>;
         // The feedback provided by the user of this endpoint about the quality of the session.
         feedback?: NullableOption<UserFeedback>;
-        // Identity associated with the endpoint.
         identity?: NullableOption<microsoftgraphbeta.IdentitySet>;
         // Name of the device used by the media endpoint.
         name?: NullableOption<string>;
+    }
+    interface UserIdentity extends microsoftgraphbeta.Identity {
+        userPrincipalName?: NullableOption<string>;
     }
     interface UserFeedback {
         /**
@@ -58756,8 +58814,9 @@ export namespace DeviceManagementNamespace {
     interface AlertRule extends microsoftgraphbeta.Entity {
         /**
          * The rule template of the alert event. The possible values are: cloudPcProvisionScenario, cloudPcImageUploadScenario,
-         * cloudPcOnPremiseNetworkConnectionCheckScenario, unknownFutureValue, cloudPcInGracePeriodScenario. Note that you must
-         * use the Prefer: include-unknown-enum-members request header to get the following values from this evolvable enum:
+         * cloudPcOnPremiseNetworkConnectionCheckScenario, cloudPcInGracePeriodScenario,
+         * cloudPcFrontlineInsufficientLicensesScenario, cloudPcInaccessibleScenario. Note that you must use the Prefer:
+         * include-unknown-enum-members request header to get the following values from this evolvable enum:
          * cloudPcInGracePeriodScenario.
          */
         alertRuleTemplate?: NullableOption<AlertRuleTemplate>;
@@ -58771,8 +58830,8 @@ export namespace DeviceManagementNamespace {
          */
         enabled?: NullableOption<boolean>;
         /**
-         * Indicates whether the rule is a system rule. If true, the rule is a system rule; otherwise, the rule is a custom
-         * defined rule and can be edited. System rules are built-in and only a few properties can be edited.
+         * Indicates whether the rule is a system rule. If true, the rule is a system rule; otherwise, the rule is a
+         * custom-defined rule and can be edited. System rules are built in and only a few properties can be edited.
          */
         isSystemRule?: NullableOption<boolean>;
         // The notification channels of the rule selected by the user.
@@ -58780,8 +58839,8 @@ export namespace DeviceManagementNamespace {
         // The severity of the rule. The possible values are: unknown, informational, warning, critical, unknownFutureValue.
         severity?: NullableOption<RuleSeverityType>;
         /**
-         * The conditions to send alerts. For example, send alert when provisioning has failed for greater than or equal to 6
-         * Cloud PCs.
+         * The conditions that determine when to send alerts. For example, you can configure a condition to send an alert when
+         * provisioning fails for six or more Cloud PCs. This property is deprecated. Use conditions instead.
          */
         threshold?: NullableOption<RuleThreshold>;
     }
@@ -62689,8 +62748,15 @@ export namespace SecurityNamespace {
          * microsoftDefenderForEndpoint, antivirus, smartScreen, customTi, microsoftDefenderForOffice365, automatedInvestigation,
          * microsoftThreatExperts, customDetection, microsoftDefenderForIdentity, cloudAppSecurity, microsoft365Defender,
          * azureAdIdentityProtection, manual, microsoftDataLossPrevention, appGovernancePolicy, appGovernanceDetection,
-         * unknownFutureValue, microsoftDefenderForCloud. You must use the Prefer: include-unknown-enum-members request header to
-         * get the following value(s) in this evolvable enum: microsoftDefenderForCloud.
+         * unknownFutureValue, microsoftDefenderForCloud, microsoftDefenderForIoT, microsoftDefenderForServers,
+         * microsoftDefenderForStorage, microsoftDefenderForDNS, microsoftDefenderForDatabases, microsoftDefenderForContainers,
+         * microsoftDefenderForNetwork, microsoftDefenderForAppService, microsoftDefenderForKeyVault,
+         * microsoftDefenderForResourceManager, microsoftDefenderForApiManagement. You must use the Prefer:
+         * include-unknown-enum-members request header to get the following value(s) in this evolvable enum:
+         * microsoftDefenderForCloud, microsoftDefenderForIoT, microsoftDefenderForServers, microsoftDefenderForStorage,
+         * microsoftDefenderForDNS, microsoftDefenderForDatabases, microsoftDefenderForContainers, microsoftDefenderForNetwork,
+         * microsoftDefenderForAppService, microsoftDefenderForKeyVault, microsoftDefenderForResourceManager,
+         * microsoftDefenderForApiManagement.
          */
         detectionSource?: NullableOption<DetectionSource>;
         // The ID of the detector that triggered the alert.
