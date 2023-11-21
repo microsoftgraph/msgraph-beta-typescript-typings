@@ -423,12 +423,13 @@ export type FeatureTargetType = "group" | "administrativeUnit" | "role" | "unkno
 export type Fido2RestrictionEnforcementType = "allow" | "block" | "unknownFutureValue";
 export type MicrosoftAuthenticatorAuthenticationMode = "deviceBasedPush" | "push" | "any";
 export type SecurityQuestionType = "predefined" | "custom";
+export type X509CertificateAffinityLevel = "low" | "high" | "unknownFutureValue";
 export type X509CertificateAuthenticationMode =
     | "x509CertificateSingleFactor"
     | "x509CertificateMultiFactor"
     | "unknownFutureValue";
 export type X509CertificateIssuerHintsState = "disabled" | "enabled" | "unknownFutureValue";
-export type X509CertificateRuleType = "issuerSubject" | "policyOID" | "unknownFutureValue";
+export type X509CertificateRuleType = "issuerSubject" | "policyOID" | "unknownFutureValue" | "issuerSubjectAndPolicyOID";
 export type EntityType =
     | "event"
     | "message"
@@ -1189,6 +1190,8 @@ export type SectionEmphasisType = "none" | "neutral" | "soft" | "strong" | "unkn
 export type SensitivityLabelAssignmentMethod = "standard" | "privileged" | "auto" | "unknownFutureValue";
 export type TitleAreaLayoutType = "imageAndTitle" | "plain" | "colorBlock" | "overlap" | "unknownFutureValue";
 export type TitleAreaTextAlignmentType = "left" | "center" | "unknownFutureValue";
+export type RemindBeforeTimeInMinutesType = "mins15" | "unknownFutureValue";
+export type VirtualAppointmentSmsType = "confirmation" | "reschedule" | "cancellation" | "unknownFutureValue";
 export type MessageEventType =
     | "received"
     | "sent"
@@ -5608,6 +5611,16 @@ export type VirtualEventAttendeeRegistrationStatus =
     | "pendingApproval"
     | "rejectedByOrganizer"
     | "unknownFutureValue";
+export type VirtualEventRegistrationPredefinedQuestionLabel =
+    | "street"
+    | "city"
+    | "state"
+    | "postalCode"
+    | "countryOrRegion"
+    | "industry"
+    | "jobTitle"
+    | "organization"
+    | "unknownFutureValue";
 export type VirtualEventRegistrationQuestionAnswerInputType =
     | "text"
     | "multilineText"
@@ -6411,7 +6424,7 @@ export interface Group extends DirectoryObject {
     securityIdentifier?: NullableOption<string>;
     /**
      * Errors published by a federated service describing a non-transient, service-specific error regarding the properties or
-     * link from a group object. Supports $filter (eq, not, for isResolved and serviceInstance).
+     * link from a group object.
      */
     serviceProvisioningErrors?: NullableOption<ServiceProvisioningError[]>;
     /**
@@ -7160,12 +7173,20 @@ export interface EntitlementManagement extends Entity {
     subjects?: NullableOption<AccessPackageSubject[]>;
 }
 export interface PermissionsAnalyticsAggregation extends Entity {
+    // AWS permissions analytics findings.
     aws?: PermissionsAnalytics;
+    // Azure permissions analytics findings.
     azure?: PermissionsAnalytics;
+    // GCP permissions analytics findings.
     gcp?: PermissionsAnalytics;
 }
 export interface PermissionsManagement extends Entity {
+    // Represents a change event of the scheduledPermissionsRequest entity.
     permissionsRequestChanges?: NullableOption<PermissionsRequestChange[]>;
+    /**
+     * Represents a permissions request that Permissions Management uses to manage permissions for an identity on resources in
+     * the authorization system. This request can be granted, rejected or canceled by identities in Permissions Management.
+     */
     scheduledPermissionsRequests?: NullableOption<ScheduledPermissionsRequest[]>;
 }
 export interface PrivilegedAccessRoot extends Entity {
@@ -9512,9 +9533,11 @@ export interface ApplicationSignInSummary extends Entity {
     successPercentage?: NullableOption<number>;
 }
 export interface AuditLogRoot {
+    // Represents a custom security attribute audit log.
     customSecurityAttributeAudits?: NullableOption<CustomSecurityAttributeAudit[]>;
     directoryAudits?: NullableOption<DirectoryAudit[]>;
     directoryProvisioning?: NullableOption<ProvisioningObjectSummary[]>;
+    // Represents an action performed by the Microsoft Entra provisioning service and its associated properties.
     provisioning?: NullableOption<ProvisioningObjectSummary[]>;
     signIns?: NullableOption<SignIn[]>;
 }
@@ -9639,7 +9662,7 @@ export interface SignIn extends Entity {
      */
     appliedConditionalAccessPolicies?: NullableOption<AppliedConditionalAccessPolicy[]>;
     /**
-     * Detailed information about the listeners, such as Azure Logic Apps and Azure Functions, that were triggered by the
+     * Detailed information about the listeners, such as Azure Logic Apps and Azure Functions, which were triggered by the
      * corresponding events in the sign-in event.
      */
     appliedEventListeners?: NullableOption<AppliedAuthenticationEventListener[]>;
@@ -9667,7 +9690,7 @@ export interface SignIn extends Entity {
     authenticationProcessingDetails?: NullableOption<KeyValue[]>;
     /**
      * Lists the protocol type or grant type used in the authentication. The possible values are: oAuth2, ropc, wsFederation,
-     * saml20, deviceCode, unknownFutureValue, authenticationTransfer, and none. Use none for all authentications that do not
+     * saml20, deviceCode, unknownFutureValue, authenticationTransfer, and none. Use none for all authentications that don't
      * have a specific value in that list.
      */
     authenticationProtocol?: NullableOption<ProtocolType>;
@@ -9692,9 +9715,9 @@ export interface SignIn extends Entity {
     clientAppUsed?: NullableOption<string>;
     /**
      * Describes the credential type that a user client or service principal provided to Microsoft Entra ID to authenticate
-     * itself. You may wish to review clientCredentialType to track and eliminate less secure credential types or to watch for
-     * clients and service principals using anomalous credential types. The possible values are: none, clientSecret,
-     * clientAssertion, federatedIdentityCredential, managedIdentity, certificate, unknownFutureValue.
+     * itself. You can review this property to track and eliminate less secure credential types or to watch for clients and
+     * service principals using anomalous credential types. The possible values are: none, clientSecret, clientAssertion,
+     * federatedIdentityCredential, managedIdentity, certificate, unknownFutureValue.
      */
     clientCredentialType?: NullableOption<ClientCredentialType>;
     /**
@@ -9714,8 +9737,9 @@ export interface SignIn extends Entity {
     createdDateTime?: string;
     /**
      * Describes the type of cross-tenant access used by the actor to access the resource. Possible values are: none,
-     * b2bCollaboration, b2bDirectConnect, microsoftSupport, serviceProvider, unknownFutureValue. If the sign in didn't cross
-     * tenant boundaries, the value is none.
+     * b2bCollaboration, b2bDirectConnect, microsoftSupport, serviceProvider, unknownFutureValue, passthrough. Also, please
+     * note that you must use the Prefer: include-unknown-enum-members request header to get the following value(s) in this
+     * evolvable enum: passthrough. If the sign in didn't cross tenant boundaries, the value is none.
      */
     crossTenantAccessType?: NullableOption<SignInAccessType>;
     /**
@@ -9729,12 +9753,12 @@ export interface SignIn extends Entity {
      */
     federatedCredentialId?: NullableOption<string>;
     /**
-     * During a failed sign in, a user may select a button in the Azure portal to mark the failed event for tenant admins. If
-     * a user clicked the button to flag the failed sign in, this value is true.
+     * During a failed sign-in, a user can select a button in the Azure portal to mark the failed event for tenant admins. If
+     * a user selects the button to flag the failed sign-in, this value is true.
      */
     flaggedForReview?: NullableOption<boolean>;
     /**
-     * The tenant identifier of the user initiating the sign in. Not applicable in Managed Identity or service principal sign
+     * The tenant identifier of the user initiating the sign-in. Not applicable in Managed Identity or service principal sign
      * ins.
      */
     homeTenantId?: NullableOption<string>;
@@ -9746,8 +9770,8 @@ export interface SignIn extends Entity {
     /**
      * Indicates the token types that were presented to Microsoft Entra ID to authenticate the actor in the sign in. The
      * possible values are: none, primaryRefreshToken, saml11, saml20, unknownFutureValue, remoteDesktopToken. NOTE Microsoft
-     * Entra ID may have also used token types not listed in this Enum type to authenticate the actor. Don't infer the lack of
-     * a token if it isn't one of the types listed. Also, please note that you must use the Prefer:
+     * Entra ID might have also used token types not listed in this enum type to authenticate the actor. Don't infer the lack
+     * of a token if it isn't one of the types listed. Also, please note that you must use the Prefer:
      * include-unknown-enum-members request header to get the following value(s) in this evolvable enum: remoteDesktopToken.
      */
     incomingTokenType?: NullableOption<IncomingTokenType>;
@@ -9755,8 +9779,8 @@ export interface SignIn extends Entity {
     ipAddress?: NullableOption<string>;
     /**
      * The IP address a user used to reach a resource provider, used to determine Conditional Access compliance for some
-     * policies. For example, when a user interacts with Exchange Online, the IP address Exchange receives from the user may
-     * be recorded here. This value is often null.
+     * policies. For example, when a user interacts with Exchange Online, the IP address that Microsoft Exchange receives from
+     * the user can be recorded here. This value is often null.
      */
     ipAddressFromResourceProvider?: NullableOption<string>;
     /**
@@ -9806,9 +9830,9 @@ export interface SignIn extends Entity {
      * The reason behind a specific state of a risky user, sign-in, or a risk event. Possible values: none,
      * adminGeneratedTemporaryPassword, userPerformedSecuredPasswordChange, userPerformedSecuredPasswordReset,
      * adminConfirmedSigninSafe, aiConfirmedSigninSafe, userPassedMFADrivenByRiskBasedPolicy, adminDismissedAllRiskForUser,
-     * adminConfirmedSigninCompromised, or unknownFutureValue. The value none means that no action has been performed on the
-     * user or sign-in so far. Supports $filter (eq). Note: Details for this property are only available for Microsoft Entra
-     * ID P2 customers. All other customers are returned hidden.
+     * adminConfirmedSigninCompromised, or unknownFutureValue. The value none means that Microsoft Entra risk detection has
+     * not flagged the user or the sign-in as a risky event so far. Supports $filter (eq). Note: Details for this property are
+     * only available for Microsoft Entra ID P2 customers. All other customers are returned hidden.
      */
     riskDetail?: NullableOption<RiskDetail>;
     /**
@@ -9819,7 +9843,7 @@ export interface SignIn extends Entity {
     riskEventTypes_v2?: NullableOption<string[]>;
     /**
      * The aggregated risk level. Possible values: none, low, medium, high, hidden, or unknownFutureValue. The value hidden
-     * means the user or sign-in was not enabled for Microsoft Entra ID Protection. Supports $filter (eq). Note: Details for
+     * means the user or sign-in wasn't enabled for Microsoft Entra ID Protection. Supports $filter (eq). Note: Details for
      * this property are only available for Microsoft Entra ID P2 customers. All other customers are returned hidden.
      */
     riskLevelAggregated?: NullableOption<RiskLevel>;
@@ -9853,13 +9877,13 @@ export interface SignIn extends Entity {
     /**
      * Indicates the category of sign in that the event represents. For user sign ins, the category can be interactiveUser or
      * nonInteractiveUser and corresponds to the value for the isInteractive property on the signin resource. For managed
-     * identity sign ins, the category is managedIdentity. For service principal sign ins, the category is servicePrincipal.
+     * identity sign ins, the category is managedIdentity. For service principal sign-ins, the category is servicePrincipal.
      * Possible values are: interactiveUser, nonInteractiveUser, servicePrincipal, managedIdentity, unknownFutureValue.
      * Supports $filter (eq, ne).
      */
     signInEventTypes?: NullableOption<string[]>;
     /**
-     * The identification that the user provided to sign in. It may be the userPrincipalName but it's also populated when a
+     * The identification that the user provided to sign in. It can be the userPrincipalName, but is also populated when a
      * user signs in using other identifiers.
      */
     signInIdentifier?: NullableOption<string>;
@@ -9869,7 +9893,7 @@ export interface SignIn extends Entity {
      */
     signInIdentifierType?: NullableOption<SignInIdentifierType>;
     /**
-     * Token protection creates a cryptographically secure tie between the token and the device it's issued to. This field
+     * Token protection creates a cryptographically secure tie between the token and the device it is issued to. This field
      * indicates whether the signin token was bound to the device or not. The possible values are: none, bound, unbound,
      * unknownFutureValue.
      */
@@ -10835,6 +10859,7 @@ export interface BusinessScenario extends Entity {
 }
 export interface VirtualEventsRoot extends Entity {
     events?: NullableOption<VirtualEvent[]>;
+    townhalls?: NullableOption<VirtualEventTownhall[]>;
     webinars?: NullableOption<VirtualEventWebinar[]>;
 }
 export interface AuthenticationCombinationConfiguration extends Entity {
@@ -11186,7 +11211,7 @@ export interface DeviceRegistrationPolicy extends Entity {
      * Specifies the authorization policy for controlling registration of new devices using Microsoft Entra join within your
      * organization. Required. For more information, see What is a device identity?.
      */
-    azureADJoin?: NullableOption<AzureAdJoinPolicy>;
+    azureADJoin?: NullableOption<AzureADJoinPolicy>;
     /**
      * Specifies the authorization policy for controlling registration of new devices using Microsoft Entra registered within
      * your organization. Required. For more information, see What is a device identity?.
@@ -11235,9 +11260,9 @@ export interface AuthorizationPolicy extends PolicyBase {
      */
     allowUserConsentForRiskyApps?: NullableOption<boolean>;
     /**
-     * To disable the use of the Microsoft Graph PowerShell module set this property to true. This will also disable
-     * user-based access to the legacy service endpoint used by the Microsoft Graph PowerShell module. This doesn't affect
-     * Microsoft Entra Connect or Microsoft Graph.
+     * To disable the use of the MSOnline PowerShell module set this property to true. This will also disable user-based
+     * access to the legacy service endpoint used by the MSOnline PowerShell module. This doesn't affect Microsoft Entra
+     * Connect or Microsoft Graph.
      */
     blockMsolPowerShell?: NullableOption<boolean>;
     // Specifies certain customizable permissions for default user role.
@@ -11950,6 +11975,160 @@ export interface PlannerPlanConfigurationLocalization extends Entity {
     languageTag?: NullableOption<string>;
     // Localized title of the plan.
     planTitle?: NullableOption<string>;
+}
+// tslint:disable-next-line: interface-name
+export interface IdentityContainer {
+    // Represents entry point for API connectors.
+    apiConnectors?: NullableOption<IdentityApiConnector[]>;
+    authenticationEventListeners?: NullableOption<AuthenticationEventListener[]>;
+    /**
+     * Represents the entry point for self-service sign up and sign in user flows in both Microsoft Entra workforce and
+     * customer tenants.
+     */
+    authenticationEventsFlows?: NullableOption<AuthenticationEventsFlow[]>;
+    // Represents entry point for B2C identity userflows.
+    b2cUserFlows?: NullableOption<B2cIdentityUserFlow[]>;
+    // Represents entry point for B2X and self-service sign-up identity userflows.
+    b2xUserFlows?: NullableOption<B2xIdentityUserFlow[]>;
+    customAuthenticationExtensions?: NullableOption<CustomAuthenticationExtension[]>;
+    // Represents entry point for identity provider base.
+    identityProviders?: NullableOption<IdentityProviderBase[]>;
+    // Represents entry point for identity userflow attributes.
+    userFlowAttributes?: NullableOption<IdentityUserFlowAttribute[]>;
+    userFlows?: NullableOption<IdentityUserFlow[]>;
+    // the entry point for the Conditional Access (CA) object model.
+    conditionalAccess?: NullableOption<ConditionalAccessRoot>;
+    // Represents entry point for continuous access evaluation policy.
+    continuousAccessEvaluationPolicy?: NullableOption<ContinuousAccessEvaluationPolicy>;
+}
+// tslint:disable-next-line: interface-name
+export interface IdentityApiConnector extends Entity {
+    /**
+     * The object which describes the authentication configuration details for calling the API. Basic and PKCS 12 client
+     * certificate are supported.
+     */
+    authenticationConfiguration?: NullableOption<ApiAuthenticationConfigurationBase>;
+    // The name of the API connector.
+    displayName?: NullableOption<string>;
+    // The URL of the API endpoint to call.
+    targetUrl?: NullableOption<string>;
+}
+export interface AuthenticationEventListener extends Entity {
+    // The identifier of the authenticationEventsFlow object.
+    authenticationEventsFlowId?: NullableOption<string>;
+    // The conditions on which this authenticationEventListener should trigger.
+    conditions?: NullableOption<AuthenticationConditions>;
+    // The priority of this handler. Between 0 (lower priority) and 1000 (higher priority).
+    priority?: number;
+}
+export interface AuthenticationEventsFlow extends Entity {
+    /**
+     * The conditions representing the context of the authentication request that will be used to decide whether the events
+     * policy will be invoked.
+     */
+    conditions?: NullableOption<AuthenticationConditions>;
+    // The description of the events policy.
+    description?: NullableOption<string>;
+    // Required. The display name for the events policy.
+    displayName?: string;
+    /**
+     * The priority to use for each individual event of the events policy. If multiple competing listeners for an event have
+     * the same priority, one is chosen and an error is silently logged. Defaults to 500.
+     */
+    priority?: number;
+}
+// tslint:disable-next-line: interface-name
+export interface IdentityUserFlow extends Entity {
+    userFlowType?: UserFlowType;
+    userFlowTypeVersion?: number;
+}
+export interface B2cIdentityUserFlow extends IdentityUserFlow {
+    /**
+     * Configuration for enabling an API connector for use as part of the user flow. You can only obtain the value of this
+     * object using Get userFlowApiConnectorConfiguration.
+     */
+    apiConnectorConfiguration?: NullableOption<UserFlowApiConnectorConfiguration>;
+    /**
+     * Indicates the default language of the b2cIdentityUserFlow that is used when no ui_locale tag is specified in the
+     * request. This field is RFC 5646 compliant.
+     */
+    defaultLanguageTag?: NullableOption<string>;
+    /**
+     * The property that determines whether language customization is enabled within the B2C user flow. Language customization
+     * is not enabled by default for B2C user flows.
+     */
+    isLanguageCustomizationEnabled?: boolean;
+    identityProviders?: NullableOption<IdentityProvider[]>;
+    /**
+     * The languages supported for customization within the user flow. Language customization is not enabled by default in B2C
+     * user flows.
+     */
+    languages?: NullableOption<UserFlowLanguageConfiguration[]>;
+    // The user attribute assignments included in the user flow.
+    userAttributeAssignments?: NullableOption<IdentityUserFlowAttributeAssignment[]>;
+    userFlowIdentityProviders?: NullableOption<IdentityProviderBase[]>;
+}
+export interface B2xIdentityUserFlow extends IdentityUserFlow {
+    /**
+     * Configuration for enabling an API connector for use as part of the self-service sign-up user flow. You can only obtain
+     * the value of this object using Get userFlowApiConnectorConfiguration.
+     */
+    apiConnectorConfiguration?: NullableOption<UserFlowApiConnectorConfiguration>;
+    identityProviders?: NullableOption<IdentityProvider[]>;
+    /**
+     * The languages supported for customization within the user flow. Language customization is enabled by default in
+     * self-service sign-up user flow. You can't create custom languages in self-service sign-up user flows.
+     */
+    languages?: NullableOption<UserFlowLanguageConfiguration[]>;
+    // The user attribute assignments included in the user flow.
+    userAttributeAssignments?: NullableOption<IdentityUserFlowAttributeAssignment[]>;
+    userFlowIdentityProviders?: NullableOption<IdentityProviderBase[]>;
+}
+// tslint:disable-next-line: no-empty-interface
+export interface CustomAuthenticationExtension extends CustomCalloutExtension {}
+// tslint:disable-next-line: interface-name
+export interface IdentityUserFlowAttribute extends Entity {
+    /**
+     * The data type of the user flow attribute. This can't be modified after the custom user flow attribute is created. The
+     * supported values for dataType are: string , boolean , int64 , stringCollection , dateTime, unknownFutureValue. Supports
+     * $filter (eq, ne).
+     */
+    dataType?: IdentityUserFlowAttributeDataType;
+    // The description of the user flow attribute that's shown to the user at the time of sign-up.
+    description?: NullableOption<string>;
+    // The display name of the user flow attribute. Supports $filter (eq, ne).
+    displayName?: NullableOption<string>;
+    /**
+     * The type of the user flow attribute. This is a read-only attribute that is automatically set. Depending on the type of
+     * attribute, the values for this property are builtIn, custom, required, unknownFutureValue. Supports $filter (eq, ne).
+     */
+    userFlowAttributeType?: IdentityUserFlowAttributeType;
+}
+export interface ContinuousAccessEvaluationPolicy extends Entity {
+    /**
+     * Continuous access evaluation automatically blocks access to resources and applications in near real time when a user's
+     * access is removed or a client IP address changes. Read-only.
+     */
+    description?: string;
+    // The value is always Continuous Access Evaluation. Read-only.
+    displayName?: string;
+    /**
+     * The collection of group identifiers in scope for evaluation. All groups are in scope when the collection is empty.
+     * Read-only.
+     */
+    groups?: string[];
+    // true to indicate whether continuous access evaluation should be performed; otherwise false. Read-only.
+    isEnabled?: boolean;
+    /**
+     * true to indicate that the continuous access evaluation policy settings should be or has been migrated to the
+     * conditional access policy.
+     */
+    migrate?: boolean;
+    /**
+     * The collection of user identifiers in scope for evaluation. All users are in scope when the collection is empty.
+     * Read-only.
+     */
+    users?: string[];
 }
 export interface AppScope extends Entity {
     /**
@@ -13678,19 +13857,19 @@ export interface DeviceManagementCompliancePolicy extends Entity {
 export interface DeviceManagementConfigurationSettingDefinition extends Entity {
     // Read/write access mode of the setting. Possible values are: none, add, copy, delete, get, replace, execute.
     accessTypes?: DeviceManagementConfigurationSettingAccessTypes;
-    // Details which device setting is applicable on
+    // Details which device setting is applicable on. Supports: $filters.
     applicability?: NullableOption<DeviceManagementConfigurationSettingApplicability>;
     // Base CSP Path
     baseUri?: NullableOption<string>;
-    // Specifies the area group under which the setting is configured in a specified configuration service provider (CSP)
+    // Specify category in which the setting is under. Support $filters.
     categoryId?: NullableOption<string>;
-    // Description of the item
+    // Description of the setting.
     description?: NullableOption<string>;
-    // Display name of the item
+    // Name of the setting. For example: Allow Toast.
     displayName?: NullableOption<string>;
-    // Help text of the item
+    // Help text of the setting. Give more details of the setting.
     helpText?: NullableOption<string>;
-    // List of links more info for the setting can be found at
+    // List of links more info for the setting can be found at.
     infoUrls?: NullableOption<string[]>;
     // Tokens which to search settings on
     keywords?: NullableOption<string[]>;
@@ -13702,18 +13881,25 @@ export interface DeviceManagementConfigurationSettingDefinition extends Entity {
     offsetUri?: NullableOption<string>;
     // List of referred setting information.
     referredSettingInformationList?: NullableOption<DeviceManagementConfigurationReferredSettingInformation[]>;
-    // Root setting definition if the setting is a child setting.
+    // Root setting definition id if the setting is a child setting.
     rootDefinitionId?: NullableOption<string>;
-    // Setting type, for example, configuration and compliance. Possible values are: none, configuration, compliance.
+    /**
+     * Indicate setting type for the setting. Possible values are: configuration, compliance, reusableSetting. Each setting
+     * usage has separate API end-point to call. Possible values are: none, configuration, compliance, unknownFutureValue.
+     */
     settingUsage?: DeviceManagementConfigurationSettingUsage;
     /**
      * Setting control type representation in the UX. Possible values are: default, dropdown, smallTextBox, largeTextBox,
-     * toggle, multiheaderGrid, contextPane.
+     * toggle, multiheaderGrid, contextPane. Possible values are: default, dropdown, smallTextBox, largeTextBox, toggle,
+     * multiheaderGrid, contextPane, unknownFutureValue.
      */
     uxBehavior?: DeviceManagementConfigurationControlType;
     // Item Version
     version?: NullableOption<string>;
-    // Setting visibility scope to UX. Possible values are: none, settingsCatalog, template.
+    /**
+     * Setting visibility scope to UX. Possible values are: none, settingsCatalog, template. Possible values are: none,
+     * settingsCatalog, template, unknownFutureValue.
+     */
     visibility?: DeviceManagementConfigurationSettingVisibility;
 }
 export interface DeviceManagementConfigurationPolicy extends Entity {
@@ -18279,41 +18465,9 @@ export interface AuthenticationConditionApplication {
     // The identifier for an application corresponding to a condition which will trigger an authenticationEventListener.
     appId?: string;
 }
-// tslint:disable-next-line: interface-name
-export interface IdentityUserFlowAttribute extends Entity {
-    /**
-     * The data type of the user flow attribute. This can't be modified after the custom user flow attribute is created. The
-     * supported values for dataType are: string , boolean , int64 , stringCollection , dateTime, unknownFutureValue. Supports
-     * $filter (eq, ne).
-     */
-    dataType?: IdentityUserFlowAttributeDataType;
-    // The description of the user flow attribute that's shown to the user at the time of sign-up.
-    description?: NullableOption<string>;
-    // The display name of the user flow attribute. Supports $filter (eq, ne).
-    displayName?: NullableOption<string>;
-    /**
-     * The type of the user flow attribute. This is a read-only attribute that is automatically set. Depending on the type of
-     * attribute, the values for this property are builtIn, custom, required, unknownFutureValue. Supports $filter (eq, ne).
-     */
-    userFlowAttributeType?: IdentityUserFlowAttributeType;
-}
-// tslint:disable-next-line: no-empty-interface
-export interface CustomAuthenticationExtension extends CustomCalloutExtension {}
 export interface OnTokenIssuanceStartCustomExtension extends CustomAuthenticationExtension {
     // Collection of claims to be returned by the API called by this custom authentication extension.
     claimsForTokenConfiguration?: NullableOption<OnTokenIssuanceStartReturnClaim[]>;
-}
-// tslint:disable-next-line: interface-name
-export interface IdentityApiConnector extends Entity {
-    /**
-     * The object which describes the authentication configuration details for calling the API. Basic and PKCS 12 client
-     * certificate are supported.
-     */
-    authenticationConfiguration?: NullableOption<ApiAuthenticationConfigurationBase>;
-    // The name of the API connector.
-    displayName?: NullableOption<string>;
-    // The URL of the API endpoint to call.
-    targetUrl?: NullableOption<string>;
 }
 export interface AppleManagedIdentityProvider extends IdentityProviderBase {
     // The certificate data that is a long string of text from the certificate, can be null.
@@ -18324,30 +18478,6 @@ export interface AppleManagedIdentityProvider extends IdentityProviderBase {
     keyId?: NullableOption<string>;
     // The Apple service identifier. Required.
     serviceId?: NullableOption<string>;
-}
-export interface AuthenticationEventListener extends Entity {
-    // The identifier of the authenticationEventsFlow object.
-    authenticationEventsFlowId?: NullableOption<string>;
-    // The conditions on which this authenticationEventListener should trigger.
-    conditions?: NullableOption<AuthenticationConditions>;
-    // The priority of this handler. Between 0 (lower priority) and 1000 (higher priority).
-    priority?: number;
-}
-export interface AuthenticationEventsFlow extends Entity {
-    /**
-     * The conditions representing the context of the authentication request that will be used to decide whether the events
-     * policy will be invoked.
-     */
-    conditions?: NullableOption<AuthenticationConditions>;
-    // The description of the events policy.
-    description?: NullableOption<string>;
-    // Required. The display name for the events policy.
-    displayName?: string;
-    /**
-     * The priority to use for each individual event of the events policy. If multiple competing listeners for an event have
-     * the same priority, one is chosen and an error is silently logged. Defaults to 500.
-     */
-    priority?: number;
 }
 export interface AuthenticationEventsPolicy extends Entity {
     // A list of applicable actions to be taken on sign-up.
@@ -18364,37 +18494,6 @@ export interface AuthenticationListener extends Entity {
      * currently limited to evaluations based on application the user is authenticating to.
      */
     sourceFilter?: NullableOption<AuthenticationSourceFilter>;
-}
-// tslint:disable-next-line: interface-name
-export interface IdentityUserFlow extends Entity {
-    userFlowType?: UserFlowType;
-    userFlowTypeVersion?: number;
-}
-export interface B2cIdentityUserFlow extends IdentityUserFlow {
-    /**
-     * Configuration for enabling an API connector for use as part of the user flow. You can only obtain the value of this
-     * object using Get userFlowApiConnectorConfiguration.
-     */
-    apiConnectorConfiguration?: NullableOption<UserFlowApiConnectorConfiguration>;
-    /**
-     * Indicates the default language of the b2cIdentityUserFlow that is used when no ui_locale tag is specified in the
-     * request. This field is RFC 5646 compliant.
-     */
-    defaultLanguageTag?: NullableOption<string>;
-    /**
-     * The property that determines whether language customization is enabled within the B2C user flow. Language customization
-     * is not enabled by default for B2C user flows.
-     */
-    isLanguageCustomizationEnabled?: boolean;
-    identityProviders?: NullableOption<IdentityProvider[]>;
-    /**
-     * The languages supported for customization within the user flow. Language customization is not enabled by default in B2C
-     * user flows.
-     */
-    languages?: NullableOption<UserFlowLanguageConfiguration[]>;
-    // The user attribute assignments included in the user flow.
-    userAttributeAssignments?: NullableOption<IdentityUserFlowAttributeAssignment[]>;
-    userFlowIdentityProviders?: NullableOption<IdentityProviderBase[]>;
 }
 // tslint:disable-next-line: interface-name
 export interface IdentityProvider extends Entity {
@@ -18459,22 +18558,6 @@ export interface IdentityUserFlowAttributeAssignment extends Entity {
     // The user attribute that you want to add to your user flow.
     userAttribute?: NullableOption<IdentityUserFlowAttribute>;
 }
-export interface B2xIdentityUserFlow extends IdentityUserFlow {
-    /**
-     * Configuration for enabling an API connector for use as part of the self-service sign-up user flow. You can only obtain
-     * the value of this object using Get userFlowApiConnectorConfiguration.
-     */
-    apiConnectorConfiguration?: NullableOption<UserFlowApiConnectorConfiguration>;
-    identityProviders?: NullableOption<IdentityProvider[]>;
-    /**
-     * The languages supported for customization within the user flow. Language customization is enabled by default in
-     * self-service sign-up user flow. You can't create custom languages in self-service sign-up user flows.
-     */
-    languages?: NullableOption<UserFlowLanguageConfiguration[]>;
-    // The user attribute assignments included in the user flow.
-    userAttributeAssignments?: NullableOption<IdentityUserFlowAttributeAssignment[]>;
-    userFlowIdentityProviders?: NullableOption<IdentityProviderBase[]>;
-}
 export interface BuiltInIdentityProvider extends IdentityProviderBase {
     // The identity provider type. For a B2B scenario, possible values: AADSignup, MicrosoftAccount, EmailOTP. Required.
     identityProviderType?: NullableOption<string>;
@@ -18495,57 +18578,6 @@ export interface ExternalUsersSelfServiceSignUpEventsFlow extends Authentication
 }
 // tslint:disable-next-line: interface-name no-empty-interface
 export interface IdentityBuiltInUserFlowAttribute extends IdentityUserFlowAttribute {}
-// tslint:disable-next-line: interface-name
-export interface IdentityContainer {
-    // Represents entry point for API connectors.
-    apiConnectors?: NullableOption<IdentityApiConnector[]>;
-    authenticationEventListeners?: NullableOption<AuthenticationEventListener[]>;
-    /**
-     * Represents the entry point for self-service sign up and sign in user flows in both Microsoft Entra workforce and
-     * customer tenants.
-     */
-    authenticationEventsFlows?: NullableOption<AuthenticationEventsFlow[]>;
-    // Represents entry point for B2C identity userflows.
-    b2cUserFlows?: NullableOption<B2cIdentityUserFlow[]>;
-    // Represents entry point for B2X and self-service sign-up identity userflows.
-    b2xUserFlows?: NullableOption<B2xIdentityUserFlow[]>;
-    customAuthenticationExtensions?: NullableOption<CustomAuthenticationExtension[]>;
-    // Represents entry point for identity provider base.
-    identityProviders?: NullableOption<IdentityProviderBase[]>;
-    // Represents entry point for identity userflow attributes.
-    userFlowAttributes?: NullableOption<IdentityUserFlowAttribute[]>;
-    userFlows?: NullableOption<IdentityUserFlow[]>;
-    // the entry point for the Conditional Access (CA) object model.
-    conditionalAccess?: NullableOption<ConditionalAccessRoot>;
-    // Represents entry point for continuous access evaluation policy.
-    continuousAccessEvaluationPolicy?: NullableOption<ContinuousAccessEvaluationPolicy>;
-}
-export interface ContinuousAccessEvaluationPolicy extends Entity {
-    /**
-     * Continuous access evaluation automatically blocks access to resources and applications in near real time when a user's
-     * access is removed or a client IP address changes. Read-only.
-     */
-    description?: string;
-    // The value is always Continuous Access Evaluation. Read-only.
-    displayName?: string;
-    /**
-     * The collection of group identifiers in scope for evaluation. All groups are in scope when the collection is empty.
-     * Read-only.
-     */
-    groups?: string[];
-    // true to indicate whether continuous access evaluation should be performed; otherwise false. Read-only.
-    isEnabled?: boolean;
-    /**
-     * true to indicate that the continuous access evaluation policy settings should be or has been migrated to the
-     * conditional access policy.
-     */
-    migrate?: boolean;
-    /**
-     * The collection of user identifiers in scope for evaluation. All users are in scope when the collection is empty.
-     * Read-only.
-     */
-    users?: string[];
-}
 // tslint:disable-next-line: interface-name no-empty-interface
 export interface IdentityCustomUserFlowAttribute extends IdentityUserFlowAttribute {}
 // tslint:disable-next-line: interface-name
@@ -22430,9 +22462,15 @@ export interface DocumentSetVersion extends ListItemVersion {
     shouldCaptureMinorVersion?: NullableOption<boolean>;
 }
 export interface EmployeeExperience {
+    // Represents a collection of goals in a Viva Goals organization.
+    goals?: NullableOption<Goals>;
     learningCourseActivities?: NullableOption<LearningCourseActivity[]>;
     // A collection of learning providers.
     learningProviders?: NullableOption<LearningProvider[]>;
+}
+export interface Goals extends Entity {
+    // Represents a collection of goals export jobs for Viva Goals.
+    exportJobs?: NullableOption<GoalsExportJob[]>;
 }
 export interface LearningCourseActivity extends Entity {
     // Date and time when the assignment was completed. Optional.
@@ -24566,9 +24604,20 @@ export interface CustomAccessPackageWorkflowExtension extends CustomCalloutExten
     lastModifiedDateTime?: NullableOption<string>;
 }
 export interface AuthorizationSystem extends Entity {
+    /**
+     * ID of the authorization system retrieved from the customer cloud environment. Supports $filter(eq, contains) and
+     * $orderBy.
+     */
     authorizationSystemId?: string;
+    // Name of the authorization system detected after onboarding. Supports $filter(eq,contains) and $orderBy.
     authorizationSystemName?: string;
+    // The type of authorization system. Can be gcp, azure, or aws. Supports $filter(eq).
     authorizationSystemType?: string;
+    /**
+     * Defines how and whether Permissions Management collects data from the onboarded authorization system. Supports $filter
+     * (eq) as follows: $filter=dataCollectionInfo/entitlements/permissionsModificationCapability and
+     * $filter=dataCollectionInfo/entitlements/status.
+     */
     dataCollectionInfo?: NullableOption<DataCollectionInfo>;
 }
 // tslint:disable-next-line: interface-name
@@ -34878,7 +34927,7 @@ export interface DeviceManagementConfigurationRedirectSettingDefinition extends 
     redirectReason?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationSettingGroupDefinition extends DeviceManagementConfigurationSettingDefinition {
-    // Dependent child settings to this group of settings
+    // Dependent child settings to this group of settings.
     childIds?: NullableOption<string[]>;
     // List of child settings that depend on this setting
     dependedOnBy?: NullableOption<DeviceManagementConfigurationSettingDependedOnBy[]>;
@@ -34886,9 +34935,9 @@ export interface DeviceManagementConfigurationSettingGroupDefinition extends Dev
     dependentOn?: NullableOption<DeviceManagementConfigurationDependentOn[]>;
 }
 export interface DeviceManagementConfigurationSettingGroupCollectionDefinition extends DeviceManagementConfigurationSettingGroupDefinition {
-    // Maximum number of setting group count in the collection
+    // Maximum number of setting group count in the collection. Valid values 1 to 100
     maximumCount?: number;
-    // Minimum number of setting group count in the collection
+    // Minimum number of setting group count in the collection. Valid values 1 to 100
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationSimpleSettingDefinition extends DeviceManagementConfigurationSettingDefinition {
@@ -34902,9 +34951,9 @@ export interface DeviceManagementConfigurationSimpleSettingDefinition extends De
     valueDefinition?: NullableOption<DeviceManagementConfigurationSettingValueDefinition>;
 }
 export interface DeviceManagementConfigurationSimpleSettingCollectionDefinition extends DeviceManagementConfigurationSimpleSettingDefinition {
-    // Maximum number of simple settings in the collection. Valid values 1 to 100
+    // Maximum number of simple settings in the collection
     maximumCount?: number;
-    // Minimum number of simple settings in the collection. Valid values 1 to 100
+    // Minimum number of simple settings in the collection
     minimumCount?: number;
 }
 export interface DeviceComanagementAuthorityConfiguration extends DeviceEnrollmentConfiguration {
@@ -36592,92 +36641,153 @@ export interface ServiceAnnouncementAttachment extends Entity {
     size?: number;
 }
 export interface DataCollectionInfo extends Entity {
+    /**
+     * Represents the details and status of data collection about permissions assigned to an identity in the authorization
+     * system. Read-only.
+     */
     entitlements?: EntitlementsDataCollectionInfo;
 }
 export interface AwsAuthorizationSystem extends AuthorizationSystem {
+    // Identities in the authorization system.
     associatedIdentities?: NullableOption<AwsAssociatedIdentities>;
+    // List of actions for service in authorization system.
     actions?: NullableOption<AwsAuthorizationSystemTypeAction[]>;
+    // Policies associated with the AWS authorization system type.
     policies?: NullableOption<AwsPolicy[]>;
+    // Resources associated with the authorization system type.
     resources?: NullableOption<AwsAuthorizationSystemResource[]>;
+    // Services associated with the authorization system type.
     services?: NullableOption<AuthorizationSystemTypeService[]>;
 }
 export interface AuthorizationSystemTypeAction extends Entity {
+    /**
+     * The type of action allowed in the authorization system's service. The possible values are: delete, read,
+     * unknownFutureValue. Supports $filter and (eq).
+     */
     actionType?: NullableOption<AuthorizationSystemActionType>;
+    // The display name of an action. Read-only. Supports $filter and (eq).
     externalId?: string;
+    // The resource types in the authorization system's service where the action can be performed. Supports $filter and (eq).
     resourceTypes?: NullableOption<string[]>;
+    /**
+     * The severity of the action in the authorization systems' service. The possible values are: normal, high,
+     * unknownFutureValue.
+     */
     severity?: AuthorizationSystemActionSeverity;
 }
 export interface AwsAuthorizationSystemTypeAction extends AuthorizationSystemTypeAction {
+    // The service associated with the action in an AWS authorization system. This object auto-expanded.
     service?: AuthorizationSystemTypeService;
 }
 export interface AwsPolicy extends Entity {
+    /**
+     * The type of the AWS policy. The possible values are: system, custom, unknownFutureValue. Read-only. Supports $filter
+     * and (eq).
+     */
     awsPolicyType?: AwsPolicyType;
+    // The display name for the AWS policy. Read-only. Supports $filter and (eq,contains).
     displayName?: string;
+    // The base64 encoded identifier for the AWS policy as defined by AWS. Read-only. Alternate key. Supports $filter and eq.
     externalId?: string;
 }
 export interface AuthorizationSystemResource extends Entity {
+    // The name of the resource. Read-only. Supports $filter (eq,contains).
     displayName?: NullableOption<string>;
+    // The ID of the resource as defined by the authorization system provider. Read-only. Supports $filter (eq).
     externalId?: string;
+    // The type of the resource. Read-only. Supports $filter (eq).
     resourceType?: NullableOption<string>;
+    // The authorization system that the resource exists in.
     authorizationSystem?: NullableOption<AuthorizationSystem>;
 }
 export interface AwsAuthorizationSystemResource extends AuthorizationSystemResource {
+    // The service associated with the resource in an AWS authorization system. This is auto-expanded.
     service?: NullableOption<AuthorizationSystemTypeService>;
 }
 export interface AuthorizationSystemTypeService extends Entity {
+    // List of actions for the service in an authorization system that is onboarded to Permissions Management.
     actions?: NullableOption<AuthorizationSystemTypeAction[]>;
 }
 export interface AzureAuthorizationSystem extends AuthorizationSystem {
+    // Identities in the authorization system.
     associatedIdentities?: NullableOption<AzureAssociatedIdentities>;
+    // List of actions for service in authorization system.
     actions?: NullableOption<AzureAuthorizationSystemTypeAction[]>;
+    // Resources associated with the authorization system type.
     resources?: NullableOption<AzureAuthorizationSystemResource[]>;
+    // Roles associated with the authorization system type.
     roleDefinitions?: NullableOption<AzureRoleDefinition[]>;
+    // Services associated with the authorization system type.
     services?: NullableOption<AuthorizationSystemTypeService[]>;
 }
 export interface AzureAuthorizationSystemTypeAction extends AuthorizationSystemTypeAction {
+    // The service associated with the action in an Azure authorization system. This object is auto-expanded.
     service?: AuthorizationSystemTypeService;
 }
 export interface AzureAuthorizationSystemResource extends AuthorizationSystemResource {
+    // The service associated with the resource in an Azure authorization system. This object is auto-expanded.
     service?: NullableOption<AuthorizationSystemTypeService>;
 }
 export interface AzureRoleDefinition extends Entity {
+    // Scopes at which the Azure role can be assigned. Supports $filter and (eq).
     assignableScopes?: string[];
+    // Type of Azure role. The possible values are: system, custom, unknownFutureValue. Supports $filter and (eq).
     azureRoleDefinitionType?: AzureRoleDefinitionType;
+    // Name of the Azure role. Supports $filter and (eq,contains).
     displayName?: string;
+    // Identifier of an Azure role defined by Microsoft Azure. Alternate key. Supports $filter and eq.
     externalId?: string;
 }
 export interface GcpAuthorizationSystem extends AuthorizationSystem {
+    // Identities in the authorization system.
     associatedIdentities?: NullableOption<GcpAssociatedIdentities>;
+    // List of actions for service in authorization system.
     actions?: NullableOption<GcpAuthorizationSystemTypeAction[]>;
+    // Resources associated with the authorization system type.
     resources?: NullableOption<GcpAuthorizationSystemResource[]>;
+    // Roles associated with the authorization system type.
     roles?: NullableOption<GcpRole[]>;
+    // Services associated with the authorization system type.
     services?: NullableOption<AuthorizationSystemTypeService[]>;
 }
 export interface GcpAuthorizationSystemTypeAction extends AuthorizationSystemTypeAction {
+    // The service associated with the action in an GCP authorization system. Ths is auto-expanded.
     service?: AuthorizationSystemTypeService;
 }
 export interface GcpAuthorizationSystemResource extends AuthorizationSystemResource {
+    // The service associated with the resource in an GCP authorization system. This object is auto-expanded.
     service?: NullableOption<AuthorizationSystemTypeService>;
 }
 export interface GcpRole extends Entity {
+    // The name of the GCP role. Supports $filter and (eq,contains).
     displayName?: string;
+    // The ID of the GCP role as defined by GCP. Alternate key.
     externalId?: string;
+    // The type of GCP role. The possible values are: system, custom, unknownFutureValue. Supports $filter and (eq).
     gcpRoleType?: GcpRoleType;
+    // Resources that an identity assigned this GCP role can perform actions on. Supports $filter and (eq).
     scopes?: NullableOption<GcpScope[]>;
 }
 export interface AuthorizationSystemIdentity extends Entity {
+    // The name of the identity. Read-only. Supports $filter and (eq,contains).
     displayName?: NullableOption<string>;
+    // Unique ID of the identity within the external system. Read-only.
     externalId?: string;
+    // Represents details of the source of the identity.
     source?: NullableOption<AuthorizationSystemIdentitySource>;
+    // Navigation to the authorizationSystem object
     authorizationSystem?: NullableOption<AuthorizationSystem>;
 }
 // tslint:disable-next-line: no-empty-interface
 export interface AwsIdentity extends AuthorizationSystemIdentity {}
 export interface AwsRole extends AwsIdentity {
+    // Indicates whether role is a system or custom role. Supports $filter (eq).
     roleType?: AwsRoleType;
+    // Types of role trusts. The possible values are: none, service, sso, crossAccount, webIdentity, unknownFutureValue.
     trustEntityType?: AwsRoleTrustEntityType;
 }
 export interface AwsUser extends AwsIdentity {
+    // Roles assumed by the user.
     assumableRoles?: NullableOption<AwsRole[]>;
 }
 // tslint:disable-next-line: no-empty-interface
@@ -36695,104 +36805,226 @@ export interface GcpServiceAccount extends GcpIdentity {}
 // tslint:disable-next-line: no-empty-interface
 export interface GcpUser extends GcpIdentity {}
 export interface AwsAccessKey extends AwsIdentity {
+    // Represents the owner of the access key.
     owner?: NullableOption<AwsUser>;
 }
 export interface AwsEc2Instance extends AwsIdentity {
+    // Represents the resources in an authorization system.
     resource?: NullableOption<AwsAuthorizationSystemResource>;
 }
 // tslint:disable-next-line: no-empty-interface
 export interface AwsGroup extends AwsIdentity {}
 export interface AwsLambda extends AwsIdentity {
+    // Represents the resources in an authorization system..
     resource?: NullableOption<AwsAuthorizationSystemResource>;
 }
 // tslint:disable-next-line: no-empty-interface
 export interface AzureGroup extends AzureIdentity {}
 export interface AzureServerlessFunction extends AzureIdentity {
+    // Represents the resources in an authorization system.
     resource?: NullableOption<AzureAuthorizationSystemResource>;
 }
 export interface GcpCloudFunction extends GcpIdentity {
+    // Represents the resources in an authorization system..
     resource?: NullableOption<GcpAuthorizationSystemResource>;
 }
 // tslint:disable-next-line: no-empty-interface
 export interface GcpGroup extends GcpIdentity {}
 export interface AssignedComputeInstanceDetails extends Entity {
+    // Represents a set of S3 buckets accessed by this EC2 instance.
     accessedStorageBuckets?: NullableOption<AuthorizationSystemResource[]>;
+    // assigned EC2 instance.
     assignedComputeInstance?: NullableOption<AuthorizationSystemResource>;
 }
 export interface Finding extends Entity {
+    // Defines when the finding was created.
     createdDateTime?: string;
 }
 export interface AwsExternalSystemAccessFinding extends Finding {
+    /**
+     * Specifies if the system can be accessed directly, via role chaining, or both. The possible values are: direct,
+     * roleChaining, unknownFutureValue. Supports $filter (eq).
+     */
     accessMethods?: ExternalSystemAccessMethods;
     systemWithAccess?: AuthorizationSystemInfo;
+    // The number of identities in the external system that are trusted, if not all. Supports $orderby.
     trustedIdentityCount?: NullableOption<number>;
+    // Flag that determines if all identities in the external system are trusted, or only a subset.
     trustsAllIdentities?: boolean;
+    /**
+     * The system that can be accessed from an external system. Supports $orderby (affectedSystem/authorizationSystemName) and
+     * $filter as follows: $filter=affectedSystem/authorizationSystemId IN ['authorizationSystemIds']
+     */
     affectedSystem?: AuthorizationSystem;
 }
 export interface AwsExternalSystemAccessRoleFinding extends Finding {
+    // The IDs of the accounts that this role is able to access.
     accessibleSystemIds?: NullableOption<string[]>;
+    /**
+     * A score for an identity's excessive permissions that is classified into three buckets: 0-33: low, 34-66: medium,
+     * 67-100: high. This property and its values are a snapshot as of when the finding was created and might not reflect the
+     * current score for the identity. Supports $filter (gt) and $orderby.
+     */
     permissionsCreepIndex?: PermissionsCreepIndex;
+    /**
+     * The role that has access to external accounts. Supports $orderby (for role/displayName) and $filter as follows:
+     * $filter=role/authorizationSystem/authorizationSystemId IN ['authorizationSystemIds'] and
+     * $filter=role/authorizationSystem/authorizationSystemName eq 'authsystemname'. Autoexpanded by default.
+     */
     role?: AwsRole;
 }
 export interface AwsIdentityAccessManagementKeyAgeFinding extends Finding {
+    /**
+     * Contains information on authorization system actions granted to an identity and actions executed by this identity in
+     * the last 90 days. This property and its values are a snapshot as of when the finding was created and may not reflect
+     * the current values for the identity
+     */
     actionSummary?: ActionSummary;
     awsAccessKeyDetails?: NullableOption<AwsAccessKeyDetails>;
+    /**
+     * A score for an identity's excessive permissions that is classified into three buckets: 0-33: low, 34-66: medium,
+     * 67-100: high. This property and its values are a snapshot as of when the finding was created and might not reflect the
+     * current score for the identity. Supports $filter (gt) and $orderby.
+     */
     permissionsCreepIndex?: PermissionsCreepIndex;
+    // Status of the Iam Access Key. The possible values are: active, inactive, disabled, unknownFutureValue.
     status?: IamStatus;
+    /**
+     * Represents the Aws access key in an authorization system. Note, because of a limit in our current data model, we do not
+     * have all of the standard identity information for the access key's owner.
+     */
     accessKey?: AwsAccessKey;
 }
 export interface AwsIdentityAccessManagementKeyUsageFinding extends Finding {
+    /**
+     * Contains information on authorization system actions granted to an identity and actions executed by this identity in
+     * the last 90 days. This property and its values are a snapshot as of when the finding was created and may not reflect
+     * the current values for the identity.
+     */
     actionSummary?: ActionSummary;
     awsAccessKeyDetails?: NullableOption<AwsAccessKeyDetails>;
+    /**
+     * A score for an identity's excessive permissions that is classified into three buckets: 0-33: low, 34-66: medium,
+     * 67-100: high. This property and its values are a snapshot as of when the finding was created and might not reflect the
+     * current score for the identity. Supports $filter (gt) and $orderby.
+     */
     permissionsCreepIndex?: PermissionsCreepIndex;
+    // Status of the IAM Access Key. The possible values are: active, inactive, disabled, unknownFutureValue.
     status?: IamStatus;
+    /**
+     * Represents the AWS Access Key in an authorization system. All the standard identity information for the access key's
+     * owner is currently unavailable.
+     */
     accessKey?: AwsAccessKey;
 }
 export interface AwsSecretInformationAccessFinding extends Finding {
     identityDetails?: NullableOption<IdentityDetails>;
+    /**
+     * A score for an identity's excessive permissions that is classified into three buckets: 0-33: low, 34-66: medium,
+     * 67-100: high. This property and its values are a snapshot as of when the finding was created and might not reflect the
+     * current score for the identity. Supports $filter (gt) and $orderby.
+     */
     permissionsCreepIndex?: PermissionsCreepIndex;
+    /**
+     * AWS secret stores which can be accessed by the user, role, resource or serverless function.The possible values are:
+     * secretsManager, certificateAuthority, cloudHsm, certificateManager, unknownFutureValue. Supports $filter (has).
+     */
     secretInformationWebServices?: AwsSecretInformationWebServices;
+    /**
+     * Represents an identity in an authorization system onboarded to Permissions Management. Inherited from identityFinding.
+     * Autoexpanded by default. Supports $filter as follows: $filter=identity/authorizationSystem/authorizationSystemId IN
+     * ('id1', 'id2').
+     */
     identity?: AuthorizationSystemIdentity;
 }
 export interface AwsSecurityToolAdministrationFinding extends Finding {
     identityDetails?: NullableOption<IdentityDetails>;
+    /**
+     * A score for an identity's excessive permissions that is classified into three buckets: 0-33: low, 34-66: medium,
+     * 67-100: high. This property and its values are a snapshot as of when the finding was created and might not reflect the
+     * current score for the identity. Supports $filter (gt) and $orderby.
+     */
     permissionsCreepIndex?: PermissionsCreepIndex;
+    /**
+     * AWS security tools which can be administered by the user, role, resource or serverless function.The possible values
+     * are: macie, wafShield, cloudTrail, inspector, securityHub, detective, guardDuty, unknownFutureValue. Supports $filter
+     * (has).
+     */
     securityTools?: AwsSecurityToolWebServices;
+    /**
+     * Represents an identity in an authorization system onboarded to Permissions Management. Inherited from identityFinding.
+     * Autoexpanded by default. Supports $filter as follows: $filter=identity/authorizationSystem/authorizationSystemId IN
+     * ['authorizationSystemIds'].
+     */
     identity?: AuthorizationSystemIdentity;
 }
 export interface EncryptedAwsStorageBucketFinding extends Finding {
+    // Aws resources access type. The possible values are: public, restricted, crossAccount, private, unknownFutureValue.
     accessibility?: AwsAccessType;
+    // Represents a resource in an AWS authorization system.
     storageBucket?: AuthorizationSystemResource;
 }
 export interface EncryptedAzureStorageAccountFinding extends Finding {
+    /**
+     * Specifies who manages encryption of Azure storage accounts. The possible values are: microsoftStorage,
+     * microsoftKeyVault, customer, unknownFutureValue.
+     */
     encryptionManagedBy?: AzureEncryption;
+    // Represents a resource in an Azure authorization system.
     storageAccount?: AuthorizationSystemResource;
 }
 export interface EncryptedGcpStorageBucketFinding extends Finding {
+    // GCP resources access type. The possible values are: public, subjectToObjectAcls, private, unknownFutureValue.
     accessibility?: GcpAccessType;
+    // Specifies who manages encryption of GCP storage buckets. The possible values are: google, customer, unknownFutureValue.
     encryptionManagedBy?: GcpEncryption;
+    // Represents a resource in an GCP authorization system.
     storageBucket?: AuthorizationSystemResource;
 }
 export interface ExternallyAccessibleAwsStorageBucketFinding extends Finding {
+    // Aws resources access type.The possible values are: public, restricted, crossAccount, private, unknownFutureValue.
     accessibility?: AwsAccessType;
+    // Contains information on external Aws accounts that have access to a storage bucket
     accountsWithAccess?: AccountsWithAccess;
+    // Represents a resource in an authorization system
     storageBucket?: AuthorizationSystemResource;
 }
 export interface ExternallyAccessibleAzureBlobContainerFinding extends Finding {
+    // resources access type.The possible values are: public, private, unknownFutureValue.
     accessibility?: AzureAccessType;
+    /**
+     * Specifies who manages encryption of Azure storage accounts.The possible values are: microsoftStorage,
+     * microsoftKeyVault, customer, unknownFutureValue.
+     */
     encryptionManagedBy?: AzureEncryption;
+    // Represents a resource in an authorization system
     storageAccount?: AuthorizationSystemResource;
 }
 export interface ExternallyAccessibleGcpStorageBucketFinding extends Finding {
+    // GCP resources access type. The possible values are: public, subjectToObjectAcls, private, unknownFutureValue.
     accessibility?: GcpAccessType;
+    // Specifies who manages encryption of GCP storage buckets.The possible values are: google, customer, unknownFutureValue.
     encryptionManagedBy?: GcpEncryption;
+    // Represents a resource in an GCP authorization system.
     storageBucket?: AuthorizationSystemResource;
 }
 // tslint:disable-next-line: interface-name
 export interface IdentityFinding extends Finding {
+    /**
+     * Contains information on authorization system actions granted to an identity and actions executed by this identity in
+     * the last 90 days. This property and its values are a snapshot as of when the finding was created and might not reflect
+     * the current values for the identity. Inherited from identityFinding.
+     */
     actionSummary?: ActionSummary;
+    // An identity's information details.
     identityDetails?: NullableOption<IdentityDetails>;
+    /**
+     * A score for an identity's excessive permissions that is classified into three buckets: 0-33: low, 34-66: medium,
+     * 67-100: high. This property and its values are a snapshot as of when the finding was created and might not reflect the
+     * current score for the identity. Supports $filter (gt) and $orderby.
+     */
     permissionsCreepIndex?: PermissionsCreepIndex;
+    // epresents an identity in an authorization system onboarded to Permissions Management. Autoexpanded by default.
     identity?: AuthorizationSystemIdentity;
 }
 // tslint:disable-next-line: interface-name no-empty-interface
@@ -36805,8 +37037,19 @@ export interface InactiveAzureServicePrincipalFinding extends IdentityFinding {}
 export interface InactiveGcpServiceAccountFinding extends IdentityFinding {}
 // tslint:disable-next-line: interface-name
 export interface InactiveGroupFinding extends Finding {
+    /**
+     * Contains information on authorization system actions granted to this group identity and actions executed by this group
+     * identity in the last 90 days. This property and its values are a snapshot as of when the finding was created and may
+     * not reflect the current values for the group identity.
+     */
     actionSummary?: ActionSummary;
+    /**
+     * A score for an identity's excessive permissions that is classified into three buckets: 0-33: low, 34-66: medium,
+     * 67-100: high. This property and its values are a snapshot as of when the finding was created and might not reflect the
+     * current score for the identity. Supports $filter (gt) and $orderby.
+     */
     permissionsCreepIndex?: PermissionsCreepIndex;
+    // Represents an identity in an authorization system that you've onboarded to Permissions Management.
     group?: AuthorizationSystemIdentity;
 }
 // tslint:disable-next-line: interface-name no-empty-interface
@@ -36814,15 +37057,25 @@ export interface InactiveServerlessFunctionFinding extends IdentityFinding {}
 // tslint:disable-next-line: interface-name no-empty-interface
 export interface InactiveUserFinding extends IdentityFinding {}
 export interface OpenAwsSecurityGroupFinding extends Finding {
+    // Contains information on inbound ports related to an open security group. Supports $filter (eq) $select.
     inboundPorts?: InboundPorts;
+    // The number of storage buckets accessed by the assigned compute instances.
     totalStorageBucketCount?: number;
+    // A set of AWS EC2 compute instances related to this open security group.
     assignedComputeInstancesDetails?: NullableOption<AssignedComputeInstanceDetails[]>;
+    // Represents a resource in an AWS authorization system.
     securityGroup?: AwsAuthorizationSystemResource;
 }
 export interface OpenNetworkAzureSecurityGroupFinding extends Finding {
+    // Contains information on inbound ports related to an open security group.
     inboundPorts?: InboundPorts;
+    // Represents a resource in an authorization system.
     securityGroup?: AuthorizationSystemResource;
-    virtualMachines?: NullableOption<AuthorizationSystemResource[]>;
+    // Represents a virtual machine in an authorization system.
+    virtualMachines?: NullableOption<VirtualMachineDetails[]>;
+}
+export interface VirtualMachineDetails extends Entity {
+    virtualMachine?: NullableOption<AuthorizationSystemResource>;
 }
 // tslint:disable-next-line: no-empty-interface
 export interface OverprovisionedAwsResourceFinding extends IdentityFinding {}
@@ -36837,26 +37090,54 @@ export interface OverprovisionedServerlessFunctionFinding extends IdentityFindin
 // tslint:disable-next-line: no-empty-interface
 export interface OverprovisionedUserFinding extends IdentityFinding {}
 export interface PermissionsAnalytics extends Entity {
+    /**
+     * The output of the permissions usage data analysis performed by Permissions Management to assess risk with identities
+     * and resources.
+     */
     findings?: NullableOption<Finding[]>;
+    /**
+     * Represents the Permissions Creep Index (PCI) for the authorization system. PCI distribution chart shows the
+     * classification of human and nonhuman identities based on the PCI score in three buckets (low, medium, high).
+     */
     permissionsCreepIndexDistributions?: NullableOption<PermissionsCreepIndexDistribution[]>;
 }
 export interface PermissionsCreepIndexDistribution extends Entity {
+    // Defines when the PCI distribution was created.
     createdDateTime?: string;
+    // Defines the human and non-human identities in a high-risk bucket.
     highRiskProfile?: RiskProfile;
+    // Defines the human and nonhuman identities in the low-risk bucket.
     lowRiskProfile?: RiskProfile;
+    // Defines human and nonhuman identities in the medium-risk bucket.
     mediumRiskProfile?: RiskProfile;
+    // Represents an authorization system onboarded to Permissions Management.
     authorizationSystem?: AuthorizationSystem;
 }
 export interface PrivilegeEscalation extends Entity {
+    // A detailed description of the privilege escalation.
     description?: string;
+    // The name of the policy that defines the escalation
     displayName?: string;
+    // The list of actions that the identity could perform.
     actions?: NullableOption<AuthorizationSystemTypeAction[]>;
+    // The list of resources that the identity could perform actions on.
     resources?: NullableOption<AuthorizationSystemResource[]>;
 }
 export interface PrivilegeEscalationFinding extends Finding {
+    // An identity's information details. Inherited from finding.
     identityDetails?: NullableOption<IdentityDetails>;
+    /**
+     * A score for an identity's excessive permissions that is classified into three buckets: 0-33: low, 34-66: medium,
+     * 67-100: high. This property and its values are a snapshot as of when the finding was created and might not reflect the
+     * current score for the identity. Supports $filter (gt) and $orderby.
+     */
     permissionsCreepIndex?: PermissionsCreepIndex;
+    /**
+     * Represents an identity in an authorization system onboarded to Permissions Management. Inherited from identityFinding.
+     * Autoexpanded by default.
+     */
     identity?: AuthorizationSystemIdentity;
+    // The list of escalations that the identity is capable of performing.
     privilegeEscalationDetails?: NullableOption<PrivilegeEscalation[]>;
 }
 // tslint:disable-next-line: no-empty-interface
@@ -36898,21 +37179,38 @@ export interface SuperUserFinding extends IdentityFinding {}
 // tslint:disable-next-line: no-empty-interface
 export interface UnenforcedMfaAwsUserFinding extends IdentityFinding {}
 export interface VirtualMachineWithAwsStorageBucketAccessFinding extends Finding {
-    // The total number of storage buckets that the EC2 instance can access using the role
+    // The total number of storage buckets that the EC2 instance can access using the role.
     accessibleCount?: number;
-    // The total number of storage buckets in the authorization system that host the EC2 instance
+    // The total number of storage buckets in the authorization system that hosts the EC2 instance.
     bucketCount?: number;
+    /**
+     * A score for an identity's excessive permissions that is classified into three buckets: 0-33: low, 34-66: medium,
+     * 67-100: high. This property and its values are a snapshot as of when the finding was created and might not reflect the
+     * current score for the identity. Supports $filter (gt) and $orderby.
+     */
     permissionsCreepIndex?: PermissionsCreepIndex;
+    // The AWS EC2 instance that is assigned using the role.
     ec2Instance?: AuthorizationSystemResource;
+    /**
+     * Represents an AWS role. Supports $filter as follows: $filter=role/authorizationSystem/authorizationSystemId IN
+     * ('authorizationSystemIds').
+     */
     role?: AwsRole;
 }
 export interface AwsStatement {
+    // The AWS actions.
     actions?: string[];
+    // The AWS conditions associated with the statement.
     condition?: NullableOption<AwsCondition>;
+    // The AWS action effect, whether to allow or deny. The possible values are: allow, deny, unknownFutureValue.
     effect?: AwsStatementEffect;
+    // AWS Not Actions
     notActions?: string[];
+    // AWS Not Resources
     notResources?: string[];
+    // The AWS resources associated with the statement.
     resources?: string[];
+    // The ID of the AWS statement.
     statementId?: string;
 }
 // tslint:disable-next-line: no-empty-interface
@@ -36922,24 +37220,54 @@ export interface PermissionsDefinitionAzureRole extends Entity {}
 // tslint:disable-next-line: no-empty-interface
 export interface PermissionsDefinitionGcpRole extends Entity {}
 export interface PermissionsDefinitionAuthorizationSystemIdentity {
+    /**
+     * Unique ID of the identity within the external system. Prefixed with rsn: if this is a SAML or ED user in AWS. Alternate
+     * key.
+     */
     externalId?: string;
+    /**
+     * The type of identity that is assigned the permission in the authorization system. The possible values are: user, role,
+     * application, managedIdentity, serviceAccount, unknownFutureValue.
+     */
     identityType?: PermissionsDefinitionIdentityType;
+    // The source system for the identity.
     source?: PermissionsDefinitionIdentitySource;
 }
 export interface PermissionsRequestChange extends Entity {
+    /**
+     * The status of the active occurence of the schedule if one exists. The possible values are: grantingFailed, granted,
+     * granting, revoked, revoking, revokingFailed, unknownFutureValue.
+     */
     activeOccurrenceStatus?: NullableOption<PermissionsRequestOccurrenceStatus>;
+    // Time when the change occurred.
     modificationDateTime?: string;
+    // The ID of the scheduledPermissionsRequest object.
     permissionsRequestId?: string;
+    /**
+     * The status that the request changed to. The possible values are: submitted, approved, completed, canceled, rejected,
+     * unknownFutureValue.
+     */
     statusDetail?: StatusDetail;
+    // Represents the ticketing system identifier.
     ticketId?: NullableOption<string>;
 }
 export interface ScheduledPermissionsRequest extends Entity {
+    // Defines when the identity created the request.
     createdDateTime?: string;
+    // The identity's justification for the request.
     justification?: NullableOption<string>;
+    // Additional context for the permissions request.
     notes?: NullableOption<string>;
+    // The permissions requested.
     requestedPermissions?: PermissionsDefinition;
+    // When to assign the requested permissions.
     scheduleInfo?: NullableOption<RequestSchedule>;
+    /**
+     * The current status of the request. The possible values are: submitted, approved, completed, canceled, rejected,
+     * unknownFutureValue.
+     */
     statusDetail?: StatusDetail;
+    // Ticketing-related metadata that you can use to correlate to the request.
     ticketInfo?: NullableOption<TicketInfo>;
 }
 export interface Account {
@@ -37883,11 +38211,12 @@ export interface PlannerBucket extends PlannerDelta {
 }
 export interface PlannerPlan extends PlannerDelta {
     /**
-     * Identifies the container of the plan. Specify only the url, the containerId and type, or all properties. After it's
-     * set, this property can’t be updated. Required.
+     * Identifies the container of the plan. Either specify all properties, or specify only the url, the containerId, and
+     * type. After it's set, this property can’t be updated. It changes when a plan is moved from one container to another,
+     * using plan move to container. Required.
      */
     container?: NullableOption<PlannerPlanContainer>;
-    // Read-only. Additional user experiences in which this plan is used, represented as plannerPlanContext entries.
+    // Read-only. Other user experiences in which this plan is used, represented as plannerPlanContext entries.
     contexts?: NullableOption<PlannerPlanContextCollection>;
     // Read-only. The user who created the plan.
     createdBy?: NullableOption<IdentitySet>;
@@ -37905,7 +38234,7 @@ export interface PlannerPlan extends PlannerDelta {
     title?: string;
     // Collection of buckets in the plan. Read-only. Nullable.
     buckets?: NullableOption<PlannerBucket[]>;
-    // Additional details about the plan. Read-only. Nullable.
+    // Extra details about the plan. Read-only. Nullable.
     details?: NullableOption<PlannerPlanDetails>;
     // Collection of tasks in the plan. Read-only. Nullable.
     tasks?: NullableOption<PlannerTask[]>;
@@ -39916,9 +40245,15 @@ export interface VirtualEvent extends Entity {
     description?: NullableOption<ItemBody>;
     // Display name of the virtual event
     displayName?: NullableOption<string>;
-    // End time of the virtual event.
+    /**
+     * End time of the virtual event. The timeZone property can be set to any of the time zones currently supported by
+     * Windows.
+     */
     endDateTime?: NullableOption<DateTimeTimeZone>;
-    // Start time of the virtual event.
+    /**
+     * Start time of the virtual event. The timeZone property can be set to any of the time zones currently supported by
+     * Windows.
+     */
     startDateTime?: NullableOption<DateTimeTimeZone>;
     // Status of the virtual event. The possible values are: draft, published, canceled, unknownFutureValue.
     status?: NullableOption<VirtualEventStatus>;
@@ -39932,8 +40267,7 @@ export interface VirtualEventWebinar extends VirtualEvent {
     audience?: NullableOption<MeetingAudience>;
     // Identity information of coorganizers of the webinar.
     coOrganizers?: NullableOption<CommunicationsUserIdentity[]>;
-    // Registration configuration of the webinar.
-    registrationConfiguration?: NullableOption<VirtualEventRegistrationConfiguration>;
+    registrationConfiguration?: NullableOption<VirtualEventWebinarRegistrationConfiguration>;
     // Registration records of the webinar.
     registrations?: NullableOption<VirtualEventRegistration[]>;
 }
@@ -39951,8 +40285,15 @@ export interface VirtualEventSession extends OnlineMeetingBase {
     endDateTime?: NullableOption<DateTimeTimeZone>;
     startDateTime?: NullableOption<DateTimeTimeZone>;
     presenters?: NullableOption<VirtualEventPresenter[]>;
-    // Registration records of this virtual event session.
     registrations?: NullableOption<VirtualEventRegistration[]>;
+}
+export interface VirtualEventRegistrationQuestionBase extends Entity {
+    displayName?: NullableOption<string>;
+    isRequired?: NullableOption<boolean>;
+}
+export interface VirtualEventRegistratioCustomQuestion extends VirtualEventRegistrationQuestionBase {
+    answerChoices?: NullableOption<string[]>;
+    answerInputType?: NullableOption<VirtualEventRegistrationQuestionAnswerInputType>;
 }
 export interface VirtualEventRegistration extends Entity {
     /**
@@ -39975,14 +40316,10 @@ export interface VirtualEventRegistration extends Entity {
     registrationDateTime?: NullableOption<string>;
     // The registrant's answer to the registration questions.
     registrationQuestionAnswers?: NullableOption<VirtualEventRegistrationQuestionAnswer[]>;
-    /**
-     * Registration status of the registrant. Read-only. Possible values are: registered, canceled, waitlisted,
-     * pendingApproval, rejectedByOrganizer, unknownFutureValue.
-     */
+    // Registration status of the registrant. Read-only.
     status?: NullableOption<VirtualEventAttendeeRegistrationStatus>;
     // The registrant's ID in Microsoft Entra ID. Only appears when the registrant is registered in Microsoft Entra ID.
     userId?: NullableOption<string>;
-    // Sessions of the webinar.
     sessions?: NullableOption<VirtualEventSession[]>;
 }
 export interface VirtualEventRegistrationConfiguration extends Entity {
@@ -39991,17 +40328,10 @@ export interface VirtualEventRegistrationConfiguration extends Entity {
     // Registration URL of the virtual event.
     registrationWebUrl?: NullableOption<string>;
     // Registration questions.
-    questions?: NullableOption<VirtualEventRegistrationQuestion[]>;
+    questions?: NullableOption<VirtualEventRegistrationQuestionBase[]>;
 }
-export interface VirtualEventRegistrationQuestion extends Entity {
-    // Answer choices when answerInputType is singleChoice or multiChoice.
-    answerChoices?: NullableOption<string[]>;
-    // Input type of the registration question answer.
-    answerInputType?: NullableOption<VirtualEventRegistrationQuestionAnswerInputType>;
-    // Display name of the registration question.
-    displayName?: NullableOption<string>;
-    // Indicates whether the question is required to answer. Default value is false.
-    isRequired?: NullableOption<boolean>;
+export interface VirtualEventRegistrationPredefinedQuestion extends VirtualEventRegistrationQuestionBase {
+    label?: NullableOption<VirtualEventRegistrationPredefinedQuestionLabel>;
 }
 export interface VirtualEventTownhall extends VirtualEvent {
     audience?: NullableOption<MeetingAudience>;
@@ -40661,8 +40991,11 @@ export interface OpenShift extends ChangeTrackedEntity {
     isStagedForDeletion?: NullableOption<boolean>;
     // ID for the scheduling group that the open shift belongs to.
     schedulingGroupId?: NullableOption<string>;
+    schedulingGroupName?: NullableOption<string>;
     // A published open shift.
     sharedOpenShift?: NullableOption<OpenShiftItem>;
+    teamId?: NullableOption<string>;
+    teamName?: NullableOption<string>;
 }
 export interface OpenShiftChangeRequest extends ScheduleChangeRequest {
     // ID for the open shift.
@@ -40915,6 +41248,16 @@ export interface TodoTask extends Entity {
     // A collection of resources linked to the task.
     linkedResources?: NullableOption<LinkedResource[]>;
 }
+export interface GoalsExportJob extends LongRunningOperation {
+    // The content of the goalsExportJob.
+    content?: NullableOption<any>;
+    // The date and time of expiry of the result of the operation.
+    expirationDateTime?: NullableOption<string>;
+    // The unique identifier of the explorer view to be exported.
+    explorerViewId?: NullableOption<string>;
+    // The unique identifier of the viva goals organization.
+    goalsOrganizationId?: NullableOption<string>;
+}
 export interface LearningAssignment extends LearningCourseActivity {
     // Assigned date for the course activity. Optional.
     assignedDateTime?: NullableOption<string>;
@@ -41069,9 +41412,16 @@ export interface EmailSettings {
 }
 // tslint:disable-next-line: interface-name
 export interface Identity {
-    // The display name of the identity. This property is read-only.
+    /**
+     * The display name of the identity. The display name might not always be available or up to date. For example, if a user
+     * changes their display name the API might show the new value in a future response, but the items associated with the
+     * user won't show up as having changed when using delta.
+     */
     displayName?: NullableOption<string>;
-    // The identifier of the identity. This property is read-only.
+    /**
+     * Unique identifier for the identity. When the unique identifier is unavailable, the displayName property is provided for
+     * the identity, but the id property isn't included in the response.
+     */
     id?: NullableOption<string>;
 }
 export interface KeyValuePair {
@@ -42431,11 +42781,11 @@ export interface SamlSingleSignOnSettings {
 }
 // tslint:disable-next-line: interface-name
 export interface IdentitySet {
-    // The Identity of the Application. This property is read-only.
+    // Optional. The application associated with this action.
     application?: NullableOption<Identity>;
-    // The Identity of the Device. This property is read-only.
+    // Optional. The device associated with this action.
     device?: NullableOption<Identity>;
-    // The Identity of the User. This property is read-only.
+    // Optional. The user associated with this action.
     user?: NullableOption<Identity>;
 }
 export interface AuthenticationMethodFeatureConfiguration {
@@ -42575,15 +42925,26 @@ export interface X509CertificateAuthenticationModeConfiguration {
      * x509CertificateMultiFactor, unknownFutureValue.
      */
     x509CertificateAuthenticationDefaultMode?: NullableOption<X509CertificateAuthenticationMode>;
+    /**
+     * Determines the default value for the tenant affinity binding level. The possible values are: low, high,
+     * unknownFutureValue.
+     */
+    x509CertificateDefaultRequiredAffinityLevel?: NullableOption<X509CertificateAffinityLevel>;
 }
 export interface X509CertificateRule {
     // The identifier of the X.509 certificate. Required.
     identifier?: NullableOption<string>;
+    // The identifier of the certificate issuer.
+    issuerSubjectIdentifier?: NullableOption<string>;
+    // The identifier of the X.509 certificate policyOID.
+    policyOidIdentifier?: NullableOption<string>;
     /**
      * The type of strong authentication mode. The possible values are: x509CertificateSingleFactor,
      * x509CertificateMultiFactor, unknownFutureValue. Required.
      */
     x509CertificateAuthenticationMode?: NullableOption<X509CertificateAuthenticationMode>;
+    // The possible values are: low, high, unknownFutureValue.
+    x509CertificateRequiredAffinityLevel?: NullableOption<X509CertificateAffinityLevel>;
     /**
      * The type of the X.509 certificate mode configuration rule. The possible values are: issuerSubject, policyOID,
      * unknownFutureValue, issuerSubjectAndPolicyOID. Note that you must use the Prefer: include-unknown-enum-members request
@@ -42602,6 +42963,8 @@ export interface X509CertificateUserBinding {
      * x509CertificateAuthenticationMethodConfiguration object. Required
      */
     priority?: number;
+    // The affinity level of the username binding rule. The possible values are: low, high, unknownFutureValue.
+    trustAffinityLevel?: NullableOption<X509CertificateAffinityLevel>;
     /**
      * Defines the Microsoft Entra user property of the user object to use for the binding. The possible values are:
      * userPrincipalName, onPremisesUserPrincipalName, email. Required.
@@ -44577,7 +44940,7 @@ export interface DeviceLocalCredential extends Entity {
      */
     passwordBase64?: string;
 }
-export interface AzureAdJoinPolicy {
+export interface AzureADJoinPolicy {
     /**
      * The identifiers of the groups that are in the scope of the policy. Required when the appliesTo property is set to
      * selected.
@@ -45165,16 +45528,16 @@ export interface SelfSignedCertificate {
 }
 export interface ServicePlanInfo {
     /**
-     * The object the service plan can be assigned to. The possible values are:User - service plan can be assigned to
+     * The object the service plan can be assigned to. The possible values are: User - service plan can be assigned to
      * individual users.Company - service plan can be assigned to the entire tenant.
      */
     appliesTo?: NullableOption<string>;
     /**
      * The provisioning status of the service plan. The possible values are:Success - Service is fully provisioned.Disabled -
-     * Service has been disabled.ErrorStatus - The service plan has not been provisioned and is in an error state.PendingInput
-     * - Service is not yet provisioned; awaiting service confirmation.PendingActivation - Service is provisioned but requires
-     * explicit activation by administrator (for example, Intune_O365 service plan)PendingProvisioning - Microsoft has added a
-     * new service to the product SKU and it has not been activated in the tenant, yet.
+     * Service is disabled.Error - The service plan isn't provisioned and is in an error state.PendingInput - The service
+     * isn't provisioned and is awaiting service confirmation.PendingActivation - The service is provisioned but requires
+     * explicit activation by an administrator (for example, Intune_O365 service plan)PendingProvisioning - Microsoft has
+     * added a new service to the product SKU and it isn't activated in the tenant.
      */
     provisioningStatus?: NullableOption<string>;
     // The unique identifier of the service plan.
@@ -49564,10 +49927,7 @@ export interface MacOSIncludedApp {
     bundleVersion?: string;
 }
 export interface MacOsLobAppAssignmentSettings extends MobileAppAssignmentSettings {
-    /**
-     * When TRUE, indicates that the app should be uninstalled when the device is removed from Intune. When FALSE, indicates
-     * that the app will not be uninstalled when the device is removed from Intune.
-     */
+    // Whether or not to uninstall the app when device is removed from Intune.
     uninstallOnDeviceRemoval?: NullableOption<boolean>;
 }
 export interface MacOSLobChildApp {
@@ -50004,10 +50364,7 @@ export interface WindowsPackageInformation {
     minimumSupportedOperatingSystem?: NullableOption<WindowsMinimumOperatingSystem>;
 }
 export interface WindowsUniversalAppXAppAssignmentSettings extends MobileAppAssignmentSettings {
-    /**
-     * If true, uses device execution context for Windows Universal AppX mobile app. Device-context install is not allowed
-     * when this type of app is targeted with Available intent. Defaults to false.
-     */
+    // Whether or not to use device execution context for Windows Universal AppX mobile app.
     useDeviceContext?: boolean;
 }
 export interface WinGetAppAssignmentSettings extends MobileAppAssignmentSettings {
@@ -52530,7 +52887,7 @@ export interface DeviceManagementConfigurationReferenceSettingValue extends Devi
     note?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationReferredSettingInformation {
-    // Setting definition id that is being referred to a setting. Applicable for reusable setting.
+    // Setting definition id that is being referred to a setting. Applicable for reusable setting
     settingDefinitionId?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationSecretSettingValue extends DeviceManagementConfigurationSimpleSettingValue {
@@ -53980,8 +54337,14 @@ export interface ServiceUpdateMessageViewpoint {
 // tslint:disable-next-line: no-empty-interface
 export interface EntitlementsDataCollectionInfo {}
 export interface EntitlementsDataCollection extends EntitlementsDataCollectionInfo {
+    // Last transformation time of entitlements.
     lastCollectionDateTime?: string;
+    /**
+     * Defines whether permissions can be modified in the authorization system. The possible values are: enabled,
+     * notConfigured, noRecentDataCollected, unknownFutureValue.
+     */
     permissionsModificationCapability?: PermissionsModificationCapability;
+    // The entitlements status. The possible values are: online, offline, unknownFutureValue.
     status?: DataCollectionStatus;
 }
 // tslint:disable-next-line: no-empty-interface
@@ -54003,22 +54366,28 @@ export interface GcpAssociatedIdentities {
     users?: NullableOption<GcpUser[]>;
 }
 export interface AuthorizationSystemIdentitySource {
+    // Type of identity provider. Read-only.
     identityProviderType?: NullableOption<string>;
 }
 export interface AadSource extends AuthorizationSystemIdentitySource {
+    // Domain name
     domain?: NullableOption<string>;
 }
 export interface AwsSource extends AuthorizationSystemIdentitySource {
+    // AWS account ID.
     accountId?: NullableOption<string>;
 }
 export interface AzureSource extends AuthorizationSystemIdentitySource {
+    // Azure subscription ID.
     subscriptionId?: NullableOption<string>;
 }
 export interface GcpScope {
+    // Type of GCP resource.
     resourceType?: string;
     service?: AuthorizationSystemTypeService;
 }
 export interface GsuiteSource extends AuthorizationSystemIdentitySource {
+    // Domain name
     domain?: NullableOption<string>;
 }
 // tslint:disable-next-line: no-empty-interface
@@ -54026,8 +54395,11 @@ export interface UnknownSource extends AuthorizationSystemIdentitySource {}
 // tslint:disable-next-line: no-empty-interface
 export interface AccountsWithAccess {}
 export interface ActionSummary {
+    // This is the number of authorization system actions that have been assigned to the identity.
     assigned?: number;
+    // This is the number of authorization system actions that the identity has exercised in the last 90 days.
     available?: number;
+    // This is the maximum number of actions that are available in the authorization system.
     exercised?: number;
 }
 // tslint:disable-next-line: no-empty-interface
@@ -54037,8 +54409,11 @@ export interface InboundPorts {}
 // tslint:disable-next-line: no-empty-interface
 export interface AllInboundPorts extends InboundPorts {}
 export interface AuthorizationSystemInfo {
+    // The type of authorization system.The possible values are: azure, gcp, aws, unknownFutureValue.
     authorizationSystemType?: NullableOption<AuthorizationSystemType>;
+    // Display name for the authorization system.
     displayName?: NullableOption<string>;
+    // Unique identifier for the authorization system.
     id?: NullableOption<string>;
 }
 export interface AwsAccessKeyDetails {
@@ -54049,19 +54424,25 @@ export interface EnumeratedAccountsWithAccess extends AccountsWithAccess {
     accounts?: NullableOption<AuthorizationSystem[]>;
 }
 export interface EnumeratedInboundPorts extends InboundPorts {
+    // Collection of ports that allow inbound traffic.
     ports?: NullableOption<string[]>;
 }
 // tslint:disable-next-line: interface-name
 export interface IdentityDetails {
+    // A date specifiying when the Identity was created, could be null
     createdDateTime?: NullableOption<string>;
+    // A date specifiying when the Identity was active last time, could be null
     lastActiveDateTime?: NullableOption<string>;
 }
 export interface PermissionsAnalyticsAggregatedIamKeySummary {
     findingsCountOverLimit?: number;
+    // The total number of identities in an authorization system that Permissions Management checked for a specific finding.
     totalCount?: number;
 }
 export interface PermissionsAnalyticsAggregatedIdentitySummary {
+    // The total number of identities of a specific kind that has a specific finding type.
     findingsCount?: number;
+    // The total number of identities in an authorization system that Permissions Management checked for a specific finding.
     totalCount?: number;
 }
 export interface PermissionsAnalyticsAggregatedResourceSummary {
@@ -54069,10 +54450,16 @@ export interface PermissionsAnalyticsAggregatedResourceSummary {
     totalCount?: number;
 }
 export interface PermissionsCreepIndex {
+    /**
+     * This value represents how much risk an identity poses. This risk range is classified in three buckets: 0-33: low,
+     * 34-66: medium, 67-100: high..
+     */
     score?: number;
 }
 export interface RiskProfile {
+    // This is the count of human identities that have been assigned to this riskScoreBracket,
     humanCount?: number;
+    // This is the count of nonhuman identities that have been assigned to this riskScoreBracket
     nonHumanCount?: number;
 }
 // tslint:disable-next-line: no-empty-interface
@@ -54080,6 +54467,7 @@ export interface PermissionsDefinitionAction {}
 // tslint:disable-next-line: no-empty-interface
 export interface AwsPermissionsDefinitionAction extends PermissionsDefinitionAction {}
 export interface AwsActionsPermissionsDefinitionAction extends AwsPermissionsDefinitionAction {
+    // Defines AWS statements.
     assignToRoleId?: NullableOption<string>;
     statements?: NullableOption<AwsStatement[]>;
 }
@@ -54088,26 +54476,33 @@ export interface AwsCondition {}
 // tslint:disable-next-line: no-empty-interface
 export interface PermissionsDefinitionIdentitySource {}
 export interface AwsIdentitySource extends PermissionsDefinitionIdentitySource {
+    // Authorization system information of the source of the user.
     authorizationSystemInfo?: PermissionsDefinitionAuthorizationSystem;
 }
 export interface PermissionsDefinitionAuthorizationSystem {
+    // ID of the authorization system retrieved from the customer cloud environment.
     authorizationSystemId?: string;
+    // The type of authorization system.
     authorizationSystemType?: string;
 }
 export interface PermissionsDefinition {
+    // Information relating to the authorization system and permissions assigned.
     authorizationSystemInfo?: PermissionsDefinitionAuthorizationSystem;
     identityInfo?: PermissionsDefinitionAuthorizationSystemIdentity;
 }
 export interface AwsPermissionsDefinition extends PermissionsDefinition {
+    // The actions the identity will have as part of the permission.
     actionInfo?: AwsPermissionsDefinitionAction;
 }
 export interface AwsPolicyPermissionsDefinitionAction extends AwsPermissionsDefinitionAction {
+    // ID for the role.
     assignToRoleId?: NullableOption<string>;
     policies?: NullableOption<PermissionsDefinitionAwsPolicy[]>;
 }
 // tslint:disable-next-line: no-empty-interface
 export interface AzurePermissionsDefinitionAction extends PermissionsDefinitionAction {}
 export interface AzureActionPermissionsDefinitionAction extends AzurePermissionsDefinitionAction {
+    // List of actions relating to the Azure permission.
     actions?: string[];
 }
 export interface AzureRolePermissionsDefinitionAction extends AzurePermissionsDefinitionAction {
@@ -54118,6 +54513,7 @@ export interface EdIdentitySource extends PermissionsDefinitionIdentitySource {}
 // tslint:disable-next-line: no-empty-interface
 export interface GcpPermissionsDefinitionAction extends PermissionsDefinitionAction {}
 export interface GcpActionPermissionsDefinitionAction extends GcpPermissionsDefinitionAction {
+    // List of actions.
     actions?: string[];
 }
 export interface GcpRolePermissionsDefinitionAction extends GcpPermissionsDefinitionAction {
@@ -54128,17 +54524,23 @@ export interface LocalIdentitySource extends PermissionsDefinitionIdentitySource
 // tslint:disable-next-line: no-empty-interface
 export interface SamlIdentitySource extends PermissionsDefinitionIdentitySource {}
 export interface SingleResourceAzurePermissionsDefinition extends PermissionsDefinition {
+    // Information relating to actions defined in the permissions.
     actionInfo?: AzurePermissionsDefinitionAction;
+    // Identifier for the resource.
     resourceId?: string;
 }
 export interface SingleResourceGcpPermissionsDefinition extends PermissionsDefinition {
+    // Information relating to actions defined in the permissions.
     actionInfo?: GcpPermissionsDefinitionAction;
+    // Identifier for the resource.
     resourceId?: string;
 }
 export interface TicketInfo {
+    // ID for the request approver.
     ticketApproverIdentityId?: NullableOption<string>;
     // The ticket number.
     ticketNumber?: NullableOption<string>;
+    // ID for the request submitter.
     ticketSubmitterIdentityId?: NullableOption<string>;
     // The description of the ticket system.
     ticketSystem?: NullableOption<string>;
@@ -54647,9 +55049,8 @@ export interface PlannerPlanContainer {
     containerId?: NullableOption<string>;
     /**
      * The type of the resource that contains the plan. For supported types, see the previous table. Possible values are:
-     * group, unknownFutureValue, roster, project and driveItem. Note that you must use the Prefer:
-     * include-unknown-enum-members request header to get the following value in this evolvable enum: roster, project,
-     * driveItem. Optional.
+     * group, unknownFutureValue, roster, project, driveItem, and user. You must use the Prefer: include-unknown-enum-members
+     * request header to get the following value in this evolvable enum: roster, project, driveItem, and user. Optional.
      */
     type?: NullableOption<PlannerContainerType>;
     // The full canonical URL of the container. Optional.
@@ -59363,6 +59764,10 @@ export namespace ExternalConnectors {
         | "unknownFutureValue";
     interface External {
         industryData?: NullableOption<IndustryData.IndustryDataRoot>;
+        /**
+         * Represents an onboarded AWS account, Azure subscription, or GCP project that Microsoft Entra Permissions Management
+         * will collect and analyze permissions and actions on.
+         */
         authorizationSystems?: NullableOption<microsoftgraphbeta.AuthorizationSystem[]>;
         connections?: NullableOption<ExternalConnection[]>;
     }
@@ -61486,6 +61891,7 @@ export namespace ManagedTenants {
 export namespace Networkaccess {
     type AggregationFilter = "transactions" | "users" | "devices" | "unknownFutureValue";
     type DeviceCategory = "client" | "branch" | "unknownFutureValue";
+    type FilteringPolicyAction = "block" | "allow" | "unknownFutureValue";
     type NetworkingProtocol =
         | "ip"
         | "icmp"
@@ -61509,6 +61915,13 @@ export namespace Networkaccess {
         | "raw"
         | "spx"
         | "spxII"
+        | "unknownFutureValue";
+    type RemoteNetworkStatus =
+        | "tunnelDisconnected"
+        | "tunnelConnected"
+        | "bgpDisconnected"
+        | "bgpConnected"
+        | "remoteNetworkAlive"
         | "unknownFutureValue";
     type TrafficType = "internet" | "private" | "microsoft365" | "all" | "unknownFutureValue";
     type UsageStatus = "frequentlyUsed" | "rarelyUsed" | "unknownFutureValue";
@@ -61587,14 +62000,52 @@ export namespace Networkaccess {
         | "southAfricaWest"
         | "southAfricaNorth"
         | "uaeNorth"
+        | "australiaEast"
+        | "westCentralUS"
+        | "centralIndia"
+        | "southEastAsia"
+        | "swedenCentral"
+        | "southIndia"
+        | "australiaSouthEast"
+        | "koreaCentral"
+        | "polandCentral"
+        | "brazilSouth"
+        | "japanEast"
+        | "japanWest"
         | "unknownFutureValue";
     type Status = "enabled" | "disabled" | "unknownFutureValue";
     type TrafficForwardingType = "m365" | "internet" | "private" | "unknownFutureValue";
     interface Logs extends microsoftgraphbeta.Entity {
-        // Represents a collection of log entries in the network access traffic log.
+        // A collection of remote network health events.
+        remoteNetworks?: NullableOption<RemoteNetworkHealthEvent[]>;
+        // A network access traffic log entry that contains comprehensive information about network traffic events.
         traffic?: NullableOption<NetworkAccessTraffic[]>;
     }
+    interface RemoteNetworkHealthEvent extends microsoftgraphbeta.Entity {
+        // The number of BGP routes advertised through tunnel.
+        bgpRoutesAdvertisedCount?: NullableOption<number>;
+        // The time of the original event generation in UTC. Supports $filter (ge, le) and $orderby.
+        createdDateTime?: string;
+        // The description of the event.
+        description?: NullableOption<string>;
+        // The IP address of the destination.
+        destinationIp?: NullableOption<string>;
+        // The number of bytes sent from the destination to the source.
+        receivedBytes?: NullableOption<number>;
+        // A unique identifier for each remoteNetwork site. Supports $filter (eq).
+        remoteNetworkId?: string;
+        // The number of bytes sent from the source to the destination for the connection or session.
+        sentBytes?: NullableOption<number>;
+        // The public IP address.
+        sourceIp?: NullableOption<string>;
+        /**
+         * The status of the remote network. The possible values are: tunnelDisconnected, tunnelConnected, bgpDisconnected,
+         * bgpConnected, remoteNetworkAlive, unknownFutureValue.
+         */
+        status?: RemoteNetworkStatus;
+    }
     interface NetworkAccessTraffic {
+        action?: NullableOption<FilteringPolicyAction>;
         // Represents the version of the Global Secure Access client agent software. Supports $filter (eq) and $orderby.
         agentVersion?: NullableOption<string>;
         // Represents a unique identifier assigned to a connection. Supports $filter (eq) and $orderby.
@@ -61616,6 +62067,7 @@ export namespace Networkaccess {
          * and $orderby.
          */
         destinationPort?: NullableOption<number>;
+        destinationWebCategory?: NullableOption<WebCategory>;
         /**
          * Represents the category classification of a device within a network infrastructure. The possible values are: client,
          * branch, unknownFutureValue. Supports $filter (eq) and $orderby.
@@ -61712,6 +62164,16 @@ export namespace Networkaccess {
         // Connectivity represents all the connectivity components in Global Secure Access.
         connectivity?: NullableOption<Connectivity>;
         /**
+         * A filtering policy defines the specific traffic that is allowed or blocked through the Global Secure Access services
+         * for a filtering profile.
+         */
+        filteringPolicies?: NullableOption<FilteringPolicy[]>;
+        /**
+         * A filtering profile associates network access policies with Microsoft Entra ID Conditional Access policies, so that
+         * access policies can be applied to users and groups.
+         */
+        filteringProfiles?: NullableOption<FilteringProfile[]>;
+        /**
          * A forwarding policy defines the specific traffic that is routed through the Global Secure Access Service. It's then
          * added to a forwarding profile.
          */
@@ -61730,6 +62192,7 @@ export namespace Networkaccess {
 // tslint:disable-next-line: no-empty-interface
     interface Reports extends microsoftgraphbeta.Entity {}
     interface Connectivity extends microsoftgraphbeta.Entity {
+        webCategories?: NullableOption<WebCategory[]>;
         // Branches represent locations for connectivity.
         branches?: NullableOption<BranchSite[]>;
     }
@@ -61743,9 +62206,12 @@ export namespace Networkaccess {
         // Represents the definition of the policy ruleset that makes up the core definition of a policy.
         policyRules?: NullableOption<PolicyRule[]>;
     }
-    interface ForwardingPolicy extends Policy {
-        // Traffic type for forwarding policy. The possible values are: m365, internet, private.
-        trafficForwardingType?: TrafficForwardingType;
+    interface FilteringPolicy extends Policy {
+        action?: FilteringPolicyAction;
+        // The date and time when the filtering Policy was originally created.
+        createdDateTime?: string;
+        // The date and time when a particular profile was last modified or updated.
+        lastModifiedDateTime?: string;
     }
     interface Profile extends microsoftgraphbeta.Entity {
         // Description.
@@ -61760,6 +62226,21 @@ export namespace Networkaccess {
         version?: string;
         // Traffic forwarding policies associated with this profile.
         policies?: NullableOption<PolicyLink[]>;
+    }
+    interface FilteringProfile extends Profile {
+        // The date and time when the filteringProfile was created.
+        createdDateTime?: string;
+        // The priority used to order the profile for processing within a list.
+        priority?: number;
+        /**
+         * A set of associated policies defined to regulate access to resources or systems based on specific conditions.
+         * Automatically expanded.
+         */
+        conditionalAccessPolicies?: NullableOption<ConditionalAccessPolicy[]>;
+    }
+    interface ForwardingPolicy extends Policy {
+        // Traffic type for forwarding policy. The possible values are: m365, internet, private.
+        trafficForwardingType?: TrafficForwardingType;
     }
     interface ForwardingProfile extends Profile {
         /**
@@ -61829,6 +62310,7 @@ export namespace Networkaccess {
         region?: Region;
         // The branch version.
         version?: string;
+        // Specifies the connectivity details of all device links associated with a branch.
         connectivityConfiguration?: NullableOption<BranchConnectivityConfiguration>;
         // Each unique CPE device associated with a branch is specified. Supports $expand.
         deviceLinks?: NullableOption<DeviceLink[]>;
@@ -61894,10 +62376,6 @@ export namespace Networkaccess {
         // Teams enriched audit logs settings.
         teams?: NullableOption<EnrichedAuditLogsSettings>;
     }
-    interface ForwardingOptions extends microsoftgraphbeta.Entity {
-        // Dns lookup options. The possible values are: enabled, disabled.
-        skipDnsLookupState?: Status;
-    }
     interface PolicyLink extends microsoftgraphbeta.Entity {
         // Link status. The possible values are: enabled, disabled.
         state?: Status;
@@ -61906,12 +62384,36 @@ export namespace Networkaccess {
         // Policy.
         policy?: Policy;
     }
-// tslint:disable-next-line: no-empty-interface
-    interface ForwardingPolicyLink extends PolicyLink {}
+    interface FilteringPolicyLink extends PolicyLink {
+        // The date and time when the filtering Policy link was created.
+        createdDateTime?: string;
+        // The date and time when the policy was most recently modified.
+        lastModifiedDateTime?: string;
+        loggingState?: Status;
+        priority?: number;
+    }
     interface PolicyRule extends microsoftgraphbeta.Entity {
         // Name.
         name?: string;
     }
+    interface FilteringRule extends PolicyRule {
+        /**
+         * Possible destinations and types of destinations accessed by the user in accordance with the network filtering policy,
+         * such as IP addresses and FQDNs/URLs.
+         */
+        destinations?: NullableOption<RuleDestination[]>;
+        /**
+         * The rule types that specify the basis for filtering. The possible values are url, fqdn, ipAddress, ipRange, ipSubnet,
+         * and webCategory.
+         */
+        ruleType?: NetworkDestinationType;
+    }
+    interface ForwardingOptions extends microsoftgraphbeta.Entity {
+        // Dns lookup options. The possible values are: enabled, disabled.
+        skipDnsLookupState?: Status;
+    }
+// tslint:disable-next-line: no-empty-interface
+    interface ForwardingPolicyLink extends PolicyLink {}
     interface ForwardingRule extends PolicyRule {
         // The action to apply to traffic. The possible values are: bypass, forward, unknownFutureValue.
         action?: ForwardingRuleAction;
@@ -61926,6 +62428,10 @@ export namespace Networkaccess {
          */
         ruleType?: NetworkDestinationType;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface FqdnFilteringRule extends FilteringRule {}
+// tslint:disable-next-line: interface-name no-empty-interface
+    interface InternetAccessForwardingRule extends ForwardingRule {}
     interface M365ForwardingRule extends ForwardingRule {
         /**
          * Defines the category of Office 365 traffic used by a forwarding rule for Microsoft 365 traffic (for example, optimized
@@ -61947,79 +62453,106 @@ export namespace Networkaccess {
     }
 // tslint:disable-next-line: no-empty-interface
     interface PrivateAccessForwardingRule extends ForwardingRule {}
+// tslint:disable-next-line: no-empty-interface
+    interface WebCategoryFilteringRule extends FilteringRule {}
     interface CrossTenantAccess {
+        // The number of devices that accessed the external tenant.
         deviceCount?: number;
+        // The timestamp of the most recent access to the external tenant.
         lastAccessDateTime?: string;
+        // The tenant ID of the external tenant.
         resourceTenantId?: string;
+        // The name of the external tenant.
         resourceTenantName?: NullableOption<string>;
+        // The domain of the external tenant.
         resourceTenantPrimaryDomain?: string;
+        // The usage status of cross-tenant access. The possible values are frequentlyUsed, rarelyUsed, and unknownFutureValue.
         usageStatus?: UsageStatus;
+        // The number of users that accessed the external tenant.
         userCount?: number;
     }
     interface CrossTenantSummary {
-        // Total numbers of authentication sessions in the time frame between startDateTime and endDateTime.
+        // The total number of authentication sessions between startDateTime and endDateTime.
         authTransactionCount?: number;
-        // Count of unique devices that performed cross-tenant access, in the time frame between startDateTime and endDateTime.
+        // The number of unique devices that performed cross-tenant access.
         deviceCount?: number;
         /**
-         * Count of unique tenants that were accessed in the time frame between endDateTime to discoveryPivotDateTime, but haven't
-         * been accessed in the time frame between discoveryPivotDateTime to startDateTime.
+         * The number of unique tenants that were accessed between endDateTime and discoveryPivotDateTime, but weren't accessed
+         * between discoveryPivotDateTime and startDateTime.
          */
         newTenantCount?: number;
         rarelyUsedTenantCount?: number;
-        /**
-         * Count of unique tenants that were accessed, that are different from the device's home tenant, in the time frame between
-         * startDateTime and endDateTime.
-         */
+        // The number of unique tenants that were accessed, not including the device's tenant.
         tenantCount?: number;
-        // Count of unique users that performed cross-tenant access, in the time frame between startDateTime and endDateTime.
+        // The number of unique users that performed cross-tenant access.
         userCount?: number;
     }
     interface Destination {
+        // The number of unique devices that were seen.
         deviceCount?: NullableOption<number>;
+        // The fully qualified domain name (FQDN) of the destination.
         fqdn?: string;
+        // The internet protocol (IP) used to access the destination.
         ip?: string;
+        // The most recent access DateTime.
         lastAccessDateTime?: string;
+        /**
+         * The set of communication rules and conventions that govern data transmission between devices in a network. The possible
+         * values are: ip, icmp, igmp, ggp, ipv4, tcp, pup, udp, idp, ipv6, ipv6RoutingHeader, ipv6FragmentHeader,
+         * ipSecEncapsulatingSecurityPayload, ipSecAuthenticationHeader, icmpV6, ipv6NoNextHeader, ipv6DestinationOptions, nd,
+         * raw, ipx, spx, and spxII.
+         */
         networkingProtocol?: NetworkingProtocol;
+        // The numeric identifier that is associated with a specific endpoint in a network.
         port?: number;
+        // The traffic classification. The possible values are internet, private, microsoft365, and all.
         trafficType?: TrafficType;
+        // The number of transactions.
         transactionCount?: NullableOption<number>;
+        // The number of unique Microsoft Entra ID users that were seen.
         userCount?: NullableOption<number>;
     }
     interface DestinationSummary {
-        // Count of the aggregation.
+        // The number of the destinationSummary objects, aggregated by Global Secure Access service.
         count?: number;
-        // Destination FQDN or IP address.
+        // The IP address or FQDN of the destination.
         destination?: string;
+        // The traffic classification. The allowed values are internet, private, microsoft365, all, and unknownFutureValue.
         trafficType?: NullableOption<TrafficType>;
     }
     interface Device {
+        // A unique device ID.
         deviceId?: string;
+        // The display name for the device.
         displayName?: string;
+        // A value that indicates whether or not the device is compliant.
         isCompliant?: boolean;
+        // The most recent access time for the device.
         lastAccessDateTime?: string;
+        // The operating system on the device.
         operatingSystem?: string;
+        // The traffic classification. The possible values are: internet, private, microsoft365, or all.
         trafficType?: TrafficType;
     }
     interface DeviceUsageSummary {
-        // The number of distinct device IDs in the time frame between endDateTime and discoveryPivotDateTime.
+        // The number of distinct device IDs between the discovery pivot time and the end of the reporting period.
         activeDeviceCount?: number;
         /**
-         * The number of distinct device IDs havn't seen in the time frame between endDateTime and discoveryPivotDateTime but have
-         * seen in the time frame between discoveryPivotDateTime and startDateTime.
+         * The discovery pivot time and the end of the reporting period, but were seen between the start of the reporting period
+         * and the discovery pivot time.
          */
         inactiveDeviceCount?: number;
-        // The number of distinct device IDs in the time frame between startDateTime and endDateTime.
+        // The total number of distinct device IDs that were seen during the reporting period.
         totalDeviceCount?: number;
     }
     interface EntitiesSummary {
-        // Count of unique devices that were seen.
+        // The number of unique devices that were seen.
         deviceCount?: number;
-        // Traffic classification. The possible values are: internet, private, microsoft365, all, unknownFutureValue.
+        // The traffic classification. The possible values are: internet, private, microsoft365, all.
         trafficType?: TrafficType;
-        // Count of unique Microsoft Entra users that were seen.
+        // The number of unique Microsoft Entra ID users that were seen.
         userCount?: number;
-        // Count of unique target workloads or hosts that were seen.
+        // The number of unique target workloads/hosts that were seen.
         workloadCount?: number;
     }
     interface Headers {
@@ -62043,25 +62576,47 @@ export namespace Networkaccess {
         totalTrafficCount?: number;
     }
     interface TransactionSummary {
-        // Count of transactions that were blocked.
+        // The number of transactions that were blocked.
         blockedCount?: number;
-        // Count of transactions.
+        // The total number of transactions.
         totalCount?: number;
-        // Traffic classification. The possible values are: internet, private, microsoft365, all, unknownFutureValue.
+        // The trraffic classification. The possible values are internet, private, microsoft365, and all.
         trafficType?: TrafficType;
     }
     interface User {
+        // User display Name.
         displayName?: string;
+        // The date and time of the most recent access.
         lastAccessDateTime?: string;
+        // The traffic classification. The possible values are internet, private, microsoft365, and all.
         trafficType?: TrafficType;
+        // The ID for the user.
         userId?: string;
+        /**
+         * A unique identifier that is associated with a user in a system or directory. Typically, this value is an email address
+         * that is used for user authentication and identification.
+         */
         userPrincipalName?: string;
+        // The user type. The possible values are member, guest, and unknownFutureValue.
         userType?: UserType;
     }
     interface WebCategoriesSummary {
+        // The number of unique devices that were seen.
         deviceCount?: number;
+        // The number of transactions that were seen.
         transactionCount?: number;
+        // The number of unique Microsoft Entra ID users that were seen.
         userCount?: number;
+        // The website category.
+        webCategory?: WebCategory;
+    }
+    interface WebCategory extends RuleDestination {
+        // The display name for the web category.
+        displayName?: NullableOption<string>;
+        // The group or category to which the web category belongs.
+        group?: NullableOption<string>;
+        // The unique name that is associated with the web category.
+        name?: string;
     }
 // tslint:disable-next-line: no-empty-interface
     interface Association {}
