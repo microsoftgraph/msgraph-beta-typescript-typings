@@ -482,7 +482,8 @@ export type AssociatedAssignmentPayloadType =
     | "deviceFirmwareConfigurationInterfacePolicy"
     | "resourceAccessPolicy"
     | "win32app"
-    | "deviceManagmentConfigurationAndCompliancePolicy";
+    | "deviceManagmentConfigurationAndCompliancePolicy"
+    | "hardwareConfiguration";
 export type AttachmentType = "file" | "item" | "reference";
 export type AttackSimulationOperationType = "createSimualation" | "updateSimulation" | "unknownFutureValue";
 export type AttendeeType = "required" | "optional" | "resource";
@@ -919,11 +920,21 @@ export type CloudAppSecuritySessionControlType =
     | "monitorOnly"
     | "blockDownloads"
     | "unknownFutureValue";
+export type CloudCertificationAuthorityKeyPlatformType =
+    | "unknown"
+    | "software"
+    | "hardwareSecurityModule"
+    | "unknownFutureValue";
 export type CloudPcAuditActivityOperationType = "create" | "delete" | "patch" | "unknownFutureValue";
 export type CloudPcAuditActivityResult = "success" | "clientError" | "failure" | "timeout" | "unknownFutureValue";
 export type CloudPcAuditActorType = "itPro" | "application" | "partner" | "unknownFutureValue";
 export type CloudPcAuditCategory = "cloudPC" | "unknownFutureValue";
 export type CloudPcBulkActionStatus = "pending" | "succeeded" | "failed" | "unknownFutureValue";
+export type CloudPCConnectionQualityReportType =
+    | "remoteConnectionQualityReport"
+    | "regionalConnectionQualityTrendReport"
+    | "regionalConnectionQualityInsightsReport"
+    | "unknownFutureValue";
 export type CloudPcConnectivityEventResult = "unknown" | "success" | "failure" | "unknownFutureValue";
 export type CloudPcConnectivityEventType =
     | "unknown"
@@ -1097,7 +1108,9 @@ export type CloudPcRegionGroup =
     | "unknownFutureValue"
     | "norway"
     | "switzerland"
-    | "southKorea";
+    | "southKorea"
+    | "middleEast"
+    | "mexico";
 export type CloudPcRemoteActionName =
     | "unknown"
     | "restart"
@@ -1130,7 +1143,10 @@ export type CloudPcReportName =
     | "cloudPcUsageCategoryReports"
     | "crossRegionDisasterRecoveryReport"
     | "performanceTrendReport"
-    | "inaccessibleCloudPcTrendReport";
+    | "inaccessibleCloudPcTrendReport"
+    | "regionalConnectionQualityTrendReport"
+    | "regionalConnectionQualityInsightsReport"
+    | "remoteConnectionQualityReport";
 export type CloudPcResizeValidationCode =
     | "success"
     | "cloudPcNotFound"
@@ -1618,6 +1634,7 @@ export type DetectedAppPlatformType =
     | "androidWorkProfile"
     | "androidDedicatedAndFullyManaged"
     | "unknownFutureValue";
+export type DeviceActionCategory = "single" | "bulk";
 export type DeviceAndAppManagementAssignmentFilterType = "none" | "include" | "exclude";
 export type DeviceAndAppManagementAssignmentSource = "direct" | "policySets";
 export type DeviceAppManagementTaskCategory = "unknown" | "advancedThreatProtection";
@@ -3115,7 +3132,7 @@ export type MobileAppContentFileUploadState =
     | "commitFilePending"
     | "commitFileFailed"
     | "commitFileTimedOut";
-export type MobileAppDependencyType = "detect" | "autoInstall";
+export type MobileAppDependencyType = "detect" | "autoInstall" | "unknownFutureValue";
 export type MobileAppIntent =
     | "available"
     | "notAvailable"
@@ -3125,8 +3142,8 @@ export type MobileAppIntent =
     | "availableInstallWithoutEnrollment"
     | "exclude";
 export type MobileAppPublishingState = "notPublished" | "processing" | "published";
-export type MobileAppRelationshipType = "child" | "parent";
-export type MobileAppSupersedenceType = "update" | "replace";
+export type MobileAppRelationshipType = "child" | "parent" | "unknownFutureValue";
+export type MobileAppSupersedenceType = "update" | "replace" | "unknownFutureValue";
 export type MobileThreatDefensePartnerPriority =
     | "defenderOverThirdPartyPartner"
     | "thirdPartyPartnerOverDefender"
@@ -3510,7 +3527,9 @@ export type PlatformType =
     | "windows10X"
     | "windows10"
     | "linux"
-    | "unknownFutureValue";
+    | "unknownFutureValue"
+    | "androidEnterprise"
+    | "aosp";
 export type PlayPromptCompletionReason =
     | "unknown"
     | "completedSuccessfully"
@@ -9641,8 +9660,6 @@ export interface AndroidScepCertificateProfile extends AndroidCertificateProfile
     managedDeviceCertificateStates?: NullableOption<ManagedDeviceCertificateState[]>;
 }
 export interface AndroidStoreApp extends MobileApp {
-    // The Identity Name. This property is read-only.
-    appIdentifier?: NullableOption<string>;
     // The Android app store URL.
     appStoreUrl?: NullableOption<string>;
     // The value for the minimum applicable operating system.
@@ -13321,6 +13338,7 @@ export interface CloudPcDeviceImage extends Entity {
      * default value is unknown. Read-only.
      */
     osStatus?: NullableOption<CloudPcDeviceImageOsStatus>;
+    osVersionNumber?: NullableOption<string>;
     scopeIds?: NullableOption<string[]>;
     /**
      * The unique identifier (ID) of the source image resource on Azure. The required ID format is:
@@ -13435,6 +13453,7 @@ export interface CloudPcGalleryImage extends Entity {
     offerDisplayName?: NullableOption<string>;
     // The offer name of this gallery image that is passed to ARM to retrieve the image resource. Read-only.
     offerName?: NullableOption<string>;
+    osVersionNumber?: NullableOption<string>;
     /**
      * The publisher name of this gallery image that is passed to ARM to retrieve the image resource. Read-only. The publisher
      * property is deprecated and will stop returning data on January 31, 2024. Going forward, use the publisherName property.
@@ -13602,6 +13621,7 @@ export interface CloudPcProvisioningPolicy extends Entity {
      * as starterManaged. Supports $select.
      */
     autopatch?: NullableOption<CloudPcProvisioningPolicyAutopatch>;
+    autopilotConfiguration?: NullableOption<CloudPcAutopilotConfiguration>;
     // The display name of the Cloud PC group that the Cloud PCs reside in. Read-only.
     cloudPcGroupDisplayName?: NullableOption<string>;
     /**
@@ -15961,6 +15981,8 @@ export interface DeviceAppManagement extends Entity {
     mobileAppCategories?: NullableOption<MobileAppCategory[]>;
     // The Managed Device Mobile Application Configurations.
     mobileAppConfigurations?: NullableOption<ManagedDeviceMobileAppConfiguration[]>;
+    // List mobileAppRelationship objects for mobile applications.
+    mobileAppRelationships?: NullableOption<MobileAppRelationship[]>;
     // The mobile apps.
     mobileApps?: NullableOption<MobileApp[]>;
     // The PolicySet of Policies and Applications
@@ -17159,9 +17181,10 @@ export interface DeviceManagement extends Entity {
      */
     hardwarePasswordDetails?: NullableOption<HardwarePasswordDetail[]>;
     /**
-     * Intune will provide customer the ability to configure hardware/bios settings on the enrolled windows 10 Azure Active
-     * Directory joined devices. Starting from June, 2024 (Intune Release 2406), this type will no longer be supported and
-     * will be marked as deprecated
+     * Intune will provide customer the ability to configure BIOS configuration settings on the enrolled Windows 10 and
+     * Windows 11 Microsoft Entra joined devices. Starting from June, 2024, customers should start using
+     * hardwarePasswordDetail resource type - Microsoft Graph beta | Microsoft Learn. HardwarePasswordInfo will be marked as
+     * deprecated with Intune Release 2409
      */
     hardwarePasswordInfo?: NullableOption<HardwarePasswordInfo[]>;
     // The imported device identities.
@@ -17623,15 +17646,15 @@ export interface DeviceManagementConfigurationCategory extends Entity {
     technologies?: DeviceManagementConfigurationTechnologies;
 }
 export interface DeviceManagementConfigurationChoiceSettingCollectionDefinition extends DeviceManagementConfigurationChoiceSettingDefinition {
-    // Maximum number of choices in the collection
+    // Maximum number of choices in the collection. Valid values 1 to 100
     maximumCount?: number;
-    // Minimum number of choices in the collection
+    // Minimum number of choices in the collection. Valid values 1 to 100
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationChoiceSettingDefinition extends DeviceManagementConfigurationSettingDefinition {
-    // Default option for choice setting
+    // Default option for the choice setting.
     defaultOptionId?: NullableOption<string>;
-    // Options for the setting that can be selected
+    // Options for the setting that can be selected.
     options?: NullableOption<DeviceManagementConfigurationOptionDefinition[]>;
 }
 export interface DeviceManagementConfigurationPolicy extends Entity {
@@ -17746,19 +17769,19 @@ export interface DeviceManagementConfigurationSetting extends Entity {
 export interface DeviceManagementConfigurationSettingDefinition extends Entity {
     // Read/write access mode of the setting. Possible values are: none, add, copy, delete, get, replace, execute.
     accessTypes?: DeviceManagementConfigurationSettingAccessTypes;
-    // Details which device setting is applicable on. Supports: $filters.
+    // Details which device setting is applicable on
     applicability?: NullableOption<DeviceManagementConfigurationSettingApplicability>;
     // Base CSP Path
     baseUri?: NullableOption<string>;
-    // Specify category in which the setting is under. Support $filters.
+    // Specifies the area group under which the setting is configured in a specified configuration service provider (CSP)
     categoryId?: NullableOption<string>;
-    // Description of the setting.
+    // Description of the item
     description?: NullableOption<string>;
-    // Name of the setting. For example: Allow Toast.
+    // Display name of the item
     displayName?: NullableOption<string>;
-    // Help text of the setting. Give more details of the setting.
+    // Help text of the item
     helpText?: NullableOption<string>;
-    // List of links more info for the setting can be found at.
+    // List of links more info for the setting can be found at
     infoUrls?: NullableOption<string[]>;
     // Tokens which to search settings on
     keywords?: NullableOption<string[]>;
@@ -17770,36 +17793,28 @@ export interface DeviceManagementConfigurationSettingDefinition extends Entity {
     offsetUri?: NullableOption<string>;
     // List of referred setting information.
     referredSettingInformationList?: NullableOption<DeviceManagementConfigurationReferredSettingInformation[]>;
-    // Root setting definition id if the setting is a child setting.
+    // Root setting definition if the setting is a child setting.
     rootDefinitionId?: NullableOption<string>;
-    /**
-     * Indicate setting type for the setting. Possible values are: configuration, compliance, reusableSetting. Each setting
-     * usage has separate API end-point to call. Possible values are: none, configuration, compliance, unknownFutureValue,
-     * inventory.
-     */
+    // Setting type, for example, configuration and compliance. Possible values are: none, configuration, compliance.
     settingUsage?: DeviceManagementConfigurationSettingUsage;
     /**
      * Setting control type representation in the UX. Possible values are: default, dropdown, smallTextBox, largeTextBox,
-     * toggle, multiheaderGrid, contextPane. Possible values are: default, dropdown, smallTextBox, largeTextBox, toggle,
-     * multiheaderGrid, contextPane, unknownFutureValue.
+     * toggle, multiheaderGrid, contextPane.
      */
     uxBehavior?: DeviceManagementConfigurationControlType;
     // Item Version
     version?: NullableOption<string>;
-    /**
-     * Setting visibility scope to UX. Possible values are: none, settingsCatalog, template. Possible values are: none,
-     * settingsCatalog, template, unknownFutureValue, inventoryCatalog.
-     */
+    // Setting visibility scope to UX. Possible values are: none, settingsCatalog, template.
     visibility?: DeviceManagementConfigurationSettingVisibility;
 }
 export interface DeviceManagementConfigurationSettingGroupCollectionDefinition extends DeviceManagementConfigurationSettingGroupDefinition {
-    // Maximum number of setting group count in the collection. Valid values 1 to 100
+    // Maximum number of setting group count in the collection
     maximumCount?: number;
-    // Minimum number of setting group count in the collection. Valid values 1 to 100
+    // Minimum number of setting group count in the collection
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationSettingGroupDefinition extends DeviceManagementConfigurationSettingDefinition {
-    // Dependent child settings to this group of settings
+    // Dependent child settings to this group of settings.
     childIds?: NullableOption<string[]>;
     // List of child settings that depend on this setting
     dependedOnBy?: NullableOption<DeviceManagementConfigurationSettingDependedOnBy[]>;
@@ -17813,9 +17828,9 @@ export interface DeviceManagementConfigurationSettingTemplate extends Entity {
     settingDefinitions?: NullableOption<DeviceManagementConfigurationSettingDefinition[]>;
 }
 export interface DeviceManagementConfigurationSimpleSettingCollectionDefinition extends DeviceManagementConfigurationSimpleSettingDefinition {
-    // Maximum number of simple settings in the collection
+    // Maximum number of simple settings in the collection. Valid values 1 to 100
     maximumCount?: number;
-    // Minimum number of simple settings in the collection
+    // Minimum number of simple settings in the collection. Valid values 1 to 100
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationSimpleSettingDefinition extends DeviceManagementConfigurationSettingDefinition {
@@ -22264,6 +22279,7 @@ export interface InternalDomainFederation extends SamlOrWsFedProvider {
      * federation service certificate has been updated.
      */
     nextSigningCertificate?: NullableOption<string>;
+    passwordResetUri?: NullableOption<string>;
     /**
      * Sets the preferred behavior for the sign-in prompt. The possible values are: translateToFreshPasswordAuthentication,
      * nativeSupport, disabled, unknownFutureValue.
@@ -23343,11 +23359,7 @@ export interface IosLobAppProvisioningConfiguration extends Entity {
     description?: NullableOption<string>;
     // Admin provided name of the device configuration.
     displayName?: string;
-    /**
-     * Optional profile expiration date and time. The Timestamp type represents date and time information using ISO 8601
-     * format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 would look like this:
-     * '2014-01-01T00:00:00Z'. Returned by default.
-     */
+    // Optional profile expiration date and time.
     expirationDateTime?: NullableOption<string>;
     // DateTime the object was last modified.
     lastModifiedDateTime?: string;
@@ -23359,10 +23371,7 @@ export interface IosLobAppProvisioningConfiguration extends Entity {
     roleScopeTagIds?: NullableOption<string[]>;
     // Version of the device configuration.
     version?: number;
-    /**
-     * The associated group assignments for IosLobAppProvisioningConfiguration, this determines which devices/users the IOS
-     * LOB app provisioning conifguration will be targeted to.
-     */
+    // The associated group assignments for IosLobAppProvisioningConfiguration.
     assignments?: NullableOption<IosLobAppProvisioningConfigurationAssignment[]>;
     // The list of device installation states for this mobile app configuration.
     deviceStatuses?: NullableOption<ManagedDeviceMobileAppConfigurationDeviceStatus[]>;
@@ -23399,7 +23408,10 @@ export interface IosManagedAppProtection extends TargetedManagedAppProtection {
      * afterDeviceRestart, whenDeviceLockedExceptOpenFiles, whenDeviceLocked.
      */
     appDataEncryptionType?: ManagedAppDataEncryptionType;
-    // A custom browser protocol to open weblink on iOS.
+    /**
+     * A custom browser protocol to open weblink on iOS. When this property is configured, ManagedBrowserToOpenLinksRequired
+     * should be true.
+     */
     customBrowserProtocol?: NullableOption<string>;
     // Protocol of a custom dialer app to click-to-open a phone number on iOS, for example, skype:.
     customDialerAppProtocol?: NullableOption<string>;
@@ -26969,9 +26981,9 @@ export interface MicrosoftTunnelSite extends Entity {
     microsoftTunnelServers?: NullableOption<MicrosoftTunnelServer[]>;
 }
 export interface MobileApp extends Entity {
-    // The date and time the app was created. This property is read-only.
+    // The date and time the app was created.
     createdDateTime?: string;
-    // The total number of dependencies the child app has. This property is read-only.
+    // The total number of dependencies the child app has.
     dependentAppCount?: number;
     // The description of the app.
     description?: NullableOption<string>;
@@ -26981,13 +26993,13 @@ export interface MobileApp extends Entity {
     displayName?: NullableOption<string>;
     // The more information Url.
     informationUrl?: NullableOption<string>;
-    // The value indicating whether the app is assigned to at least one group. This property is read-only.
+    // The value indicating whether the app is assigned to at least one group.
     isAssigned?: boolean;
     // The value indicating whether the app is marked as featured by the admin.
     isFeatured?: boolean;
     // The large icon, to be displayed in the app details and used for upload of the icon.
     largeIcon?: NullableOption<MimeContent>;
-    // The date and time the app was last modified. This property is read-only.
+    // The date and time the app was last modified.
     lastModifiedDateTime?: string;
     // Notes for the app.
     notes?: NullableOption<string>;
@@ -26998,8 +27010,8 @@ export interface MobileApp extends Entity {
     // The publisher of the app.
     publisher?: NullableOption<string>;
     /**
-     * The publishing state for the app. The app cannot be assigned unless the app is published. This property is read-only.
-     * Possible values are: notPublished, processing, published.
+     * The publishing state for the app. The app cannot be assigned unless the app is published. Possible values are:
+     * notPublished, processing, published.
      */
     publishingState?: MobileAppPublishingState;
     // List of scope tag ids for this mobile app.
@@ -27008,13 +27020,13 @@ export interface MobileApp extends Entity {
     supersededAppCount?: number;
     // The total number of apps this app directly or indirectly supersedes. This property is read-only.
     supersedingAppCount?: number;
-    // The upload state. Possible values are: 0 - Not Ready, 1 - Ready, 2 - Processing. This property is read-only.
+    // The upload state.
     uploadState?: number;
     // The list of group assignments for this mobile app.
     assignments?: NullableOption<MobileAppAssignment[]>;
     // The list of categories for this app.
     categories?: NullableOption<MobileAppCategory[]>;
-    // The set of direct relationships for this app.
+    // List of relationships for this mobile app.
     relationships?: NullableOption<MobileAppRelationship[]>;
 }
 export interface MobileAppAssignment extends Entity {
@@ -31556,6 +31568,8 @@ export interface RemoteActionAudit extends Entity {
     actionState?: ActionState;
     // BulkAction ID
     bulkDeviceActionId?: NullableOption<string>;
+    // DeviceAction category. Possible values are: single, bulk.
+    deviceActionCategory?: DeviceActionCategory;
     // Intune device name.
     deviceDisplayName?: NullableOption<string>;
     // IMEI of the device.
@@ -42157,7 +42171,10 @@ export interface WindowsDomainJoinConfiguration extends DeviceConfiguration {
      * object container will be used as published in the domain.
      */
     organizationalUnit?: NullableOption<string>;
-    // Reference to device configurations required for network connectivity
+    /**
+     * Reference to device configurations required for network connectivity. This collection can contain a maximum of 2
+     * elements.
+     */
     networkAccessConfigurations?: NullableOption<DeviceConfiguration[]>;
 }
 export interface WindowsDriverUpdateInventory extends Entity {
@@ -45437,6 +45454,21 @@ export interface AndroidMinimumOperatingSystem {
      */
     v11_0?: boolean;
     /**
+     * When TRUE, only Version 12.0 or later is supported. Default value is FALSE. Exactly one of the minimum operating system
+     * boolean values will be TRUE.
+     */
+    v12_0?: boolean;
+    /**
+     * When TRUE, only Version 13.0 or later is supported. Default value is FALSE. Exactly one of the minimum operating system
+     * boolean values will be TRUE.
+     */
+    v13_0?: boolean;
+    /**
+     * When TRUE, only Version 14.0 or later is supported. Default value is FALSE. Exactly one of the minimum operating system
+     * boolean values will be TRUE.
+     */
+    v14_0?: boolean;
+    /**
      * When TRUE, only Version 4.0 or later is supported. Default value is FALSE. Exactly one of the minimum operating system
      * boolean values will be TRUE.
      */
@@ -45732,8 +45764,9 @@ export interface ApplyLabelAction extends InformationProtectionAction {
      */
     responsibleSensitiveTypeIds?: string[];
 }
-// tslint:disable-next-line: no-empty-interface
-export interface AppManagementApplicationConfiguration extends AppManagementConfiguration {}
+export interface AppManagementApplicationConfiguration extends AppManagementConfiguration {
+    identifierUris?: NullableOption<IdentifierUriConfiguration>;
+}
 export interface AppManagementConfiguration {
     // Collection of keyCredential restrictions settings to be applied to an application or service principal.
     keyCredentials?: NullableOption<KeyCredentialConfiguration[]>;
@@ -47863,6 +47896,11 @@ export interface CloudPcAuditResource {
     resourceId?: string;
     // The type of the audit resource.
     resourceType?: string;
+}
+export interface CloudPcAutopilotConfiguration {
+    applicationTimeoutInMinutes?: number;
+    devicePreparationProfileId?: string;
+    onFailureDeviceAccessDenied?: boolean;
 }
 export interface CloudPcBulkActionSummary {
     // The number of Cloud PCs where the action failed.
@@ -50396,8 +50434,6 @@ export interface DeviceManagementConfigurationIntegerSettingValueTemplate extend
     // Required value definition.
     requiredValueDefinition?: NullableOption<DeviceManagementConfigurationIntegerSettingValueDefinitionTemplate>;
 }
-// tslint:disable-next-line: no-empty-interface
-export interface DeviceManagementConfigurationJustInTimeAssignmentPolicy {}
 export interface DeviceManagementConfigurationOptionDefinition {
     // List of Settings that depends on this option
     dependedOnBy?: NullableOption<DeviceManagementConfigurationSettingDependedOnBy[]>;
@@ -50462,17 +50498,13 @@ export interface DeviceManagementConfigurationSettingApplicability {
     // Device Mode that setting can be applied on. Possible values are: none, kiosk.
     deviceMode?: DeviceManagementConfigurationDeviceMode;
     /**
-     * Platform setting can be applied on. Posible values are: none, android, androidEnterprise, iOs, macOs, windows10X,
-     * windows10, aosp, and linux. Possible values are: none, android, iOS, macOS, windows10X, windows10, linux,
+     * Platform setting can be applied on. Possible values are: none, android, iOS, macOS, windows10X, windows10, linux,
      * unknownFutureValue.
      */
     platform?: DeviceManagementConfigurationPlatforms;
     /**
-     * Which technology channels this setting can be deployed through. Posible values are: none, mdm, configManager,
-     * intuneManagementExtension, thirdParty, documentGateway, appleRemoteManagement, microsoftSense, exchangeOnline, edgeMam,
-     * linuxMdm, extensibility, enrollment, endpointPrivilegeManagement. Possible values are: none, mdm, windows10XManagement,
-     * configManager, appleRemoteManagement, microsoftSense, exchangeOnline, mobileApplicationManagement, linuxMdm,
-     * extensibility, enrollment, endpointPrivilegeManagement, unknownFutureValue, windowsOsRecovery.
+     * Which technology channels this setting can be deployed through. Possible values are: none, mdm, windows10XManagement,
+     * configManager, appleRemoteManagement, microsoftSense, exchangeOnline, linuxMdm, unknownFutureValue.
      */
     technologies?: DeviceManagementConfigurationTechnologies;
 }
@@ -52346,17 +52378,21 @@ export interface HyperlinkOrPictureColumn {
     isPicture?: NullableOption<boolean>;
 }
 // tslint:disable-next-line: interface-name
+export interface IdentifierUriConfiguration {
+    nonDefaultUriAddition?: NullableOption<IdentifierUriRestriction>;
+}
+// tslint:disable-next-line: interface-name
+export interface IdentifierUriRestriction {
+    excludeAppsReceivingV2Tokens?: NullableOption<boolean>;
+    excludeSaml?: NullableOption<boolean>;
+    restrictForAppsCreatedAfterDateTime?: NullableOption<string>;
+    state?: AppManagementRestrictionState;
+}
+// tslint:disable-next-line: interface-name
 export interface Identity {
-    /**
-     * The display name of the identity. For drive items, the display name might not always be available or up to date. For
-     * example, if a user changes their display name the API might show the new value in a future response, but the items
-     * associated with the user don't show up as changed when using delta.
-     */
+    // The display name of the identity. This property is read-only.
     displayName?: NullableOption<string>;
-    /**
-     * Unique identifier for the identity or actor. For example, in the access reviews decisions API, this property might
-     * record the id of the principal, that is, the group, user, or application that's subject to review.
-     */
+    // The identifier of the identity. This property is read-only.
     id?: NullableOption<string>;
 }
 // tslint:disable-next-line: interface-name
@@ -53426,9 +53462,9 @@ export interface KeyTypedValuePair {
     key?: string;
 }
 export interface KeyValue {
-    // Contains the name of the field that a value is associated with.
+    // Key.
     key?: NullableOption<string>;
-    // Contains the corresponding value for the specified key.
+    // Value.
     value?: NullableOption<string>;
 }
 export interface KeyValuePair {
@@ -53912,10 +53948,7 @@ export interface MacOSLaunchItem {
     path?: string;
 }
 export interface MacOsLobAppAssignmentSettings extends MobileAppAssignmentSettings {
-    /**
-     * When TRUE, indicates that the app should be uninstalled when the device is removed from Intune. When FALSE, indicates
-     * that the app will not be uninstalled when the device is removed from Intune.
-     */
+    // Whether or not to uninstall the app when device is removed from Intune.
     uninstallOnDeviceRemoval?: NullableOption<boolean>;
 }
 export interface MacOSLobChildApp {
@@ -61984,6 +62017,8 @@ export interface WhatIfUserActionContext extends ConditionalAccessContext {
 // tslint:disable-next-line: no-empty-interface
 export interface Win32CatalogAppAssignmentSettings extends Win32LobAppAssignmentSettings {}
 export interface Win32LobAppAssignmentSettings extends MobileAppAssignmentSettings {
+    // The auto-update settings to apply for this app assignment.
+    autoUpdateSettings?: NullableOption<Win32LobAppAutoUpdateSettings>;
     /**
      * The delivery optimization priority for this app assignment. This setting is not supported in National Cloud
      * environments. Possible values are: notConfigured, foreground.
@@ -61995,6 +62030,13 @@ export interface Win32LobAppAssignmentSettings extends MobileAppAssignmentSettin
     notifications?: Win32LobAppNotification;
     // The reboot settings to apply for this app assignment.
     restartSettings?: NullableOption<Win32LobAppRestartSettings>;
+}
+export interface Win32LobAppAutoUpdateSettings {
+    /**
+     * The auto-update superseded apps state setting for the app assignment. Possible values are notConfigured and enabled.
+     * Default value is notConfigured. Possible values are: notConfigured, enabled, unknownFutureValue.
+     */
+    autoUpdateSupersededAppsState?: Win32LobAutoUpdateSupersededAppsState;
 }
 // tslint:disable-next-line: no-empty-interface
 export interface Win32LobAppDetection {}
@@ -62281,7 +62323,11 @@ export interface WindowsApplication {
     redirectUris?: string[];
 }
 export interface WindowsAppXAppAssignmentSettings extends MobileAppAssignmentSettings {
-    // Whether or not to use device execution context for Windows AppX mobile app.
+    /**
+     * When TRUE, indicates that device execution context will be used for the AppX mobile app. When FALSE, indicates that
+     * user context will be used for the AppX mobile app. By default, this property is set to FALSE. Once this property has
+     * been set to TRUE it cannot be changed.
+     */
     useDeviceContext?: boolean;
 }
 export interface WindowsDefenderScanActionResult extends DeviceActionResult {
@@ -67261,6 +67307,7 @@ export namespace Networkaccess {
         | "bytesSent"
         | "bytesReceived"
         | "totalBytes";
+    type AlertSeverity = "informational" | "low" | "medium" | "high" | "unknownFutureValue";
     type AlertType =
         | "unhealthyRemoteNetworks"
         | "unhealthyConnectors"
@@ -67440,7 +67487,7 @@ export namespace Networkaccess {
         | "remoteNetworkAlive"
         | "unknownFutureValue";
     type Status = "enabled" | "disabled" | "unknownFutureValue";
-    type ThreatSeverity = "informational" | "low" | "medium" | "high" | "critical" | "unknownFutureValue";
+    type ThreatSeverity = "low" | "medium" | "high" | "critical" | "unknownFutureValue";
     type TrafficForwardingType = "m365" | "internet" | "private" | "unknownFutureValue";
     type TrafficType = "internet" | "private" | "microsoft365" | "all" | "unknownFutureValue";
     type UsageStatus = "frequentlyUsed" | "rarelyUsed" | "unknownFutureValue";
@@ -67453,7 +67500,7 @@ export namespace Networkaccess {
         detectionTechnology?: NullableOption<string>;
         displayName?: string;
         relatedResources?: NullableOption<RelatedResource[]>;
-        severity?: ThreatSeverity;
+        severity?: AlertSeverity;
         vendorName?: string;
         policy?: NullableOption<FilteringPolicy>;
     }
@@ -67840,6 +67887,8 @@ export namespace Networkaccess {
         // Represents the user principal name (UPN) associated with a user. Supports $filter (eq) and $orderby.
         userPrincipalName?: NullableOption<string>;
         vendorNames?: NullableOption<string[]>;
+        device?: NullableOption<microsoftgraphbeta.Device>;
+        user?: NullableOption<microsoftgraphbeta.User>;
     }
     interface Policy extends microsoftgraphbeta.Entity {
         // Description.
@@ -68175,6 +68224,7 @@ export namespace Networkaccess {
     }
     interface PrivateAccessDetails {
         accessType?: NullableOption<AccessType>;
+        appSegmentId?: NullableOption<string>;
         connectionStatus?: NullableOption<ConnectionStatus>;
         connectorId?: NullableOption<string>;
         connectorIp?: NullableOption<string>;
@@ -69115,6 +69165,41 @@ export namespace SecurityNamespace {
         | "VfamDeletePolicy"
         | "M365DAAD"
         | "CdpColdCrawlStatus"
+        | "PowerPlatformAdministratorActivity"
+        | "Windows365CustomerLockbox"
+        | "CdpResourceScopeChangeEvent"
+        | "ComplianceCCExchangeExecutionResult"
+        | "CdpOcrCostEstimatorRecord"
+        | "CopilotInteraction"
+        | "CdpOcrBillingRecord"
+        | "ComplianceDLPApplications"
+        | "UAMOperation"
+        | "VivaLearning"
+        | "VivaLearningAdmin"
+        | "PurviewPolicyOperation"
+        | "PurviewMetadataPolicyOperation"
+        | "PeopleAdminSettings"
+        | "CdpComplianceDLPExchangeClassification"
+        | "CdpComplianceDLPSharePointClassification"
+        | "FilteringBulkSenderInsightData"
+        | "FilteringBulkThresholdInsightData"
+        | "PrivacyOpenAccess"
+        | "OWAAuth"
+        | "ComplianceDLPApplicationsClassification"
+        | "SharePointESignature"
+        | "Dynamics365BusinessCentral"
+        | "MeshWorlds"
+        | "VivaPulseResponse"
+        | "VivaPulseOrganizer"
+        | "VivaPulseAdmin"
+        | "VivaPulseReport"
+        | "AIAppInteraction"
+        | "ComplianceDLMExchange"
+        | "ComplianceDLMSharePoint"
+        | "ProjectForTheWebAssignedToMeSettings"
+        | "CPSOperation"
+        | "ComplianceDLPExchangeDiscovery"
+        | "PurviewMCRecommendation"
         | "unknownFutureValue";
     type AuditLogUserType =
         | "Regular"
@@ -71349,6 +71434,8 @@ export namespace SecurityNamespace {
         // The collection of historical records associated to this WHOIS object.
         history?: NullableOption<WhoisHistoryRecord[]>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface AadRiskDetectionAuditRecord extends AuditData {}
     interface AddContentFooterAction extends InformationProtectionAction {
         // The horizontal alignment of the footer.
         alignment?: ContentAlignment;
@@ -71395,6 +71482,26 @@ export namespace SecurityNamespace {
         // The name of the UI element where the watermark should be placed.
         uiElementName?: NullableOption<string>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface AedAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface AiAppInteractionAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface AipFileDeleted extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface AipHeartBeat extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface AipProtectionActionLogRequest extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface AipScannerDiscoverEvent extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface AipSensitivityLabelActionLogRequest extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface AirAdminActionInvestigationData extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface AirInvestigationData extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface AirManualInvestigationData extends AuditData {}
     interface AlertComment {
         // The comment text.
         comment?: NullableOption<string>;
@@ -71595,6 +71702,8 @@ export namespace SecurityNamespace {
         responsibleSensitiveTypeIds?: string[];
         sensitivityLabelId?: NullableOption<string>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface AttackSimAdminAuditRecord extends AuditData {}
     interface AttackSimulationInfo {
         // The date and time of the attack simulation.
         attackSimDateTime?: NullableOption<string>;
@@ -71607,6 +71716,8 @@ export namespace SecurityNamespace {
     }
 // tslint:disable-next-line: no-empty-interface
     interface AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface AuditSearchAuditRecord extends AuditData {}
     interface AutonomousSystem {
         // The name of the autonomous system.
         name?: string;
@@ -71617,6 +71728,14 @@ export namespace SecurityNamespace {
         // A displayable value for these autonomous system details.
         value?: string;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface AzureActiveDirectoryAccountLogonAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface AzureActiveDirectoryAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface AzureActiveDirectoryBaseAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface AzureActiveDirectoryStsLogonAuditRecord extends AuditData {}
     interface AzureResourceEvidence extends AlertEvidence {
         // The unique identifier for the Azure resource.
         resourceId?: NullableOption<string>;
@@ -71661,6 +71780,32 @@ export namespace SecurityNamespace {
         encryptedBuffer?: NullableOption<string>;
         publishingLicense?: NullableOption<string>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface CampaignAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface CaseAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface CaseInvestigation extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface CdpColdCrawlStatusRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface CdpContentExplorerAggregateRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface CdpDlpSensitiveAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface CdpDlpSensitiveEndpointAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface CdpLogRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface CdpOcrBillingRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface CdpResourceScopeChangeEventRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface CernerSMSLinkRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface CernerSMSSettingsUpdateRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface CernerSMSUnlinkRecord extends AuditData {}
     interface ClassificationResult {
         // The confidence level, 0 to 100, of the result.
         confidenceLevel?: number;
@@ -71710,6 +71855,48 @@ export namespace SecurityNamespace {
         // Unique identifier for the response action. Default is deviceId. The possible values are: deviceId, unknownFutureValue.
         identifier?: DeviceIdEntityIdentifier;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface ComplianceConnectorAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ComplianceDLMExchangeAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ComplianceDLMSharePointAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ComplianceDlpApplicationsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ComplianceDlpApplicationsClassificationAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ComplianceDlpBaseAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ComplianceDlpClassificationBaseAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ComplianceDlpClassificationBaseCdpRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ComplianceDlpEndpointAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ComplianceDlpEndpointDiscoveryAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ComplianceDlpExchangeAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ComplianceDlpExchangeClassificationAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ComplianceDlpExchangeClassificationCdpRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ComplianceDlpExchangeDiscoveryAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ComplianceDlpSharePointAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ComplianceDlpSharePointClassificationAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ComplianceDlpSharePointClassificationExtendedAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ComplianceManagerActionRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ComplianceSupervisionBaseAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ComplianceSupervisionExchangeAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ConsumptionResourceAuditRecord extends AuditData {}
     interface ContainerEvidence extends AlertEvidence {
         // The list of arguments.
         args?: NullableOption<string[]>;
@@ -71757,12 +71944,28 @@ export namespace SecurityNamespace {
         createdDateTime?: NullableOption<string>;
         sensitivityLabelId?: NullableOption<string>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface CopilotInteractionAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface CoreReportingSettingsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface CortanaBriefingAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface CpsCommonPolicyAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface CpsPolicyConfigAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface CrmBaseAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface CrmEntityOperationAuditRecord extends AuditData {}
     interface CustomAction extends InformationProtectionAction {
         // Name of the custom action.
         name?: NullableOption<string>;
         // Properties, in key-value pair format, of the action.
         properties?: NullableOption<KeyValuePair[]>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface CustomerKeyServiceEncryptionAuditRecord extends AuditData {}
     interface CvssSummary {
         // The CVSS score about this vulnerability.
         score?: number;
@@ -71775,7 +71978,23 @@ export namespace SecurityNamespace {
         vectorString?: NullableOption<string>;
     }
 // tslint:disable-next-line: no-empty-interface
+    interface DataCenterSecurityBaseAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface DataCenterSecurityCmdletAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface DataGovernanceAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface DataInsightsRestApiAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface DataLakeExportOperationAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface DataShareOperationAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
     interface DefaultAuditData extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface DefenderSecurityAlertBaseRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface DeleteCertificateRecord extends AuditData {}
     interface DeploymentAccessKeyType {
         deploymentAccessKey?: string;
     }
@@ -71863,6 +72082,8 @@ export namespace SecurityNamespace {
     }
 // tslint:disable-next-line: no-empty-interface
     interface Dictionary {}
+// tslint:disable-next-line: no-empty-interface
+    interface DisableConsentRecord extends AuditData {}
     interface DisableUserResponseAction extends ResponseAction {
         /**
          * Unique identifier for the response action. The possible values are: accountSid, initiatingProcessAccountSid,
@@ -71870,6 +72091,14 @@ export namespace SecurityNamespace {
          */
         identifier?: DisableUserEntityIdentifier;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface DiscoveryAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface DlpEndpointAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface DlpSensitiveInformationTypeCmdletRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface DlpSensitiveInformationTypeRulePackageCmdletRecord extends AuditData {}
     interface DnsEvidence extends AlertEvidence {
         dnsServerIp?: NullableOption<IpEvidence>;
         domainName?: NullableOption<string>;
@@ -71883,7 +72112,11 @@ export namespace SecurityNamespace {
         justificationMessage?: NullableOption<string>;
     }
 // tslint:disable-next-line: no-empty-interface
+    interface DownloadCertificateRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
     interface DynamicColumnValue {}
+// tslint:disable-next-line: no-empty-interface
+    interface Dynamics365BusinessCentralAuditRecord extends AuditData {}
     interface EmailSender {
         // The name of the sender.
         displayName?: NullableOption<string>;
@@ -71892,6 +72125,14 @@ export namespace SecurityNamespace {
         // Sender email address.
         emailAddress?: NullableOption<string>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface EnableConsentRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface EpicSMSLinkRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface EpicSMSSettingsUpdateRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface EpicSMSUnlinkRecord extends AuditData {}
     interface EventPropagationResult {
         // The name of the specific location in the workload associated with the event.
         location?: NullableOption<string>;
@@ -71914,11 +72155,31 @@ export namespace SecurityNamespace {
          */
         queryType?: NullableOption<QueryType>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface ExchangeAdminAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ExchangeAggregatedMailboxAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ExchangeAggregatedOperationRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ExchangeMailboxAuditBaseRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ExchangeMailboxAuditGroupRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ExchangeMailboxAuditRecord extends AuditData {}
     interface ExportFileMetadata {
         downloadUrl?: NullableOption<string>;
         fileName?: NullableOption<string>;
         size?: NullableOption<number>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface FhirBaseUrlAddRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface FhirBaseUrlApproveRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface FhirBaseUrlDeleteRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface FhirBaseUrlUpdateRecord extends AuditData {}
     interface FileDetails {
         // The name of the file.
         fileName?: NullableOption<string>;
@@ -72044,6 +72305,10 @@ export namespace SecurityNamespace {
          */
         identifier?: EmailEntityIdentifier;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface HealthcareSignalRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface HostedRpaAuditRecord extends AuditData {}
     interface HostLogonSessionEvidence extends AlertEvidence {
         account?: NullableOption<UserEvidence>;
         endUtcDateTime?: NullableOption<string>;
@@ -72119,6 +72384,8 @@ export namespace SecurityNamespace {
         // The port number.
         port?: NullableOption<number>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface HrSignalAuditRecord extends AuditData {}
     interface HuntingQueryResults {
         // The results of the hunting query.
         results?: NullableOption<HuntingRowResult[]>;
@@ -72127,6 +72394,8 @@ export namespace SecurityNamespace {
     }
 // tslint:disable-next-line: no-empty-interface
     interface HuntingRowResult {}
+// tslint:disable-next-line: no-empty-interface
+    interface HygieneEventRecord extends AuditData {}
     interface Hyperlink {
         // The name for this hyperlink.
         name?: string;
@@ -72163,12 +72432,20 @@ export namespace SecurityNamespace {
         identifier?: UserAssetIdentifier;
     }
 // tslint:disable-next-line: interface-name no-empty-interface
+    interface InformationBarrierPolicyApplicationAuditRecord extends AuditData {}
+// tslint:disable-next-line: interface-name no-empty-interface
     interface InformationProtectionAction {}
+// tslint:disable-next-line: interface-name no-empty-interface
+    interface InformationWorkerProtectionAuditRecord extends AuditData {}
 // tslint:disable-next-line: interface-name
     interface InitiateInvestigationResponseAction extends ResponseAction {
         // Unique identifier for the response action. Default is deviceId. The possible values are: deviceId, unknownFutureValue.
         identifier?: DeviceIdEntityIdentifier;
     }
+// tslint:disable-next-line: interface-name no-empty-interface
+    interface InsiderRiskScopedUserInsightsRecord extends AuditData {}
+// tslint:disable-next-line: interface-name no-empty-interface
+    interface InsiderRiskScopedUsersRecord extends AuditData {}
 // tslint:disable-next-line: interface-name
     interface IntelligenceProfileCountryOrRegionOfOrigin {
         // A codified representation for this country/region of origin.
@@ -72214,6 +72491,10 @@ export namespace SecurityNamespace {
         location?: NullableOption<GeoLocation>;
         stream?: NullableOption<any>;
     }
+// tslint:disable-next-line: interface-name no-empty-interface
+    interface IrmSecurityAlertRecord extends AuditData {}
+// tslint:disable-next-line: interface-name no-empty-interface
+    interface IrmUserDefinedDetectionRecord extends AuditData {}
 // tslint:disable-next-line: interface-name
     interface IsolateDeviceResponseAction extends ResponseAction {
         // Unique identifier for the response action. Default is deviceId. The possible values are: deviceId, unknownFutureValue.
@@ -72223,6 +72504,8 @@ export namespace SecurityNamespace {
     }
 // tslint:disable-next-line: no-empty-interface
     interface JustifyAction extends InformationProtectionAction {}
+// tslint:disable-next-line: no-empty-interface
+    interface KaizalaAuditRecord extends AuditData {}
     interface KeyValuePair {
         // Name for this key-value pair.
         name?: string;
@@ -72335,6 +72618,10 @@ export namespace SecurityNamespace {
          */
         targetPort?: NullableOption<string>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface LabelAnalyticsAggregateAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface LabelContentExplorerAuditRecord extends AuditData {}
     interface LabelingOptions {
         // Describes whether the label was applied by an automated (standard) process or a person (privileged).
         assignmentMethod?: AssignmentMethod;
@@ -72348,12 +72635,18 @@ export namespace SecurityNamespace {
         // The GUID of the label that should be applied to the information.
         labelId?: string;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface LargeContentMetadataAuditRecord extends AuditData {}
     interface LoggedOnUser {
         // User account name of the logged-on user.
         accountName?: NullableOption<string>;
         // User account domain of the logged-on user.
         domainName?: NullableOption<string>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface M365ComplianceConnectorAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface M365DAADAuditRecord extends AuditData {}
     interface MailboxConfigurationEvidence extends AlertEvidence {
         configurationId?: NullableOption<string>;
         configurationType?: NullableOption<MailboxConfigurationType>;
@@ -72384,12 +72677,24 @@ export namespace SecurityNamespace {
         // Uniform resource name (URN) of the automated investigation where the cluster was identified.
         urn?: NullableOption<string>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface MailSubmissionData extends AuditData {}
     interface MalwareEvidence extends AlertEvidence {
         category?: NullableOption<string>;
         files?: NullableOption<FileEvidence[]>;
         name?: NullableOption<string>;
         processes?: NullableOption<ProcessEvidence[]>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface ManagedServicesAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ManagedTenantsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MapgAlertsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MapgOnboardAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MapgPolicyAuditRecord extends AuditData {}
     interface MarkUserAsCompromisedResponseAction extends ResponseAction {
         /**
          * Unique identifier for the response action. The possible values are: accountObjectId, initiatingProcessAccountObjectId,
@@ -72397,12 +72702,94 @@ export namespace SecurityNamespace {
          */
         identifier?: MarkUserAsCompromisedEntityIdentifier;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface McasAlertsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MdaDataSecuritySignalRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MdatpAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MdcEventsRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MdiAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MeshWorldsAuditRecord extends AuditData {}
     interface MetadataAction extends InformationProtectionAction {
         // A collection of key-value pairs that should be added to the file.
         metadataToAdd?: NullableOption<KeyValuePair[]>;
         // A collection of strings that indicate which keys to remove from the file metadata.
         metadataToRemove?: NullableOption<string[]>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface Microsoft365BackupBackupItemAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface Microsoft365BackupBackupPolicyAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface Microsoft365BackupRestoreItemAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface Microsoft365BackupRestoreTaskAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MicrosoftDefenderExpertsBaseAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MicrosoftDefenderExpertsXDRAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MicrosoftFlowAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MicrosoftFormsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MicrosoftGraphDataConnectConsent extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MicrosoftGraphDataConnectOperation extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MicrosoftPurviewDataMapOperationRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MicrosoftPurviewMetadataPolicyOperationRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MicrosoftPurviewPolicyOperationRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MicrosoftPurviewPrivacyAuditEvent extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MicrosoftStreamAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MicrosoftTeamsAdminAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MicrosoftTeamsAnalyticsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MicrosoftTeamsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MicrosoftTeamsDeviceAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MicrosoftTeamsRetentionLabelActionAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MicrosoftTeamsSensitivityLabelActionAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MicrosoftTeamsShiftsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MipAutoLabelExchangeItemAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MipAutoLabelItemAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MipAutoLabelPolicyAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MipAutoLabelProgressFeedbackAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MipAutoLabelSharePointItemAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MipAutoLabelSharePointPolicyLocationAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MipAutoLabelSimulationSharePointCompletionRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MipAutoLabelSimulationSharePointProgressRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MipAutoLabelSimulationStatisticsRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MipAutoLabelSimulationStatusRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MipExactDataMatchAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MipLabelAnalyticsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MipLabelAuditRecord extends AuditData {}
     interface MoveToDeletedItemsResponseAction extends ResponseAction {
         /**
          * Unique identifier for the response action. Default is networkMessageId,recipientEmailAddress. The possible values are:
@@ -72424,6 +72811,26 @@ export namespace SecurityNamespace {
          */
         identifier?: EmailEntityIdentifier;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface MS365DCustomDetectionAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MS365DIncidentAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MS365DSuppressionRuleAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MsdeGeneralSettingsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MsdeIndicatorsSettingsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MsdeResponseActionsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MsdeRolesSettingsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MsticNationStateNotificationRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MultiStageDispositionAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface MyAnalyticsSettingsAuditRecord extends AuditData {}
     interface NetworkConnectionEvidence extends AlertEvidence {
         destinationAddress?: NullableOption<IpEvidence>;
         destinationPort?: NullableOption<number>;
@@ -72457,12 +72864,86 @@ export namespace SecurityNamespace {
          */
         timeout?: NullableOption<string>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface OfficeNativeAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface OmePortalAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface OneDriveAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface OnPremisesFileShareScannerDlpAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface OnPremisesScannerDlpAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface OnPremisesSharePointScannerDlpAuditRecord extends AuditData {}
     interface OrganizationalScope {
         // List of groups to which the custom detection rule applies.
         scopeNames?: NullableOption<string[]>;
         // The type of the organizational scope. The possible values are: deviceGroup, unknownFutureValue.
         scopeType?: ScopeType;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface OwaGetAccessTokenForResourceAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PeopleAdminSettingsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PhysicalBadgingSignalAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PlannerCopyPlanAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PlannerPlanAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PlannerPlanListAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PlannerRosterAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PlannerRosterSensitivityLabelAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PlannerTaskAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PlannerTaskListAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PlannerTenantSettingsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PowerAppsAuditAppRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PowerAppsAuditPlanRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PowerAppsAuditResourceRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PowerBiAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PowerBiDlpAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PowerPagesSiteAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PowerPlatformAdminDlpAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PowerPlatformAdminEnvironmentAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PowerPlatformAdministratorActivityRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PowerPlatformLockboxResourceAccessRequestAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PowerPlatformLockboxResourceCommandAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PowerPlatformServiceActivityAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PrivacyDataMatchAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PrivacyDataMinimizationRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PrivacyDigestEmailRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PrivacyOpenAccessAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PrivacyPortalAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PrivacyRemediationActionRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PrivacyRemediationRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PrivacyTenantAuditHistoryRecord extends AuditData {}
     interface ProcessEvidence extends AlertEvidence {
         // The status of the detection. The possible values are: detected, blocked, prevented, unknownFutureValue.
         detectionStatus?: NullableOption<DetectionStatus>;
@@ -72492,6 +72973,22 @@ export namespace SecurityNamespace {
         userAccount?: NullableOption<UserAccount>;
     }
 // tslint:disable-next-line: no-empty-interface
+    interface ProjectAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ProjectForTheWebAssignedToMeSettingsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ProjectForTheWebProjectAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ProjectForTheWebProjectSettingsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ProjectForTheWebRoadmapAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ProjectForTheWebRoadmapItemAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ProjectForTheWebRoadmapSettingsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ProjectForTheWebTaskAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
     interface ProtectAdhocAction extends InformationProtectionAction {}
     interface ProtectByTemplateAction extends InformationProtectionAction {
         // The unique identifier for a protection template in Microsoft Purview Information Protection to apply to the content.
@@ -72499,6 +72996,14 @@ export namespace SecurityNamespace {
     }
 // tslint:disable-next-line: no-empty-interface
     interface ProtectDoNotForwardAction extends InformationProtectionAction {}
+// tslint:disable-next-line: no-empty-interface
+    interface PublicFolderAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PurviewInsiderRiskAlertsRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface PurviewInsiderRiskCasesRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface QuarantineAuditRecord extends AuditData {}
     interface QueryCondition {
         // Timestamp of when the query in the custom detection rule was last updated.
         lastModifiedDateTime?: NullableOption<string>;
@@ -72518,6 +73023,8 @@ export namespace SecurityNamespace {
         responsibleSensitiveTypeIds?: string[];
         sensitivityLabelId?: NullableOption<string>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface RecordsManagementAuditRecord extends AuditData {}
     interface RedundancyDetectionSettings {
         // Indicates whether email threading and near duplicate detection are enabled.
         isEnabled?: NullableOption<boolean>;
@@ -72591,6 +73098,8 @@ export namespace SecurityNamespace {
         // The status of the distribution. The possible values are: pending, error, success, notAvaliable.
         status?: NullableOption<EventStatusType>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface RetentionPolicyAuditRecord extends AuditData {}
     interface RuleSchedule {
         // Timestamp of the custom detection rule's next scheduled run.
         nextRunDateTime?: NullableOption<string>;
@@ -72633,6 +73142,24 @@ export namespace SecurityNamespace {
         startDateTime?: NullableOption<string>;
         storageResource?: NullableOption<AzureResourceEvidence>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface ScoreEvidence extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ScorePlatformGenericAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ScriptRunAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface SearchAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface SecurityComplianceAlertRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface SecurityComplianceCenterEOPCmdletAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface SecurityComplianceInsightsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface SecurityComplianceRBACAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface SecurityComplianceUserChangeAuditRecord extends AuditData {}
     interface SecurityGroupEvidence extends AlertEvidence {
         // The name of the security group.
         displayName?: NullableOption<string>;
@@ -72657,6 +73184,24 @@ export namespace SecurityNamespace {
         servicePrincipalType?: NullableOption<ServicePrincipalType>;
         tenantId?: NullableOption<string>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface SharePointAppPermissionOperationAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface SharePointAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface SharePointCommentOperationAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface SharePointContentTypeOperationAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface SharePointESignatureAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface SharePointFieldOperationAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface SharePointFileOperationAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface SharePointListOperationAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface SharePointSharingOperationAuditRecord extends AuditData {}
     interface SigningResult {
         signature?: NullableOption<string>;
         signingKeyId?: NullableOption<string>;
@@ -72667,6 +73212,18 @@ export namespace SecurityNamespace {
         // The type of the property.
         type?: NullableOption<string>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface SkypeForBusinessBaseAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface SkypeForBusinessCmdletsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface SkypeForBusinessPSTNUsageAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface SkypeForBusinessUsersBlockedAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface SmsCreatePhoneNumberRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface SmsDeletePhoneNumberRecord extends AuditData {}
     interface SoftDeleteResponseAction extends ResponseAction {
         /**
          * Unique identifier for the response action. Default is networkMessageId,recipientEmailAddress. The possible values are:
@@ -72769,6 +73326,18 @@ export namespace SecurityNamespace {
         // The email of user who is making the submission when logged in (delegated token case).
         email?: NullableOption<string>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface SupervisoryReviewDayXInsightsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface SyntheticProbeAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface TeamsEasyApprovalsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface TeamsHealthcareAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface TeamsUpdatesAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface TenantAllowBlockListAuditRecord extends AuditData {}
     interface TenantAllowBlockListEntryResult {
         /**
          * The tenant allow-block list entry type. The possible values are: url, fileHash, sender, recipient and
@@ -72800,6 +73369,16 @@ export namespace SecurityNamespace {
         // Contains the result of the submission that lead to the tenant allow-block-list entry creation.
         results?: NullableOption<TenantAllowBlockListEntryResult[]>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface ThreatFinderAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ThreatIntelligenceAtpContentData extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ThreatIntelligenceMailData extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface ThreatIntelligenceUrlClickData extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface TodoAuditRecord extends AuditData {}
     interface TopicModelingSettings {
         /**
          * Indicates whether the themes model should dynamically optimize the number of generated topics. To learn more, see
@@ -72819,6 +73398,22 @@ export namespace SecurityNamespace {
          */
         topicCount?: NullableOption<number>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface UamOperationAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface UnifiedGroupAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface UnifiedSimulationMatchedItemAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface UnifiedSimulationSummaryAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface UploadCertificateRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface UrbacAssignmentAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface UrbacEnableStateAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface UrbacRoleAuditRecord extends AuditData {}
     interface UrlEvidence extends AlertEvidence {
         // The Unique Resource Locator (URL).
         url?: NullableOption<string>;
@@ -72842,9 +73437,33 @@ export namespace SecurityNamespace {
         // The user account details.
         userAccount?: NullableOption<UserAccount>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface UserTrainingAuditRecord extends AuditData {}
     interface VerificationResult {
         signatureValid?: boolean;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface VfamBasePolicyAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface VfamCreatePolicyAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface VfamDeletePolicyAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface VfamUpdatePolicyAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface VivaGoalsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface VivaLearningAdminAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface VivaLearningAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface VivaPulseAdminAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface VivaPulseOrganizerAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface VivaPulseReportAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface VivaPulseResponseAuditRecord extends AuditData {}
     interface VmMetadata {
         // The cloud provider hosting the virtual machine. The possible values are: unknown, azure, unknownFutureValue.
         cloudProvider?: VmCloudProvider;
@@ -72855,6 +73474,8 @@ export namespace SecurityNamespace {
         // Unique identifier of the virtual machine instance.
         vmId?: NullableOption<string>;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface WdatpAlertsAuditRecord extends AuditData {}
     interface WhoisContact {
         // The physical address of the entity.
         address?: NullableOption<microsoftgraphbeta.PhysicalAddress>;
@@ -72882,6 +73503,12 @@ export namespace SecurityNamespace {
         lastSeenDateTime?: NullableOption<string>;
         host?: Host;
     }
+// tslint:disable-next-line: no-empty-interface
+    interface Windows365CustomerLockboxAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface WorkplaceAnalyticsAuditRecord extends AuditData {}
+// tslint:disable-next-line: no-empty-interface
+    interface YammerAuditRecord extends AuditData {}
 }
 export namespace TeamsUserConfiguration {
     type AccountType = "user" | "resourceAccount" | "guest" | "sfbOnPremUser" | "unknown" | "unknownFutureValue";
