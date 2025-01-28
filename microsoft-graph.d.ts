@@ -1047,6 +1047,11 @@ export type CloudPcDeviceImageStatusDetails =
     | "sourceImageNotSupportCustomizeVMName"
     | "sourceImageSizeExceedsLimitation";
 export type CloudPcDisasterRecoveryCapabilityType = "none" | "failover" | "failback" | "unknownFutureValue";
+export type CloudPcDisasterRecoveryLicenseType = "none" | "standard" | "unknownFutureValue";
+export type CloudPcDisasterRecoveryReportName =
+    | "crossRegionDisasterRecoveryReport"
+    | "disasterRecoveryReport"
+    | "unknownFutureValue";
 export type CloudPcDisasterRecoveryType = "notConfigured" | "crossRegion" | "premium" | "unknownFutureValue";
 export type CloudPcDiskEncryptionState =
     | "notAvailable"
@@ -1164,6 +1169,13 @@ export type CloudPCPerformanceReportName = "performanceTrendReport" | "unknownFu
 export type CloudPcPolicyApplyActionStatus = "processing" | "succeeded" | "failed" | "unknownFutureValue";
 export type CloudPcPolicySettingType = "region" | "singleSignOn" | "unknownFutureValue";
 export type CloudPcPowerState = "running" | "poweredOff" | "unknownFutureValue";
+export type CloudPcProductType =
+    | "enterprise"
+    | "frontline"
+    | "devBox"
+    | "powerAutomate"
+    | "business"
+    | "unknownFutureValue";
 export type CloudPcProvisioningPolicyImageType = "gallery" | "custom" | "unknownFutureValue";
 export type CloudPcProvisioningType =
     | "dedicated"
@@ -1272,6 +1284,7 @@ export type CloudPcStatus =
     | "updatingSingleSignOn"
     | "modifyingSingleSignOn"
     | "preparing";
+export type CloudPcStorageAccountAccessTier = "hot" | "cool" | "premium" | "cold" | "unknownFutureValue";
 export type CloudPcSupportedRegionStatus = "available" | "restricted" | "unavailable" | "unknownFutureValue";
 export type CloudPCTroubleshootReportType =
     | "troubleshootDetailsReport"
@@ -2008,6 +2021,7 @@ export type DeviceManagementConfigurationSettingAccessTypes =
     | "get"
     | "replace"
     | "execute";
+export type DeviceManagementConfigurationSettingRiskLevel = "low" | "medium" | "high";
 export type DeviceManagementConfigurationSettingUsage = "none" | "configuration" | "compliance" | "unknownFutureValue";
 export type DeviceManagementConfigurationSettingVisibility =
     | "none"
@@ -3620,7 +3634,14 @@ export type PhoneType =
     | "radio";
 export type PhysicalAddressType = "unknown" | "home" | "business" | "other";
 export type PlannerApprovalStatus = "requested" | "approved" | "rejected" | "cancelled" | "unknownFutureValue";
-export type PlannerContainerType = "group" | "unknownFutureValue" | "roster" | "project" | "driveItem" | "user";
+export type PlannerContainerType =
+    | "group"
+    | "unknownFutureValue"
+    | "roster"
+    | "project"
+    | "driveItem"
+    | "user"
+    | "teamsChannel";
 export type PlannerContextState = "active" | "delinked" | "unknownFutureValue";
 export type PlannerCreationSourceKind = "none" | "external" | "publication" | "unknownFutureValue";
 export type PlannerExternalTaskSourceDisplayType = "none" | "default" | "unknownFutureValue";
@@ -3651,7 +3672,16 @@ export type PlannerTaskCompletionRequirements =
     | "completionInHostedApp";
 export type PlannerTaskTargetKind = "group" | "unknownFutureValue";
 export type PlannerUserRoleKind = "relationship" | "unknownFutureValue";
-export type Platform = "unknown" | "ios" | "android" | "windows" | "windowsMobile" | "macOS";
+export type Platform =
+    | "unknown"
+    | "ios"
+    | "android"
+    | "windows"
+    | "windowsMobile"
+    | "macOS"
+    | "visionOS"
+    | "tvOS"
+    | "unknownFutureValue";
 export type PlayPromptCompletionReason =
     | "unknown"
     | "completedSuccessfully"
@@ -6499,7 +6529,8 @@ export type WindowsPrivacyDataCategory =
     | "tasks"
     | "syncWithDevices"
     | "trustedDevices";
-export type WindowsQualityUpdateClassification = "all" | "security" | "nonSecurity";
+export type WindowsQualityUpdateCadence = "monthly" | "outOfBand" | "unknownFutureValue";
+export type WindowsQualityUpdateCategory = "all" | "security" | "nonSecurity";
 export type WindowsSettingType = "roaming" | "backup" | "unknownFutureValue";
 export type WindowsSModeConfiguration = "noRestriction" | "block" | "unlock";
 export type WindowsSpotlightEnablementSettings = "notConfigured" | "disabled" | "enabled";
@@ -11145,7 +11176,7 @@ export interface AppManagementPolicy extends PolicyBase {
     // Collection of application and service principals to which a policy is applied.
     appliesTo?: NullableOption<DirectoryObject[]>;
 }
-export interface AppRoleAssignment extends Entity {
+export interface AppRoleAssignment extends DirectoryObject {
     /**
      * The identifier (id) for the app role that is assigned to the principal. This app role must be exposed in the appRoles
      * property on the resource application's service principal (resourceId). If the resource application hasn't declared any
@@ -13265,11 +13296,11 @@ export interface Channel extends Entity {
     filesFolder?: NullableOption<DriveItem>;
     // A collection of membership records associated with the channel.
     members?: NullableOption<ConversationMember[]>;
-    // A collection of all the messages in the channel. A navigation property. Nullable.
+    // A collection of all the messages in the channel. Nullable.
     messages?: NullableOption<ChatMessage[]>;
     // A collection of teams with which a channel is shared.
     sharedWithTeams?: NullableOption<SharedWithChannelTeamInfo[]>;
-    // A collection of all the tabs in the channel. A navigation property.
+    // A collection of all the tabs in the channel.
     tabs?: NullableOption<TeamsTab[]>;
 }
 export interface Chat extends Entity {
@@ -13549,8 +13580,6 @@ export interface CloudCertificationAuthority extends Entity {
     eTag?: NullableOption<string>;
     // The certificate extended key usages, which specify the usage capabilities of the certificate. Read-only.
     extendedKeyUsages?: NullableOption<ExtendedKeyUsage[]>;
-    /**
-     */
     issuerCommonName?: NullableOption<string>;
     /**
      * The key platform used to store the certification authority keys. Read-only. Possible values are: unknown, software,
@@ -13828,6 +13857,14 @@ export interface CloudPC extends Entity {
      * work Cloud PCs.
      */
     powerState?: NullableOption<CloudPcPowerState>;
+    /**
+     * The product type of the Cloud PC. The possible values are: enterprise, frontline, devBox, powerAutomate, business,
+     * unknownFutureValue. For the available service plans and pricing for enterprise, frontline, and business, see Windows
+     * 365 for business. For pricing information for devBox, see Microsoft Dev Box pricing. For the available plans and
+     * pricing for powerAutomate, see Power Automate pricing. The default value is enterprise. Supports $filter and $select.
+     * For more information, see Example 4: List Cloud PCs filtered by product type. Read-only.
+     */
+    productType?: NullableOption<CloudPcProductType>;
     // The provisioning policy ID of the Cloud PC.
     provisioningPolicyId?: NullableOption<string>;
     // The provisioning policy that is applied during the provisioning of Cloud PCs.
@@ -14084,10 +14121,10 @@ export interface CloudPcExportJob extends Entity {
      * frontlineLicenseUsageRealTimeReport, remoteConnectionQualityReports, inaccessibleCloudPcReports, actionStatusReport,
      * rawRemoteConnectionReports, cloudPcUsageCategoryReports, crossRegionDisasterRecoveryReport,
      * regionalConnectionQualityTrendReport, regionalConnectionQualityInsightsReport, remoteConnectionQualityReport,
-     * bulkActionStatusReport. Use the Prefer: include-unknown-enum-members request header to get the following values in this
-     * evolvable enum: noLicenseAvailableConnectivityFailureReport, frontlineLicenseUsageReport,
+     * bulkActionStatusReport, cloudPcInsightReport. Use the Prefer: include-unknown-enum-members request header to get the
+     * following values in this evolvable enum: noLicenseAvailableConnectivityFailureReport, frontlineLicenseUsageReport,
      * frontlineLicenseUsageRealTimeReport, remoteConnectionQualityReports, inaccessibleCloudPcReports,
-     * rawRemoteConnectionReports, cloudPcUsageCategoryReports, crossRegionDisasterRecoveryReport.
+     * rawRemoteConnectionReports, cloudPcUsageCategoryReports, crossRegionDisasterRecoveryReport, cloudPcInsightReport.
      */
     reportName?: NullableOption<CloudPcReportName>;
     // The date and time when the export job was requested.
@@ -15552,6 +15589,7 @@ export interface CrossTenantIdentitySyncPolicyPartner {
      * easily identify the policy. Optional.
      */
     displayName?: NullableOption<string>;
+    externalCloudAuthorizedApplicationId?: NullableOption<string>;
     // Tenant identifier for the partner Microsoft Entra organization. Read-only.
     tenantId?: string;
     // Defines whether users can be synchronized from the partner tenant. Key.
@@ -16467,11 +16505,19 @@ export interface DepOnboardingSetting extends Entity {
     defaultIosEnrollmentProfile?: NullableOption<DepIOSEnrollmentProfile>;
     // Default MacOs Enrollment Profile
     defaultMacOsEnrollmentProfile?: NullableOption<DepMacOSEnrollmentProfile>;
+    // Default TvOS Enrollment Profile
+    defaultTvOSEnrollmentProfile?: NullableOption<DepTvOSEnrollmentProfile>;
+    // Default VisionOS Enrollment Profile
+    defaultVisionOSEnrollmentProfile?: NullableOption<DepVisionOSEnrollmentProfile>;
     // The enrollment profiles.
     enrollmentProfiles?: NullableOption<EnrollmentProfile[]>;
     // The imported Apple device identities.
     importedAppleDeviceIdentities?: NullableOption<ImportedAppleDeviceIdentity[]>;
 }
+// tslint:disable-next-line: no-empty-interface
+export interface DepTvOSEnrollmentProfile extends EnrollmentProfile {}
+// tslint:disable-next-line: no-empty-interface
+export interface DepVisionOSEnrollmentProfile extends EnrollmentProfile {}
 export interface DetectedApp extends Entity {
     // The number of devices that have installed this application
     deviceCount?: number;
@@ -17439,6 +17485,10 @@ export interface DeviceEnrollmentPlatformRestrictionsConfiguration extends Devic
     macOSRestriction?: NullableOption<DeviceEnrollmentPlatformRestriction>;
     // Mac restrictions based on platform, platform operating system version, and device ownership
     macRestriction?: NullableOption<DeviceEnrollmentPlatformRestriction>;
+    // Indicates restrictions for TvOS platform.
+    tvosRestriction?: NullableOption<DeviceEnrollmentPlatformRestriction>;
+    // Indicates restrictions for VisionOS platform.
+    visionOSRestriction?: NullableOption<DeviceEnrollmentPlatformRestriction>;
     // Windows Home Sku restrictions based on platform, platform operating system version, and device ownership
     windowsHomeSkuRestriction?: NullableOption<DeviceEnrollmentPlatformRestriction>;
     // Windows mobile restrictions based on platform, platform operating system version, and device ownership
@@ -18405,15 +18455,15 @@ export interface DeviceManagementConfigurationCategory extends Entity {
     technologies?: DeviceManagementConfigurationTechnologies;
 }
 export interface DeviceManagementConfigurationChoiceSettingCollectionDefinition extends DeviceManagementConfigurationChoiceSettingDefinition {
-    // Maximum number of choices in the collection. Valid values 1 to 100
+    // Maximum number of choices in the collection
     maximumCount?: number;
-    // Minimum number of choices in the collection. Valid values 1 to 100
+    // Minimum number of choices in the collection
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationChoiceSettingDefinition extends DeviceManagementConfigurationSettingDefinition {
-    // Default option for the choice setting.
+    // Default option for choice setting
     defaultOptionId?: NullableOption<string>;
-    // Options for the setting that can be selected.
+    // Options for the setting that can be selected
     options?: NullableOption<DeviceManagementConfigurationOptionDefinition[]>;
 }
 export interface DeviceManagementConfigurationPolicy extends Entity {
@@ -18552,6 +18602,8 @@ export interface DeviceManagementConfigurationSettingDefinition extends Entity {
     offsetUri?: NullableOption<string>;
     // List of referred setting information.
     referredSettingInformationList?: NullableOption<DeviceManagementConfigurationReferredSettingInformation[]>;
+    // Setting risklevel. Possible values are: low, medium, high
+    riskLevel?: DeviceManagementConfigurationSettingRiskLevel;
     // Root setting definition id if the setting is a child setting.
     rootDefinitionId?: NullableOption<string>;
     /**
@@ -18575,13 +18627,13 @@ export interface DeviceManagementConfigurationSettingDefinition extends Entity {
     visibility?: DeviceManagementConfigurationSettingVisibility;
 }
 export interface DeviceManagementConfigurationSettingGroupCollectionDefinition extends DeviceManagementConfigurationSettingGroupDefinition {
-    // Maximum number of setting group count in the collection
+    // Maximum number of setting group count in the collection. Valid values 1 to 100
     maximumCount?: number;
-    // Minimum number of setting group count in the collection
+    // Minimum number of setting group count in the collection. Valid values 1 to 100
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationSettingGroupDefinition extends DeviceManagementConfigurationSettingDefinition {
-    // Dependent child settings to this group of settings
+    // Dependent child settings to this group of settings.
     childIds?: NullableOption<string[]>;
     // List of child settings that depend on this setting
     dependedOnBy?: NullableOption<DeviceManagementConfigurationSettingDependedOnBy[]>;
@@ -18601,13 +18653,13 @@ export interface DeviceManagementConfigurationSimpleSettingCollectionDefinition 
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationSimpleSettingDefinition extends DeviceManagementConfigurationSettingDefinition {
-    // Default setting value for this setting.
+    // Default setting value for this setting
     defaultValue?: NullableOption<DeviceManagementConfigurationSettingValue>;
-    // list of child settings that depend on this setting.
+    // list of child settings that depend on this setting
     dependedOnBy?: NullableOption<DeviceManagementConfigurationSettingDependedOnBy[]>;
-    // list of parent settings this setting is dependent on.
+    // list of parent settings this setting is dependent on
     dependentOn?: NullableOption<DeviceManagementConfigurationDependentOn[]>;
-    // Definition of the value for this setting.
+    // Definition of the value for this setting
     valueDefinition?: NullableOption<DeviceManagementConfigurationSettingValueDefinition>;
 }
 export interface DeviceManagementDerivedCredentialSettings extends Entity {
@@ -24518,6 +24570,8 @@ export interface IosVppApp extends MobileApp {
     vppTokenAccountType?: VppTokenAccountType;
     // The Apple Id associated with the given Apple Volume Purchase Program Token.
     vppTokenAppleId?: NullableOption<string>;
+    // Display name of the VPP token associated with this app.
+    vppTokenDisplayName?: NullableOption<string>;
     // Identifier of the VPP token associated with this app.
     vppTokenId?: NullableOption<string>;
     // The organization associated with the Apple Volume Purchase Program Token
@@ -26092,6 +26146,8 @@ export interface MacOsVppApp extends MobileApp {
     vppTokenAccountType?: VppTokenAccountType;
     // The Apple Id associated with the given Apple Volume Purchase Program Token.
     vppTokenAppleId?: NullableOption<string>;
+    // Display name of the VPP token associated with this app.
+    vppTokenDisplayName?: NullableOption<string>;
     // Identifier of the VPP token associated with this app.
     vppTokenId?: NullableOption<string>;
     // The organization associated with the Apple Volume Purchase Program Token
@@ -29307,6 +29363,7 @@ export interface OnlineMeetingBase extends Entity {
     audioConferencing?: NullableOption<AudioConferencing>;
     // The chat information associated with this online meeting.
     chatInfo?: NullableOption<ChatInfo>;
+    // Specifies the configuration settings for meeting chat restrictions.
     chatRestrictions?: NullableOption<ChatRestrictions>;
     isEndToEndEncryptionEnabled?: NullableOption<boolean>;
     // Indicates whether to announce when callers join or leave.
@@ -33322,6 +33379,8 @@ export interface RoleScopeTag extends Entity {
     displayName?: NullableOption<string>;
     // Description of the Role Scope Tag. This property is read-only.
     isBuiltIn?: boolean;
+    // Permissions associated with the Role Scope Tag. This property is read-only.
+    permissions?: NullableOption<string[]>;
     // The list of assignments for this Role Scope Tag.
     assignments?: NullableOption<RoleScopeTagAutoAssignment[]>;
 }
@@ -33658,6 +33717,8 @@ export interface Schedule extends Entity {
     activitiesIncludedWhenCopyingShiftsEnabled?: NullableOption<boolean>;
     // Indicates whether the schedule is enabled for the team. Required.
     enabled?: NullableOption<boolean>;
+    // Indicates whether copied shifts include activities from the original shift.
+    isActivitiesIncludedWhenCopyingShiftsEnabled?: NullableOption<boolean>;
     // Indicates whether approval is required by a manager of this schedule for cross location shift requests.
     isCrossLocationShiftRequestApprovalRequired?: NullableOption<boolean>;
     // Indicates whether the cross-location marketplace feature is enabled for this schedule.
@@ -34981,6 +35042,7 @@ export interface SignIn extends Entity {
      * in the sign-in event triggered.
      */
     appliedEventListeners?: NullableOption<AppliedAuthenticationEventListener[]>;
+    appOwnerTenantId?: NullableOption<string>;
     /**
      * Token protection creates a cryptographically secure tie between the token and the device it's issued to. This field
      * indicates whether the app token was bound to the device.
@@ -35149,6 +35211,7 @@ export interface SignIn extends Entity {
     resourceDisplayName?: NullableOption<string>;
     // The identifier of the resource that the user signed in to. Supports $filter (eq).
     resourceId?: NullableOption<string>;
+    resourceOwnerTenantId?: NullableOption<string>;
     // The identifier of the service principal representing the target resource in the sign-in event.
     resourceServicePrincipalId?: NullableOption<string>;
     // The tenant identifier of the resource referenced in the sign in.
@@ -35214,7 +35277,9 @@ export interface SignIn extends Entity {
      * nonInteractiveUser and corresponds to the value for the isInteractive property on the signin resource. For managed
      * identity sign ins, the category is managedIdentity. For service principal sign-ins, the category is servicePrincipal.
      * Possible values are: interactiveUser, nonInteractiveUser, servicePrincipal, managedIdentity, unknownFutureValue.
-     * Supports $filter (eq, ne).
+     * Supports $filter (eq, ne). NOTE: Only interactive sign-ins are returned unless you set an explicit filter. For example,
+     * the filter for getting non-interactive sign-ins is
+     * https://graph.microsoft.com/beta/auditLogs/signIns?&amp;$filter=signInEventTypes/any(t: t eq 'nonInteractiveUser').
      */
     signInEventTypes?: NullableOption<string[]>;
     /**
@@ -43505,7 +43570,10 @@ export interface WindowsDomainJoinConfiguration extends DeviceConfiguration {
      * object container will be used as published in the domain.
      */
     organizationalUnit?: NullableOption<string>;
-    // Reference to device configurations required for network connectivity
+    /**
+     * Reference to device configurations required for network connectivity. This collection can contain a maximum of 2
+     * elements.
+     */
     networkAccessConfigurations?: NullableOption<DeviceConfiguration[]>;
 }
 export interface WindowsDriverUpdateInventory extends Entity {
@@ -44482,11 +44550,18 @@ export interface WindowsProtectionState extends Entity {
 }
 export interface WindowsQualityUpdateCatalogItem extends WindowsUpdateCatalogItem {
     // Classification of the quality update. Possible values are: all, security, nonSecurity.
-    classification?: WindowsQualityUpdateClassification;
+    classification?: WindowsQualityUpdateCategory;
     // Flag indicating if update qualifies for expedite
     isExpeditable?: boolean;
     // Knowledge base article id
     kbArticleId?: string;
+    // The operating system product revisions that are released as part of this quality update. Read-only.
+    productRevisions?: NullableOption<WindowsQualityUpdateCatalogProductRevision[]>;
+    /**
+     * The publishing cadence of the quality update. Possible values are: monthly, outOfBand. This property cannot be modified
+     * and is automatically populated when the catalog is created. Read-only
+     */
+    qualityUpdateCadence?: WindowsQualityUpdateCadence;
 }
 export interface WindowsQualityUpdatePolicy extends Entity {
     /**
@@ -49418,6 +49493,7 @@ export interface CloudPcDisasterRecoveryCapability {
      * unknownFutureValue.
      */
     capabilityType?: NullableOption<CloudPcDisasterRecoveryCapabilityType>;
+    licenseType?: NullableOption<CloudPcDisasterRecoveryLicenseType>;
     // The primary and mainly used region where the Cloud PC is located.
     primaryRegion?: NullableOption<string>;
     // The secondary region to which the Cloud PC can be failed over during a regional outage.
@@ -49481,9 +49557,19 @@ export interface CloudPcDomainJoinConfiguration {
     type?: NullableOption<CloudPcDomainJoinType>;
 }
 export interface CloudPcForensicStorageAccount extends Entity {
-    // The ID of the storage account.
+    /**
+     * The access tier of the storage account. Possible values are hot, cool, premium, cold, and unknownFutureValue. Default
+     * value is hot. Read-only.
+     */
+    accessTier?: NullableOption<CloudPcStorageAccountAccessTier>;
+    /**
+     * Indicates whether immutability policies are configured for the storage account. When true, the storage account only
+     * accepts hot as the snapshot access tier. When false, the storage account accepts all valid access tiers. Read-Only.
+     */
+    immutableStorage?: NullableOption<boolean>;
+    // The ID of the storage account. Read-only.
     storageAccountId?: NullableOption<string>;
-    // The name of the storage account.
+    // The name of the storage account. Read-only.
     storageAccountName?: NullableOption<string>;
 }
 export interface CloudPcHealthCheckItem {
@@ -51983,7 +52069,7 @@ export interface DeviceManagementConfigurationReferenceSettingValue extends Devi
     note?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationReferredSettingInformation {
-    // Setting definition id that is being referred to a setting. Applicable for reusable setting.
+    // Setting definition id that is being referred to a setting. Applicable for reusable setting
     settingDefinitionId?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationSecretSettingValue extends DeviceManagementConfigurationSimpleSettingValue {
@@ -52001,17 +52087,14 @@ export interface DeviceManagementConfigurationSettingApplicability {
     // Device Mode that setting can be applied on. Possible values are: none, kiosk.
     deviceMode?: DeviceManagementConfigurationDeviceMode;
     /**
-     * Platform setting can be applied on. Posible values are: none, android, androidEnterprise, iOs, macOs, windows10X,
-     * windows10, aosp, and linux. Possible values are: none, android, iOS, macOS, windows10X, windows10, linux,
-     * unknownFutureValue, androidEnterprise, aosp.
+     * Platform setting can be applied on. Possible values are: none, android, iOS, macOS, windows10X, windows10, linux,
+     * unknownFutureValue.
      */
     platform?: DeviceManagementConfigurationPlatforms;
     /**
-     * Which technology channels this setting can be deployed through. Posible values are: none, mdm, configManager,
-     * intuneManagementExtension, thirdParty, documentGateway, appleRemoteManagement, microsoftSense, exchangeOnline, edgeMam,
-     * linuxMdm, extensibility, enrollment, endpointPrivilegeManagement. Possible values are: none, mdm, windows10XManagement,
-     * configManager, appleRemoteManagement, microsoftSense, exchangeOnline, mobileApplicationManagement, linuxMdm,
-     * extensibility, enrollment, endpointPrivilegeManagement, unknownFutureValue, windowsOsRecovery, android.
+     * Which technology channels this setting can be deployed through. Possible values are: none, mdm, windows10XManagement,
+     * configManager, appleRemoteManagement, microsoftSense, exchangeOnline, linuxMdm, enrollment,
+     * endpointPrivilegeManagement, unknownFutureValue.
      */
     technologies?: DeviceManagementConfigurationTechnologies;
 }
@@ -53236,12 +53319,9 @@ export interface ExpressionInputObject {
     properties?: NullableOption<StringKeyObjectValuePair[]>;
 }
 export interface ExtendedKeyUsage {
-    // The extended key usage (EKU) name that provides a user-friendly way to identify an EKU.
+    // Extended Key Usage Name
     name?: NullableOption<string>;
-    /**
-     * The object identifier (OID) of an extended key usage of a certificate. For example, '1.3.6.1.5.5.7.3.2' for client
-     * authentication.
-     */
+    // Extended Key Usage Object Identifier
     objectIdentifier?: NullableOption<string>;
 }
 export interface ExtendRemoteHelpSessionResponse {
@@ -54981,9 +55061,9 @@ export interface KeyTypedValuePair {
     key?: string;
 }
 export interface KeyValue {
-    // Key.
+    // Contains the name of the field that a value is associated with.
     key?: NullableOption<string>;
-    // Value.
+    // Contains the corresponding value for the specified key.
     value?: NullableOption<string>;
 }
 export interface KeyValuePair {
@@ -62472,6 +62552,8 @@ export interface TimeCardEvent {
     atApprovedLocation?: NullableOption<boolean>;
     // The time the entry is recorded.
     dateTime?: string;
+    // Indicates whether this action happens at an approved location.
+    isAtApprovedLocation?: NullableOption<boolean>;
     // Notes about the timeCardEvent.
     notes?: NullableOption<ItemBody>;
 }
@@ -64084,7 +64166,11 @@ export interface WindowsApplication {
     redirectUris?: string[];
 }
 export interface WindowsAppXAppAssignmentSettings extends MobileAppAssignmentSettings {
-    // Whether or not to use device execution context for Windows AppX mobile app.
+    /**
+     * When TRUE, indicates that device execution context will be used for the AppX mobile app. When FALSE, indicates that
+     * user context will be used for the AppX mobile app. By default, this property is set to FALSE. Once this property has
+     * been set to TRUE it cannot be changed.
+     */
     useDeviceContext?: boolean;
 }
 export interface WindowsDefenderScanActionResult extends DeviceActionResult {
@@ -64687,6 +64773,45 @@ export interface WindowsPackageInformation {
     identityVersion?: NullableOption<string>;
     // The value for the minimum applicable operating system.
     minimumSupportedOperatingSystem?: NullableOption<WindowsMinimumOperatingSystem>;
+}
+export interface WindowsQualityUpdateCatalogProductRevision {
+    /**
+     * The display name of the windows quality update catalog product revision. For example, 'Windows 11, version 22H2, build
+     * 22621.4112'. Read-only
+     */
+    displayName?: string;
+    // The knowledge base article associated with the windows quality update catalog product revision. Read-only
+    knowledgeBaseArticle?: WindowsQualityUpdateProductKnowledgeBaseArticle;
+    // The version details of the windows quality update catalog product revision. Read-only
+    osBuild?: WindowsQualityUpdateProductBuildVersionDetail;
+    // The product name of the windows quality update catalog product revision. For example, 'Windows 11'. Read-only
+    productName?: string;
+    /**
+     * The date and time when the windows quality update catalog product revision was released. The Timestamp type represents
+     * date and time information using ISO 8601 format and is always in UTC time. Read-only
+     */
+    releaseDateTime?: string;
+    // The version name of the windows quality update catalog product revision. For example, '22H2'. Read-only
+    versionName?: string;
+}
+export interface WindowsQualityUpdateProductBuildVersionDetail {
+    // The build number of the product release, Allowed range is 0 - 2,147,483,647. For example: 19045. Read-only.
+    buildNumber?: number;
+    // The major version of the product release, Allowed range is 0 - 2,147,483,647. For example: 10. Read-only.
+    majorVersionNumber?: number;
+    // The minor version of the product release, Allowed range is 0 - 2,147,483,647. For example: 0. Read-only.
+    minorVersionNumber?: number;
+    /**
+     * The update build revision number of the product revision for the corresponding patch, Allowed range is 0 -
+     * 2,147,483,647. For example: 4780. Read-only.
+     */
+    updateBuildRevision?: number;
+}
+export interface WindowsQualityUpdateProductKnowledgeBaseArticle {
+    // The unique identifier for the knowledge base article. Read-only
+    articleId?: string;
+    // The URL of the knowledge base article. Read-only
+    articleUrl?: string;
 }
 export interface WindowsUniversalAppXAppAssignmentSettings extends MobileAppAssignmentSettings {
     /**
