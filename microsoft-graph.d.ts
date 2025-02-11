@@ -7931,9 +7931,8 @@ export interface AiInteraction extends Entity {
     // The thread ID or conversation identifier that maps to all Copilot sessions for the user.
     sessionId?: string;
 }
-export interface AiInteractionHistory extends Entity {
-    interactions?: NullableOption<AiInteraction[]>;
-}
+// tslint:disable-next-line: no-empty-interface
+export interface AiInteractionHistory extends Entity {}
 export interface AiUser extends Entity {
     // The history of interactions between AI agents and users.
     interactionHistory?: NullableOption<AiInteractionHistory>;
@@ -11086,8 +11085,9 @@ export interface Application extends DirectoryObject {
     federatedIdentityCredentials?: NullableOption<FederatedIdentityCredential[]>;
     homeRealmDiscoveryPolicies?: NullableOption<HomeRealmDiscoveryPolicy[]>;
     /**
-     * Directory objects that are owners of the application. Read-only. Nullable. Supports $expand, $filter (/$count eq 0,
-     * /$count ne 0, /$count eq 1, /$count ne 1), and $select nested in $expand.
+     * Directory objects that are owners of this application. The owners are a set of nonadmin users or servicePrincipals who
+     * are allowed to modify this object. Read-only. Nullable. Supports $expand, $filter (/$count eq 0, /$count ne 0, /$count
+     * eq 1, /$count ne 1), and $select nested in $expand.
      */
     owners?: NullableOption<DirectoryObject[]>;
     // Represents the capability for Microsoft Entra identity synchronization through the Microsoft Graph API.
@@ -18452,9 +18452,9 @@ export interface DeviceManagementConfigurationCategory extends Entity {
     technologies?: DeviceManagementConfigurationTechnologies;
 }
 export interface DeviceManagementConfigurationChoiceSettingCollectionDefinition extends DeviceManagementConfigurationChoiceSettingDefinition {
-    // Maximum number of choices in the collection. Valid values 1 to 100
+    // Maximum number of choices in the collection
     maximumCount?: number;
-    // Minimum number of choices in the collection. Valid values 1 to 100
+    // Minimum number of choices in the collection
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationChoiceSettingDefinition extends DeviceManagementConfigurationSettingDefinition {
@@ -18575,19 +18575,19 @@ export interface DeviceManagementConfigurationSetting extends Entity {
 export interface DeviceManagementConfigurationSettingDefinition extends Entity {
     // Read/write access mode of the setting. Possible values are: none, add, copy, delete, get, replace, execute.
     accessTypes?: DeviceManagementConfigurationSettingAccessTypes;
-    // Details which device setting is applicable on. Supports: $filters.
+    // Details which device setting is applicable on
     applicability?: NullableOption<DeviceManagementConfigurationSettingApplicability>;
     // Base CSP Path
     baseUri?: NullableOption<string>;
-    // Specify category in which the setting is under. Support $filters.
+    // Specifies the area group under which the setting is configured in a specified configuration service provider (CSP)
     categoryId?: NullableOption<string>;
-    // Description of the setting.
+    // Description of the item
     description?: NullableOption<string>;
-    // Name of the setting. For example: Allow Toast.
+    // Display name of the item
     displayName?: NullableOption<string>;
-    // Help text of the setting. Give more details of the setting.
+    // Help text of the item
     helpText?: NullableOption<string>;
-    // List of links more info for the setting can be found at.
+    // List of links more info for the setting can be found at
     infoUrls?: NullableOption<string[]>;
     // Tokens which to search settings on
     keywords?: NullableOption<string[]>;
@@ -18601,26 +18601,18 @@ export interface DeviceManagementConfigurationSettingDefinition extends Entity {
     referredSettingInformationList?: NullableOption<DeviceManagementConfigurationReferredSettingInformation[]>;
     // Setting risklevel. Possible values are: low, medium, high
     riskLevel?: DeviceManagementConfigurationSettingRiskLevel;
-    // Root setting definition id if the setting is a child setting.
+    // Root setting definition if the setting is a child setting.
     rootDefinitionId?: NullableOption<string>;
-    /**
-     * Indicate setting type for the setting. Possible values are: configuration, compliance, reusableSetting. Each setting
-     * usage has separate API end-point to call. Possible values are: none, configuration, compliance, unknownFutureValue,
-     * inventory.
-     */
+    // Setting type, for example, configuration and compliance. Possible values are: none, configuration, compliance.
     settingUsage?: DeviceManagementConfigurationSettingUsage;
     /**
      * Setting control type representation in the UX. Possible values are: default, dropdown, smallTextBox, largeTextBox,
-     * toggle, multiheaderGrid, contextPane. Possible values are: default, dropdown, smallTextBox, largeTextBox, toggle,
-     * multiheaderGrid, contextPane, unknownFutureValue.
+     * toggle, multiheaderGrid, contextPane.
      */
     uxBehavior?: DeviceManagementConfigurationControlType;
     // Item Version
     version?: NullableOption<string>;
-    /**
-     * Setting visibility scope to UX. Possible values are: none, settingsCatalog, template. Possible values are: none,
-     * settingsCatalog, template, unknownFutureValue, inventoryCatalog.
-     */
+    // Setting visibility scope to UX. Possible values are: none, settingsCatalog, template.
     visibility?: DeviceManagementConfigurationSettingVisibility;
 }
 export interface DeviceManagementConfigurationSettingGroupCollectionDefinition extends DeviceManagementConfigurationSettingGroupDefinition {
@@ -18630,7 +18622,7 @@ export interface DeviceManagementConfigurationSettingGroupCollectionDefinition e
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationSettingGroupDefinition extends DeviceManagementConfigurationSettingDefinition {
-    // Dependent child settings to this group of settings
+    // Dependent child settings to this group of settings.
     childIds?: NullableOption<string[]>;
     // List of child settings that depend on this setting
     dependedOnBy?: NullableOption<DeviceManagementConfigurationSettingDependedOnBy[]>;
@@ -18644,9 +18636,9 @@ export interface DeviceManagementConfigurationSettingTemplate extends Entity {
     settingDefinitions?: NullableOption<DeviceManagementConfigurationSettingDefinition[]>;
 }
 export interface DeviceManagementConfigurationSimpleSettingCollectionDefinition extends DeviceManagementConfigurationSimpleSettingDefinition {
-    // Maximum number of simple settings in the collection
+    // Maximum number of simple settings in the collection. Valid values 1 to 100
     maximumCount?: number;
-    // Minimum number of simple settings in the collection
+    // Minimum number of simple settings in the collection. Valid values 1 to 100
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationSimpleSettingDefinition extends DeviceManagementConfigurationSettingDefinition {
@@ -21287,8 +21279,9 @@ export interface FederatedIdentityCredential extends Entity {
      */
     audiences?: string[];
     /**
-     * Enables the use of claims matching expressions against specified claims. For the list of supported expression syntax
-     * and claims, visit the Flexible FIC reference.
+     * Nullable. Defaults to null if not set. Enables the use of claims matching expressions against specified claims. If
+     * claimsMatchingExpression is defined, subject must be null. For the list of supported expression syntax and claims,
+     * visit the Flexible FIC reference.
      */
     claimsMatchingExpression?: NullableOption<FederatedIdentityExpression>;
     /**
@@ -21307,11 +21300,11 @@ export interface FederatedIdentityCredential extends Entity {
      */
     name?: string;
     /**
-     * Required. The identifier of the external software workload within the external identity provider. Like the audience
-     * value, it has no fixed format, as each identity provider uses their own - sometimes a GUID, sometimes a colon delimited
-     * identifier, sometimes arbitrary strings. The value here must match the sub claim within the token presented to
-     * Microsoft Entra ID. The combination of issuer and subject must be unique on the app. It has a limit of 600 characters.
-     * Supports $filter (eq).
+     * Nullable. Defaults to null if not set. The identifier of the external software workload within the external identity
+     * provider. Like the audience value, it has no fixed format, as each identity provider uses their own - sometimes a GUID,
+     * sometimes a colon delimited identifier, sometimes arbitrary strings. The value here must match the sub claim within the
+     * token presented to Microsoft Entra ID. The combination of issuer and subject must be unique on the app. It has a limit
+     * of 600 characters. If subject is defined, claimsMatchingExpression must be null. Supports $filter (eq).
      */
     subject?: NullableOption<string>;
 }
@@ -24258,7 +24251,11 @@ export interface IosLobAppProvisioningConfiguration extends Entity {
     description?: NullableOption<string>;
     // Admin provided name of the device configuration.
     displayName?: string;
-    // Optional profile expiration date and time.
+    /**
+     * Optional profile expiration date and time. The Timestamp type represents date and time information using ISO 8601
+     * format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 would look like this:
+     * '2014-01-01T00:00:00Z'. Returned by default.
+     */
     expirationDateTime?: NullableOption<string>;
     // DateTime the object was last modified.
     lastModifiedDateTime?: string;
@@ -24270,7 +24267,10 @@ export interface IosLobAppProvisioningConfiguration extends Entity {
     roleScopeTagIds?: NullableOption<string[]>;
     // Version of the device configuration.
     version?: number;
-    // The associated group assignments for IosLobAppProvisioningConfiguration.
+    /**
+     * The associated group assignments for IosLobAppProvisioningConfiguration, this determines which devices/users the IOS
+     * LOB app provisioning conifguration will be targeted to.
+     */
     assignments?: NullableOption<IosLobAppProvisioningConfigurationAssignment[]>;
     // The list of device installation states for this mobile app configuration.
     deviceStatuses?: NullableOption<ManagedDeviceMobileAppConfigurationDeviceStatus[]>;
@@ -24299,7 +24299,7 @@ export interface IosManagedAppProtection extends TargetedManagedAppProtection {
     appActionIfAccountIsClockedOut?: NullableOption<ManagedAppRemediationAction>;
     /**
      * Defines a managed app behavior, either block or wipe, if the specified device model is not allowed. Possible values
-     * are: block, wipe, warn.
+     * are: block, wipe, warn, blockWhenSettingIsSupported.
      */
     appActionIfIosDeviceModelNotAllowed?: ManagedAppRemediationAction;
     /**
@@ -24307,7 +24307,10 @@ export interface IosManagedAppProtection extends TargetedManagedAppProtection {
      * afterDeviceRestart, whenDeviceLockedExceptOpenFiles, whenDeviceLocked.
      */
     appDataEncryptionType?: ManagedAppDataEncryptionType;
-    // A custom browser protocol to open weblink on iOS.
+    /**
+     * A custom browser protocol to open weblink on iOS. When this property is configured, ManagedBrowserToOpenLinksRequired
+     * should be true.
+     */
     customBrowserProtocol?: NullableOption<string>;
     // Protocol of a custom dialer app to click-to-open a phone number on iOS, for example, skype:.
     customDialerAppProtocol?: NullableOption<string>;
@@ -31347,6 +31350,7 @@ export interface Presence extends Entity {
     availability?: NullableOption<string>;
     // The out of office settings for a user.
     outOfOfficeSettings?: NullableOption<OutOfOfficeSettings>;
+    sequenceNumber?: NullableOption<string>;
     // The presence status message of a user.
     statusMessage?: NullableOption<PresenceStatusMessage>;
 }
@@ -32295,7 +32299,7 @@ export interface ProtectionRuleBase extends Entity {
     createdDateTime?: NullableOption<string>;
     // Contains error details if an operation on a rule fails.
     error?: NullableOption<PublicError>;
-    // true indicates that the protection rule is dynamic; false that it's static. Currently, only static rules are supported.
+    // true indicates that the protection rule is dynamic; false that it's static.
     isAutoApplyEnabled?: NullableOption<boolean>;
     // The identity of the person who last modified the rule.
     lastModifiedBy?: NullableOption<IdentitySet>;
@@ -32303,7 +32307,9 @@ export interface ProtectionRuleBase extends Entity {
     lastModifiedDateTime?: NullableOption<string>;
     /**
      * The status of the protection rule. The possible values are: draft, active, completed, completedWithErrors,
-     * unknownFutureValue. The draft member is currently unsupported.
+     * unknownFutureValue, updateRequested, deleteRequested. Use the Prefer: include-unknown-enum-members request header to
+     * get the following values in this evolvable enum: updateRequested , deleteRequested. The draft member is currently
+     * unsupported.
      */
     status?: NullableOption<ProtectionRuleStatus>;
 }
@@ -32320,6 +32326,10 @@ export interface ProtectionUnitBase extends Entity {
     lastModifiedDateTime?: NullableOption<string>;
     // The unique identifier of the protection policy based on which protection unit was created.
     policyId?: NullableOption<string>;
+    /**
+     * Indicates the sources by which a protection unit is currently protected. A protection unit protected by multiple
+     * sources is indicated by comma-separated values. The possible values are: none, manual, dynamicRule, unknownFutureValue.
+     */
     protectionSources?: ProtectionSource;
     /**
      * The status of the protection unit. The possible values are: protectRequested, protected, unprotectRequested,
@@ -34618,8 +34628,8 @@ export interface ServicePrincipal extends DirectoryObject {
     ownedObjects?: NullableOption<DirectoryObject[]>;
     /**
      * Directory objects that are owners of this servicePrincipal. The owners are a set of nonadmin users or servicePrincipals
-     * who are allowed to modify this object. Read-only. Nullable. Supports $expand and $filter (/$count eq 0, /$count ne 0,
-     * /$count eq 1, /$count ne 1).
+     * who are allowed to modify this object. Supports $expand and $filter (/$count eq 0, /$count ne 0, /$count eq 1, /$count
+     * ne 1).
      */
     owners?: NullableOption<DirectoryObject[]>;
     permissionGrantPreApprovalPolicies?: NullableOption<PermissionGrantPreApprovalPolicy[]>;
@@ -43590,10 +43600,7 @@ export interface WindowsDomainJoinConfiguration extends DeviceConfiguration {
      * object container will be used as published in the domain.
      */
     organizationalUnit?: NullableOption<string>;
-    /**
-     * Reference to device configurations required for network connectivity. This collection can contain a maximum of 2
-     * elements.
-     */
+    // Reference to device configurations required for network connectivity
     networkAccessConfigurations?: NullableOption<DeviceConfiguration[]>;
 }
 export interface WindowsDriverUpdateInventory extends Entity {
@@ -49727,13 +49734,26 @@ export interface CloudPcPartnerAgentInstallResult {
     // Indicates whether the partner agent installation should be retried. The default value is false.
     retriable?: NullableOption<boolean>;
 }
-export interface CloudPcPolicyApplyActionResult {
+export interface CloudPcPolicyApplyActionResult extends Entity {
+    // The date and time when the operation finished.
     finishDateTime?: NullableOption<string>;
+    // The date and time when the operation was applied.
     startDateTime?: NullableOption<string>;
+    // The status of the applied operation. Possible values are: succeeded, pending,failed, and unknownFutureValue.
     status?: CloudPcPolicyApplyActionStatus;
 }
-export interface CloudPcPolicyScheduledApplyActionDetail {
+export interface CloudPcPolicyScheduledApplyActionDetail extends Entity {
+    /**
+     * An expression that specifies the cron schedule. (For example, '0 0 0 20 ' means schedules a job to run at midnight on
+     * the 20th of every month) Administrators can set a cron expression to define the scheduling rules for automatic regular
+     * application. When auto-provision is disabled, cronScheduleExpression is set to null, stopping the automatic task
+     * scheduling. Read-Only.
+     */
     cronScheduleExpression?: NullableOption<string>;
+    /**
+     * The percentage of Cloud PCs to keep available. Administrators can set this property to a value from 0 to 99. Cloud PCs
+     * are reprovisioned only when there are no active and connected Cloud PC users. Frontline shared only.
+     */
     reservePercentage?: NullableOption<number>;
 }
 export interface CloudPcProvisioningPolicyAutopatch {
@@ -52110,17 +52130,14 @@ export interface DeviceManagementConfigurationSettingApplicability {
     // Device Mode that setting can be applied on. Possible values are: none, kiosk.
     deviceMode?: DeviceManagementConfigurationDeviceMode;
     /**
-     * Platform setting can be applied on. Posible values are: none, android, androidEnterprise, iOs, macOs, windows10X,
-     * windows10, aosp, and linux. Possible values are: none, android, iOS, macOS, windows10X, windows10, linux,
-     * unknownFutureValue, androidEnterprise, aosp.
+     * Platform setting can be applied on. Possible values are: none, android, iOS, macOS, windows10X, windows10, linux,
+     * unknownFutureValue.
      */
     platform?: DeviceManagementConfigurationPlatforms;
     /**
-     * Which technology channels this setting can be deployed through. Posible values are: none, mdm, configManager,
-     * intuneManagementExtension, thirdParty, documentGateway, appleRemoteManagement, microsoftSense, exchangeOnline, edgeMam,
-     * linuxMdm, extensibility, enrollment, endpointPrivilegeManagement. Possible values are: none, mdm, windows10XManagement,
-     * configManager, appleRemoteManagement, microsoftSense, exchangeOnline, mobileApplicationManagement, linuxMdm,
-     * extensibility, enrollment, endpointPrivilegeManagement, unknownFutureValue, windowsOsRecovery, android.
+     * Which technology channels this setting can be deployed through. Possible values are: none, mdm, windows10XManagement,
+     * configManager, appleRemoteManagement, microsoftSense, exchangeOnline, linuxMdm, enrollment,
+     * endpointPrivilegeManagement, unknownFutureValue.
      */
     technologies?: DeviceManagementConfigurationTechnologies;
 }
@@ -52209,7 +52226,7 @@ export interface DeviceManagementConfigurationStringSettingValueDefinition exten
     fileTypes?: NullableOption<string[]>;
     /**
      * Pre-defined format of the string. Possible values are: none, email, guid, ip, base64, url, version, xml, date, time,
-     * binary, regEx, json, dateTime, surfaceHub, bashScript, unknownFutureValue.
+     * binary, regEx, json, dateTime, surfaceHub.
      */
     format?: NullableOption<DeviceManagementConfigurationStringFormat>;
     // Regular expression or any xml or json schema that the input string should match
@@ -52219,9 +52236,9 @@ export interface DeviceManagementConfigurationStringSettingValueDefinition exten
      * at rest and will be displayed as asterisks when represented in the UX.
      */
     isSecret?: NullableOption<boolean>;
-    // Maximum length of string. Valid values 0 to 87516
+    // Maximum length of string
     maximumLength?: NullableOption<number>;
-    // Minimum length of string. Valid values 0 to 87516
+    // Minimum length of string
     minimumLength?: NullableOption<number>;
 }
 export interface DeviceManagementConfigurationStringSettingValueTemplate extends DeviceManagementConfigurationSimpleSettingValueTemplate {
@@ -53280,12 +53297,9 @@ export interface ExpressionInputObject {
     properties?: NullableOption<StringKeyObjectValuePair[]>;
 }
 export interface ExtendedKeyUsage {
-    // The extended key usage (EKU) name that provides a user-friendly way to identify an EKU.
+    // Extended Key Usage Name
     name?: NullableOption<string>;
-    /**
-     * The object identifier (OID) of an extended key usage of a certificate. For example, '1.3.6.1.5.5.7.3.2' for client
-     * authentication.
-     */
+    // Extended Key Usage Object Identifier
     objectIdentifier?: NullableOption<string>;
 }
 export interface ExtendRemoteHelpSessionResponse {
@@ -53948,16 +53962,9 @@ export interface IdentifierUriRestriction {
 }
 // tslint:disable-next-line: interface-name
 export interface Identity {
-    /**
-     * The display name of the identity. For drive items, the display name might not always be available or up to date. For
-     * example, if a user changes their display name the API might show the new value in a future response, but the items
-     * associated with the user don't show up as changed when using delta.
-     */
+    // The display name of the identity. This property is read-only.
     displayName?: NullableOption<string>;
-    /**
-     * Unique identifier for the identity or actor. For example, in the access reviews decisions API, this property might
-     * record the id of the principal, that is, the group, user, or application that's subject to review.
-     */
+    // The identifier of the identity. This property is read-only.
     id?: NullableOption<string>;
 }
 // tslint:disable-next-line: interface-name
@@ -55030,9 +55037,9 @@ export interface KeyTypedValuePair {
     key?: string;
 }
 export interface KeyValue {
-    // Contains the name of the field that a value is associated with.
+    // Key.
     key?: NullableOption<string>;
-    // Contains the corresponding value for the specified key.
+    // Value.
     value?: NullableOption<string>;
 }
 export interface KeyValuePair {
@@ -55958,9 +55965,7 @@ export interface ManagedDeviceWindowsOperatingSystemEdition {
     /**
      * Windows Operating System releases are available in multiple editions. This property defines the edition type of the
      * Operating System. Possible values are: professional, professionalN, enterprise, enterpriseN, education, educationN,
-     * proEducation, proEducationN, proWorkstation, proWorkstationN. Read-only. Possible values are: professional,
-     * professionalN, enterprise, enterpriseN, education, educationN, proEducation, proEducationN, proWorkstation,
-     * proWorkstationN, unknownFutureValue.
+     * proEducation, proEducationN, proWorkstation, proWorkstationN. Read-only.
      */
     editionType?: ManagedDeviceWindowsOperatingSystemEditionType;
     /**
