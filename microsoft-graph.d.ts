@@ -11080,9 +11080,9 @@ export interface Application extends DirectoryObject {
     federatedIdentityCredentials?: NullableOption<FederatedIdentityCredential[]>;
     homeRealmDiscoveryPolicies?: NullableOption<HomeRealmDiscoveryPolicy[]>;
     /**
-     * Directory objects that are owners of this application. The owners are a set of nonadmin users or servicePrincipals who
-     * are allowed to modify this object. Read-only. Nullable. Supports $expand, $filter (/$count eq 0, /$count ne 0, /$count
-     * eq 1, /$count ne 1), and $select nested in $expand.
+     * Directory objects that are owners of this application. The owners are a set of nonadmin users or service principals
+     * allowed to modify this object. Read-only. Nullable. Supports $expand, $filter (/$count eq 0, /$count ne 0, /$count eq
+     * 1, /$count ne 1), and $select nested in $expand.
      */
     owners?: NullableOption<DirectoryObject[]>;
     // Represents the capability for Microsoft Entra identity synchronization through the Microsoft Graph API.
@@ -18466,9 +18466,9 @@ export interface DeviceManagementConfigurationCategory extends Entity {
     technologies?: DeviceManagementConfigurationTechnologies;
 }
 export interface DeviceManagementConfigurationChoiceSettingCollectionDefinition extends DeviceManagementConfigurationChoiceSettingDefinition {
-    // Maximum number of choices in the collection
+    // Maximum number of choices in the collection. Valid values 1 to 100
     maximumCount?: number;
-    // Minimum number of choices in the collection
+    // Minimum number of choices in the collection. Valid values 1 to 100
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationChoiceSettingDefinition extends DeviceManagementConfigurationSettingDefinition {
@@ -18644,7 +18644,7 @@ export interface DeviceManagementConfigurationSettingGroupCollectionDefinition e
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationSettingGroupDefinition extends DeviceManagementConfigurationSettingDefinition {
-    // Dependent child settings to this group of settings.
+    // Dependent child settings to this group of settings
     childIds?: NullableOption<string[]>;
     // List of child settings that depend on this setting
     dependedOnBy?: NullableOption<DeviceManagementConfigurationSettingDependedOnBy[]>;
@@ -18658,9 +18658,9 @@ export interface DeviceManagementConfigurationSettingTemplate extends Entity {
     settingDefinitions?: NullableOption<DeviceManagementConfigurationSettingDefinition[]>;
 }
 export interface DeviceManagementConfigurationSimpleSettingCollectionDefinition extends DeviceManagementConfigurationSimpleSettingDefinition {
-    // Maximum number of simple settings in the collection
+    // Maximum number of simple settings in the collection. Valid values 1 to 100
     maximumCount?: number;
-    // Minimum number of simple settings in the collection
+    // Minimum number of simple settings in the collection. Valid values 1 to 100
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationSimpleSettingDefinition extends DeviceManagementConfigurationSettingDefinition {
@@ -24280,11 +24280,7 @@ export interface IosLobAppProvisioningConfiguration extends Entity {
     description?: NullableOption<string>;
     // Admin provided name of the device configuration.
     displayName?: string;
-    /**
-     * Optional profile expiration date and time. The Timestamp type represents date and time information using ISO 8601
-     * format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 would look like this:
-     * '2014-01-01T00:00:00Z'. Returned by default.
-     */
+    // Optional profile expiration date and time.
     expirationDateTime?: NullableOption<string>;
     // DateTime the object was last modified.
     lastModifiedDateTime?: string;
@@ -24296,10 +24292,7 @@ export interface IosLobAppProvisioningConfiguration extends Entity {
     roleScopeTagIds?: NullableOption<string[]>;
     // Version of the device configuration.
     version?: number;
-    /**
-     * The associated group assignments for IosLobAppProvisioningConfiguration, this determines which devices/users the IOS
-     * LOB app provisioning conifguration will be targeted to.
-     */
+    // The associated group assignments for IosLobAppProvisioningConfiguration.
     assignments?: NullableOption<IosLobAppProvisioningConfigurationAssignment[]>;
     // The list of device installation states for this mobile app configuration.
     deviceStatuses?: NullableOption<ManagedDeviceMobileAppConfigurationDeviceStatus[]>;
@@ -28034,9 +28027,9 @@ export interface MicrosoftTunnelSite extends Entity {
     microsoftTunnelServers?: NullableOption<MicrosoftTunnelServer[]>;
 }
 export interface MobileApp extends Entity {
-    // The date and time the app was created. This property is read-only.
+    // The date and time the app was created.
     createdDateTime?: string;
-    // The total number of dependencies the child app has. This property is read-only.
+    // The total number of dependencies the child app has.
     dependentAppCount?: number;
     // The description of the app.
     description?: NullableOption<string>;
@@ -28046,13 +28039,13 @@ export interface MobileApp extends Entity {
     displayName?: NullableOption<string>;
     // The more information Url.
     informationUrl?: NullableOption<string>;
-    // The value indicating whether the app is assigned to at least one group. This property is read-only.
+    // The value indicating whether the app is assigned to at least one group.
     isAssigned?: boolean;
     // The value indicating whether the app is marked as featured by the admin.
     isFeatured?: boolean;
     // The large icon, to be displayed in the app details and used for upload of the icon.
     largeIcon?: NullableOption<MimeContent>;
-    // The date and time the app was last modified. This property is read-only.
+    // The date and time the app was last modified.
     lastModifiedDateTime?: string;
     // Notes for the app.
     notes?: NullableOption<string>;
@@ -28063,8 +28056,8 @@ export interface MobileApp extends Entity {
     // The publisher of the app.
     publisher?: NullableOption<string>;
     /**
-     * The publishing state for the app. The app cannot be assigned unless the app is published. This property is read-only.
-     * Possible values are: notPublished, processing, published.
+     * The publishing state for the app. The app cannot be assigned unless the app is published. Possible values are:
+     * notPublished, processing, published.
      */
     publishingState?: MobileAppPublishingState;
     // List of scope tag ids for this mobile app.
@@ -28073,13 +28066,13 @@ export interface MobileApp extends Entity {
     supersededAppCount?: number;
     // The total number of apps this app directly or indirectly supersedes. This property is read-only.
     supersedingAppCount?: number;
-    // The upload state. Possible values are: 0 - Not Ready, 1 - Ready, 2 - Processing. This property is read-only.
+    // The upload state.
     uploadState?: number;
     // The list of group assignments for this mobile app.
     assignments?: NullableOption<MobileAppAssignment[]>;
     // The list of categories for this app.
     categories?: NullableOption<MobileAppCategory[]>;
-    // The set of direct relationships for this app.
+    // List of relationships for this mobile app.
     relationships?: NullableOption<MobileAppRelationship[]>;
 }
 export interface MobileAppAssignment extends Entity {
@@ -28379,7 +28372,7 @@ export interface MobileAppTroubleshootingEvent extends DeviceManagementTroublesh
     managedDeviceIdentifier?: NullableOption<string>;
     // Identifier for the user that tried to enroll the device.
     userId?: NullableOption<string>;
-    // The collection property of AppLogUploadRequest.
+    // Indicates collection of App Log Upload Request.
     appLogCollectionRequests?: NullableOption<AppLogCollectionRequest[]>;
 }
 // tslint:disable-next-line: no-empty-interface
@@ -35222,9 +35215,17 @@ export interface SignIn extends Entity {
     authenticationProcessingDetails?: NullableOption<KeyValue[]>;
     /**
      * Lists the protocol type or grant type used in the authentication. The possible values are: none, oAuth2, ropc,
-     * wsFederation, saml20, deviceCode, unknownFutureValue, authenticationTransfer, nativeAuth. Use none for all
-     * authentications that don't have a specific value in that list. Use the Prefer: include-unknown-enum-members request
-     * header to get the following values in this evolvable enum: authenticationTransfer, nativeAuth.
+     * wsFederation, saml20, deviceCode, unknownFutureValue, authenticationTransfer, nativeAuth,
+     * implicitAccessTokenAndGetResponseMode, implicitIdTokenAndGetResponseMode, implicitAccessTokenAndPostResponseMode,
+     * implicitIdTokenAndPostResponseMode, authorizationCodeWithoutPkce, authorizationCodeWithPkce, clientCredentials,
+     * refreshTokenGrant, encryptedAuthorizeResponse, directUserGrant, kerberos, prtGrant, seamlessSso, prtBrokerBased,
+     * prtNonBrokerBased, onBehalfOf, samlOnBehalfOf. Use the Prefer: include-unknown-enum-members request header to get the
+     * following values from this {evolvable
+     * enum}(/graph/best-practices-concept#handling-future-members-in-evolvable-enumerations): authenticationTransfer ,
+     * nativeAuth , implicitAccessTokenAndGetResponseMode , implicitIdTokenAndGetResponseMode ,
+     * implicitAccessTokenAndPostResponseMode , implicitIdTokenAndPostResponseMode , authorizationCodeWithoutPkce ,
+     * authorizationCodeWithPkce , clientCredentials , refreshTokenGrant , encryptedAuthorizeResponse , directUserGrant ,
+     * kerberos , prtGrant , seamlessSso , prtBrokerBased , prtNonBrokerBased , onBehalfOf , samlOnBehalfOf.
      */
     authenticationProtocol?: NullableOption<ProtocolType>;
     /**
@@ -52322,7 +52323,7 @@ export interface DeviceManagementConfigurationReferenceSettingValue extends Devi
     note?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationReferredSettingInformation {
-    // Setting definition id that is being referred to a setting. Applicable for reusable setting
+    // Setting definition id that is being referred to a setting. Applicable for reusable setting.
     settingDefinitionId?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationSecretSettingValue extends DeviceManagementConfigurationSimpleSettingValue {
@@ -52340,17 +52341,13 @@ export interface DeviceManagementConfigurationSettingApplicability {
     // Device Mode that setting can be applied on. Possible values are: none, kiosk.
     deviceMode?: DeviceManagementConfigurationDeviceMode;
     /**
-     * Platform setting can be applied on. Posible values are: none, android, androidEnterprise, iOs, macOs, windows10X,
-     * windows10, aosp, and linux. Possible values are: none, android, iOS, macOS, windows10X, windows10, linux,
-     * unknownFutureValue, androidEnterprise, aosp.
+     * Platform setting can be applied on. Possible values are: none, android, iOS, macOS, windows10X, windows10, linux,
+     * unknownFutureValue.
      */
     platform?: DeviceManagementConfigurationPlatforms;
     /**
-     * Which technology channels this setting can be deployed through. Posible values are: none, mdm, configManager,
-     * intuneManagementExtension, thirdParty, documentGateway, appleRemoteManagement, microsoftSense, exchangeOnline, edgeMam,
-     * linuxMdm, extensibility, enrollment, endpointPrivilegeManagement. Possible values are: none, mdm, windows10XManagement,
-     * configManager, appleRemoteManagement, microsoftSense, exchangeOnline, mobileApplicationManagement, linuxMdm,
-     * extensibility, enrollment, endpointPrivilegeManagement, unknownFutureValue, windowsOsRecovery, android.
+     * Which technology channels this setting can be deployed through. Possible values are: none, mdm, windows10XManagement,
+     * configManager, appleRemoteManagement, microsoftSense, exchangeOnline, linuxMdm, unknownFutureValue.
      */
     technologies?: DeviceManagementConfigurationTechnologies;
 }
@@ -53510,12 +53507,9 @@ export interface ExpressionInputObject {
     properties?: NullableOption<StringKeyObjectValuePair[]>;
 }
 export interface ExtendedKeyUsage {
-    // The extended key usage (EKU) name that provides a user-friendly way to identify an EKU.
+    // Extended Key Usage Name
     name?: NullableOption<string>;
-    /**
-     * The object identifier (OID) of an extended key usage of a certificate. For example, '1.3.6.1.5.5.7.3.2' for client
-     * authentication.
-     */
+    // Extended Key Usage Object Identifier
     objectIdentifier?: NullableOption<string>;
 }
 export interface ExtendRemoteHelpSessionResponse {
@@ -55237,9 +55231,15 @@ export interface KeyValue {
     value?: NullableOption<string>;
 }
 export interface KeyValuePair {
-    // Name for this key-value pair
+    /**
+     * Name for this key-value pair. For more information about possible names for each resource type that uses this
+     * configuration, see keyValuePair names and values.
+     */
     name?: string;
-    // Value for this key-value pair
+    /**
+     * Value for this key-value pair. For more information about possible values for each resource type that uses this
+     * configuration, see keyValuePair names and values.
+     */
     value?: NullableOption<string>;
 }
 export interface LabelActionBase {
@@ -55720,7 +55720,10 @@ export interface MacOSLaunchItem {
     path?: string;
 }
 export interface MacOsLobAppAssignmentSettings extends MobileAppAssignmentSettings {
-    // Whether or not to uninstall the app when device is removed from Intune.
+    /**
+     * When TRUE, indicates that the app should be uninstalled when the device is removed from Intune. When FALSE, indicates
+     * that the app will not be uninstalled when the device is removed from Intune.
+     */
     uninstallOnDeviceRemoval?: NullableOption<boolean>;
 }
 export interface MacOSLobChildApp {
@@ -65009,10 +65012,7 @@ export interface WindowsQualityUpdateProductKnowledgeBaseArticle {
     articleUrl?: string;
 }
 export interface WindowsUniversalAppXAppAssignmentSettings extends MobileAppAssignmentSettings {
-    /**
-     * If true, uses device execution context for Windows Universal AppX mobile app. Device-context install is not allowed
-     * when this type of app is targeted with Available intent. Defaults to false.
-     */
+    // Whether or not to use device execution context for Windows Universal AppX mobile app.
     useDeviceContext?: boolean;
 }
 export interface WindowsUpdateActiveHoursInstall extends WindowsUpdateInstallScheduleType {
