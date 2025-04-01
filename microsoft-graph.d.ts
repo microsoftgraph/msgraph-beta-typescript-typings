@@ -9668,7 +9668,7 @@ export interface AndroidManagedAppProtection extends TargetedManagedAppProtectio
     appActionIfAccountIsClockedOut?: NullableOption<ManagedAppRemediationAction>;
     /**
      * Defines a managed app behavior, either block or wipe, if the specified device manufacturer is not allowed. Possible
-     * values are: block, wipe, warn, blockWhenSettingIsSupported.
+     * values are: block, wipe, warn.
      */
     appActionIfAndroidDeviceManufacturerNotAllowed?: ManagedAppRemediationAction;
     /**
@@ -9677,13 +9677,13 @@ export interface AndroidManagedAppProtection extends TargetedManagedAppProtectio
      */
     appActionIfAndroidDeviceModelNotAllowed?: ManagedAppRemediationAction;
     /**
-     * Defines a managed app behavior, either warn or block, if the specified Android App Verification requirement fails.
-     * Possible values are: block, wipe, warn, blockWhenSettingIsSupported.
+     * Defines a managed app behavior, either warn or block, if the specified Android App Verification requirment fails.
+     * Possible values are: block, wipe, warn.
      */
     appActionIfAndroidSafetyNetAppsVerificationFailed?: ManagedAppRemediationAction;
     /**
-     * Defines a managed app behavior, either warn or block, if the specified Android SafetyNet Attestation requirement fails.
-     * Possible values are: block, wipe, warn, blockWhenSettingIsSupported.
+     * Defines a managed app behavior, either warn or block, if the specified Android SafetyNet Attestation requirment fails.
+     * Possible values are: block, wipe, warn.
      */
     appActionIfAndroidSafetyNetDeviceAttestationFailed?: ManagedAppRemediationAction;
     /**
@@ -9723,15 +9723,9 @@ export interface AndroidManagedAppProtection extends TargetedManagedAppProtectio
     blockAfterCompanyPortalUpdateDeferralInDays?: number;
     // Whether the app should connect to the configured VPN on launch.
     connectToVpnOnLaunch?: boolean;
-    /**
-     * Friendly name of the preferred custom browser to open weblink on Android. When this property is configured,
-     * ManagedBrowserToOpenLinksRequired should be true.
-     */
+    // Friendly name of the preferred custom browser to open weblink on Android.
     customBrowserDisplayName?: NullableOption<string>;
-    /**
-     * Unique identifier of the preferred custom browser to open weblink on Android. When this property is configured,
-     * ManagedBrowserToOpenLinksRequired should be true.
-     */
+    // Unique identifier of a custom browser to open weblink on Android.
     customBrowserPackageId?: NullableOption<string>;
     // Friendly name of a custom dialer app to click-to-open a phone number on Android.
     customDialerAppDisplayName?: NullableOption<string>;
@@ -13065,7 +13059,9 @@ export interface CallRecording extends Entity {
     recordingContentUrl?: NullableOption<string>;
 }
 export interface CallSettings extends Entity {
+    // Represents the delegate settings.
     delegates?: NullableOption<DelegationSettings[]>;
+    // Represents the delegator settings.
     delegators?: NullableOption<DelegationSettings[]>;
 }
 export interface CallTranscript extends Entity {
@@ -16247,8 +16243,15 @@ export interface DelegatedPermissionClassification extends Entity {
     permissionName?: NullableOption<string>;
 }
 export interface DelegationSettings extends Entity {
+    // The allowed actions for the delegator or delegate.
     allowedActions?: NullableOption<DelegateAllowedActions>;
+    /**
+     * Date and time when the delegator or delegate entry was created. The DateTimeOffset type represents date and time
+     * information using ISO 8601 format and is always in UTC. For example, midnight UTC on Jan 1, 2014 is
+     * 2014-01-01T00:00:00Z.
+     */
     createdDateTime?: NullableOption<string>;
+    // Indicates whether the delegator or delegate relationship is currently active.
     isActive?: NullableOption<boolean>;
 }
 // tslint:disable-next-line: no-empty-interface
@@ -18638,9 +18641,9 @@ export interface DeviceManagementConfigurationSettingDefinition extends Entity {
     visibility?: DeviceManagementConfigurationSettingVisibility;
 }
 export interface DeviceManagementConfigurationSettingGroupCollectionDefinition extends DeviceManagementConfigurationSettingGroupDefinition {
-    // Maximum number of setting group count in the collection. Valid values 1 to 100
+    // Maximum number of setting group count in the collection
     maximumCount?: number;
-    // Minimum number of setting group count in the collection. Valid values 1 to 100
+    // Minimum number of setting group count in the collection
     minimumCount?: number;
 }
 export interface DeviceManagementConfigurationSettingGroupDefinition extends DeviceManagementConfigurationSettingDefinition {
@@ -19756,6 +19759,7 @@ export interface DriveItem extends BaseItem {
      * Read-only. Nullable.
      */
     children?: NullableOption<DriveItem[]>;
+    extensions?: NullableOption<Extension[]>;
     // For drives in SharePoint, the associated document library list item. Read-only. Nullable.
     listItem?: NullableOption<ListItem>;
     // The set of permissions for the item. Read-only. Nullable.
@@ -23173,10 +23177,11 @@ export interface InsightSummary extends Entity {
 export interface InternalDomainFederation extends SamlOrWsFedProvider {
     /**
      * URL of the endpoint used by active clients when authenticating with federated domains set up for single sign-on in
-     * Microsoft Entra ID. Corresponds to the ActiveLogOnUri property of the Set-MsolDomainFederationSettings MSOnline v1
-     * PowerShell cmdlet.
+     * Microsoft Entra ID. Corresponds to the ActiveLogOnUri property of the Set-EntraDomainFederationSettings PowerShell
+     * cmdlet.
      */
     activeSignInUri?: NullableOption<string>;
+    defaultInteractiveAuthenticationMethod?: NullableOption<string>;
     /**
      * Determines whether Microsoft Entra ID accepts the MFA performed by the federated IdP when a federated user accesses an
      * application that is governed by a conditional access policy that requires MFA. The possible values are:
@@ -23199,6 +23204,8 @@ export interface InternalDomainFederation extends SamlOrWsFedProvider {
      * federation service certificate has been updated.
      */
     nextSigningCertificate?: NullableOption<string>;
+    openIdConnectDiscoveryEndpoint?: NullableOption<string>;
+    passwordChangeUri?: NullableOption<string>;
     // URI that clients are redirected to for resetting their password.
     passwordResetUri?: NullableOption<string>;
     /**
@@ -23210,7 +23217,7 @@ export interface InternalDomainFederation extends SamlOrWsFedProvider {
     signingCertificateUpdateStatus?: NullableOption<SigningCertificateUpdateStatus>;
     /**
      * URI that clients are redirected to when they sign out of Microsoft Entra services. Corresponds to the LogOffUri
-     * property of the Set-MsolDomainFederationSettings MSOnline v1 PowerShell cmdlet.
+     * property of the Set-EntraDomainFederationSettings PowerShell cmdlet.
      */
     signOutUri?: NullableOption<string>;
 }
@@ -24280,7 +24287,11 @@ export interface IosLobAppProvisioningConfiguration extends Entity {
     description?: NullableOption<string>;
     // Admin provided name of the device configuration.
     displayName?: string;
-    // Optional profile expiration date and time.
+    /**
+     * Optional profile expiration date and time. The Timestamp type represents date and time information using ISO 8601
+     * format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 would look like this:
+     * '2014-01-01T00:00:00Z'. Returned by default.
+     */
     expirationDateTime?: NullableOption<string>;
     // DateTime the object was last modified.
     lastModifiedDateTime?: string;
@@ -24292,7 +24303,10 @@ export interface IosLobAppProvisioningConfiguration extends Entity {
     roleScopeTagIds?: NullableOption<string[]>;
     // Version of the device configuration.
     version?: number;
-    // The associated group assignments for IosLobAppProvisioningConfiguration.
+    /**
+     * The associated group assignments for IosLobAppProvisioningConfiguration, this determines which devices/users the IOS
+     * LOB app provisioning conifguration will be targeted to.
+     */
     assignments?: NullableOption<IosLobAppProvisioningConfigurationAssignment[]>;
     // The list of device installation states for this mobile app configuration.
     deviceStatuses?: NullableOption<ManagedDeviceMobileAppConfigurationDeviceStatus[]>;
@@ -24321,7 +24335,7 @@ export interface IosManagedAppProtection extends TargetedManagedAppProtection {
     appActionIfAccountIsClockedOut?: NullableOption<ManagedAppRemediationAction>;
     /**
      * Defines a managed app behavior, either block or wipe, if the specified device model is not allowed. Possible values
-     * are: block, wipe, warn.
+     * are: block, wipe, warn, blockWhenSettingIsSupported.
      */
     appActionIfIosDeviceModelNotAllowed?: ManagedAppRemediationAction;
     /**
@@ -24329,7 +24343,10 @@ export interface IosManagedAppProtection extends TargetedManagedAppProtection {
      * afterDeviceRestart, whenDeviceLockedExceptOpenFiles, whenDeviceLocked.
      */
     appDataEncryptionType?: ManagedAppDataEncryptionType;
-    // A custom browser protocol to open weblink on iOS.
+    /**
+     * A custom browser protocol to open weblink on iOS. When this property is configured, ManagedBrowserToOpenLinksRequired
+     * should be true.
+     */
     customBrowserProtocol?: NullableOption<string>;
     // Protocol of a custom dialer app to click-to-open a phone number on iOS, for example, skype:.
     customDialerAppProtocol?: NullableOption<string>;
@@ -26420,13 +26437,19 @@ export interface MailFolder extends Entity {
     messages?: NullableOption<Message[]>;
     // The collection of multi-value extended properties defined for the mailFolder. Read-only. Nullable.
     multiValueExtendedProperties?: NullableOption<MultiValueLegacyExtendedProperty[]>;
+    // The collection of long-running operations in the mailFolder.
     operations?: NullableOption<MailFolderOperation[]>;
     // The collection of single-value extended properties defined for the mailFolder. Read-only. Nullable.
     singleValueExtendedProperties?: NullableOption<SingleValueLegacyExtendedProperty[]>;
     userConfigurations?: NullableOption<UserConfiguration[]>;
 }
 export interface MailFolderOperation extends Entity {
+    // The location of the long-running operation.
     resourceLocation?: NullableOption<string>;
+    /**
+     * The status of the long-running operation. The possible values are: notStarted, running, succeeded, failed,
+     * unknownFutureValue.
+     */
     status?: NullableOption<MailFolderOperationStatus>;
 }
 export interface MailSearchFolder extends MailFolder {
@@ -29425,6 +29448,7 @@ export interface OnlineMeetingBase extends Entity {
     allowAttendeeToEnableMic?: NullableOption<boolean>;
     // Indicates whether breakout rooms are enabled for the meeting.
     allowBreakoutRooms?: NullableOption<boolean>;
+    // Indicates whether copying and sharing meeting content is enabled for the meeting.
     allowCopyingAndSharingMeetingContent?: NullableOption<boolean>;
     /**
      * Specifies the users who can admit from the lobby. Possible values are: organizerAndCoOrganizersAndPresenters,
@@ -30079,6 +30103,15 @@ export interface OrganizationalBrandingProperties extends Entity {
      * links or code, and can't exceed 64 characters.
      */
     usernameHintText?: NullableOption<string>;
+}
+export interface OrganizationalUnit extends DirectoryObject {
+    description?: NullableOption<string>;
+    displayName?: NullableOption<string>;
+    children?: NullableOption<OrganizationalUnit[]>;
+    organizationalUnitParent?: NullableOption<OrganizationalUnit>;
+    resources?: NullableOption<DirectoryObject[]>;
+    transitiveChildren?: NullableOption<OrganizationalUnit[]>;
+    transitiveResources?: NullableOption<DirectoryObject[]>;
 }
 export interface OrganizationSettings extends Entity {
     /**
@@ -31677,6 +31710,10 @@ export interface PrintUsageByUser extends PrintUsage {
 }
 export interface Privacy {
     subjectRightsRequests?: NullableOption<SubjectRightsRequest[]>;
+}
+export interface PrivateLinkNamedLocation extends NamedLocation {
+    isTrusted?: boolean;
+    privateLinkResourcePolicyIds?: string[];
 }
 export interface PrivilegedAccess extends Entity {
     // The display name of the provider managed by PIM.
@@ -34885,6 +34922,10 @@ export interface ServicePrincipalSignInActivity extends Entity {
 }
 // tslint:disable-next-line: no-empty-interface
 export interface ServiceStorageQuotaBreakdown extends StorageQuotaBreakdown {}
+export interface ServiceTagNamedLocation extends NamedLocation {
+    isTrusted?: boolean;
+    serviceTags?: string[];
+}
 export interface ServiceUpdateMessage extends ServiceAnnouncementBase {
     // The expected deadline of the action for the message.
     actionRequiredByDateTime?: NullableOption<string>;
@@ -43768,10 +43809,7 @@ export interface WindowsDomainJoinConfiguration extends DeviceConfiguration {
      * object container will be used as published in the domain.
      */
     organizationalUnit?: NullableOption<string>;
-    /**
-     * Reference to device configurations required for network connectivity. This collection can contain a maximum of 2
-     * elements.
-     */
+    // Reference to device configurations required for network connectivity
     networkAccessConfigurations?: NullableOption<DeviceConfiguration[]>;
 }
 export interface WindowsDriverUpdateInventory extends Entity {
@@ -51387,10 +51425,15 @@ export interface DefenderDetectedMalwareActions {
     severeSeverity?: DefenderThreatAction;
 }
 export interface DelegateAllowedActions {
+    // Indicates whether the delegator or delegate allows participation in active calls.
     joinActiveCalls?: NullableOption<boolean>;
+    // Indicates whether the delegator or delegate allows calls to be made on their behalf.
     makeCalls?: NullableOption<boolean>;
+    // Indicates whether the delegator or delegate allows the management of call and delegation settings.
     manageCallAndDelegateSettings?: NullableOption<boolean>;
+    // Indicates whether the delegator or delegate allows held calls to be picked up.
     pickUpHeldCalls?: NullableOption<boolean>;
+    // Indicates whether the delegator or delegate allows calls to be received on their behalf.
     receiveCalls?: NullableOption<boolean>;
 }
 export interface DelegatedAdminAccessContainer {
@@ -52323,7 +52366,7 @@ export interface DeviceManagementConfigurationReferenceSettingValue extends Devi
     note?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationReferredSettingInformation {
-    // Setting definition id that is being referred to a setting. Applicable for reusable setting.
+    // Setting definition id that is being referred to a setting. Applicable for reusable setting
     settingDefinitionId?: NullableOption<string>;
 }
 export interface DeviceManagementConfigurationSecretSettingValue extends DeviceManagementConfigurationSimpleSettingValue {
@@ -52341,13 +52384,17 @@ export interface DeviceManagementConfigurationSettingApplicability {
     // Device Mode that setting can be applied on. Possible values are: none, kiosk.
     deviceMode?: DeviceManagementConfigurationDeviceMode;
     /**
-     * Platform setting can be applied on. Possible values are: none, android, iOS, macOS, windows10X, windows10, linux,
-     * unknownFutureValue.
+     * Platform setting can be applied on. Posible values are: none, android, androidEnterprise, iOs, macOs, windows10X,
+     * windows10, aosp, and linux. Possible values are: none, android, iOS, macOS, windows10X, windows10, linux,
+     * unknownFutureValue, androidEnterprise, aosp.
      */
     platform?: DeviceManagementConfigurationPlatforms;
     /**
-     * Which technology channels this setting can be deployed through. Possible values are: none, mdm, windows10XManagement,
-     * configManager, appleRemoteManagement, microsoftSense, exchangeOnline, linuxMdm, unknownFutureValue.
+     * Which technology channels this setting can be deployed through. Posible values are: none, mdm, configManager,
+     * intuneManagementExtension, thirdParty, documentGateway, appleRemoteManagement, microsoftSense, exchangeOnline, edgeMam,
+     * linuxMdm, extensibility, enrollment, endpointPrivilegeManagement. Possible values are: none, mdm, windows10XManagement,
+     * configManager, appleRemoteManagement, microsoftSense, exchangeOnline, mobileApplicationManagement, linuxMdm,
+     * extensibility, enrollment, endpointPrivilegeManagement, unknownFutureValue, windowsOsRecovery, android.
      */
     technologies?: DeviceManagementConfigurationTechnologies;
 }
@@ -54178,9 +54225,16 @@ export interface IdentifierUriRestriction {
 }
 // tslint:disable-next-line: interface-name
 export interface Identity {
-    // The display name of the identity. This property is read-only.
+    /**
+     * The display name of the identity. For drive items, the display name might not always be available or up to date. For
+     * example, if a user changes their display name the API might show the new value in a future response, but the items
+     * associated with the user don't show up as changed when using delta.
+     */
     displayName?: NullableOption<string>;
-    // The identifier of the identity. This property is read-only.
+    /**
+     * Unique identifier for the identity or actor. For example, in the access reviews decisions API, this property might
+     * record the id of the principal, that is, the group, user, or application that's subject to review.
+     */
     id?: NullableOption<string>;
 }
 // tslint:disable-next-line: interface-name
@@ -55231,15 +55285,9 @@ export interface KeyValue {
     value?: NullableOption<string>;
 }
 export interface KeyValuePair {
-    /**
-     * Name for this key-value pair. For more information about possible names for each resource type that uses this
-     * configuration, see keyValuePair names and values.
-     */
+    // Name for this key-value pair
     name?: string;
-    /**
-     * Value for this key-value pair. For more information about possible values for each resource type that uses this
-     * configuration, see keyValuePair names and values.
-     */
+    // Value for this key-value pair
     value?: NullableOption<string>;
 }
 export interface LabelActionBase {
@@ -58847,6 +58895,8 @@ export interface PlannerTeamsPublicationInfo extends PlannerTaskCreation {
     lastModifiedDateTime?: NullableOption<string>;
     // The identifier of the publication. Read-only.
     publicationId?: NullableOption<string>;
+    // The name of the published task list. Read-only.
+    publicationName?: NullableOption<string>;
     // The identifier of the plannerPlan this task was originally placed in. Read-only.
     publishedToPlanId?: NullableOption<string>;
     // The identifier of the team that initiated the publication process. Read-only.
@@ -64364,11 +64414,7 @@ export interface WindowsApplication {
     redirectUris?: string[];
 }
 export interface WindowsAppXAppAssignmentSettings extends MobileAppAssignmentSettings {
-    /**
-     * When TRUE, indicates that device execution context will be used for the AppX mobile app. When FALSE, indicates that
-     * user context will be used for the AppX mobile app. By default, this property is set to FALSE. Once this property has
-     * been set to TRUE it cannot be changed.
-     */
+    // Whether or not to use device execution context for Windows AppX mobile app.
     useDeviceContext?: boolean;
 }
 export interface WindowsDefenderScanActionResult extends DeviceActionResult {
@@ -65012,7 +65058,10 @@ export interface WindowsQualityUpdateProductKnowledgeBaseArticle {
     articleUrl?: string;
 }
 export interface WindowsUniversalAppXAppAssignmentSettings extends MobileAppAssignmentSettings {
-    // Whether or not to use device execution context for Windows Universal AppX mobile app.
+    /**
+     * If true, uses device execution context for Windows Universal AppX mobile app. Device-context install is not allowed
+     * when this type of app is targeted with Available intent. Defaults to false.
+     */
     useDeviceContext?: boolean;
 }
 export interface WindowsUpdateActiveHoursInstall extends WindowsUpdateInstallScheduleType {
@@ -72852,7 +72901,7 @@ export namespace SecurityNamespace {
          * Indicates the data types that an end user can upload to the app. The possible values are: documents, mediaFiles,
          * codingFiles, creditCards, databaseFiles, none, unknown, unknownFutureValue.
          */
-        dataTypes?: AppInfoUploadedDataTypes;
+        dataTypes?: AppInfoUploadedDataTypes[];
         // Indicates the date when the app domain was registered.
         domainRegistrationDateTime?: NullableOption<string>;
         /**
@@ -73168,7 +73217,7 @@ export namespace SecurityNamespace {
         // Indicates the last date of the data breach for the company.
         latestBreachDateTime?: NullableOption<string>;
         // Indicates the URL that users can use to sign into the app.
-        logonUrls?: string;
+        logonUrls?: string[];
         /**
          * Indicates the pciDss version. The possible values are: v1, v2, v3, v31, v32, v321, notSupported, unknown,
          * unknownFutureValue, v4. Use the Prefer: include-unknown-enum-members request header to get the following value in this
@@ -77231,6 +77280,13 @@ export namespace WindowsUpdates {
          */
         complianceChanges?: NullableOption<ComplianceChange[]>;
     }
+    interface ApprovalRule {
+        deferralInDays?: number;
+    }
+    interface AssignedGroup {
+        groupId?: string;
+        group?: NullableOption<microsoftgraphbeta.Group>;
+    }
     interface AzureADDeviceRegistrationError extends UpdatableAssetError {
         /**
          * The reason why the registration encountered an error. Possible values are: invalidGlobalDeviceId,
@@ -77326,6 +77382,9 @@ export namespace WindowsUpdates {
          */
         durationUntilDeploymentEnd?: string;
     }
+    interface ExcludedGroupAssignment extends GroupAssignment {
+        assignments?: AssignedGroup[];
+    }
     interface ExpediteSettings {
         // True indicates that the deployment of the content is expedited.
         isExpedited?: NullableOption<boolean>;
@@ -77338,6 +77397,12 @@ export namespace WindowsUpdates {
          * duration. Default value is P1D (one day).
          */
         durationBetweenOffers?: NullableOption<string>;
+    }
+// tslint:disable-next-line: no-empty-interface
+    interface GroupAssignment {}
+// tslint:disable-next-line: interface-name
+    interface IncludedGroupAssignment extends GroupAssignment {
+        assignments?: AssignedGroup[];
     }
 // tslint:disable-next-line: interface-name
     interface ItemBody {
@@ -77379,6 +77444,10 @@ export namespace WindowsUpdates {
          * 'or.'
          */
         monitoringRules?: NullableOption<MonitoringRule[]>;
+    }
+    interface QualityUpdateApprovalRule extends ApprovalRule {
+        cadence?: QualityUpdateCadence;
+        classification?: QualityUpdateClassification;
     }
     interface QualityUpdateCveSeverityInformation {
         // Highest base score that occurs of any CVE addressed by the quality update. Read-only.
