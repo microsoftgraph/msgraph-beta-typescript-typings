@@ -64,11 +64,6 @@ extends:
           displayName: 'Install npm dependencies'
           workingDirectory: '$(Build.SourcesDirectory)'
 
-        # Build Beta TypeScript package
-        - script: npm run build
-          displayName: 'Build $(package_name_beta)'
-          workingDirectory: '$(Build.SourcesDirectory)'
-
         # Pack and stage Beta TypeScript package
         - script: npm pack --pack-destination=$(Build.ArtifactStagingDirectory)
           displayName: 'Generate npm package $(package_name_beta)'
