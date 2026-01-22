@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.46.0-preview](https://github.com/microsoftgraph/msgraph-beta-typescript-typings/compare/v0.45.0-preview...v0.46.0-preview) (2026-01-22)
+
+
+### Features
+
+* update generated files with build 201423 ([#247](https://github.com/microsoftgraph/msgraph-beta-typescript-typings/issues/247)) ([42bd333](https://github.com/microsoftgraph/msgraph-beta-typescript-typings/commit/42bd33327d0a093205c899ea7b908745c2857f83))
+
 ## [0.45.0-preview](https://github.com/microsoftgraph/msgraph-beta-typescript-typings/compare/v0.44.0-preview...v0.45.0-preview) (2025-10-21)
 
 
